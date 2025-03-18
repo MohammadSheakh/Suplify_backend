@@ -1,15 +1,9 @@
 import { model, Schema } from 'mongoose';
-import {
-  LifeStyleChangesCategoryType,
-  LifeStyleChangesTypeType,
-} from './lifeStyleChanges.constant';
-import {
-  ILifeStyleChanges,
-  IlifeStyleChangesModel,
-} from './lifeStyleChanges.interface';
+import { WorkoutCategoryType, WorkoutTypeType } from './workout.constant';
+import { IWorkout, IworkoutModel } from './workout.interface';
 import paginate from '../../../common/plugins/paginate';
 
-const lifeStyleChangesSchema = new Schema<ILifeStyleChanges>(
+const workoutSchema = new Schema<IWorkout>(
   {
     title: {
       type: String,
@@ -29,10 +23,7 @@ const lifeStyleChangesSchema = new Schema<ILifeStyleChanges>(
 
     // ${lifeStyleChangesCategory.join(', ') } // TODO : pore test korte hobe
     category: {
-      enum: [
-        LifeStyleChangesCategoryType.normal,
-        LifeStyleChangesCategoryType.specialized,
-      ],
+      enum: [WorkoutCategoryType.normal, WorkoutCategoryType.specialized],
       type: String,
       required: [false, 'category is required. It can be normal / specialized'],
     },
@@ -41,7 +32,7 @@ const lifeStyleChangesSchema = new Schema<ILifeStyleChanges>(
       //   type: Schema.Types.ObjectId,
       //   ref: 'Project',
       type: String,
-      enum: [LifeStyleChangesTypeType.free, LifeStyleChangesTypeType.paid],
+      enum: [WorkoutTypeType.free, WorkoutTypeType.paid],
       required: [false, 'type is required . it can be free / paid'],
     },
     isDeleted: {
@@ -52,18 +43,15 @@ const lifeStyleChangesSchema = new Schema<ILifeStyleChanges>(
   { timestamps: true }
 );
 
-lifeStyleChangesSchema.plugin(paginate);
+workoutSchema.plugin(paginate);
 
 // Use transform to rename _id to _projectId
-lifeStyleChangesSchema.set('toJSON', {
+workoutSchema.set('toJSON', {
   transform: function (doc, ret, options) {
-    ret._lifeStyleChangesId = ret._id; // Rename _id to _projectId
+    ret._attachmentId = ret._id; // Rename _id to _projectId
     delete ret._id; // Remove the original _id field
     return ret;
   },
 });
 
-export const LifeStyleChanges = model<
-  ILifeStyleChanges,
-  IlifeStyleChangesModel
->('LifeStyleChanges', lifeStyleChangesSchema);
+export const Workout = model<IWorkout, IworkoutModel>('Workout', workoutSchema);
