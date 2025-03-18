@@ -3,10 +3,6 @@ import { UserRoutes } from '../modules/user/user.route';
 import { AuthRoutes } from '../modules/auth/auth.routes';
 import { AdminRoutes } from '../modules/admin/admin.routes';
 
-import { ProjectRoutes } from '../modules/project/project.route';
-import { NoteRoutes } from '../modules/note/note.route';
-
-import { ContractRoutes } from '../modules/contract/contract.route';
 import { TaskRoutes } from '../modules/task/task.route';
 import { AttachmentRoutes } from '../modules/attachments/attachment.route';
 import { NotificationRoutes } from '../modules/notification/notification.routes';
@@ -36,19 +32,19 @@ const apiRoutes = [
     path: '/settings',
     route: SettingsRoutes,
   },
-  {
-    path: '/note',
-    route: NoteRoutes,
-  },
+  // {
+  //   path: '/note',
+  //   route: NoteRoutes,
+  // },
 
-  {
-    path: '/contract',
-    route: ContractRoutes,
-  },
-  {
-    path: '/project',
-    route: ProjectRoutes,
-  },
+  // {
+  //   path: '/contract',
+  //   route: ContractRoutes,
+  // },
+  // {
+  //   path: '/project',
+  //   route: ProjectRoutes,
+  // },
   {
     path: '/task',
     route: TaskRoutes,

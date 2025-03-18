@@ -41,16 +41,16 @@ router.route('/').get(
   taskUsingGenericController.getAll // Info :  Done with generic controller
 );
 
-router.route('/create').post(
-  [
-    upload.fields([
-      { name: 'attachments', maxCount: 15 }, // Allow up to 5 cover photos
-    ]),
-  ],
-  auth('projectManager'),
-  // validateRequest(UserValidation.createUserValidationSchema),
-  TaskController.createTask
-);
+// router.route('/create').post(
+//   [
+//     upload.fields([
+//       { name: 'attachments', maxCount: 15 }, // Allow up to 5 cover photos
+//     ]),
+//   ],
+//   auth('projectManager'),
+//   // validateRequest(UserValidation.createUserValidationSchema),
+//   TaskController.createTask
+// );
 
 router
   .route('/delete/:id')

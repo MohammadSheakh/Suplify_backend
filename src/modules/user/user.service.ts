@@ -5,7 +5,6 @@ import { TUser } from './user.interface';
 import { User } from './user.model';
 import { sendAdminOrSuperAdminCreationEmail } from '../../helpers/emailService';
 
-import { Project } from '../project/project.model';
 import { CreatorRole } from '../contract/contract.constant';
 import { GenericService } from '../__Generic/generic.services';
 
@@ -16,12 +15,10 @@ interface IAdminOrSuperAdminPayload {
   message?: string;
 }
 
-
 export class UserCustomService extends GenericService<typeof User> {
-    constructor() {
-        super(User);
-    }
-    
+  constructor() {
+    super(User);
+  }
 }
 
 const createAdminOrSuperAdmin = async (
@@ -74,7 +71,7 @@ const getFilteredUsersWithConnectionStatus = async (
   options: PaginateOptions
 ) => {
   const query: Record<string, any> = {
-    role: { $in: ['mentor', 'mentee'] }, 
+    role: { $in: ['mentor', 'mentee'] },
   };
 
   if (filters.userName) {
@@ -90,9 +87,9 @@ const getFilteredUsersWithConnectionStatus = async (
   options.populate = [
     {
       path: 'connections',
-      match: { senderId: userId }
+      match: { senderId: userId },
     },
-  ]
+  ];
   // Fetch users with pagination
   const usersResult = await User.paginate(query, options);
 
@@ -169,27 +166,6 @@ const deleteMyProfile = async (userId: string): Promise<TUser | null> => {
 
 ///////////////////////////////////////////////////////
 
-const getAllProjectsByUserId = async (userId: string) => {
- 
-  const user = await User.findById(userId);
- 
-  if (!user) {
-    throw new ApiError(StatusCodes.NOT_FOUND, 'User not found');
-  }
-  let result ;
-  if(user.role == CreatorRole.projectManager){
-    
-    result = await Project.find({ projectManagerId: user._id });
-    
-    console.log("result 🚀1", result);
-  }else{
-    result = await Project.find({ projectSuperVisorId: user._id });
-    console.log("result 🚀2", result);
-  }
-  return user;
-};
-
-
 export const UserService = {
   createAdminOrSuperAdmin,
   getAllUsers,
@@ -201,6 +177,4 @@ export const UserService = {
   getMyProfile,
   updateProfileImage,
   deleteMyProfile,
-  //////////////////////////
-  getAllProjectsByUserId
 };

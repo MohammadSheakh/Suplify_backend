@@ -1,4 +1,3 @@
-
 import catchAsync from '../../shared/catchAsync';
 import sendResponse from '../../shared/sendResponse';
 import { StatusCodes } from 'http-status-codes';
@@ -9,14 +8,13 @@ import { TaskStatus } from './task.constant';
 import { AttachmentService } from '../attachments/attachment.service';
 import { FolderName } from '../../enums/folderNames';
 import { AttachedToType } from '../attachments/attachment.constant';
-import { NotificationService } from '../notification/notification.services';
-import { Project } from '../project/project.model';
+
 import { GenericController } from '../__Generic/generic.controller';
 
 // const taskService = new TaskService();
 // const attachmentService = new AttachmentService();
 
-export class TaskUsingGenericController extends GenericController<typeof Task>{
+export class TaskUsingGenericController extends GenericController<typeof Task> {
   constructor() {
     super(new TaskService(), 'Task');
   }
@@ -31,12 +29,4 @@ export class TaskUsingGenericController extends GenericController<typeof Task>{
   //     message: 'Task retrieved successfully Chomolokko',
   //   });
   // });
-  
 }
-
-
-
-
-
-
-
