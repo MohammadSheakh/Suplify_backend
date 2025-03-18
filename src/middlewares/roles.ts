@@ -1,8 +1,10 @@
-export type Role = 'projectManager' | 'projectSupervisor' ;
+export type Role = 'user' | 'admin' | 'nutritionist' | 'doctor';	
 
 const allRoles: Record<Role, string[]> = {
-  projectManager: ['projectManager', 'common'],
-  projectSupervisor: ['projectSupervisor', 'common'],
+  user: ['user', 'common'],
+  admin: ['admin', 'common'],
+  nutritionist: ['nutritionist', 'common'],
+  doctor: ['doctor', 'common'],
 };
 
 const Roles = Object.keys(allRoles) as Array<keyof typeof allRoles>;

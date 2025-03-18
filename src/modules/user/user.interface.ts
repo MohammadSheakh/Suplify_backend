@@ -36,10 +36,14 @@ export type TUser = {
     zipCode: string;
     country: string;
   };
-  companyName : string;
+
   role: Role;
-  superVisorsManagerId?: Types.ObjectId | null;
+
   isEmailVerified: boolean;
+  isVip  : Boolean,
+  isStandard  : Boolean,
+  isPremium :  Boolean
+
   phoneNumber : string;
   isDeleted: boolean;
   lastPasswordChange: Date;

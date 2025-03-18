@@ -89,7 +89,6 @@ const userSchema = new Schema<TUser, UserModal>(
       },
     },
 
-    companyName: { type: String },
     role: {
       type: String,
       enum: {
@@ -98,12 +97,19 @@ const userSchema = new Schema<TUser, UserModal>(
       },
       required: [true, 'Role is required'],
     },
-    superVisorsManagerId : 
-    {
-      type: Schema.Types.ObjectId,
-      ref: 'User',
-      required: [false, 'Created By Manager Id is required'],
+    isVip  : {
+      type  : Boolean,
+      default : false
     },
+    isStandard  : {
+      type  : Boolean,
+      default : false
+    },
+    isPremium : {
+      type  : Boolean,
+      default : false
+    },
+
     isEmailVerified: {
       type: Boolean,
       default: false,
