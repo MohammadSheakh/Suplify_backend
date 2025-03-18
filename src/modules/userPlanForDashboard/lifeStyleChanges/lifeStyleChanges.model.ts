@@ -1,5 +1,18 @@
 import { model, Schema } from 'mongoose';
-import { LifeStyleChangesCategoryType, LifeStyleChangesType, LifeStyleChangesTypeType } from './lifeStyleChanges.constant';
+import {
+  LifeStyleChangesCategoryType,
+  LifeStyleChangesTypeType,
+} from './lifeStyleChanges.constant';
+import {
+  ILifeStyleChanges,
+  IlifeStyleChangesModel,
+} from './lifeStyleChanges.interface';
+import paginate from '../../../common/plugins/paginate';
+
+const lifeStyleChangesCategory = [
+  LifeStyleChangesCategoryType.normal,
+  LifeStyleChangesCategoryType.specialized,
+];
 
 const lifeStyleChangesSchema = new Schema<ILifeStyleChanges>(
   {
@@ -8,18 +21,19 @@ const lifeStyleChangesSchema = new Schema<ILifeStyleChanges>(
       required: [true, 'title is required'],
     },
     attachments: [
-        {
-          type: Schema.Types.ObjectId,
-          ref: 'Attachment',
-          required: [true, 'Attachments is required'],
-        }
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'Attachment',
+        required: [true, 'Attachments is required'],
+      },
     ],
     description: {
-        type: String,
-        required: [true, 'description is required'],
+      type: String,
+      required: [true, 'description is required'],
     },
 
-    category : {
+    // ${lifeStyleChangesCategory.join(', ') } // TODO : pore test korte hobe
+    category: {
       enum: [
         LifeStyleChangesCategoryType.normal,
         LifeStyleChangesCategoryType.specialized,
@@ -27,25 +41,18 @@ const lifeStyleChangesSchema = new Schema<ILifeStyleChanges>(
       type: String,
       required: [false, 'category is required. It can be normal / specialized'],
     },
+    // ISSUE : type er dorkar nai i think ..
     type: {
-    //   type: Schema.Types.ObjectId,
-    //   ref: 'Project',
-    type: String,
-    enum: [
-        LifeStyleChangesTypeType.free,
-        LifeStyleChangesTypeType.paid,
-      ],
+      //   type: Schema.Types.ObjectId,
+      //   ref: 'Project',
+      type: String,
+      enum: [LifeStyleChangesTypeType.free, LifeStyleChangesTypeType.paid],
       required: [false, 'type is required . it can be free / paid'],
     },
-    isDeleted : {
-        type : Boolean,
-        default : false
+    isDeleted: {
+      type: Boolean,
+      default: false,
     },
-    reactions: [
-      {
-        userId: { type: Schema.Types.ObjectId, ref: 'User', required: false },
-      }
-    ],
   },
   { timestamps: true }
 );
@@ -55,14 +62,13 @@ lifeStyleChangesSchema.plugin(paginate);
 // Use transform to rename _id to _projectId
 lifeStyleChangesSchema.set('toJSON', {
   transform: function (doc, ret, options) {
-    ret._attachmentId = ret._id;  // Rename _id to _projectId
-    delete ret._id;  // Remove the original _id field
+    ret._attachmentId = ret._id; // Rename _id to _projectId
+    delete ret._id; // Remove the original _id field
     return ret;
-  }
+  },
 });
 
-
-export const LifeStyleChanges = model<ILifeStyleChanges, lifeStyleChangesModel>(
-  'LifeStyleChanges',
-  lifeStyleChangesSchema
-);
+export const LifeStyleChanges = model<
+  ILifeStyleChanges,
+  IlifeStyleChangesModel
+>('LifeStyleChanges', lifeStyleChangesSchema);
