@@ -2,8 +2,6 @@ import express from 'express';
 import { UserRoutes } from '../modules/user/user.route';
 import { AuthRoutes } from '../modules/auth/auth.routes';
 import { AdminRoutes } from '../modules/admin/admin.routes';
-
-import { TaskRoutes } from '../modules/task/task.route';
 import { AttachmentRoutes } from '../modules/attachments/attachment.route';
 import { NotificationRoutes } from '../modules/notification/notification.routes';
 import { SettingsRoutes } from '../modules/settings/settings.routes';
@@ -45,10 +43,10 @@ const apiRoutes = [
   //   path: '/project',
   //   route: ProjectRoutes,
   // },
-  {
-    path: '/task',
-    route: TaskRoutes,
-  },
+  // {
+  //   path: '/task',
+  //   route: TaskRoutes,
+  // },
 
   {
     path: '/attachment',

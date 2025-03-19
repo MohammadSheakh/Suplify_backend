@@ -3,6 +3,8 @@ import catchAsync from '../../shared/catchAsync';
 import pick from '../../shared/pick';
 import sendResponse from '../../shared/sendResponse';
 import { StatusCodes } from 'http-status-codes';
+import { Request, Response} from 'express';
+
 // Import your generic service
 
 // Define a generic controller

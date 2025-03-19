@@ -4,7 +4,7 @@ import sendResponse from '../../shared/sendResponse';
 import { Request, Response, NextFunction } from 'express';
 
 // validationMiddleware.js or a separate file for validation middleware
-export const validateFilters = <T> (allowedFilters: string[]) => {
+export const validateFiltersForQuery = <T> (allowedFilters: string[]) => {
   return (req: Request, res:Response, next:NextFunction) => {
     
     const filtersParam = req.query || ''; // Get filters query param
