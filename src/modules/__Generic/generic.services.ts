@@ -17,7 +17,7 @@ export class GenericService<T> {
   async getAll() {
     return await this.model.find({isDeleted : false}).select('-__v');
   }
-
+  
   async getAllWithPagination(
     filters: any, // Partial<INotification> // FixMe : fix type
     options: PaginateOptions
