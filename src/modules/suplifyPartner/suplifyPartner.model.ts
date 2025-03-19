@@ -23,7 +23,7 @@ const suplifyPartnerSchema = new Schema<ISuplifyPartner>(
       {
         type: Schema.Types.ObjectId,
         ref: 'Attachment',
-        required: [true, 'Attachments is required'],
+        required: [false, 'Attachments is not required'],
       }
     ],
 
@@ -49,6 +49,7 @@ const suplifyPartnerSchema = new Schema<ISuplifyPartner>(
     isDeleted : {
       type: Boolean,
       required: [false, 'isDeleted is not required'],
+      default: false,
     },
   },
   { timestamps: true }

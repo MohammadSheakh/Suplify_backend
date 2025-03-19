@@ -15,15 +15,17 @@ export class GenericService<T> {
   }
 
   async getAll() {
-    // pagination er jonno fix korte hobe ..
-    return await this.model.find().select('-__v');
+    return await this.model.find({isDeleted : false}).select('-__v');
   }
 
   async getAllWithPagination(
     filters: any, // Partial<INotification> // FixMe : fix type
     options: PaginateOptions
   ) {
-    const result = await this.model.paginate(filters, options);
+    const result = await this.model.paginate(
+      // filters, // ISSUE :  may be issue thakte pare .. Test korte hobe .. 
+      { ...filters, isDeleted : false },
+      options);
     return result;
   }
 
@@ -49,5 +51,18 @@ export class GenericService<T> {
 
   async deleteById(id: string) {
     return await this.model.findByIdAndDelete(id).select('-__v');
+  }
+
+  // TODO :  eta kothao call kora hoy nai ba eta niye kaj kora hoy nai .. 
+  async aggregate(pipeline: any[]) {
+    return await this.model.aggregate(pipeline);
+  }
+
+  async softDeleteById(id: string) {
+    return await this.model.findByIdAndUpdate(
+      id,
+      { isDeleted: true },
+      { new: true }
+    );
   }
 }

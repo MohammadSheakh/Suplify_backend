@@ -125,4 +125,5 @@ export class GenericController<T> {
       message: `${this.modelName} deleted successfully`,
     });
   });
+
 }

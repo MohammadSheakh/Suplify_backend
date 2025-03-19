@@ -5,6 +5,7 @@ import { AdminRoutes } from '../modules/admin/admin.routes';
 import { AttachmentRoutes } from '../modules/attachments/attachment.route';
 import { NotificationRoutes } from '../modules/notification/notification.routes';
 import { SettingsRoutes } from '../modules/settings/settings.routes';
+import {SuplifyPartnerRoute} from "../modules/suplifyPartner/suplifyPartner.route"
 
 // import { ChatRoutes } from '../modules/chat/chat.routes';
 // import { MessageRoutes } from '../modules/message/message.routes';
@@ -30,10 +31,10 @@ const apiRoutes = [
     path: '/settings',
     route: SettingsRoutes,
   },
-  // {
-  //   path: '/note',
-  //   route: NoteRoutes,
-  // },
+  {
+    path: '/suplifyPartner',
+    route: SuplifyPartnerRoute,
+  },
 
   // {
   //   path: '/contract',

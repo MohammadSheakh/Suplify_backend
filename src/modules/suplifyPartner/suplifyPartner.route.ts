@@ -18,24 +18,24 @@ const suplifyPartnerController = new SuplifyPartnerController();
 
 //info : pagination route must be before the route with params
 router.route('/paginate').get(
-  auth('common'),
+  //auth('common'),
   validateFiltersForQuery(optionValidationChecking(['_id', 'partnerName'])),
   suplifyPartnerController.getAllWithPagination 
 );
 
 router.route('/:id').get(
-  auth('common'),
+  // auth('common'),
   suplifyPartnerController.getById 
 );
 
 router.route('/update/:taskId').put(
-  auth('common'), // FIXME: Change to admin
+  //auth('common'), // FIXME: Change to admin
   // validateRequest(UserValidation.createUserValidationSchema),
   suplifyPartnerController.updateById
 );
 
 router.route('/').get(
-  auth('common'), // FIXME: maybe authentication lagbe na .. 
+  //auth('common'), // FIXME: maybe authentication lagbe na .. 
   suplifyPartnerController.getAll 
 );
 
@@ -45,13 +45,15 @@ router.route('/create').post(
   //     { name: 'attachments', maxCount: 15 }, // Allow up to 5 cover photos
   //   ]),
   // ],
-  auth('common'),
+  //auth('common'),
   // validateRequest(UserValidation.createUserValidationSchema),
   suplifyPartnerController.create
 );
 
 router
   .route('/delete/:id')
-  .delete(auth('common'), suplifyPartnerController.deleteById); // FIXME : change to admin
+  .delete(
+    //auth('common'),
+     suplifyPartnerController.deleteById); // FIXME : change to admin
 
-export const TaskRoutes = router;
+export const SuplifyPartnerRoute = router;
