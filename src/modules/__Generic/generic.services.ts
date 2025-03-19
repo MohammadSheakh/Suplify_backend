@@ -5,7 +5,7 @@ import { PaginateOptions } from '../../types/paginate';
 export class GenericService<T> {
   model: any; // FIXME : fix type ..
 
-  constructor(model: any /** //FIXME : fix type */) {
+  constructor(model: T /** //FIXME : fix type */) {
     this.model = model;
   }
 

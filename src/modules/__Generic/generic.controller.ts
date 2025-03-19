@@ -4,12 +4,13 @@ import pick from '../../shared/pick';
 import sendResponse from '../../shared/sendResponse';
 import { StatusCodes } from 'http-status-codes';
 import { Request, Response} from 'express';
+import { GenericService } from './generic.services';
 
 // Import your generic service
 
 // Define a generic controller
 export class GenericController<T> {
-  service: any /*GenericService<T> */;
+  service: GenericService<T>  
   modelName: string;
 
   constructor(service: any /* GenericService<T> */, modelName: string) {
@@ -126,4 +127,28 @@ export class GenericController<T> {
     });
   });
 
+  //Soft Delete by ID
+  softDeleteById = catchAsync(async (req: Request, res: Response) => {
+    if (!req.params.id) {
+      throw new ApiError(
+        StatusCodes.BAD_REQUEST,
+        `id is required for delete ${this.modelName}`
+      );
+    }
+
+    const id = req.params.id;
+    const deletedObject = await this.service.softDeleteById(id);
+    if (!deletedObject) {
+      throw new ApiError(
+        StatusCodes.NOT_FOUND,
+        `Object with ID ${id} not found`
+      );
+    }
+    //   return res.status(StatusCodes.NO_CONTENT).json({});
+    sendResponse(res, {
+      code: StatusCodes.OK,
+      data: deletedObject,
+      message: `${this.modelName} soft deleted successfully`,
+    });
+  });
 }

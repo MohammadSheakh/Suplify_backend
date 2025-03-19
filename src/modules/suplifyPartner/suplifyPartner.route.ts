@@ -56,4 +56,10 @@ router
     //auth('common'),
      suplifyPartnerController.deleteById); // FIXME : change to admin
 
+router
+.route('/softDelete/:id')
+.put(
+  //auth('common'),
+  suplifyPartnerController.softDeleteById);
+
 export const SuplifyPartnerRoute = router;
