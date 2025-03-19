@@ -1,7 +1,7 @@
 import { model, Schema } from 'mongoose';
 import paginate from '../../common/plugins/paginate';
-import { ISuplifyPartner, ISuplifyPartnerModel } from './suplifyPartner.interface';
-import { SuplifyPartnerCategory } from './suplifyPartner.constant';
+import { ISuplifyPartner, ISuplifyPartnerModel } from './trainingSessionAttandance.interface';
+import { SuplifyPartnerCategory } from './trainingSessionAttandance.constant';
 
 const suplifyPartnerSchema = new Schema<ISuplifyPartner>(
   {

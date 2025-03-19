@@ -2,7 +2,7 @@ import express from 'express';
 import auth from '../../middlewares/auth';
 import { SuplifyPartnerController } from './suplifyPartner.controller';
 import {  validateFiltersForQuery } from '../../middlewares/queryValidation/paginationQueryValidationMiddleware';
-import { ISuplifyPartner } from './suplifyPartner.interface';
+import { ISuplifyPartner } from './trainingSessionAttandance.interface';
 const multer = require('multer');
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });

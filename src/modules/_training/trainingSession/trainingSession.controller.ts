@@ -3,11 +3,11 @@ import sendResponse from '../../shared/sendResponse';
 import { StatusCodes } from 'http-status-codes';
 import pick from '../../shared/pick';
 
-import { SuplifyPartnerService,  } from './suplifyPartner.service';
+import { SuplifyPartnerService,  } from './trainingSession.service';
 
 
 import { GenericController } from '../__Generic/generic.controller';
-import { SuplifyPartner } from './suplifyPartner.model';
+import { SuplifyPartner } from './trainingSession.model';
 
 // const taskService = new TaskService();
 // const attachmentService = new AttachmentService();

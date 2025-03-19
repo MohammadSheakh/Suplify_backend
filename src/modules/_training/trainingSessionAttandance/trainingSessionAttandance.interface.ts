@@ -1,6 +1,6 @@
 import { Model, Types } from 'mongoose';
 import { PaginateOptions, PaginateResult } from '../../types/paginate';
-import { SuplifyPartnerCategory } from './suplifyPartner.constant';
+import { SuplifyPartnerCategory } from './trainingSessionAttandance.constant';
 
 export interface ISuplifyPartner {
   // _taskId: undefined | Types.ObjectId;
