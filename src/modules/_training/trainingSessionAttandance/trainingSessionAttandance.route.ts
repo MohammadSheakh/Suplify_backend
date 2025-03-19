@@ -1,6 +1,6 @@
 import express from 'express';
 import auth from '../../middlewares/auth';
-import { SuplifyPartnerController } from './suplifyPartner.controller';
+import { SuplifyPartnerController } from './trainingSessionAttandance.controller';
 import {  validateFiltersForQuery } from '../../middlewares/queryValidation/paginationQueryValidationMiddleware';
 import { ISuplifyPartner } from './trainingSessionAttandance.interface';
 const multer = require('multer');
