@@ -6,6 +6,7 @@ import { AttachmentRoutes } from '../modules/attachments/attachment.route';
 import { NotificationRoutes } from '../modules/notification/notification.routes';
 import { SettingsRoutes } from '../modules/settings/settings.routes';
 import {SuplifyPartnerRoute} from "../modules/suplifyPartner/suplifyPartner.route"
+import { TrainingProgramRoute } from '../modules/_training/trainingProgram/trainingProgram.route';
 
 // import { ChatRoutes } from '../modules/chat/chat.routes';
 // import { MessageRoutes } from '../modules/message/message.routes';
@@ -36,10 +37,10 @@ const apiRoutes = [
     route: SuplifyPartnerRoute,
   },
 
-  // {
-  //   path: '/contract',
-  //   route: ContractRoutes,
-  // },
+  {
+    path: '/trainingProgram',
+    route: TrainingProgramRoute,
+  },
   // {
   //   path: '/project',
   //   route: ProjectRoutes,

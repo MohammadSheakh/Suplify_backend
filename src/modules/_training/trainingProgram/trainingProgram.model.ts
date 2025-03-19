@@ -59,7 +59,6 @@ trainingProgramSchema.plugin(paginate);
 //   next();
 // });
 
-
 // Use transform to rename _id to _projectId
 trainingProgramSchema.set('toJSON', {
   transform: function (doc, ret, options) {

@@ -1,6 +1,6 @@
 import express from 'express';
 import { TrainingProgramController } from './trainingProgram.controller';
-import { IRrainingProgram, ITRrainingProgramModel } from './trainingProgram.interface';
+import { IRrainingProgram } from './trainingProgram.interface';
 import { validateFiltersForQuery } from '../../../middlewares/queryValidation/paginationQueryValidationMiddleware';
 
 const multer = require('multer');
@@ -62,4 +62,4 @@ router
   //auth('common'),
   trainingProgramController.softDeleteById);
 
-export const SuplifyPartnerRoute = router;
+export const TrainingProgramRoute = router;
