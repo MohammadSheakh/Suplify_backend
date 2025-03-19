@@ -1,10 +1,11 @@
 
 import { StatusCodes } from 'http-status-codes';
 import sendResponse from '../../shared/sendResponse';
+import { Request, Response, NextFunction } from 'express';
 
 // validationMiddleware.js or a separate file for validation middleware
-export const validateFilters = (allowedFilters: string[]) => {
-  return (req: Request, res:Response, next) => {
+export const validateFilters = <T> (allowedFilters: string[]) => {
+  return (req: Request, res:Response, next:NextFunction) => {
     
     const filtersParam = req.query || ''; // Get filters query param
 
