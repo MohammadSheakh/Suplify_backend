@@ -1,7 +1,8 @@
 import express from 'express';
-import { TrainingProgramController } from './trainingProgram.controller';
-import { IRrainingProgram } from './trainingProgram.interface';
+
 import { validateFiltersForQuery } from '../../../middlewares/queryValidation/paginationQueryValidationMiddleware';
+import { ISubscription } from './subscription.interface';
+import { SubscriptionController } from './subscription.controller';
 
 const multer = require('multer');
 const storage = multer.memoryStorage();
@@ -9,34 +10,34 @@ const upload = multer({ storage: storage });
 
 const router = express.Router();
 
-export const optionValidationChecking = <T extends keyof IRrainingProgram>(filters: T[]) => {
+export const optionValidationChecking = <T extends keyof ISubscription>(filters: T[]) => {
   return filters;
 };
 
 // const taskService = new TaskService();
-const trainingProgramController = new TrainingProgramController();
+const controller = new SubscriptionController();
 
 //info : pagination route must be before the route with params
 router.route('/paginate').get(
   //auth('common'),
-  validateFiltersForQuery(optionValidationChecking(['_id', 'name', 'type', 'meetingLinkType'])),
-  trainingProgramController.getAllWithPagination 
+  validateFiltersForQuery(optionValidationChecking(['_id'])),
+  controller.getAllWithPagination 
 );
 
 router.route('/:id').get(
   // auth('common'),
-  trainingProgramController.getById 
+  controller.getById 
 );
 
 router.route('/update/:id').put(
   //auth('common'), // FIXME: Change to admin
   // validateRequest(UserValidation.createUserValidationSchema),
-  trainingProgramController.updateById
+  controller.updateById
 );
 
 router.route('/').get(
   //auth('common'), // FIXME: maybe authentication lagbe na .. 
-  trainingProgramController.getAll 
+  controller.getAll 
 );
 
 router.route('/create').post(
@@ -47,19 +48,19 @@ router.route('/create').post(
   // ],
   //auth('common'),
   // validateRequest(UserValidation.createUserValidationSchema),
-  trainingProgramController.create
+  controller.create
 );
 
 router
   .route('/delete/:id')
   .delete(
     //auth('common'),
-    trainingProgramController.deleteById); // FIXME : change to admin
+    controller.deleteById); // FIXME : change to admin
 
 router
 .route('/softDelete/:id')
 .put(
   //auth('common'),
-  trainingProgramController.softDeleteById);
+  controller.softDeleteById);
 
-export const TrainingProgramRoute = router;
+export const SubscriptionRoute = router;

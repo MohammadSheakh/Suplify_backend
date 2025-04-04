@@ -7,6 +7,7 @@ import { NotificationRoutes } from '../modules/notification/notification.routes'
 import { SettingsRoutes } from '../modules/settings/settings.routes';
 import {SuplifyPartnerRoute} from "../modules/suplifyPartner/suplifyPartner.route"
 import { TrainingProgramRoute } from '../modules/_training/trainingProgram/trainingProgram.route';
+import { SubscriptionRoute } from '../modules/_subscription/subscription/subscription.route';
 
 // import { ChatRoutes } from '../modules/chat/chat.routes';
 // import { MessageRoutes } from '../modules/message/message.routes';
@@ -41,10 +42,10 @@ const apiRoutes = [
     path: '/trainingProgram',
     route: TrainingProgramRoute,
   },
-  // {
-  //   path: '/project',
-  //   route: ProjectRoutes,
-  // },
+  {
+    path: '/subscription',
+    route: SubscriptionRoute,
+  },
   // {
   //   path: '/task',
   //   route: TaskRoutes,
