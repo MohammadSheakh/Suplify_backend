@@ -1,8 +1,7 @@
 import { model, Schema } from 'mongoose';
 import paginate from '../../../common/plugins/paginate';
-import { IVirtualWorkoutClass, IVirtualWorkoutClassModel } from './message.interface';
 
-const virtualWorkoutClassSchema = new Schema<IVirtualWorkoutClass>(
+const messageSchema = new Schema<IMessage>(
   {
     title: {
       type: String,
@@ -54,9 +53,9 @@ const virtualWorkoutClassSchema = new Schema<IVirtualWorkoutClass>(
   { timestamps: true }
 );
 
-virtualWorkoutClassSchema.plugin(paginate);
+messageSchema.plugin(paginate);
 
-virtualWorkoutClassSchema.pre('save', function(next) {
+messageSchema.pre('save', function(next) {
   // Rename _id to _projectId
   // this._taskId = this._id;
   // this._id = undefined;  // Remove the default _id field
@@ -67,16 +66,15 @@ virtualWorkoutClassSchema.pre('save', function(next) {
 
 
 // Use transform to rename _id to _projectId
-virtualWorkoutClassSchema.set('toJSON', {
+messageSchema.set('toJSON', {
   transform: function (doc, ret, options) {
-    ret._virtualWorkoutClassId = ret._id;  // Rename _id to _subscriptionId
+    ret._messageId = ret._id;  // Rename _id to _subscriptionId
     delete ret._id;  // Remove the original _id field
     return ret;
   }
 });
 
-
-export const VirtualWorkoutClass = model<IVirtualWorkoutClass, IVirtualWorkoutClassModel>(
-  'VirtualWorkoutClass',
-  virtualWorkoutClassSchema
+export const Message = model<IMessage, IMessageModel>(
+  'Message',
+  messageSchema
 );

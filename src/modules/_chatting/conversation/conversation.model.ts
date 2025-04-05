@@ -1,50 +1,46 @@
 import { model, Schema } from 'mongoose';
 import paginate from '../../../common/plugins/paginate';
 import { IVirtualWorkoutClass, IVirtualWorkoutClassModel } from './conversation.interface';
+import { ConversationType } from './conversation.constant';
 
-const virtualWorkoutClassSchema = new Schema<IVirtualWorkoutClass>(
+const conversationSchema = new Schema<IConversation>(
   {
-    title: {
-      type: String,
-      required: [true, 'title is required'],
-    },
-    description: {
-      type: String,
-      required: [true, 'description is required'],
-    },
-    duration: {
-      type: String,
-      required: [true, 'duration is required'],
-    },
-    specialistId: { //🔗
+    creatorId: { //🔗
       type: Schema.Types.ObjectId,
       ref: 'User',
       required: [true, 'User Id is required'],
     },
-    maxEnrollmentCapacity: {
-      type : Number,
-      required : [true, 'description is needed']
+
+    type: {
+          type: String,
+          enum: [
+            ConversationType.direct,
+            ConversationType.group,
+          ],
+          required: [
+            true,
+            `ConversationType is required it can be ${Object.values(
+              ConversationType
+            ).join(', ')}`,
+          ],
+        },
+
+    attachedToId: {
+      // 🔥 fix korte hobe ... eita 
+      type: Schema.Types.ObjectId,
+      ref: 'TrainingProgram',
+      required: [true, 'title is required'],
     },
-    currentEnrollmentsCount: {
-      type : Number,
-      required : [false, 'currentEnrollmentCount is not needed'],
-      min : 0,
-      default : 0
-    },
-    price : {
-      type : Number,
-      required : [true, 'price is needed']
-    },
-    difficultyLevel : {
-      type : String,
-      required : [true, 'difficultyLevel is needed']
-    },
-    category : {
-      // 🔥 eta te modification hote pare ..  
-      type : String,
-      required : [true, 'category is needed']
-    },
-    
+    attachedToCategory : {
+      // 🔥 fix korte hobe ... eita 
+      type: String,
+      enum: [
+        'TrainingProgram',
+        'VirtualWorkoutClass',
+      ],
+      required: [true, 'title is required'],
+    }
+   ,
     isDeleted: {
       type: Boolean,
       required: [false, 'isDeleted is not required'],
@@ -54,9 +50,9 @@ const virtualWorkoutClassSchema = new Schema<IVirtualWorkoutClass>(
   { timestamps: true }
 );
 
-virtualWorkoutClassSchema.plugin(paginate);
+conversationSchema.plugin(paginate);
 
-virtualWorkoutClassSchema.pre('save', function(next) {
+conversationSchema.pre('save', function(next) {
   // Rename _id to _projectId
   // this._taskId = this._id;
   // this._id = undefined;  // Remove the default _id field
@@ -67,7 +63,7 @@ virtualWorkoutClassSchema.pre('save', function(next) {
 
 
 // Use transform to rename _id to _projectId
-virtualWorkoutClassSchema.set('toJSON', {
+conversationSchema.set('toJSON', {
   transform: function (doc, ret, options) {
     ret._virtualWorkoutClassId = ret._id;  // Rename _id to _subscriptionId
     delete ret._id;  // Remove the original _id field
@@ -76,7 +72,7 @@ virtualWorkoutClassSchema.set('toJSON', {
 });
 
 
-export const VirtualWorkoutClass = model<IVirtualWorkoutClass, IVirtualWorkoutClassModel>(
-  'VirtualWorkoutClass',
-  virtualWorkoutClassSchema
+export const Conversation = model<IConversation, IConversationModel>(
+  'Conversation',
+  conversationSchema
 );
