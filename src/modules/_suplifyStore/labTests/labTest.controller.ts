@@ -1,8 +1,8 @@
 import { GenericController } from "../../__Generic/generic.controller";
 import { Order } from "./labTest.model";
-import { OrderService } from "./order.service";
+import { OrderService } from "./labTest.service";
 
-export class OrderController extends GenericController<typeof Order> {
+export class LabTestController extends GenericController<typeof LabTest> {
     constructor(){
         super(new OrderService(), "Subscription")
     }
