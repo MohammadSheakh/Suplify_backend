@@ -1,20 +1,19 @@
 import express from 'express';
 import { validateFiltersForQuery } from '../../../middlewares/queryValidation/paginationQueryValidationMiddleware';
-import { IVirtualWorkoutClass } from './conversation.interface';
-import { VirtualWorkoutClassController } from './conversation.controller';
-
+import { ConversationController } from './conversation.controller';
+import { IConversation } from './conversation.interface';
 const multer = require('multer');
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
 const router = express.Router();
 
-export const optionValidationChecking = <T extends keyof IVirtualWorkoutClass>(filters: T[]) => {
+export const optionValidationChecking = <T extends keyof IConversation>(filters: T[]) => {
   return filters;
 };
 
 // const taskService = new TaskService();
-const controller = new VirtualWorkoutClassController();
+const controller = new ConversationController();
 
 //info : pagination route must be before the route with params
 router.route('/paginate').get(
@@ -62,4 +61,4 @@ router
   //auth('common'),
   controller.softDeleteById);
 
-export const SubscriptionRoute = router;
+export const ConversationRoute = router;

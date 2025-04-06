@@ -1,8 +1,8 @@
 import { GenericService } from "../../__Generic/generic.services";
-import { VirtualWorkoutClass } from "./conversationParticipents.model";
+import { ConversationParticipents } from "./conversationParticipents.model";
 
-export class VirtualWorkoutClassService extends GenericService<typeof VirtualWorkoutClass>{
+export class ConversationParticipentsService extends GenericService<typeof ConversationParticipents>{
     constructor(){
-        super(VirtualWorkoutClass)
+        super(ConversationParticipents)
     }
 }

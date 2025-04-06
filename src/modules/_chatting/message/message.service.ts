@@ -1,8 +1,8 @@
 import { GenericService } from "../../__Generic/generic.services";
-import { VirtualWorkoutClass } from "./message.model";
+import { Message } from "./message.model";
 
-export class VirtualWorkoutClassService extends GenericService<typeof VirtualWorkoutClass>{
+export class MessagerService extends GenericService<typeof Message>{
     constructor(){
-        super(VirtualWorkoutClass)
+        super(Message)
     }
 }

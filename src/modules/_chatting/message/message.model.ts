@@ -1,49 +1,39 @@
 import { model, Schema } from 'mongoose';
 import paginate from '../../../common/plugins/paginate';
+import { IMessage, IMessageModel } from './message.interface';
 
 const messageSchema = new Schema<IMessage>(
   {
-    title: {
+    text: {
       type: String,
-      required: [true, 'title is required'],
+      required: [true, 'text is required'],
     },
-    description: {
-      type: String,
-      required: [true, 'description is required'],
-    },
-    duration: {
-      type: String,
-      required: [true, 'duration is required'],
-    },
-    specialistId: { //🔗
+    attachments: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'Attachment',
+        required: [false, 'Attachments is not required'],
+      }
+    ],
+    senderId: {
       type: Schema.Types.ObjectId,
       ref: 'User',
-      required: [true, 'User Id is required'],
+      required: [true, 'Sender Id is required'],
     },
-    maxEnrollmentCapacity: {
-      type : Number,
-      required : [true, 'description is needed']
+    conversationId : {
+      type: Schema.Types.ObjectId,
+      ref: 'Conversation',
+      required: [true, 'Conversation Id is required'],
     },
-    currentEnrollmentsCount: {
-      type : Number,
-      required : [false, 'currentEnrollmentCount is not needed'],
-      min : 0,
-      default : 0
+    senderRole : {
+      // TODO : Enum gula fix korte hobe .. 
+      enum : [
+        'user',
+        'admin',
+        'trainer',
+      ],
+      required: [true, 'senderRole is required'],
     },
-    price : {
-      type : Number,
-      required : [true, 'price is needed']
-    },
-    difficultyLevel : {
-      type : String,
-      required : [true, 'difficultyLevel is needed']
-    },
-    category : {
-      // 🔥 eta te modification hote pare ..  
-      type : String,
-      required : [true, 'category is needed']
-    },
-    
     isDeleted: {
       type: Boolean,
       required: [false, 'isDeleted is not required'],

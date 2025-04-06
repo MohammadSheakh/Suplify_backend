@@ -1,26 +1,22 @@
 import { Model, Types } from 'mongoose';
 import { PaginateOptions, PaginateResult } from '../../../types/paginate';
+import { ConversationType } from './conversation.constant';
 
-export interface IVirtualWorkoutClass {
+export interface IConversation {
   // _taskId: undefined | Types.ObjectId;
   _id?: Types.ObjectId; // undefined |  Types.ObjectId |
-  title : String;
-  description: String;
-  duration : String;
-  specialistId : Types.ObjectId; // 🔗
-  maxEnrollmentCapacity : Number;
-  currentEnrollmentsCount : Number;
-  price : number;
-  difficultyLevel : String;
-  category : String;
+  creatorId : Types.ObjectId;
+  type: ConversationType.direct | ConversationType.group;
+  attachedToId : Types.ObjectId; // 🔥 fix korte hobe ... eita
+  attachedToCategory : 'TrainingProgram' | ''; // 🔗
   isDeleted : boolean;
   createdAt?: Date;
   updatedAt?: Date;
 }
 
-export interface IVirtualWorkoutClassModel extends Model<IVirtualWorkoutClass> {
+export interface IConversationModel extends Model<IConversation> {
   paginate: (
     query: Record<string, any>,
     options: PaginateOptions
-  ) => Promise<PaginateResult<IVirtualWorkoutClass>>;
+  ) => Promise<PaginateResult<IConversation>>;
 }

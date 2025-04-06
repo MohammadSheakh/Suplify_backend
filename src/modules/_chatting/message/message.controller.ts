@@ -1,9 +1,9 @@
 import { GenericController } from "../../__Generic/generic.controller";
-import { VirtualWorkoutClass } from "./message.model";
-import {  VirtualWorkoutClassService } from "./virtualWorkoutClass.service";
+import { Message } from "./message.model";
+import {  MessagerService } from "./message.service";
 
-export class VirtualWorkoutClassController extends GenericController<typeof VirtualWorkoutClass> {
+export class MessageController extends GenericController<typeof Message> {
     constructor(){
-        super(new VirtualWorkoutClassService(), "Virtual Workout Class")
+        super(new MessagerService(), "Message")
     }
 }

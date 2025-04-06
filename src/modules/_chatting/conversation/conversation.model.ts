@@ -1,6 +1,6 @@
 import { model, Schema } from 'mongoose';
 import paginate from '../../../common/plugins/paginate';
-import { IVirtualWorkoutClass, IVirtualWorkoutClassModel } from './conversation.interface';
+import { IConversation, IConversationModel } from './conversation.interface';
 import { ConversationType } from './conversation.constant';
 
 const conversationSchema = new Schema<IConversation>(
@@ -10,7 +10,6 @@ const conversationSchema = new Schema<IConversation>(
       ref: 'User',
       required: [true, 'User Id is required'],
     },
-
     type: {
           type: String,
           enum: [

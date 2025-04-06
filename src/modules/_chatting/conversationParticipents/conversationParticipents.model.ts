@@ -1,50 +1,34 @@
 import { model, Schema } from 'mongoose';
 import paginate from '../../../common/plugins/paginate';
-import { IVirtualWorkoutClass, IVirtualWorkoutClassModel } from './conversationParticipents.interface';
+import { IConversationParticipents, IConversationParticipentsModel } from './conversationParticipents.interface';
 
-const virtualWorkoutClassSchema = new Schema<IVirtualWorkoutClass>(
+const conversationParticipentsSchema = new Schema<IConversationParticipents>(
   {
-    title: {
-      type: String,
-      required: [true, 'title is required'],
-    },
-    description: {
-      type: String,
-      required: [true, 'description is required'],
-    },
-    duration: {
-      type: String,
-      required: [true, 'duration is required'],
-    },
-    specialistId: { //🔗
+    userId: { //🔗
       type: Schema.Types.ObjectId,
       ref: 'User',
       required: [true, 'User Id is required'],
     },
-    maxEnrollmentCapacity: {
-      type : Number,
-      required : [true, 'description is needed']
+
+    conversationId: { //🔗
+      type: Schema.Types.ObjectId,
+      ref: 'Conversation',
+      required: [true, 'Conversation Id is required'],
     },
-    currentEnrollmentsCount: {
-      type : Number,
-      required : [false, 'currentEnrollmentCount is not needed'],
-      min : 0,
-      default : 0
+
+    joinedAt :{
+      type: Date,
+      required: [true, 'joinedAt is required'],
+      default: Date.now,
     },
-    price : {
-      type : Number,
-      required : [true, 'price is needed']
+    role : {
+      // TODO : fix korte hobe .. 
+      enum : [
+        'member',
+        'admin',
+      ],
+      required: [true, 'senderRole is required'],
     },
-    difficultyLevel : {
-      type : String,
-      required : [true, 'difficultyLevel is needed']
-    },
-    category : {
-      // 🔥 eta te modification hote pare ..  
-      type : String,
-      required : [true, 'category is needed']
-    },
-    
     isDeleted: {
       type: Boolean,
       required: [false, 'isDeleted is not required'],
@@ -54,9 +38,9 @@ const virtualWorkoutClassSchema = new Schema<IVirtualWorkoutClass>(
   { timestamps: true }
 );
 
-virtualWorkoutClassSchema.plugin(paginate);
+conversationParticipentsSchema.plugin(paginate);
 
-virtualWorkoutClassSchema.pre('save', function(next) {
+conversationParticipentsSchema.pre('save', function(next) {
   // Rename _id to _projectId
   // this._taskId = this._id;
   // this._id = undefined;  // Remove the default _id field
@@ -67,16 +51,16 @@ virtualWorkoutClassSchema.pre('save', function(next) {
 
 
 // Use transform to rename _id to _projectId
-virtualWorkoutClassSchema.set('toJSON', {
+conversationParticipentsSchema.set('toJSON', {
   transform: function (doc, ret, options) {
-    ret._virtualWorkoutClassId = ret._id;  // Rename _id to _subscriptionId
+    ret._conversationParticipentsId = ret._id;  // Rename _id to _subscriptionId
     delete ret._id;  // Remove the original _id field
     return ret;
   }
 });
 
 
-export const VirtualWorkoutClass = model<IVirtualWorkoutClass, IVirtualWorkoutClassModel>(
-  'VirtualWorkoutClass',
-  virtualWorkoutClassSchema
+export const ConversationParticipents = model<IConversationParticipents, IConversationParticipentsModel>(
+  'ConversationParticipents',
+  conversationParticipentsSchema
 );
