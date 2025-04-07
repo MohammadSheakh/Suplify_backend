@@ -62,4 +62,20 @@ router
   //auth('common'),
   controller.softDeleteById);
 
+
+////////////
+
+router.route('/participants/add').post(
+  // [
+  //   upload.fields([
+  //     { name: 'attachments', maxCount: 15 }, // Allow up to 5 cover photos
+  //   ]),
+  // ],
+  auth('user'),
+  // validateRequest(UserValidation.createUserValidationSchema),
+  controller.addParticipantsToExistingConversation
+);
+
+
+
 export const ConversationRoute = router;

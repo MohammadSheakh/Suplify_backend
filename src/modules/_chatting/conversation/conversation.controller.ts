@@ -26,11 +26,12 @@ export class ConversationController extends GenericController<IConversation> {
         super(new ConversationService(), "Conversation")
     }
 
+    // override
     create = catchAsync(async (req: Request, res: Response) => {
         let type;
         // creatorId ta req.user theke ashbe  
         //req.body.creatorId = req.user.userId;
-        const { participants, message, attachedToId, attachedToCategory } = req.body; // type,
+        let { participants, message, attachedToId, attachedToCategory } = req.body; // type,
 
         // type is based on participants count .. if count is greater than 2 then group else direct
 
@@ -38,6 +39,8 @@ export class ConversationController extends GenericController<IConversation> {
             // 🔥 test korte hobe logic .. 
             throw new ApiError(StatusCodes.BAD_REQUEST, 'Without participants you can not create a conversation');
         }
+
+        participants = [...participants, req.user.userId]; // add yourself to the participants list
 
         let result : IConversation;
         if(participants.length > 0){
@@ -113,6 +116,11 @@ export class ConversationController extends GenericController<IConversation> {
 
     addParticipantsToExistingConversation = catchAsync(async (req: Request, res: Response) => {
         const { participantId, conversationId } = req.body;
+
+        if(participantId === req.user.userId){
+            throw new ApiError(StatusCodes.BAD_REQUEST, 'You can not add yourself');
+        }
+
         const conversation = await this.service.getById(conversationId);
         if (!conversation) {
             throw new ApiError(StatusCodes.NOT_FOUND, 'Conversation not found');
@@ -130,8 +138,6 @@ export class ConversationController extends GenericController<IConversation> {
         }
 
         // 🔥🔥 Multiple er jonno o handle korte hobe .. single er jonno o handle korte hobe .. 
-
-
             sendResponse(res, {
                 code: StatusCodes.OK,
                 data: res1,
