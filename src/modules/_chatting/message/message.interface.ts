@@ -1,5 +1,6 @@
 import { Model, Types } from 'mongoose';
 import { PaginateOptions, PaginateResult } from '../../../types/paginate';
+import { RoleType } from './message.constant';
 
 export interface IMessage {
   // _taskId: undefined | Types.ObjectId;
@@ -8,7 +9,7 @@ export interface IMessage {
   attachments: Types.ObjectId[];
   senderId :  Types.ObjectId; // 🔗
   conversationId : Types.ObjectId; // 🔗
-  senderRole : 'user' | 'admin' | 'trainer'; // TODO : Enum gula fix korte hobe ..
+  senderRole : RoleType.admin | RoleType.member ; // TODO : Enum gula fix korte hobe ..
   isDeleted : boolean;
   createdAt?: Date;
   updatedAt?: Date;

@@ -19,7 +19,7 @@ const loginValidationSchema = z.object({
     fcmToken: z.string({
       required_error: 'Fcm token is required.',
       invalid_type_error: 'Fcm token must be a string.',
-    }),
+    }).optional(),
   }),
 });
 

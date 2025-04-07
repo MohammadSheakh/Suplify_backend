@@ -2,6 +2,7 @@ import express from 'express';
 import { validateFiltersForQuery } from '../../../middlewares/queryValidation/paginationQueryValidationMiddleware';
 import { ConversationController } from './conversation.controller';
 import { IConversation } from './conversation.interface';
+import auth from '../../../middlewares/auth';
 const multer = require('multer');
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
@@ -44,7 +45,7 @@ router.route('/create').post(
   //     { name: 'attachments', maxCount: 15 }, // Allow up to 5 cover photos
   //   ]),
   // ],
-  //auth('common'),
+  auth('user'),
   // validateRequest(UserValidation.createUserValidationSchema),
   controller.create
 );

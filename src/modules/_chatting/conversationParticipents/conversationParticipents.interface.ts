@@ -1,5 +1,6 @@
 import { Model, Types } from 'mongoose';
 import { PaginateOptions, PaginateResult } from '../../../types/paginate';
+import { RoleType } from './conversationParticipents.constant';
 
 export interface IConversationParticipents {
   // _taskId: undefined | Types.ObjectId;
@@ -7,7 +8,7 @@ export interface IConversationParticipents {
   userId : Types.ObjectId;
   conversationId: Types.ObjectId;
   joinedAt : Date;
-  role :  '' | ''; //  🔥 Fix korte hobe
+  role :  RoleType.admin | RoleType.member; // user shoray dite hobe  🔥 Fix korte hobe
   isDeleted : boolean;
   createdAt?: Date;
   updatedAt?: Date;

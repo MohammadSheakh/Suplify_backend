@@ -7,11 +7,12 @@ export interface IConversation {
   _id?: Types.ObjectId; // undefined |  Types.ObjectId |
   creatorId : Types.ObjectId;
   type: ConversationType.direct | ConversationType.group;
-  attachedToId : Types.ObjectId; // 🔥 fix korte hobe ... eita
-  attachedToCategory : 'TrainingProgram' | ''; // 🔗
-  isDeleted : boolean;
+  attachedToId? : String,
+  attachedToCategory? : 'TrainingProgram' | ''; // 🔗
+  isDeleted? : boolean;
   createdAt?: Date;
   updatedAt?: Date;
+  // isGroup : boolean;  
 }
 
 export interface IConversationModel extends Model<IConversation> {

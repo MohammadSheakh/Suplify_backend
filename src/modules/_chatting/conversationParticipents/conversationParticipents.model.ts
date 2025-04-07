@@ -1,6 +1,7 @@
 import { model, Schema } from 'mongoose';
 import paginate from '../../../common/plugins/paginate';
 import { IConversationParticipents, IConversationParticipentsModel } from './conversationParticipents.interface';
+import { RoleType } from './conversationParticipents.constant';
 
 const conversationParticipentsSchema = new Schema<IConversationParticipents>(
   {
@@ -9,26 +10,39 @@ const conversationParticipentsSchema = new Schema<IConversationParticipents>(
       ref: 'User',
       required: [true, 'User Id is required'],
     },
-
     conversationId: { //🔗
       type: Schema.Types.ObjectId,
       ref: 'Conversation',
       required: [true, 'Conversation Id is required'],
     },
-
     joinedAt :{
       type: Date,
       required: [true, 'joinedAt is required'],
       default: Date.now,
     },
-    role : {
-      // TODO : fix korte hobe .. 
-      enum : [
-        'member',
-        'admin',
-      ],
-      required: [true, 'senderRole is required'],
-    },
+    role: {
+          type: String,
+          enum: [
+            RoleType.admin,
+            RoleType.member,
+          ],
+          required: [
+            true,
+            `RoleType is required it can be ${Object.values(
+              RoleType
+            ).join(', ')}`,
+          ],
+        },
+
+    // role : {
+    //   enum : [
+    //     RoleType.admin,
+    //     RoleType.member
+    //   ],
+    //   required: [true, `role is required it can be ${Object.values(
+    //     RoleType
+    //   ).join(', ')}`],
+    // },
     isDeleted: {
       type: Boolean,
       required: [false, 'isDeleted is not required'],
@@ -45,10 +59,8 @@ conversationParticipentsSchema.pre('save', function(next) {
   // this._taskId = this._id;
   // this._id = undefined;  // Remove the default _id field
   //this.renewalFee = this.initialFee
-  
   next();
 });
-
 
 // Use transform to rename _id to _projectId
 conversationParticipentsSchema.set('toJSON', {

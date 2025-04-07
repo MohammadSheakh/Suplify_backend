@@ -1,6 +1,7 @@
 import { model, Schema } from 'mongoose';
 import paginate from '../../../common/plugins/paginate';
 import { IMessage, IMessageModel } from './message.interface';
+import { RoleType } from '../conversationParticipents/conversationParticipents.constant';
 
 const messageSchema = new Schema<IMessage>(
   {
@@ -25,15 +26,20 @@ const messageSchema = new Schema<IMessage>(
       ref: 'Conversation',
       required: [true, 'Conversation Id is required'],
     },
-    senderRole : {
-      // TODO : Enum gula fix korte hobe .. 
-      enum : [
-        'user',
-        'admin',
-        'trainer',
+    senderRole: {
+      type: String,
+      enum: [
+        RoleType.admin,
+        RoleType.member,
       ],
-      required: [true, 'senderRole is required'],
+      required: [
+        true,
+        `senderRole is required it can be ${Object.values(
+          RoleType
+        ).join(', ')}`,
+      ],
     },
+
     isDeleted: {
       type: Boolean,
       required: [false, 'isDeleted is not required'],

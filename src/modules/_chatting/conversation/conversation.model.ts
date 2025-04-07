@@ -8,38 +8,39 @@ const conversationSchema = new Schema<IConversation>(
     creatorId: { //🔗
       type: Schema.Types.ObjectId,
       ref: 'User',
-      required: [true, 'User Id is required'],
+    required: [true, 'User Id is required'],
     },
     type: {
-          type: String,
-          enum: [
-            ConversationType.direct,
-            ConversationType.group,
-          ],
-          required: [
-            true,
-            `ConversationType is required it can be ${Object.values(
-              ConversationType
-            ).join(', ')}`,
-          ],
-        },
-
+      type: String,
+      enum: [
+        ConversationType.direct,
+        ConversationType.group,
+      ],
+      required: [
+        true,
+        `ConversationType is required it can be ${Object.values(
+          ConversationType
+        ).join(', ')}`,
+      ],
+    },
     attachedToId: {
       // 🔥 fix korte hobe ... eita 
-      type: Schema.Types.ObjectId,
-      ref: 'TrainingProgram',
-      required: [true, 'title is required'],
+      type: String,
+      required: [false, 'attachedToId is not required'],
     },
     attachedToCategory : {
       // 🔥 fix korte hobe ... eita 
       type: String,
       enum: [
-        'TrainingProgram',
-        'VirtualWorkoutClass',
+        'VirtualWorkoutClass', 
       ],
-      required: [true, 'title is required'],
-    }
-   ,
+      required: [false, 'attachedToCategory is not required'],
+    },
+    // isGroup: {
+    //   type: Boolean,
+    //   required: [false, 'isGroup is not required'],
+    //   default: false,
+    // },
     isDeleted: {
       type: Boolean,
       required: [false, 'isDeleted is not required'],
@@ -64,7 +65,7 @@ conversationSchema.pre('save', function(next) {
 // Use transform to rename _id to _projectId
 conversationSchema.set('toJSON', {
   transform: function (doc, ret, options) {
-    ret._virtualWorkoutClassId = ret._id;  // Rename _id to _subscriptionId
+    ret._conversationId = ret._id;  // Rename _id to _subscriptionId
     delete ret._id;  // Remove the original _id field
     return ret;
   }

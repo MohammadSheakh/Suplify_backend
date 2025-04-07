@@ -19,6 +19,18 @@ const socket = (io: Server) => {
       );
     });
 
+    // Join a room for a specific conversation
+    socket.on('joinRoom', (conversationId) => {
+      console.log(`User joined room: ${conversationId}`);
+      socket.join(conversationId);  // Join a room based on conversationId
+    });
+
+    // Leave a room when a user disconnects or leaves
+    socket.on('leaveRoom', (conversationId) => {
+      console.log(`User left room: ${conversationId}`);
+      socket.leave(conversationId);
+    });
+
     socket.on('disconnect', () => {
       logger.info(colors.red('🔌🔴 A user disconnected'));
     });
