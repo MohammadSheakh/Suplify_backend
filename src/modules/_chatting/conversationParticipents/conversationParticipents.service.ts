@@ -1,18 +1,30 @@
-import { GenericService } from "../../__Generic/generic.services";
-import { ConversationParticipents } from "./conversationParticipents.model";
+import { GenericService } from '../../__Generic/generic.services';
+import { ConversationParticipents } from './conversationParticipents.model';
 
-export class ConversationParticipentsService extends GenericService<typeof ConversationParticipents>{
-    constructor(){
-        super(ConversationParticipents)
+export class ConversationParticipentsService extends GenericService<
+  typeof ConversationParticipents
+> {
+  constructor() {
+    super(ConversationParticipents);
+  }
+
+  async getByUserIdAndConversationId(userId: string) {
+    const object = await this.model.find({ userId });
+    console.log('hit 👌');
+    if (!object) {
+      // throw new ApiError(StatusCodes.BAD_REQUEST, 'No file uploaded');
+      return null;
     }
+    return object;
+  }
 
-    async getByUserIdAndConversationId(userId: string) {
-        const object = await this.model.find({userId});
-        console.log("hit 👌")
-        if (!object) {
-          // throw new ApiError(StatusCodes.BAD_REQUEST, 'No file uploaded');
-          return null;
-        }
-        return object;
-      }
+  async getByConversationId(conversationId: any) {
+    const object = await this.model.find({ conversationId });
+    console.log('hit 👌');
+    if (!object) {
+      // throw new ApiError(StatusCodes.BAD_REQUEST, 'No file uploaded');
+      return null;
+    }
+    return object;
+  }
 }

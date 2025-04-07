@@ -9,7 +9,9 @@ const upload = multer({ storage: storage });
 
 const router = express.Router();
 
-export const optionValidationChecking = <T extends keyof IConversation>(filters: T[]) => {
+export const optionValidationChecking = <T extends keyof IConversation>(
+  filters: T[]
+) => {
   return filters;
 };
 
@@ -20,12 +22,12 @@ const controller = new ConversationController();
 router.route('/paginate').get(
   //auth('common'),
   validateFiltersForQuery(optionValidationChecking(['_id'])),
-  controller.getAllWithPagination 
+  controller.getAllWithPagination
 );
 
 router.route('/:id').get(
   // auth('common'),
-  controller.getById 
+  controller.getById
 );
 
 router.route('/update/:id').put(
@@ -35,8 +37,8 @@ router.route('/update/:id').put(
 );
 
 router.route('/').get(
-  //auth('common'), // FIXME: maybe authentication lagbe na .. 
-  controller.getAll 
+  //auth('common'), // FIXME: maybe authentication lagbe na ..
+  controller.getAll
 );
 
 router.route('/create').post(
@@ -50,18 +52,15 @@ router.route('/create').post(
   controller.create
 );
 
-router
-  .route('/delete/:id')
-  .delete(
-    //auth('common'),
-    controller.deleteById); // FIXME : change to admin
-
-router
-.route('/softDelete/:id')
-.put(
+router.route('/delete/:id').delete(
   //auth('common'),
-  controller.softDeleteById);
+  controller.deleteById
+); // FIXME : change to admin
 
+router.route('/softDelete/:id').put(
+  //auth('common'),
+  controller.softDeleteById
+);
 
 ////////////
 
@@ -76,6 +75,9 @@ router.route('/participants/add').post(
   controller.addParticipantsToExistingConversation
 );
 
-
+router.route('/participants/all').get(
+  //auth('common'),
+  controller.showParticipantsOfExistingConversation
+);
 
 export const ConversationRoute = router;
