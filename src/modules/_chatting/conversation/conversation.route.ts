@@ -75,6 +75,14 @@ router.route('/participants/add').post(
   // validateRequest(UserValidation.createUserValidationSchema),
   controller.addParticipantsToExistingConversation
 );
+
+//[🚧][🧑‍💻✅][🧪] // 🆗
+router.route('/participants/remove').post(
+  auth('user'),
+  // validateRequest(UserValidation.createUserValidationSchema),
+  controller.addParticipantsToExistingConversation
+);
+
 //[🚧][🧑‍💻✅][🧪] // 🆗
 router.route('/participants/all').get(
   //auth('common'),

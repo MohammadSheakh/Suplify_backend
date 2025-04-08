@@ -8,9 +8,9 @@ export class ConversationParticipentsService extends GenericService<
     super(ConversationParticipents);
   }
 
-  async getByUserIdAndConversationId(userId: string) {
-    const object = await this.model.find({ userId });
-    console.log('hit 👌');
+  async getByUserIdAndConversationId(userId: string, conversationId: string) {
+    const object = await this.model.find({ userId , conversationId});
+    
     if (!object) {
       // throw new ApiError(StatusCodes.BAD_REQUEST, 'No file uploaded');
       return null;
@@ -20,11 +20,19 @@ export class ConversationParticipentsService extends GenericService<
 
   async getByConversationId(conversationId: any) {
     const object = await this.model.find({ conversationId });
-    console.log('hit 👌');
     if (!object) {
       // throw new ApiError(StatusCodes.BAD_REQUEST, 'No file uploaded');
       return null;
     }
     return object;
   }
+
+  // async getByUserId(userId: any) {
+  //   const object = await this.model.find({ userId });
+  //   if (!object) {
+  //     // throw new ApiError(StatusCodes.BAD_REQUEST, 'No file uploaded');
+  //     return null;
+  //   }
+  //   return object;
+  // }
 }
