@@ -39,15 +39,22 @@ router.route('/').get(
   controller.getAll 
 );
 
+// [🚧][🧑‍💻✅][🧪] // 🆗
 router.route('/create').post(
-  // [
-  //   upload.fields([
-  //     { name: 'attachments', maxCount: 15 }, // Allow up to 5 cover photos
-  //   ]),
-  // ],
+  [
+    upload.fields([
+      { name: 'attachments', maxCount: 15 }, // Allow up to 5 cover photos
+    ]),
+  ],
   //auth('common'),
   // validateRequest(UserValidation.createUserValidationSchema),
   controller.create
+);
+
+// [🚧][🧑‍💻✅][🧪] // 🆗 get All messages By ConversationId 
+router.route('/all/by/').get(
+  //auth('common'),
+  controller.getAllMessageByConversationId
 );
 
 router

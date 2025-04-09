@@ -1,30 +1,31 @@
 import { Model, Types } from 'mongoose';
 import { PaginateOptions, PaginateResult } from '../../types/paginate';
 import { Roles } from '../../middlewares/roles';
-import {AttachmentType, AttachedToType, UploaderRole } from './attachment.constant';
+import {AttachmentType, AttachedToType } from './attachment.constant';
 
 // FIX  // TODO : joto jaygay role ase .. role gula check dite hobe .. 
 export interface IAttachment {
   _id?: Types.ObjectId;
   attachment: string;
-  attachmentType: AttachmentType.image | AttachmentType.document;
-  attachedToId: string;
+  attachmentType: AttachmentType.image | AttachmentType.document 
+   | AttachmentType.unknown;
+
   attachedToType: 
-    AttachedToType.note | 
-    AttachedToType.task 
-    | AttachedToType.contract ; // INFO :  contract pore add kora hoise .. 
-  projectId : Types.ObjectId | string;
+    AttachedToType.lifeStyle|
+    AttachedToType.message|
+    AttachedToType.suplifyPartner|
+    AttachedToType.trainingProgram|
+    AttachedToType.user|
+    AttachedToType.workout|
+    AttachedToType.virtualWorkoutClass|
+    AttachedToType.wellnessProduct|
+    AttachedToType.meal|
+    AttachedToType.suppliment;
+
+  attachedToId: string;
   uploadedByUserId?: Types.ObjectId | string;
-  uploaderRole: UploaderRole.projectManager | UploaderRole.projectSupervisor;
-  viewStatus?: boolean;
   createdAt?: Date;
   updatedAt?: Date;
-  reactions?: [
-    {
-      userId: Types.ObjectId | string;
-      // reactionType: string; // we can add more reaction type here ...  
-    }
-  ]
 }
 
 export interface IAttachmentModel extends Model<IAttachment> {

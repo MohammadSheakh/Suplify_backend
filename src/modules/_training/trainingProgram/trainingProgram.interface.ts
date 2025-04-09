@@ -3,7 +3,7 @@ import { Model, Types } from 'mongoose';
 import {  TrainingProgramCategory, TrainingProgramType } from './trainingProgram.constant';
 import { PaginateOptions, PaginateResult } from '../../../types/paginate';
 
-export interface IRrainingProgram {
+export interface ITRrainingProgram {
   // _taskId: undefined | Types.ObjectId;
   _id?: Types.ObjectId; // undefined |  Types.ObjectId |
   name : string;
@@ -17,9 +17,9 @@ export interface IRrainingProgram {
   updatedAt?: Date;
 }
 
-export interface ITRrainingProgramModel extends Model<IRrainingProgram> {
+export interface ITRrainingProgramModel extends Model<ITRrainingProgram> {
   paginate: (
     query: Record<string, any>,
     options: PaginateOptions
-  ) => Promise<PaginateResult<IRrainingProgram>>;
+  ) => Promise<PaginateResult<ITRrainingProgram>>;
 }

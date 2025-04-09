@@ -5,7 +5,6 @@ import pick from '../../shared/pick';
 import { Attachment } from './attachment.model';
 import { AttachmentService } from './attachment.service';
 import { FolderName } from '../../enums/folderNames';
-import { AttachedToType, UploaderRole } from './attachment.constant';
 import ApiError from '../../errors/ApiError';
 
 import { NotificationService } from '../notification/notification.services';
@@ -14,17 +13,7 @@ const attachmentService = new AttachmentService();
 
 //[🚧][🧑‍💻✅][🧪🆗]
 const createAttachment = catchAsync(async (req, res) => {
-  const { noteOrTaskOrProject } = req.body;
-  if (
-    noteOrTaskOrProject !== AttachedToType.note &&
-    noteOrTaskOrProject !== AttachedToType.task &&
-    noteOrTaskOrProject !== AttachedToType.project
-  ) {
-    throw new ApiError(
-      StatusCodes.NOT_FOUND,
-      'noteOrTaskOrProject should be note or task or project'
-    );
-  }
+  
   let attachments = [];
 
   if (req.files && req.files.attachments) {
@@ -33,10 +22,10 @@ const createAttachment = catchAsync(async (req, res) => {
         req.files.attachments.map(async (file: Express.Multer.File) => {
           const attachmentId = await attachmentService.uploadSingleAttachment(
             file,
-            FolderName.note,
-            req.body.projectId,
+            "folderNameSuplify",
             req.user,
-            noteOrTaskOrProject
+            req.body.attachedToId,
+            req.body.attachedToType
           );
           return attachmentId;
         })
@@ -44,23 +33,12 @@ const createAttachment = catchAsync(async (req, res) => {
     );
   }
 
-  // if(projectNameAndSuperVisorId && projectNameAndSuperVisorId.projectSuperVisorId){
-
-  // const registrationToken = user?.fcmToken;
-
-  // if (registrationToken) {
-  //   await sendPushNotification(
-  //     registrationToken,
-  //     // INFO : amar title, message dorkar nai .. just .. title hoilei hobe ..
-  //     `New attachment of ${projectNameAndSuperVisorId.projectName}  ${noteOrTaskOrProject} has been uploaded by  ${req.user.userName} .`,
-  //     result.projectSuperVisorId.toString()
-  //   );
-  // }
+  /*
 
   // TODO : notification er title ta change kora lagte pare ..
   // Save Notification to Database
   const notificationPayload = {
-    title: `New attachment of User Name  ${noteOrTaskOrProject}  has been uploaded  by ${req.user.userName}`,
+    title: `New attachment has been uploaded  by ${req.user.userName}`,
     // message: `A new task "${result.title}" has been created by `,
     receiverId: null, //TODO : obosshoi id pass korte hobe
     role: UploaderRole.projectSupervisor, // If receiver is the projectManager
@@ -81,9 +59,11 @@ const createAttachment = catchAsync(async (req, res) => {
     }
   );
 
+  */
+
   // }
 
-  // const result = await attachmentService.create(req.body);
+  const result = await attachmentService.create(req.body);
 
   sendResponse(res, {
     code: StatusCodes.OK,

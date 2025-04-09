@@ -4,8 +4,9 @@ import { Attachment } from './attachment.model';
 import { uploadFileToSpace } from '../../middlewares/digitalOcean';
 import { AttachmentType } from './attachment.constant';
 import { GenericService } from '../__Generic/generic.services';
+import { IAttachment } from './attachment.interface';
 
-export class AttachmentService extends GenericService<typeof Attachment> {
+export class AttachmentService extends GenericService<typeof Attachment, IAttachment> {
   constructor() {
     super(Attachment);
   }
@@ -13,29 +14,28 @@ export class AttachmentService extends GenericService<typeof Attachment> {
   async uploadSingleAttachment(
     file: Express.Multer.File,
     folderName: string,
-    projectId: any,
     user: any,
-    attachedToType: any
+    attachedToId : string,
+    attachedToType: IAttachment['attachedToType']
   ) {
-    let uploadedFileUrl = await uploadFileToSpace(file, folderName);
+    let uploadedFileUrl:string = await uploadFileToSpace(file, folderName);
 
-    let fileType;
+    let fileType :AttachmentType.image | AttachmentType.unknown | AttachmentType.document;
     if (file.mimetype.includes('image')) {
       fileType = AttachmentType.image;
     } else if (file.mimetype.includes('application')) {
       fileType = AttachmentType.document;
+    }else{
+      fileType = AttachmentType.unknown;
     }
 
     // ekhon amader ke ekta attachment create korte hobe ..
     return await this.create({
       attachment: uploadedFileUrl,
-      attachmentType: fileType,
-      // attachedToId : "",
-      // attachedToType : "",
-      attachedToType: attachedToType,
-      projectId: projectId ? projectId : null,
       uploadedByUserId: user.userId,
-      uploaderRole: user.role,
+      attachedToId,
+      attachmentType: fileType,
+      attachedToType 
     });
   }
 

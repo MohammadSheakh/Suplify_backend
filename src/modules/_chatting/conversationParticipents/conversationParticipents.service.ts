@@ -1,8 +1,9 @@
 import { GenericService } from '../../__Generic/generic.services';
+import { IConversationParticipents } from './conversationParticipents.interface';
 import { ConversationParticipents } from './conversationParticipents.model';
 
 export class ConversationParticipentsService extends GenericService<
-  typeof ConversationParticipents
+  typeof ConversationParticipents, IConversationParticipents
 > {
   constructor() {
     super(ConversationParticipents);

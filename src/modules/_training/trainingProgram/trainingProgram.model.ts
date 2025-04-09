@@ -1,9 +1,9 @@
 import { model, Schema } from 'mongoose';
-import { IRrainingProgram, ITRrainingProgramModel } from './trainingProgram.interface';
+import {  ITRrainingProgram, ITRrainingProgramModel } from './trainingProgram.interface';
 import { TrainingProgramCategory, TrainingProgramType } from './trainingProgram.constant';
 import paginate from '../../../common/plugins/paginate';
 
-const trainingProgramSchema = new Schema<IRrainingProgram>(
+const trainingProgramSchema = new Schema<ITRrainingProgram>(
   {
     name : {
       type: String,
@@ -69,7 +69,7 @@ trainingProgramSchema.set('toJSON', {
 });
 
 
-export const TrainingProgram = model<IRrainingProgram, ITRrainingProgramModel>(
+export const TrainingProgram = model<ITRrainingProgram, ITRrainingProgramModel>(
   'TrainingProgram',
   trainingProgramSchema
 );

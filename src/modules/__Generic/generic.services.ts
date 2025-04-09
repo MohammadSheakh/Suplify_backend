@@ -2,14 +2,14 @@ import { StatusCodes } from 'http-status-codes';
 import ApiError from '../../errors/ApiError';
 import { PaginateOptions } from '../../types/paginate';
 
-export class GenericService<T> {
-  model: any; // FIXME : fix type ..
+export class GenericService< ModelType ,InterfaceType> {
+  model: ModelType; // FIXME : fix type ..
 
-  constructor(model: T /** //FIXME : fix type */) {
+  constructor(model: ModelType /** //FIXME : fix type */) {
     this.model = model;
   }
 
-  async create(data:T) {
+  async create(data:InterfaceType) {
     // console.log('req.body from generic create 🧪🧪', data);
     return await this.model.create(data);
   }
@@ -38,7 +38,7 @@ export class GenericService<T> {
     return object;
   }
 
-  async updateById(id: string, data: T) {
+  async updateById(id: string, data: InterfaceType) {
     const object = await this.model.findById(id).select('-__v');
     if (!object) {
       throw new ApiError(StatusCodes.BAD_REQUEST, 'No Object Found');

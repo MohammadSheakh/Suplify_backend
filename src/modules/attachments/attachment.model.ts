@@ -23,39 +23,12 @@ const attachmentSchema = new Schema<IAttachment>(
       type: String,
       required: [false, 'AttachedToId is required.'],
     },
-    attachedToType : {
-      enum: [
-        AttachedToType.note,
-        AttachedToType.task,
-        AttachedToType.project,
-        AttachedToType.contract,
-      ],
-      type: String,
-      required: [false, 'AttachedToType is required. It can be note / task'],
-    },
-    projectId: {
-      type: Schema.Types.ObjectId,
-      ref: 'Project',
-      required: [false, 'Project Id is required'],
-    },
     uploadedByUserId: {
       type: Schema.Types.ObjectId,
       ref: 'User',
       required: [false, 'User Id is required'],
     },
-    uploaderRole: {
-      type: String,
-      enum: [
-        UploaderRole.projectManager,
-        UploaderRole.projectSupervisor
-      ],
-      required: true,
-    },
-    reactions: [
-      {
-        userId: { type: Schema.Types.ObjectId, ref: 'User', required: false },
-      }
-    ],
+    
   },
   { timestamps: true }
 );
@@ -70,8 +43,6 @@ attachmentSchema.set('toJSON', {
     return ret;
   }
 });
-
-
 
 export const Attachment = model<IAttachment, IAttachmentModel>(
   'Attachment',

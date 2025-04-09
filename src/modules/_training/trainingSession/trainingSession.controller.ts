@@ -1,20 +1,15 @@
-import catchAsync from '../../shared/catchAsync';
-import sendResponse from '../../shared/sendResponse';
+
 import { StatusCodes } from 'http-status-codes';
-import pick from '../../shared/pick';
-
-import { SuplifyPartnerService,  } from './trainingSession.service';
-
-
-import { GenericController } from '../__Generic/generic.controller';
-import { SuplifyPartner } from './trainingSession.model';
+import { GenericController } from '../../__Generic/generic.controller';
+import { TrainingSession } from './trainingSession.model';
+import { TrainingSessionService } from './trainingSession.service';
 
 // const taskService = new TaskService();
 // const attachmentService = new AttachmentService();
 
-export class SuplifyPartnerController extends GenericController<typeof SuplifyPartner> {
+export class TrainingSessionController extends GenericController<typeof TrainingSession> {
   constructor() {
-    super(new SuplifyPartnerService(), 'SuplifyPartner');
+    super(new TrainingSessionService(), 'TrainingSession');
   }
   // private taskService = new TaskService();
 

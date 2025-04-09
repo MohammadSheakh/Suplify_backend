@@ -1,7 +1,8 @@
 import { GenericService } from "../../__Generic/generic.services";
+import { IConversation } from "./conversation.interface";
 import { Conversation } from "./conversation.model";
 
-export class ConversationService extends GenericService<typeof Conversation>{
+export class ConversationService extends GenericService<typeof Conversation, IConversation>{
     constructor(){
         super(Conversation)
     }

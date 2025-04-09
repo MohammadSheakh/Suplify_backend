@@ -1,7 +1,8 @@
-import { GenericService } from "../__Generic/generic.services";
-import { SuplifyPartner } from "./trainingSession.model";
+import { GenericService } from "../../__Generic/generic.services";
+import { SuplifyPartner } from "../trainingSessionAttandance/trainingSessionAttandance.model";
+import { ITrainingSession } from "./trainingSession.interface";
 
-export class SuplifyPartnerService extends GenericService<typeof SuplifyPartner> {
+export class TrainingSessionService extends GenericService<typeof SuplifyPartner, ITrainingSession> {
     constructor() {
         super(SuplifyPartner);
     }
