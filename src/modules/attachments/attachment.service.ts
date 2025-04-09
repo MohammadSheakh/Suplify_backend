@@ -1,7 +1,7 @@
 import { StatusCodes } from 'http-status-codes';
 import ApiError from '../../errors/ApiError';
 import { Attachment } from './attachment.model';
-import { uploadFileToSpace } from '../../middlewares/digitalOcean';
+// 🔥🔥 uploadFileToSpace khuje paowa jacche na .. fix korte hobe .. 
 import { AttachmentType } from './attachment.constant';
 import { GenericService } from '../__Generic/generic.services';
 import { IAttachment } from './attachment.interface';

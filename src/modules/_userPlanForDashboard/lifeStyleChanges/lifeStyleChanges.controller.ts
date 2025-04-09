@@ -2,12 +2,14 @@ import { StatusCodes } from 'http-status-codes';
 import { GenericController } from '../../__Generic/generic.controller';
 import { LifeStyleChangesService } from './lifeStyleChanges.service';
 import { LifeStyleChanges } from './lifeStyleChanges.model';
+import { ILifeStyleChanges } from './lifeStyleChanges.interface';
 
 // const taskService = new TaskService();
 const lifeStyleChangesService = new LifeStyleChangesService();
 
 export class LifeStyleChangesController extends GenericController<
-  typeof LifeStyleChanges
+  typeof LifeStyleChanges,
+  ILifeStyleChanges
 > {
   constructor() {
     super(

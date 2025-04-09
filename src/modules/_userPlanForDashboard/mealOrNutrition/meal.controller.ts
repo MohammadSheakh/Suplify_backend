@@ -2,11 +2,12 @@ import { StatusCodes } from 'http-status-codes';
 import { GenericController } from '../../__Generic/generic.controller';
 import { MealService } from './meal.service';
 import { Meal } from './meal.model';
+import { IMeal } from './meal.interface';
 
 // const taskService = new TaskService();
 const mealService = new MealService();
 
-export class MealController extends GenericController<typeof Meal> {
+export class MealController extends GenericController<typeof Meal, IMeal> {
   constructor() {
     super(
       // new LifeStyleChangesService()

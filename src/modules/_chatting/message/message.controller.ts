@@ -5,8 +5,14 @@ import { GenericController } from "../../__Generic/generic.controller";
 import { Message } from "./message.model";
 import {  MessagerService } from "./message.service";
 import { Request, Response } from 'express';
+import { AttachmentService } from "../../attachments/attachment.service";
+import { FolderName } from "../../../enums/folderNames";
+import { AttachedToType } from "../../attachments/attachment.constant";
+import { IMessage } from "./message.interface";
 
-export class MessageController extends GenericController<typeof Message> {
+const attachmentService = new AttachmentService();
+
+export class MessageController extends GenericController<typeof Message, IMessage> {
     messageService = new MessagerService();
     constructor(){
         super(new MessagerService(), "Message")
@@ -30,12 +36,12 @@ export class MessageController extends GenericController<typeof Message> {
         attachments.push(
             ...(await Promise.all(
             req.files.attachments.map(async file => {
-                const attachmenId = await AttachmentService.uploadSingleAttachment(
+                const attachmenId = await attachmentService.uploadSingleAttachment(
                     file,
-                    FolderName.task,
+                    "folderNameSuplify",
                     req.body.projectId,
                     req.user,
-                    AttachedToType.task
+                    AttachedToType.message
                 );
                 return attachmenId;
             })
@@ -47,7 +53,7 @@ export class MessageController extends GenericController<typeof Message> {
     
         sendResponse(res, {
           code: StatusCodes.OK,
-          data: result,
+          data: null,
           message: `${this.modelName} created successfully`,
           success: true,
         });

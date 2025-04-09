@@ -9,8 +9,8 @@ import { GenericService } from './generic.services';
 // Import your generic service
 
 // Define a generic controller
-export class GenericController<T> {
-  service: GenericService<T>  
+export class GenericController<ModelType, InterfaceType> {
+  service: GenericService<ModelType, InterfaceType>  
   modelName: string;
 
   constructor(service: any /* GenericService<T> */, modelName: string) {

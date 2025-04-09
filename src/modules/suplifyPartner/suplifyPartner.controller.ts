@@ -8,11 +8,12 @@ import { SuplifyPartnerService,  } from './suplifyPartner.service';
 
 import { GenericController } from '../__Generic/generic.controller';
 import { SuplifyPartner } from './suplifyPartner.model';
+import { ISuplifyPartner } from './suplifyPartner.interface';
 
 // const taskService = new TaskService();
 // const attachmentService = new AttachmentService();
 
-export class SuplifyPartnerController extends GenericController<typeof SuplifyPartner> {
+export class SuplifyPartnerController extends GenericController<typeof SuplifyPartner, ISuplifyPartner> {
   constructor() {
     super(new SuplifyPartnerService(), 'SuplifyPartner');
   }

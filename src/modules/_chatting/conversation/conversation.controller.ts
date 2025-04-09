@@ -16,7 +16,7 @@ import { IMessage } from '../message/message.interface';
 let conversationParticipantsService = new ConversationParticipentsService();
 let messageService = new MessagerService();
 
-export class ConversationController extends GenericController<IConversation> {
+export class ConversationController extends GenericController<typeof Conversation, IConversation> {
   conversationService = new ConversationService();
 
   constructor() {

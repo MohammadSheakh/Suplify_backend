@@ -3,11 +3,12 @@ import { StatusCodes } from 'http-status-codes';
 import { GenericController } from '../../__Generic/generic.controller';
 import { TrainingSession } from './trainingSession.model';
 import { TrainingSessionService } from './trainingSession.service';
+import { ITrainingSession } from './trainingSession.interface';
 
 // const taskService = new TaskService();
 // const attachmentService = new AttachmentService();
 
-export class TrainingSessionController extends GenericController<typeof TrainingSession> {
+export class TrainingSessionController extends GenericController<typeof TrainingSession, ITrainingSession> {
   constructor() {
     super(new TrainingSessionService(), 'TrainingSession');
   }

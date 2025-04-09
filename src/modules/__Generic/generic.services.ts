@@ -1,8 +1,9 @@
 import { StatusCodes } from 'http-status-codes';
 import ApiError from '../../errors/ApiError';
 import { PaginateOptions } from '../../types/paginate';
+import { Model } from 'mongoose';
 
-export class GenericService< ModelType ,InterfaceType> {
+export class GenericService< ModelType, InterfaceType> {
   model: ModelType; // FIXME : fix type ..
 
   constructor(model: ModelType /** //FIXME : fix type */) {

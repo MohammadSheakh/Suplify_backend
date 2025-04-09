@@ -2,11 +2,12 @@ import { StatusCodes } from 'http-status-codes';
 import { GenericController } from '../../__Generic/generic.controller';
 import { WorkoutService } from './workout.service';
 import { Workout } from './workout.model';
+import { IWorkout } from './workout.interface';
 
 // const taskService = new TaskService();
 const workoutService = new WorkoutService();
 
-export class WorkoutController extends GenericController<typeof Workout> {
+export class WorkoutController extends GenericController<typeof Workout, IWorkout> {
   constructor() {
     super(
       // new LifeStyleChangesService()

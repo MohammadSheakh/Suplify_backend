@@ -1,9 +1,7 @@
 import { model, Schema } from 'mongoose';
-
 import paginate from '../../common/plugins/paginate';
 import { IAttachment, IAttachmentModel } from './attachment.interface';
-import { Roles } from '../../middlewares/roles';
-import { AttachedToType, AttachmentType, UploaderRole } from './attachment.constant';
+import { AttachedToType, AttachmentType } from './attachment.constant';
 
 const attachmentSchema = new Schema<IAttachment>(
   {
@@ -22,6 +20,22 @@ const attachmentSchema = new Schema<IAttachment>(
     attachedToId : {
       type: String,
       required: [false, 'AttachedToId is required.'],
+    },
+    attachedToType : {
+      enum: [
+        AttachedToType.lifeStyle,
+        AttachedToType.message,
+        AttachedToType.suplifyPartner,
+        AttachedToType.trainingProgram,
+        AttachedToType.user,
+        AttachedToType.workout,
+        AttachedToType.virtualWorkoutClass,
+        AttachedToType.wellnessProduct,
+        AttachedToType.meal,
+        AttachedToType.suppliment,
+      ],
+      type: String,
+      required: [false, 'AttachedToType is required. It can be note / task'],
     },
     uploadedByUserId: {
       type: Schema.Types.ObjectId,
