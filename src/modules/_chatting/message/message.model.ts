@@ -31,6 +31,7 @@ const messageSchema = new Schema<IMessage>(
       enum: [
         RoleType.admin,
         RoleType.member,
+        
       ],
       required: [
         true,

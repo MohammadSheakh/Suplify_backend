@@ -9,6 +9,7 @@ import {SuplifyPartnerRoute} from "../modules/suplifyPartner/suplifyPartner.rout
 import { TrainingProgramRoute } from '../modules/_training/trainingProgram/trainingProgram.route';
 import { SubscriptionRoute } from '../modules/_subscription/subscription/subscription.route';
 import { ConversationRoute } from '../modules/_chatting/conversation/conversation.route';
+import { MessageRoute } from '../modules/_chatting/message/message.route';
 
 // import { ChatRoutes } from '../modules/chat/chat.routes';
 // import { MessageRoutes } from '../modules/message/message.routes';
@@ -60,6 +61,10 @@ const apiRoutes = [
     path: '/activity',
     route: NotificationRoutes,
   },
+  {
+    path: '/message',
+    route: MessageRoute,
+  }
 ];
 
 apiRoutes.forEach(route => router.use(route.path, route.route));

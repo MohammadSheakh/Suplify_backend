@@ -24,7 +24,7 @@ export class MessageController extends GenericController<typeof Message, IMessag
 
         if (req.user.userId) {
             req.body.senderId = req.user.userId;
-            req.body.senderRole = req.user.role; 
+            req.body.senderRole =  req.user.role === 'user' ? 'member' : 'admin'; 
             req.body.conversationId = conversationId;
         }
 

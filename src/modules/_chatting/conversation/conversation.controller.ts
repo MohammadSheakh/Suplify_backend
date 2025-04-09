@@ -98,11 +98,11 @@ export class ConversationController extends GenericController<typeof Conversatio
         // }
       }
 
-      if (message) {
+      if (message && result?._id) {
         const res1: IMessage = await messageService.create({
           text: message,
           senderId: req.user.userId,
-          conversationId: result._id,
+          conversationId: result?._id,
           senderRole: req.user.role === 'user' ? 'member' : 'admin',
         });
         if (!res1) {
