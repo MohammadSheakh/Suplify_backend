@@ -7,14 +7,14 @@ const paginate = <T>(schema: Schema<T>) => {
     filter: FilterQuery<T>,
     options: PaginateOptions
   ): Promise<PaginateResult<T>> {
-    const limit = options.limit ?? 10;
+    const limit = options.limit ?? Number.MAX_SAFE_INTEGER; // ?? 10
     const page = options.page ?? 1;
     const skip = (page - 1) * limit;
     const sort = options.sortBy ?? 'createdAt';
     const countPromise = this.countDocuments(filter).exec();
     let query = this.find(filter).sort(sort).skip(skip).limit(limit);
-    // TODO : This gives us exact Match .. we have to add partial match .. 
-    
+    // TODO : This gives us exact Match .. we have to add partial match ..
+
     if (options.populate) {
       query = query.populate(options.populate);
     }

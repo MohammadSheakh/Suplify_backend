@@ -123,29 +123,40 @@ export class ConversationController extends GenericController<IConversation> {
   });
 
   addParticipantsToExistingConversation = catchAsync(
-  
     async (req: Request, res: Response) => {
-      console.log("🧪------------"+  new Date().toLocaleString()  +"-----------////--🧪")
-      const { participants, conversationId } : {participants : string[], conversationId: string} = req.body;
+      console.log(
+        '🧪------------' + new Date().toLocaleString() + '-----------////--🧪'
+      );
+      const {
+        participants,
+        conversationId,
+      }: { participants: string[]; conversationId: string } = req.body;
 
       const conversation = await this.service.getById(conversationId);
       if (!conversation) {
         throw new ApiError(StatusCodes.NOT_FOUND, 'Conversation not found');
       }
-      
+
       let result;
 
-      console.log("participants.length 🧪🧪🧪", participants.length)
+      console.log('participants.length 🧪🧪🧪', participants.length);
       if (participants.length > 0) {
-        
         for (const participantId of participants) {
           if (participantId !== req.user.userId) {
-            const existingParticipant = await conversationParticipantsService.getByUserIdAndConversationId(participantId, conversationId);
-            console.log("existingParticipant 🧪🧪", existingParticipant, existingParticipant.length)
+            const existingParticipant =
+              await conversationParticipantsService.getByUserIdAndConversationId(
+                participantId,
+                conversationId
+              );
+            console.log(
+              'existingParticipant 🧪🧪',
+              existingParticipant,
+              existingParticipant.length
+            );
             if (existingParticipant.length == 0) {
               await conversationParticipantsService.create({
                 userId: participantId,
-                conversationId : conversation?._id,
+                conversationId: conversation?._id,
                 role: req.user.role === 'user' ? 'member' : 'admin',
               });
 
@@ -164,7 +175,7 @@ export class ConversationController extends GenericController<IConversation> {
             });
           }
         }
-      
+
         // const promises = participants.map(async (participantId) => {
         //   if (participantId !== req.user.userId) {
         //     const existingParticipant = await conversationParticipantsService.getByUserIdAndConversationId(participantId, conversationId);
@@ -178,42 +189,42 @@ export class ConversationController extends GenericController<IConversation> {
         //     }
         //   }
         // });
-        
+
         // await Promise.all(promises);
       }
-    //   else{
-        
-    //     if (participants[0] !== req.user.userId) {
+      //   else{
 
-    //       // check if the participant is already in the conversation
-    //       const existingParticipant = await conversationParticipantsService.getByUserIdAndConversationId(participants[0], conversationId);
+      //     if (participants[0] !== req.user.userId) {
 
-    //       console.log("existingParticipant 🧪🧪", existingParticipant)
-    //       if(existingParticipant.length === 0){
+      //       // check if the participant is already in the conversation
+      //       const existingParticipant = await conversationParticipantsService.getByUserIdAndConversationId(participants[0], conversationId);
 
-    //       result = await conversationParticipantsService.create({
-    //         userId: participants[0],
-    //         conversationId: conversation?._id,
-    //         role: req.user.role === 'user' ? 'member' : 'admin',
-    //       });
+      //       console.log("existingParticipant 🧪🧪", existingParticipant)
+      //       if(existingParticipant.length === 0){
 
-    //       if (!result) {
-    //         throw new ApiError(
-    //           StatusCodes.BAD_REQUEST,
-    //           'Unable to add participant.'
-    //         );
-    //       }
-    //     }
-    //   }
-    //   sendResponse(res, {
-    //     code: StatusCodes.OK,
-    //     data: null,
-    //     message: `Participents added successfully to this ${this.modelName}.. ${conversationId}`,
-    //     success: true,
-    //   });
-    // }
-  }
-);
+      //       result = await conversationParticipantsService.create({
+      //         userId: participants[0],
+      //         conversationId: conversation?._id,
+      //         role: req.user.role === 'user' ? 'member' : 'admin',
+      //       });
+
+      //       if (!result) {
+      //         throw new ApiError(
+      //           StatusCodes.BAD_REQUEST,
+      //           'Unable to add participant.'
+      //         );
+      //       }
+      //     }
+      //   }
+      //   sendResponse(res, {
+      //     code: StatusCodes.OK,
+      //     data: null,
+      //     message: `Participents added successfully to this ${this.modelName}.. ${conversationId}`,
+      //     success: true,
+      //   });
+      // }
+    }
+  );
 
   showParticipantsOfExistingConversation = catchAsync(
     async (req: Request, res: Response) => {
@@ -268,10 +279,11 @@ export class ConversationController extends GenericController<IConversation> {
         throw new ApiError(StatusCodes.NOT_FOUND, 'Conversation not found');
       }
 
-      const res1 = await conversationParticipantsService.getByUserIdAndConversationId(
-        participantId,
-        conversationId
-      );
+      const res1 =
+        await conversationParticipantsService.getByUserIdAndConversationId(
+          participantId,
+          conversationId
+        );
 
       if (!res1) {
         throw new ApiError(
@@ -280,7 +292,9 @@ export class ConversationController extends GenericController<IConversation> {
         );
       }
 
-      const result = await conversationParticipantsService.deleteById(res1[0]._id);
+      const result = await conversationParticipantsService.deleteById(
+        res1[0]._id
+      );
 
       if (!result) {
         throw new ApiError(

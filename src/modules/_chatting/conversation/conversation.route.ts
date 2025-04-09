@@ -77,10 +77,10 @@ router.route('/participants/add').post(
 );
 
 //[🚧][🧑‍💻✅][🧪] // 🆗
-router.route('/participants/remove').post(
+router.route('/participants/remove').delete(
   auth('user'),
   // validateRequest(UserValidation.createUserValidationSchema),
-  controller.addParticipantsToExistingConversation
+  controller.removeParticipantFromAConversation
 );
 
 //[🚧][🧑‍💻✅][🧪] // 🆗

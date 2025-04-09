@@ -1,1 +1,5 @@
-test 
+# conversation ..
+
+addParticipantsToExistingConversation
+showParticipantsOfAConversation
+removeParticipentsFromAConversation
