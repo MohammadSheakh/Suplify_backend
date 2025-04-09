@@ -10,7 +10,7 @@ export interface IMessage {
   senderId :  Types.ObjectId; // 🔗
   conversationId : Types.ObjectId; // 🔗
   senderRole : RoleType.admin | RoleType.member ; // TODO : Enum gula fix korte hobe ..
-  isDeleted : boolean;
+  isDeleted? : boolean;
   createdAt?: Date;
   updatedAt?: Date;
 }

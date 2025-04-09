@@ -12,6 +12,7 @@ export interface IConversation {
   isDeleted? : boolean;
   createdAt?: Date;
   updatedAt?: Date;
+  lastMessage? : Types.ObjectId; // 🔗
   // isGroup : boolean;  
 }
 

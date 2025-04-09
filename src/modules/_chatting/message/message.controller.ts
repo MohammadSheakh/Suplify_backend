@@ -19,9 +19,7 @@ export class MessageController extends GenericController<typeof Message, IMessag
     }
 
     create = catchAsync(async (req: Request, res: Response) => {
-        const data = req.body;
-        // const result = await this.service.create(data);
-
+        
         const {conversationId} = req.query;
 
         if (req.user.userId) {
@@ -50,20 +48,30 @@ export class MessageController extends GenericController<typeof Message, IMessag
         }
 
         req.body.attachments = attachments;
+
+        const result = await this.service.create({
+            text: req.body.text,
+            senderId: req.body.senderId,
+            senderRole: req.body.senderRole,
+            conversationId: req.body.conversationId,
+            attachments: req.body.attachments,
+        });
+
+        // 🔥 message create houar pore conversation er last 
+        // message update korte hobe .. 
     
         sendResponse(res, {
           code: StatusCodes.OK,
-          data: null,
+          data: result,
           message: `${this.modelName} created successfully`,
           success: true,
         });
-      });
+    });
    
 
     getAllMessageByConversationId = catchAsync(
         async (req: Request, res: Response) => {
             const { conversationId } = req.query;
-
             if (!conversationId) {
                 return sendResponse(res, {
                     code: StatusCodes.BAD_REQUEST,
@@ -71,7 +79,6 @@ export class MessageController extends GenericController<typeof Message, IMessag
                     success: false,
                 });
             }
-
             const result = await this.messageService.getAllByConversationId(
                 conversationId.toString()
             );
