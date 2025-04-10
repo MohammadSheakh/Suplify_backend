@@ -6,4 +6,8 @@ export class SubscriptionService extends GenericService<typeof Subscription, ISu
     constructor(){
         super(Subscription)
     }
+
+    getBySubscriptionType = async (subscriptionType: string) => {
+        return await this.model.findOne({ subscriptionType });
+    }
 }

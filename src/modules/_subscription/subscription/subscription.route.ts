@@ -63,4 +63,13 @@ router
   //auth('common'),
   controller.softDeleteById);
 
+
+ ////////////
+ 
+ router.route('/subscribe').get(
+  //auth('common'), // FIXME: maybe authentication lagbe na .. 
+  controller.subscribe 
+);
+
+
 export const SubscriptionRoute = router;

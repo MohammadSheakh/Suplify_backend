@@ -12,10 +12,15 @@ const userSubscriptionSchema = new Schema<IUserSubscription>(
       required: [false, 'User Id is required'],
     },
     subscriptionId: { //🔗
-        type: Schema.Types.ObjectId,
-        ref: 'Subscription',
-        required: [false, 'Subscription Id is required'],
-      },
+      type: Schema.Types.ObjectId,
+      ref: 'Subscription',
+      required: [false, 'Subscription Id is required'],
+  },
+    trxId: {
+      type: String,
+      required: true
+    },
+    
     subscriptionStartDate : {
         type: Date,
         required: true,
@@ -93,13 +98,13 @@ const userSubscriptionSchema = new Schema<IUserSubscription>(
     },
     stripe_subscription_id : {
         type: String,
-        required: [false, 'stripe_subscription_id is not required'],
+        required: [true, 'stripe_subscription_id is required'],
         default: null,
     },
     external_customer_id : {
         // > stripe er customer id ...
         type: String,
-        required: [false, 'stripe_customer_id or external_customer_id is not required'],
+        required: [true, 'stripe_customer_id or external_customer_id is required'],
         default: null,
     },
     isDeleted : {
