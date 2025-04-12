@@ -7,4 +7,6 @@ export class VirtualWorkoutClassController extends GenericController<typeof Virt
     constructor(){
         super(new VirtualWorkoutClassService(), "Virtual Workout Class")
     }
+    
+    // add more methods here if needed or override the existing ones
 }

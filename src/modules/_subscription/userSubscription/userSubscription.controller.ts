@@ -7,4 +7,6 @@ export class UserSubscriptionController extends GenericController<typeof UserSub
     constructor(){
         super(new UserSubscriptionService(), "Subscription")
     }
+
+    // add more methods here if needed or override the existing ones
 }

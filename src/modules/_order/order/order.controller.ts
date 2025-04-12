@@ -7,4 +7,5 @@ export class OrderController extends GenericController<typeof Order, IOrder> {
     constructor(){
         super(new OrderService(), "Subscription")
     }
+    // add more methods here if needed or override the existing ones
 }

@@ -8,4 +8,6 @@ export class ConversationParticipentsController extends GenericController<typeof
     constructor(){
         super(new ConversationParticipentsService(), "Conversation Participents")
     }
+
+    // add more methods here if needed or override the existing ones
 }

@@ -6,4 +6,6 @@ export class LabTestController extends GenericController<typeof LabTest> {
     constructor(){
         super(new OrderService(), "Subscription")
     }
+
+    // add more methods here if needed or override the existing ones
 }

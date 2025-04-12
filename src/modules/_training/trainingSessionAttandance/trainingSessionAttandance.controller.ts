@@ -27,4 +27,6 @@ export class SuplifyPartnerController extends GenericController<typeof SuplifyPa
   //     message: 'Task retrieved successfully Chomolokko',
   //   });
   // });
+
+  // add more methods here if needed or override the existing ones
 }

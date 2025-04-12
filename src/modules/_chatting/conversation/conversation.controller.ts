@@ -311,4 +311,7 @@ export class ConversationController extends GenericController<typeof Conversatio
       });
     }
   );
+
+
+  // add more methods here if needed or override the existing ones
 }

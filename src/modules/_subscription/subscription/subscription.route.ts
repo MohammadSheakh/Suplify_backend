@@ -1,8 +1,8 @@
 import express from 'express';
-
 import { validateFiltersForQuery } from '../../../middlewares/queryValidation/paginationQueryValidationMiddleware';
 import { ISubscription } from './subscription.interface';
 import { SubscriptionController } from './subscription.controller';
+import auth from '../../../middlewares/auth';
 
 const multer = require('multer');
 const storage = multer.memoryStorage();
@@ -71,5 +71,15 @@ router
   controller.subscribe 
 );
 
+router.route('/customerPortal/:customerId').get(
+  auth('common'), 
+  controller.customerPortal
+)
+
+router.route('/webhook').post(
+  express.raw({ type: 'application/json' }),
+  //auth('common'),
+  controller.webhook
+);
 
 export const SubscriptionRoute = router;

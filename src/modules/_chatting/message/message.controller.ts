@@ -90,4 +90,6 @@ export class MessageController extends GenericController<typeof Message, IMessag
                 success: true,
             });
         })
+
+    // add more methods here if needed or override the existing ones    
 }

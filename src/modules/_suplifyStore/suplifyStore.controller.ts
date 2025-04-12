@@ -7,4 +7,6 @@ export class SuplifyStoreController extends GenericController<typeof SuplifyStor
     constructor(){
         super(new SuplifyStoreService(), "Suplify Store")
     }
+
+    // add more methods here if needed or override the existing ones
 }

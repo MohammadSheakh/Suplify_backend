@@ -7,4 +7,6 @@ export class OrderItemController extends GenericController<typeof OrderItem, IOr
     constructor(){
         super(new OrderItemService(), "Order Item")
     }
+
+    // add more methods here if needed or override the existing ones
 }

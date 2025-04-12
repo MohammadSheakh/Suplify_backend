@@ -2,13 +2,15 @@ import { StatusCodes } from 'http-status-codes';
 import { GenericController } from '../../__Generic/generic.controller';
 import { GroceryList } from './groceryList.model';
 import { GroceryListService } from './groceryList.service';
+import { IGroceryList } from './groceryList.interface';
 
 
 // const taskService = new TaskService();
 const groceryListService = new GroceryListService();
 
 export class GroceryListController extends GenericController<
-  typeof GroceryList
+  typeof GroceryList, 
+  IGroceryList
 > {
   constructor() {
     super(
