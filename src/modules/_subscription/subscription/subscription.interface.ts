@@ -15,7 +15,8 @@ export interface ISubscription {
   renewalFee : 0;
   currency : CurrencyType.USD | CurrencyType.EUR;
   features: String[];
-  calculatedDuration : String; // 🚧 sure na ... 
+  freeTrialDuration : Number;
+  freeTrialEnabled : Boolean;
   isDeleted : Boolean;
   createdAt?: Date;
   updatedAt?: Date;

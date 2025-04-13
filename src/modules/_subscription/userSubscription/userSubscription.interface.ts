@@ -14,7 +14,7 @@ export interface IUserSubscription {
   renewalDate : Date;
   currentPeriodStartDate : Date;
   renewalFrequncy : RenewalFrequncyType.daily | RenewalFrequncyType.monthly | RenewalFrequncyType.weekly | RenewalFrequncyType.yearly;
-  
+  trxId : String; // 📢 sure na 
   isActive : Boolean
   isAutoRenewed : Boolean;
   status : UserSubscriptionStatusType.active | UserSubscriptionStatusType.cancelled | UserSubscriptionStatusType.expired;
@@ -23,6 +23,11 @@ export interface IUserSubscription {
   currentBillingAmount : Number; // 🚧 Dorkar ase kina sure na .. 
 
   cancelledAt :  Date ;
+
+  isFreeTrial : Boolean;
+  freeTrialStartDate : Date;
+  freeTrialEndDate : Date;
+  trialConvertedToPaid : Boolean;
   
   stripe_subscription_id : String;
 

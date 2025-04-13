@@ -15,12 +15,7 @@ const userSubscriptionSchema = new Schema<IUserSubscription>(
       type: Schema.Types.ObjectId,
       ref: 'Subscription',
       required: [false, 'Subscription Id is required'],
-  },
-    trxId: {
-      type: String,
-      required: true
     },
-    
     subscriptionStartDate : {
         type: Date,
         required: true,
@@ -43,59 +38,49 @@ const userSubscriptionSchema = new Schema<IUserSubscription>(
         type: Date,
         required: true,
     },
-
-    renewalFrequncy: {
-          type: String,
-          enum: [
-            RenewalFrequncyType.daily,
-            RenewalFrequncyType.weekly,
-            RenewalFrequncyType.monthly,
-            RenewalFrequncyType.yearly,
-          ],
-          default: RenewalFrequncyType.monthly,
-          required: [
-            true,
-            `Renewal Frequncy is required .. It can be  ${Object.values(
-              RenewalFrequncyType
-            ).join(', ')}`,
-          ],
-        },
-    isActive : {
-      type: Boolean,
-      required: [false, 'isActive is not required'],
-      default: true,
+    billingCycle : {
+        type : Number,
+        required: [true, 'billingCycle is required'],
+        default : 1,
     },
     isAutoRenewed : {
       type: Boolean,
       required: [false, 'isAutoRenewed is not required'],
       default: true,
     },
-    status : {
-        type: String,
-        enum : [
-            UserSubscriptionStatusType.active,
-            UserSubscriptionStatusType.expired,
-            UserSubscriptionStatusType.cancelled,	
-        ],
-        required: [true, 'status is required'],
-    },
-    billingCycle : {
-        type : Number,
-        required: [true, 'billingCycle is required'],
-        default : 1,
-    },
-    currentBillingAmount : {
-        //> 🚧  eta ki rakhar dorkar ache ? 
-        type : Number,
-        required: [true, 'currentBillingAmount is required'],
-        default : 0,
-    }
-    ,
     cancelledAt : {
         type: Date,
         required: [false, 'cancelledAt is not required'],
         default: null,
     },
+    status : {
+      type: String,
+      enum : [
+          UserSubscriptionStatusType.freeTrial,
+          UserSubscriptionStatusType.active,
+          UserSubscriptionStatusType.expired,
+          UserSubscriptionStatusType.cancelled,	
+      ],
+      required: [true, 'status is required'],
+    },
+
+    isFreeTrial: {
+      type: Boolean,
+      default: false, // Indicates if the subscription is currently in the free trial phase
+    },
+    freeTrialStartDate: {
+      type: Date,
+      required: false, // Only required if `isFreeTrial` is true
+    },
+    freeTrialEndDate: {
+      type: Date,
+      required: false, // Only required if `isFreeTrial` is true
+    },
+    trialConvertedToPaid: {
+      type: Boolean,
+      default: false, // Indicates if the free trial has been converted to a paid subscription
+    },
+
     stripe_subscription_id : {
         type: String,
         required: [true, 'stripe_subscription_id is required'],

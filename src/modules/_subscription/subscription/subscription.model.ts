@@ -37,8 +37,8 @@ const subscriptionSchema = new Schema<ISubscription>(
     initialDuration: {
       type: String,
       enum: [
-        InitialDurationType.day,
-        InitialDurationType.week,
+        // InitialDurationType.day,
+        // InitialDurationType.week,
         InitialDurationType.month,
         InitialDurationType.year,
       ],
@@ -53,8 +53,8 @@ const subscriptionSchema = new Schema<ISubscription>(
     renewalFrequncy: {
       type: String,
       enum: [
-        RenewalFrequncyType.daily,
-        RenewalFrequncyType.weekly,
+        // RenewalFrequncyType.daily,
+        // RenewalFrequncyType.weekly,
         RenewalFrequncyType.monthly,
         RenewalFrequncyType.yearly,
       ],
@@ -92,20 +92,16 @@ const subscriptionSchema = new Schema<ISubscription>(
       type: [String],
       required: [true, 'Features is required'],
     },
-    // calculatedDuration: {
-    //   //> type Sure na ...
-    //   type: String,
-    //   required: [true, 'calculatedDuration is required'],
-    // },
-
-    // attachments: [
-    //   {
-    //     type: Schema.Types.ObjectId,
-    //     ref: 'Attachment',
-    //     required: [false, 'Attachments is not required'],
-    //   }
-    // ],
-
+    freeTrialDuration: {
+      type: Number, // Duration in days
+      default: 0, // Default to no free trial
+      min: [0, 'Free trial duration must be non-negative'],
+    },
+    freeTrialEnabled: {
+      type: Boolean,
+      default: false, // Indicates if the subscription supports a free trial
+    },
+  
     isDeleted: {
       type: Boolean,
       required: [false, 'isDeleted is not required'],

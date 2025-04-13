@@ -146,6 +146,10 @@ export class SubscriptionController extends GenericController<typeof Subscriptio
       let event;
 
       event = this.stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
+
+      if(!event){
+        throw new ApiError(StatusCodes.BAD_REQUEST, `Stripe Webhook Error: ${event}`);
+      }
       
       // catch (err) {
       //   console.log('Error constructing webhook event:', err);
@@ -158,9 +162,22 @@ export class SubscriptionController extends GenericController<typeof Subscriptio
           // Handle successful subscription creation here
           console.log('Subscription created successfully:', event.data.object);
           break;
+        case 'invoice.paid':
+          // Handle successful invoice payment here
+          // Event when payment is successful (every subscription interval )
+          console.log('Invoice paid:', event.data);
+          break;
+        case 'invoice.payment_failed':
+          // Event when the payment failed  due to card problem  or insufficient funds (every subscription interval )
+          console.log('Invoice payment failed:', event.data);
+          break;
+        case 'customer.subscription.trial_will_end':
+          // Event when the trial period is about to end
+          console.log('Trial period will end:', event.data.object);
+          break;  
         case 'customer.subscription.updated':
           // Handle subscription update here
-          console.log('Subscription updated:', event.data.object);
+          console.log('Subscription updated:', event.data);
           break;
         case 'customer.subscription.deleted':
           // Handle subscription cancellation here
