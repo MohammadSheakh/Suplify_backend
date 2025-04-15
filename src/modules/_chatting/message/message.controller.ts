@@ -9,8 +9,10 @@ import { AttachmentService } from "../../attachments/attachment.service";
 import { FolderName } from "../../../enums/folderNames";
 import { AttachedToType } from "../../attachments/attachment.constant";
 import { IMessage } from "./message.interface";
+import { ConversationService } from "../conversation/conversation.service";
 
 const attachmentService = new AttachmentService();
+const conversationService = new ConversationService();
 
 export class MessageController extends GenericController<typeof Message, IMessage> {
     messageService = new MessagerService();
@@ -57,8 +59,16 @@ export class MessageController extends GenericController<typeof Message, IMessag
             attachments: req.body.attachments,
         });
 
+        if(!req.body.text && req.body.attachments){
+            // senderId er upor base kore sender name show korte hobe .. 
+            req.body.text = 'New Attachment Uploaded by ' + req.body.senderId
+        }
+
         // 🔥 message create houar pore conversation er last 
         // message update korte hobe .. 
+
+        await conversationService.updateLastMessageOfAConversation(req.body.conversationId, req.body.text)
+
     
         sendResponse(res, {
           code: StatusCodes.OK,
