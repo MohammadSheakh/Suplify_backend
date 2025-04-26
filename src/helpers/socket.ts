@@ -10,7 +10,7 @@ declare module 'socket.io' {
 
 const socket = (io: Server) => {
   io.on('connection', (socket: Socket) => {
-    logger.info(colors.blue('🔌🟢 A user connected'));
+    logger.info(colors.blue('🔌🟢 A user connected .. WS Connection ...'));
     socket.on('user-connected', (userId: string) => {
       socket.userId = userId;
       socket.join(userId); // Join the room for the specific user
@@ -20,19 +20,27 @@ const socket = (io: Server) => {
     });
 
     // Join a room for a specific conversation
-    socket.on('joinRoom', (conversationId) => {
+    socket.on('joinRoom', conversationId => {
       console.log(`User joined room: ${conversationId}`);
-      socket.join(conversationId);  // Join a room based on conversationId
+      socket.join(conversationId); // Join a room based on conversationId
     });
 
+    // socket.emit() // single user
+
+    // Broadcast when a user connects // without sending to the user itself
+    socket.broadcast.emit('message' /*socket.userId*/);
+
+    // to send message everybody
+    // io.emit()
+
     // Leave a room when a user disconnects or leaves
-    socket.on('leaveRoom', (conversationId) => {
+    socket.on('leaveRoom', conversationId => {
       console.log(`User left room: ${conversationId}`);
       socket.leave(conversationId);
     });
 
     socket.on('disconnect', () => {
-      logger.info(colors.red('🔌🔴 A user disconnected'));
+      logger.info(colors.red(`🔌🔴 A user disconnected`));
     });
   });
 };
