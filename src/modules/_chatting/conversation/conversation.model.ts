@@ -19,7 +19,7 @@ const conversationSchema = new Schema<IConversation>(
       required: [
         true,
         `ConversationType is required it can be ${Object.values(
-          ConversationType
+          ConversationType 
         ).join(', ')}`,
       ],
     },
