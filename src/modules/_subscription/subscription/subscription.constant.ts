@@ -1,3 +1,5 @@
+// SUPTODO : subscription module Fertie project er help nite hobe .. 
+
 export enum SubscriptionType {
     standard = 'standard',
     premium = 'premium', 

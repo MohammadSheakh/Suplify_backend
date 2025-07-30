@@ -5,6 +5,7 @@ import sendResponse from '../../shared/sendResponse';
 import { StatusCodes } from 'http-status-codes';
 import { Request, Response} from 'express';
 import { GenericService } from './generic.services';
+import omit from '../../shared/omit';
 
 // Import your generic service
 
@@ -45,10 +46,24 @@ export class GenericController<ModelType, InterfaceType> {
 
   getAllWithPagination = catchAsync(async (req: Request, res: Response) => {
     //const filters = pick(req.query, ['_id', 'title']); // now this comes from middleware in router
-    const filters = req.query;
+    const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']); ;
     const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
 
-    const result = await this.service.getAllWithPagination(filters, options);
+    const populateOptions: (string | {path: string, select: string}[]) = [
+      // {
+      //   path: 'personId',
+      //   select: 'name ' 
+      // },
+      // 'personId'
+      // {
+      //   path: 'siteId',
+      //   select: ''
+      // }
+    ];
+
+    const select = ''; 
+
+    const result = await this.service.getAllWithPagination(filters, options, populateOptions, select);
 
     sendResponse(res, {
       code: StatusCodes.OK,

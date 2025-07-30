@@ -2,6 +2,7 @@ import express from 'express';
 import { validateFiltersForQuery } from '../../../middlewares/queryValidation/paginationQueryValidationMiddleware';
 import { ConversationParticipentsController } from './conversationParticipents.controller';
 import { IConversationParticipents } from './conversationParticipents.interface';
+import auth from '../../../middlewares/auth';
 
 const multer = require('multer');
 const storage = multer.memoryStorage();
@@ -9,18 +10,63 @@ const upload = multer({ storage: storage });
 
 const router = express.Router();
 
-export const optionValidationChecking = <T extends keyof IConversationParticipents>(filters: T[]) => {
+export const optionValidationChecking = <T extends keyof IConversationParticipents | 'sortBy' | 'page' | 'limit' | 'populate'>(filters: T[]) => {
   return filters;
 };
 
 // const taskService = new TaskService();
 const controller = new ConversationParticipentsController();
 
+const paginationOptions: Array<'sortBy' | 'page' | 'limit' | 'populate'> = [
+  'sortBy',
+  'page',
+  'limit',
+  'populate',
+];
+
 //info : pagination route must be before the route with params
 router.route('/paginate').get(
   //auth('common'),
-  validateFiltersForQuery(optionValidationChecking(['_id'])),
+  validateFiltersForQuery(optionValidationChecking(['_id', 'userId', ...paginationOptions])),
   controller.getAllWithPagination 
+);
+
+/************
+ * 
+ * we need logged in users conversationsParticipents where we want to show only another person not logged in user  
+ * For App ... 
+ * 
+ * ************ */  
+router
+.route('/getRelatedUsers')
+.get(
+  auth('common'),
+  controller.getRelatedUsers
+);
+
+/*********
+ *  ( Dashboard ) | (Admin) 
+ * 
+ *  as Sayed Vai dont want to show conversations with socket .. 
+ *  so, we will provide rest api to get conversationsParticipant
+ * 
+ * 
+ * ******** */
+
+router.route('/getConversationsParticipents').get(
+  auth('common'),
+  controller.getAllConversationByUserIdWithPagination
+);
+
+/**********
+ * 
+ * (req.query.otherUserId) otherUserId
+ * get conversation participents by conversationId
+ * 
+ * ********* */
+router.route('/check-conversation').get(
+  auth('common'),
+  controller.hasConversationWithUser
 );
 
 router.route('/:id').get(
@@ -61,5 +107,10 @@ router
 .put(
   //auth('common'),
   controller.softDeleteById);
+
+
+
+
+
 
 export const ConversationParticipentsRoute = router;

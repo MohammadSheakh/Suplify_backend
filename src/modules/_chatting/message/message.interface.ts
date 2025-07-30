@@ -4,12 +4,12 @@ import { RoleType } from './message.constant';
 
 export interface IMessage {
   // _taskId: undefined | Types.ObjectId;
-  _id?: Types.ObjectId; // undefined |  Types.ObjectId |
+  _id?: Types.ObjectId; // undefined |  Types.ObjectId | // 
   text : String;
-  attachments: Types.ObjectId[];
+  embedding?: number[]; // This will hold the vector embedding
+  attachments?: Types.ObjectId[];
   senderId :  Types.ObjectId; // 🔗
   conversationId : Types.ObjectId; // 🔗
-  senderRole : RoleType.admin | RoleType.member ; // TODO : Enum gula fix korte hobe ..
   isDeleted? : boolean;
   createdAt?: Date;
   updatedAt?: Date;

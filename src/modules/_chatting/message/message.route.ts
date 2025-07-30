@@ -10,17 +10,24 @@ const upload = multer({ storage: storage });
 
 const router = express.Router();
 
-export const optionValidationChecking = <T extends keyof IMessage>(filters: T[]) => {
+export const optionValidationChecking = <T extends keyof IMessage | 'sortBy' | 'page' | 'limit' | 'populate'>(filters: T[]) => {
   return filters;
 };
 
 // const taskService = new TaskService();
 const controller = new MessageController();
 
+const paginationOptions: Array<'sortBy' | 'page' | 'limit' | 'populate'> = [
+  'sortBy',
+  'page',
+  'limit',
+  'populate',
+];
+
 //info : pagination route must be before the route with params
 router.route('/paginate').get(
   //auth('common'),
-  validateFiltersForQuery(optionValidationChecking(['_id'])),
+  validateFiltersForQuery(optionValidationChecking(['_id', 'conversationId', ...paginationOptions])),
   controller.getAllWithPagination 
 );
 
@@ -40,6 +47,12 @@ router.route('/').get(
   controller.getAll 
 );
 
+/*****************
+ * 
+ * we need this to create a message with attachments
+ * or just to upload attachments in chat 
+ * 
+ * **************** */
 // [🚧][🧑‍💻✅][🧪] // 🆗
 router.route('/create').post(
   [

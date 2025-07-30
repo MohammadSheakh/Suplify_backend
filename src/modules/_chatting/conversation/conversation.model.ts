@@ -8,7 +8,7 @@ const conversationSchema = new Schema<IConversation>(
     creatorId: { //🔗
       type: Schema.Types.ObjectId,
       ref: 'User',
-    required: [true, 'User Id is required'],
+      required: [true, 'User Id is required'],
     },
     type: {
       type: String,
@@ -19,28 +19,60 @@ const conversationSchema = new Schema<IConversation>(
       required: [
         true,
         `ConversationType is required it can be ${Object.values(
-          ConversationType 
+          ConversationType
         ).join(', ')}`,
       ],
     },
-    attachedToId: {
-      // 🔥 fix korte hobe ... eita 
-      type: String,
-      required: [false, 'attachedToId is not required'],
+
+    siteId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Site', // Reference to Site model
+      required: [true, 'Site Id is required'], // Optional site ID
     },
-    attachedToCategory : {
-      // 🔥 fix korte hobe ... eita 
-      type: String,
-      enum: [
-        'VirtualWorkoutClass', 
-      ],
-      required: [false, 'attachedToCategory is not required'],
+    canConversate :{
+      type: Boolean,
+      required: [false, 'canConversate is not required'],
+      default: true, 
     },
-    // isGroup: {
-    //   type: Boolean,
-    //   required: [false, 'isGroup is not required'],
-    //   default: false,
-    // },
+  
+    groupName: {
+      type: String,
+      default: null, // Optional group name
+    },
+    groupProfilePicture: {
+      type: String,
+      default: null, // Optional group profile picture
+    },
+    groupBio: {
+      type: String,
+      default: null, // Optional group bio
+    },
+    groupAdmins: {
+      type: [Schema.Types.ObjectId],
+      default: [],
+      ref: 'User', // Reference to User model
+    },
+    unreadCountes: {
+      type: Object, // Dynamic structure for unread counts
+      default: {}, // Initialize as an empty object
+    },
+    blockedUsers: {
+      type: [Schema.Types.ObjectId], // Users who are blocked
+      default: [],
+      ref: 'User',
+    },
+    deletedFor: {
+      type: [Schema.Types.ObjectId], // Users who have deleted the chat
+      default: [],
+      ref: 'User',
+    },
+
+    lastMessage : {
+      type: Schema.Types.ObjectId,
+      ref: 'Message',
+      default: null, // Optional last message reference
+    },
+    // test
     isDeleted: {
       type: Boolean,
       required: [false, 'isDeleted is not required'],

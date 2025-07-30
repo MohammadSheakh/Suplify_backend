@@ -1,18 +1,29 @@
 import { StatusCodes } from 'http-status-codes';
 import ApiError from '../../errors/ApiError';
 import { PaginateOptions } from '../../types/paginate';
-import { Model } from 'mongoose';
 
-export class GenericService< ModelType, InterfaceType> {
-  model: ModelType; // FIXME : fix type ..
+export class GenericService<ModelType, InterfaceType> {
+  model: ModelType | any; // FIXME : fix type ..
 
-  constructor(model: ModelType /** //FIXME : fix type */) {
+  constructor(model: ModelType) {
     this.model = model;
   }
 
-  async create(data:InterfaceType) {
+  async create(data:InterfaceType) : Promise<InterfaceType> {
     // console.log('req.body from generic create 🧪🧪', data);
     return await this.model.create(data);
+  }
+
+  async createAndPopulateSpecificFields(data:InterfaceType, populateOptions?: (string | any)[]) : Promise<InterfaceType> {
+    // Create the document
+    const createdObject = await this.model.create(data);
+    
+    // If populate options are provided, fetch and populate
+    if (populateOptions && populateOptions.length > 0) {
+        return await this.getById(createdObject._id.toString(), populateOptions);
+    }
+    
+    return createdObject;
   }
 
   async getAll() {
@@ -21,20 +32,84 @@ export class GenericService< ModelType, InterfaceType> {
   
   async getAllWithPagination(
     filters: any, // Partial<INotification> // FixMe : fix type
-    options: PaginateOptions
+    options: PaginateOptions,
+    populateOptions?: any,
+    select ? : string | string[]
   ) {
-    const result = await this.model.paginate(
-      // filters, // ISSUE :  may be issue thakte pare .. Test korte hobe .. 
-      { ...filters, isDeleted : false },
-      options);
+    const result = await this.model.paginate(filters, options, populateOptions, select);
+    
     return result;
   }
 
-  async getById(id: string) {
-    const object = await this.model.findById(id);
+  async getById(id: string , populateOptions?: (string | any)[]) : Promise<InterfaceType | null>  {
+    /********************
+        const object = await this.model.findById(id).populate(needToPopulate).select('-__v');
+        if (!object) {
+          // throw new ApiError(StatusCodes.BAD_REQUEST, 'No file uploaded');
+          return null;
+        }
+        return object;
+    ******************** */
+
+    // INFO : populateOptions can be an array of strings or objects 
+
+    /*****************
+      
+      populateOptions example : 
+
+      const populateOptions = [
+        {
+            path: 'attachments',
+            select: 'attachment'
+        },
+        //'siteId' // This will populate all fields for siteId
+        {
+          path: 'siteId',
+          select: 'name address'
+        }
+      ];
+    
+     * **************** */
+
+    let query = this.model.findById(id);
+    
+    if (populateOptions && populateOptions.length > 0) {
+        
+        /**************** 🟢 working perfectly 
+        populateOptions.forEach(option => {
+            if (typeof option === 'string') {
+                query = query.populate(option);
+            } else {
+                query = query.populate(option);
+            }
+        });
+
+
+        ************* */
+
+        /*************
+         * 
+         * // If you want to keep backward compatibility with your old getById method
+         * 
+         * *********** */
+
+        // Check if it's the old format (array of strings)
+        if (typeof populateOptions[0] === 'string') {
+            // Old format: ['attachments', 'siteId']
+            populateOptions.forEach(field => {
+                query = query.populate(field as string);
+            });
+        } else {
+            // New format: [{path: 'attachments', select: 'filename'}, ...]
+            populateOptions.forEach(option => {
+                query = query.populate(option);
+            });
+        }
+    }
+    
+    const object = await query.select('-__v');
     if (!object) {
-      // throw new ApiError(StatusCodes.BAD_REQUEST, 'No file uploaded');
-      return null;
+        return null;
     }
     return object;
   }
@@ -59,6 +134,18 @@ export class GenericService< ModelType, InterfaceType> {
   }
 
   async softDeleteById(id: string) {
+
+    const object = await this.model.findById(id).select('-__v');
+
+    if (!object) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'No Object Found');
+      //   return null;
+    }
+
+    if (object.isDeleted === true) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'Item already deleted');
+    }
+
     return await this.model.findByIdAndUpdate(
       id,
       { isDeleted: true },
