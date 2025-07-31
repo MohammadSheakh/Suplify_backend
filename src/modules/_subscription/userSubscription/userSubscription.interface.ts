@@ -3,36 +3,40 @@ import { Model, Types } from 'mongoose';
 
 import { PaginateOptions, PaginateResult } from '../../../types/paginate';
 import { UserSubscriptionStatusType } from './userSubscription.constant';
-import { RenewalFrequncyType } from '../subscription/subscription.constant';
 
 export interface IUserSubscription {
   // _taskId: undefined | Types.ObjectId;
   _id?: Types.ObjectId; // undefined |  Types.ObjectId |
   userId :  Types.ObjectId; //🔗
-  subscriptionId: Types.ObjectId; //🔗
+  subscriptionPlanId: Types.ObjectId; //🔗
   subscriptionStartDate : Date;
-  renewalDate : Date;
   currentPeriodStartDate : Date;
-  renewalFrequncy : RenewalFrequncyType.daily | RenewalFrequncyType.monthly | RenewalFrequncyType.weekly | RenewalFrequncyType.yearly;
-  trxId : String; // 📢 sure na 
-  isActive : Boolean
-  isAutoRenewed : Boolean;
-  status : UserSubscriptionStatusType.active | UserSubscriptionStatusType.cancelled | UserSubscriptionStatusType.expired;
+  expirationDate : Date;
+  renewalDate : Date;
   billingCycle: Number;
-
-  currentBillingAmount : Number; // 🚧 Dorkar ase kina sure na .. 
-
+  isAutoRenewed : Boolean;
   cancelledAt :  Date ;
-
-  isFreeTrial : Boolean;
-  freeTrialStartDate : Date;
-  freeTrialEndDate : Date;
-  trialConvertedToPaid : Boolean;
+  cancelledAtPeriodEnd : Boolean;
+  status :
+          UserSubscriptionStatusType.active | 
+          UserSubscriptionStatusType.past_due | 
+          UserSubscriptionStatusType.cancelled | 
+          UserSubscriptionStatusType.unpaid | 
+          UserSubscriptionStatusType.incomplete | 
+          UserSubscriptionStatusType.incomplete_expired | 
+          UserSubscriptionStatusType.trialing;
   
-  stripe_subscription_id : String;
+  stripe_subscription_id : String; // 🟢🟢 for recurring payment 
+  stripe_transaction_id : String; // 🟢🟢 for one time payment
+  // stripe_customer_id : String; // main user collection e rakhte hobe .. 
 
-  external_customer_id : String;
+  // isFreeTrial : Boolean;
+  // freeTrialStartDate : Date;
+  // freeTrialEndDate : Date;
+  // trialConvertedToPaid : Boolean;
 
+  isActive : Boolean
+  
   isDeleted : boolean;
   createdAt?: Date;
   updatedAt?: Date;

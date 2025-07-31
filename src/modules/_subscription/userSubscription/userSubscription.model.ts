@@ -5,7 +5,6 @@ import {
   IUserSubscription,
   IUserSubscriptionModel,
 } from './userSubscription.interface';
-import { RenewalFrequncyType } from '../subscription/subscription.constant';
 
 const userSubscriptionSchema = new Schema<IUserSubscription>(
   {
@@ -15,11 +14,11 @@ const userSubscriptionSchema = new Schema<IUserSubscription>(
       ref: 'User',
       required: [false, 'User Id is required'],
     },
-    subscriptionId: {
+    subscriptionPlanId: {
       //🔗
       type: Schema.Types.ObjectId,
-      ref: 'Subscription',
-      required: [false, 'Subscription Id is required'],
+      ref: 'SubscriptionPlan',
+      required: [false, 'Subscription Plan Id is required'],
     },
     subscriptionStartDate: {
       type: Date,
@@ -29,81 +28,105 @@ const userSubscriptionSchema = new Schema<IUserSubscription>(
         message: 'Subscription Start Date must be in the past',
       },
     },
-    subscriptionEndDate: {
-      type: Date,
-      required: false,
-      validate: {
-        validator: function (value) {
-          return value > this.subscriptionStartDate;
-        },
-        message: 'Subscription end date must be after subscription start date',
-      },
-    },
-    renewalDate: {
-      type: Date,
-      required: true,
-      validate: {
-        validator: function (value) {
-          return value > this.subscriptionStartDate;
-        },
-        message:
-          'initial Period End Date must be after subscription start date ',
-      },
-    },
     currentPeriodStartDate: {
       // renewal period end date
       type: Date,
       required: true,
     },
+    // renewalDate is not expiration date
+    expirationDate: {
+      type: Date,
+      required: false,
+      // validate: {
+      //   validator: function (value) {  // 🔴🔴 validation ta check dite hobe .. 
+      //     return value > this.subscriptionStartDate;
+      //   },
+      //   message:
+      //     'expirationDate must be after subscription start date ',
+      // },
+    },
+
+    renewalDate: {
+      type: Date,
+      required: false,
+      // validate: {
+      //   validator: function (value) {
+      //     return value > this.subscriptionStartDate;
+      //   },
+      //   message:
+      //     'initial Period End Date must be after subscription start date ',
+      // },
+    },
+    
     billingCycle: {
       type: Number,
       required: [true, 'billingCycle is required'],
-      default: 1,
+      default: 0,
     },
     isAutoRenewed: {
       type: Boolean,
       required: [false, 'isAutoRenewed is not required'],
-      default: true,
+      default: false,
     },
     cancelledAt: {
       type: Date,
       required: [false, 'cancelledAt is not required'],
       default: null,
     },
+    cancelledAtPeriodEnd: {
+      type: Boolean,
+      required: [false, 'cancelledAtPeriodEnd is not required'],
+      default: false,
+    },
     status: {
       type: String,
       enum: [
-        UserSubscriptionStatusType.freeTrial,
         UserSubscriptionStatusType.active,
-        UserSubscriptionStatusType.expired,
+        UserSubscriptionStatusType.past_due,
         UserSubscriptionStatusType.cancelled,
+        UserSubscriptionStatusType.unpaid,
+        UserSubscriptionStatusType.incomplete,
+        UserSubscriptionStatusType.incomplete_expired,
+        UserSubscriptionStatusType.trialing,
       ],
-      required: [true, 'status is required'],
+      required: [
+        true,
+        `status is required .. It can be  ${Object.values(
+          UserSubscriptionStatusType
+        ).join(', ')}`,
+      ],
     },
-
-    isFreeTrial: {
-      type: Boolean,
-      default: false, // Indicates if the subscription is currently in the free trial phase
-    },
-    freeTrialStartDate: {
-      type: Date,
-      required: false, // Only required if `isFreeTrial` is true
-    },
-    freeTrialEndDate: {
-      type: Date,
-      required: false, // Only required if `isFreeTrial` is true
-    },
-    trialConvertedToPaid: {
-      type: Boolean,
-      default: false, // Indicates if the free trial has been converted to a paid subscription
-    },
+    // isFreeTrial: {
+    //   type: Boolean,
+    //   default: false, // Indicates if the subscription is currently in the free trial phase
+    // },
+    // freeTrialStartDate: {
+    //   type: Date,
+    //   required: false, // Only required if `isFreeTrial` is true
+    // },
+    // freeTrialEndDate: {
+    //   type: Date,
+    //   required: false, // Only required if `isFreeTrial` is true
+    // },
+    // trialConvertedToPaid: {
+    //   type: Boolean,
+    //   default: false, // Indicates if the free trial has been converted to a paid subscription
+    // },
 
     stripe_subscription_id: {
       type: String,
-      required: [true, 'stripe_subscription_id is required'],
+      required: [false, 'stripe_subscription_id is not required'], // 🟢🟢 for recurring payment 
       default: null,
     },
-    external_customer_id: {
+
+    stripe_transaction_id : {
+      type: String,
+      required: [false, 'stripe_transaction_id is not required'], // 🟢🟢 for one time payment
+    },
+
+    /*
+    /////////////////////// stripe_customer_id  i think main user collection e rakha better 
+    stripe_customer_id: {
       // > stripe er customer id ...
       type: String,
       required: [
@@ -112,13 +135,17 @@ const userSubscriptionSchema = new Schema<IUserSubscription>(
       ],
       default: null,
     },
+    */
     isDeleted: {
       type: Boolean,
       required: [false, 'isDeleted is not required'],
       default: false,
     },
   },
-  { timestamps: true }
+  { 
+    timestamps: true,
+    versionKey: false
+   }
 );
 
 userSubscriptionSchema.plugin(paginate);

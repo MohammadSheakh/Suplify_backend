@@ -42,7 +42,6 @@ const attachmentSchema = new Schema<IAttachment>(
       ref: 'User',
       required: [false, 'User Id is required'],
     },
-    
   },
   { timestamps: true }
 );

@@ -3,7 +3,7 @@ import { TProfileImage, TUser, UserModal } from './user.interface';
 import paginate from '../../common/plugins/paginate';
 import bcryptjs from 'bcryptjs';
 import { config } from '../../config';
-import { Gender, MaritalStatus, UserStatus } from './user.constant';
+import { Gender, MaritalStatus, TStatusType, TSubscriptionType, UserStatus } from './user.constant';
 import { Roles } from '../../middlewares/roles';
 
 // Profile Image Schema
@@ -18,14 +18,9 @@ const profileImageSchema = new Schema<TProfileImage>({
 // User Schema Definition
 const userSchema = new Schema<TUser, UserModal>(
   {
-    fname: {
+    name: {
       type: String,
-      required: [true, 'First name is required'],
-      trim: true,
-    },
-    lname: {
-      type: String,
-      required: [true, 'Last name is required'],
+      required: [true, 'Name is required'],
       trim: true,
     },
     email: {
@@ -52,41 +47,29 @@ const userSchema = new Schema<TUser, UserModal>(
 
     fcmToken: { type: String, default: null }, // Store Firebase Token
 
-    // photoGallery: {
-    //   type: [profileImageSchema],
-    //   required: false,
-    // },
+    subscriptionType: {
+      type: String,
+      enum: 
+         [TSubscriptionType.standard, TSubscriptionType.standardPlus, TSubscriptionType.vise],
+      required: [
+        false,
+        `SubscriptionType is required it can be ${Object.values(
+          TSubscriptionType
+        ).join(', ')}`,
+      ],
+      default: TSubscriptionType.standard, // 7 day free trial provide korte hobe .. chinta korte hobe 
+    },
 
-    // location: {
-    //   latitude: { type: Number, required: true },
-    //   longitude: { type: Number, required: true },
-    // },
-    // gender: {
-    //   type: String,
-    //   enum: {
-    //     values: Gender,
-    //     message: '{VALUE} is not a valid gender',
-    //   },
-    //   required: [true, 'Gender is required'],
-    // },
-
-    address: {
-      streetAddress : {
-        type: String,
-        required: [false, 'Street Address is not required']
-      },
-      city : {
-        type: String,
-        required: [false, 'City is not required']
-      },
-      zipCode : {
-        type: String,
-        required: [false, 'Address is not required']
-      },
-      country : {
-        type: String,
-        required: [false, 'Address is not required']
-      },
+    status : {
+      type: String,
+      enum:  [TStatusType.active, TStatusType.inactive],
+      required: [
+        false,
+        `Status is required it can be ${Object.values(
+          TStatusType
+        ).join(', ')}`,
+      ],
+      default: TStatusType.active,
     },
 
     role: {
@@ -97,19 +80,7 @@ const userSchema = new Schema<TUser, UserModal>(
       },
       required: [true, 'Role is required'],
     },
-    isVip  : {
-      type  : Boolean,
-      default : false
-    },
-    isStandard  : {
-      type  : Boolean,
-      default : false
-    },
-    isPremium : {
-      type  : Boolean,
-      default : false
-    },
-
+    
     isEmailVerified: {
       type: Boolean,
       default: false,

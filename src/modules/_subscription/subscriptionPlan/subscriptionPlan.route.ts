@@ -1,8 +1,10 @@
 import express from 'express';
 import { validateFiltersForQuery } from '../../../middlewares/queryValidation/paginationQueryValidationMiddleware';
-import { ISubscription } from './subscription.interface';
-import { SubscriptionController } from './subscription.controller';
+import { ISubscriptionPlan } from './subscriptionPlan.interface';
+import { SubscriptionController } from './subscriptionPlan.controller';
 import auth from '../../../middlewares/auth';
+import validateRequest from '../../../shared/validateRequest';
+import * as validation from './subscriptionPlan.validation';
 
 const multer = require('multer');
 const storage = multer.memoryStorage();
@@ -10,7 +12,7 @@ const upload = multer({ storage: storage });
 
 const router = express.Router();
 
-export const optionValidationChecking = <T extends keyof ISubscription>(filters: T[]) => {
+export const optionValidationChecking = <T extends keyof ISubscriptionPlan>(filters: T[]) => {
   return filters;
 };
 
@@ -23,6 +25,29 @@ router.route('/paginate').get(
   validateFiltersForQuery(optionValidationChecking(['_id'])),
   controller.getAllWithPagination 
 );
+
+//[🚧][🧑‍💻✅][🧪] // 🆗
+router.route('/subscribe-from-back-end').get(
+  auth('common'), // FIXME: authentication lagbe .. 
+  validateRequest(validation.subscribeFromBackEndValidationSchema),
+  controller.subscribeFromBackEnd 
+);
+
+router.route('/subscribe-from-front-end').get(
+  auth('common'), // FIXME: authentication lagbe .. 
+  validateRequest(validation.subscribeFromFrontEndValidationSchema),
+  // controller.subscribeFromFrontEnd // 🔴🔴 
+  controller.subscribeFromFrontEndV2 // 🟢
+);
+
+router.route("/confirm-payment").get(
+  controller.confirmPayment
+)
+
+router.route('/payment-success').get(
+  controller.paymentSuccess
+)
+
 
 router.route('/:id').get(
   // auth('common'),
@@ -40,6 +65,11 @@ router.route('/').get(
   controller.getAll 
 );
 
+/**
+ *  this api is for creating subscription plan form admin dashboard .. 
+ *
+ */
+//[🚧][🧑‍💻✅][🧪] // 🆗
 router.route('/create').post(
   // [
   //   upload.fields([
@@ -47,7 +77,7 @@ router.route('/create').post(
   //   ]),
   // ],
   //auth('common'),
-  // validateRequest(UserValidation.createUserValidationSchema),
+  validateRequest(validation.createSubscriptionPlanValidationSchema),
   controller.create
 );
 
@@ -66,10 +96,7 @@ router
 
  ////////////
  
- router.route('/subscribe').get(
-  //auth('common'), // FIXME: maybe authentication lagbe na .. 
-  controller.subscribe 
-);
+
 
 router.route('/customerPortal/:customerId').get(
   auth('common'), 
@@ -82,4 +109,4 @@ router.route('/webhook').post(
   controller.webhook
 );
 
-export const SubscriptionRoute = router;
+export const SubscriptionPlanRoute = router;
