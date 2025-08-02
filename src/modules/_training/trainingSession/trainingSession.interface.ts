@@ -1,34 +1,21 @@
 import { Model, Types } from 'mongoose';
 import { PaginateOptions, PaginateResult } from '../../../types/paginate';
-import { TrainingProgramCategory, TrainingProgramType } from '../trainingProgram/trainingProgram.constant';
-import { TrainingSessionStatus } from './trainingSession.constant';
 
-export interface ITrainingSession {
+
+export interface IDemo {
   // _taskId: undefined | Types.ObjectId;
   _id?: Types.ObjectId; // undefined |  Types.ObjectId |
-  trainingProgramId : Types.ObjectId;
-  title: string;
-  attachments: Types.ObjectId[]; // Array of ObjectId references to Attachment
-  duration : string;
-  type :  TrainingProgramType.personalTraining |
-          TrainingProgramType.groupTraining
-  meetingLinkType: TrainingProgramCategory.meet |
-          TrainingProgramCategory.zoom;
-  meetingLinkUrl : string;
-  status  : TrainingSessionStatus.scheduled |
-          TrainingSessionStatus.completed |
-          TrainingSessionStatus.active |
-          TrainingSessionStatus.postponed |
-          TrainingSessionStatus.cancelled; 
+  userId: Types.ObjectId;
+  message : String;
 
-  isDeleted : boolean;
+  isDeleted? : Boolean;  
   createdAt?: Date;
   updatedAt?: Date;
 }
 
-export interface ITrainingSessionModel extends Model<ITrainingSession> {
+export interface IDemoModel extends Model<IDemo> {
   paginate: (
     query: Record<string, any>,
     options: PaginateOptions
-  ) => Promise<PaginateResult<ITrainingSession>>;
+  ) => Promise<PaginateResult<IDemo>>;
 }

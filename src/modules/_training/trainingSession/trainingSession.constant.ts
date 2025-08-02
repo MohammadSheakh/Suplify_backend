@@ -1,7 +1,5 @@
-export enum TrainingSessionStatus {
-    scheduled = 'scheduled',
-    completed = 'completed', 
-    active = 'active',
-    postponed = 'postponed',
-    cancelled = 'cancelled'
+export enum DemoType {
+  document = 'document',
+  image = 'image',
+  unknown = 'unknown',
 }

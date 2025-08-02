@@ -1,28 +1,24 @@
-
+import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
-import { GenericController } from '../../__Generic/generic.controller';
-import { TrainingSession } from './trainingSession.model';
-import { TrainingSessionService } from './trainingSession.service';
-import { ITrainingSession } from './trainingSession.interface';
 
-// const taskService = new TaskService();
-// const attachmentService = new AttachmentService();
+import { GenericController } from '../__Generic/generic.controller';
+import { Demo } from './demo.model';
+import { IDemo } from './demo.interface';
+import { DemoService } from './demo.service';
 
-export class TrainingSessionController extends GenericController<typeof TrainingSession, ITrainingSession> {
+
+// let conversationParticipantsService = new ConversationParticipentsService();
+// let messageService = new MessagerService();
+
+export class DemoController extends GenericController<
+  typeof Demo,
+  IDemo
+> {
+  demoService = new DemoService();
+
   constructor() {
-    super(new TrainingSessionService(), 'TrainingSession');
+    super(new DemoService(), 'Demo');
   }
-  // private taskService = new TaskService();
 
-  // getById = catchAsync(async (req, res) => {
-  //   const result = await this.taskService.getById(req.params.taskId);
-  //   console.log("hit 😊😊")
-  //   sendResponse(res, {
-  //     code: StatusCodes.OK,
-  //     data: result,
-  //     message: 'Task retrieved successfully Chomolokko',
-  //   });
-  // });
-
-  // add more methods here if needed or override the existing ones
+  // add more methods here if needed or override the existing ones 
 }

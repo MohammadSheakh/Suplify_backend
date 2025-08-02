@@ -1,65 +1,74 @@
 import express from 'express';
+import * as validation from './demo.validation';
+import { DemoController} from './demo.controller';
+import { IDemo } from './demo.interface';
+import { validateFiltersForQuery } from '../../middlewares/queryValidation/paginationQueryValidationMiddleware';
+import validateRequest from '../../shared/validateRequest';
 import auth from '../../middlewares/auth';
-import { SuplifyPartnerController } from './trainingSession.controller';
-import {  validateFiltersForQuery } from '../../middlewares/queryValidation/paginationQueryValidationMiddleware';
-import { ISuplifyPartner } from './trainingSession.interface';
+
 const multer = require('multer');
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
 const router = express.Router();
 
-export const optionValidationChecking = <T extends keyof ISuplifyPartner>(filters: T[]) => {
+export const optionValidationChecking = <T extends keyof IDemo>(
+  filters: T[]
+) => {
   return filters;
 };
 
 // const taskService = new TaskService();
-const suplifyPartnerController = new SuplifyPartnerController();
+const controller = new DemoController();
 
 //info : pagination route must be before the route with params
 router.route('/paginate').get(
   //auth('common'),
-  validateFiltersForQuery(optionValidationChecking(['_id', 'partnerName'])),
-  suplifyPartnerController.getAllWithPagination 
+  validateFiltersForQuery(optionValidationChecking(['_id'])),
+  controller.getAllWithPagination
 );
 
 router.route('/:id').get(
   // auth('common'),
-  suplifyPartnerController.getById 
+  controller.getById
 );
 
-router.route('/update/:taskId').put(
-  //auth('common'), // FIXME: Change to admin
+router.route('/update/:id').put(
+  //auth('common'),
   // validateRequest(UserValidation.createUserValidationSchema),
-  suplifyPartnerController.updateById
+  controller.updateById
 );
 
+//[🚧][🧑‍💻✅][🧪] // 🆗
 router.route('/').get(
-  //auth('common'), // FIXME: maybe authentication lagbe na .. 
-  suplifyPartnerController.getAll 
+  auth('commonAdmin'),
+  controller.getAll
 );
 
+//[🚧][🧑‍💻✅][🧪] // 🆗
 router.route('/create').post(
   // [
   //   upload.fields([
   //     { name: 'attachments', maxCount: 15 }, // Allow up to 5 cover photos
   //   ]),
   // ],
-  //auth('common'),
-  // validateRequest(UserValidation.createUserValidationSchema),
-  suplifyPartnerController.create
+  auth('common'),
+  validateRequest(validation.createHelpMessageValidationSchema),
+  controller.create
 );
 
-router
-  .route('/delete/:id')
-  .delete(
-    //auth('common'),
-     suplifyPartnerController.deleteById); // FIXME : change to admin
-
-router
-.route('/softDelete/:id')
-.put(
+router.route('/delete/:id').delete(
   //auth('common'),
-  suplifyPartnerController.softDeleteById);
+  controller.deleteById
+); // FIXME : change to admin
 
-export const SuplifyPartnerRoute = router;
+router.route('/softDelete/:id').put(
+  //auth('common'),
+  controller.softDeleteById
+);
+
+////////////
+//[🚧][🧑‍💻✅][🧪] // 🆗
+
+
+export const DemoRoute = router;

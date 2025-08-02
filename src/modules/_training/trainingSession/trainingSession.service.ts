@@ -1,9 +1,14 @@
-import { GenericService } from "../../__Generic/generic.services";
-import { SuplifyPartner } from "../trainingSessionAttandance/trainingSessionAttandance.model";
-import { ITrainingSession } from "./trainingSession.interface";
+import { StatusCodes } from 'http-status-codes';
+import { Demo } from './demo.model';
+import { IDemo } from './demo.interface';
+import { GenericService } from '../__Generic/generic.services';
 
-export class TrainingSessionService extends GenericService<typeof SuplifyPartner, ITrainingSession> {
-    constructor() {
-        super(SuplifyPartner);
-    }
+
+export class DemoService extends GenericService<
+  typeof Demo,
+  IDemo
+> {
+  constructor() {
+    super(Demo);
+  }
 }
