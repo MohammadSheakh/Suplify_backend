@@ -5,9 +5,7 @@ import { AdminRoutes } from '../modules/admin/admin.routes';
 import { AttachmentRoutes } from '../modules/attachments/attachment.route';
 import { NotificationRoutes } from '../modules/notification/notification.routes';
 import { SettingsRoutes } from '../modules/settings/settings.routes';
-import {SuplifyPartnerRoute} from "../modules/suplifyPartner/suplifyPartner.route"
 import { TrainingProgramRoute } from '../modules/_training/trainingProgram/trainingProgram.route';
-import { SubscriptionRoute } from '../modules/_subscription/subscription/subscription.route';
 import { ConversationRoute } from '../modules/_chatting/conversation/conversation.route';
 import { MessageRoute } from '../modules/_chatting/message/message.route';
 
@@ -35,19 +33,19 @@ const apiRoutes = [
     path: '/settings',
     route: SettingsRoutes,
   },
-  {
-    path: '/suplifyPartner',
-    route: SuplifyPartnerRoute,
-  },
+  // {
+  //   path: '/suplifyPartner',
+  //   route: SuplifyPartnerRoute,
+  // },
 
   {
     path: '/trainingProgram',
     route: TrainingProgramRoute,
   },
-  {
-    path: '/subscription',
-    route: SubscriptionRoute,
-  },
+  // {
+  //   path: '/subscription',
+  //   route: SubscriptionRoute,
+  // },
   {
     path: '/conversation',
     route: ConversationRoute,
