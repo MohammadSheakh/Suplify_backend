@@ -47,6 +47,12 @@ const userSchema = new Schema<TUser, UserModal>(
 
     fcmToken: { type: String, default: null }, // Store Firebase Token
 
+    /********
+     * 
+     * 
+     * TODO: Add once gula kivabe manage korbo chinta korte hobe .. 
+     * 
+     * ******** */
     subscriptionType: {
       type: String,
       enum: 
@@ -103,6 +109,28 @@ const userSchema = new Schema<TUser, UserModal>(
       default: 0,
     },
     lockUntil: { type: Date }, // 🔴 not sure 
+
+    // ------------ For Payment Related Thing ... 
+
+    stripe_customer_id: {
+      // > stripe er customer id ...
+      type: String,
+      required: [
+        false,
+        'stripe_customer_id is not required',
+      ],
+      default: null,
+    },
+
+    /********
+     * 
+     * From Kappes Backend .. 
+     * 
+     * ***** */
+    stripeConnectedAccount: {
+      type: String,
+      default: '',
+    },
   },
   {
     timestamps: true,
