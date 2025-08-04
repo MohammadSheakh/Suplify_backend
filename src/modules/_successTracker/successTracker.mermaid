@@ -1,0 +1,56 @@
+erDiagram
+    USER ||--o{ TRACKER_ENTRY : has
+    TRACKER_ENTRY ||--|{ HEALTH_PERFORMANCE : includes
+    TRACKER_ENTRY ||--|{ ADHERENCE_CONSISTENCY : includes
+    TRACKER_ENTRY ||--|{ MINDSET_MOMENTUM : includes
+    TRACKER_ENTRY ||--|{ SATISFACTION_FEEDBACK : includes
+
+    USER {
+        string _id PK
+        string name
+        string email
+    }
+
+    TRACKER_ENTRY {
+        string _id PK
+        string userId FK
+        date weekStartDate
+        date createdAt
+    }
+
+    HEALTH_PERFORMANCE {
+        string _id PK
+        double weight
+        double bodyFatPercentage
+        double waistMeasurement
+        int energyLevel
+        int sleepQuality
+        int workoutRecoveryRating
+    }
+
+    ADHERENCE_CONSISTENCY {
+        string _id PK
+        boolean tookSupplements
+        int mealsFollowed
+        int workoutsCompleted
+        int hydrationConsistency
+        boolean coachCheckIn
+    }
+
+    MINDSET_MOMENTUM {
+        string _id PK
+        int motivationLevel
+        string winHighlight
+        string weeklyChallenge
+        string habitImproved
+        int confidenceLevel
+    }
+
+    SATISFACTION_FEEDBACK {
+        string _id PK
+        boolean happyWithProgress
+        boolean feelSupported
+        string needHelpWith
+        string habitImproved
+        int wouldRecommend
+    }
