@@ -1,7 +1,7 @@
 import express from 'express';
-import * as validation from './demo.validation';
-import { DemoController} from './demo.controller';
-import { IDemo } from './demo.interface';
+import * as validation from './specialistPatient.validation';
+import { specialistPatientController} from './specialistPatient.controller';
+import { IspecialistPatient } from './specialistPatient.interface';
 import { validateFiltersForQuery } from '../../middlewares/queryValidation/paginationQueryValidationMiddleware';
 import validateRequest from '../../shared/validateRequest';
 import auth from '../../middlewares/auth';
@@ -12,14 +12,14 @@ const upload = multer({ storage: storage });
 
 const router = express.Router();
 
-export const optionValidationChecking = <T extends keyof IDemo>(
+export const optionValidationChecking = <T extends keyof IspecialistPatient>(
   filters: T[]
 ) => {
   return filters;
 };
 
 // const taskService = new TaskService();
-const controller = new DemoController();
+const controller = new specialistPatientController();
 
 //info : pagination route must be before the route with params
 router.route('/paginate').get(
@@ -71,4 +71,4 @@ router.route('/softDelete/:id').put(
 //[🚧][🧑‍💻✅][🧪] // 🆗
 
 
-export const DemoRoute = router;
+export const specialistPatientRoute = router;

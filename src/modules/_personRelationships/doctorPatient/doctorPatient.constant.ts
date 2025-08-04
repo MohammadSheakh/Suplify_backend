@@ -1,4 +1,4 @@
-export enum DemoType {
+export enum doctorPatientType {
   document = 'document',
   image = 'image',
   unknown = 'unknown',
