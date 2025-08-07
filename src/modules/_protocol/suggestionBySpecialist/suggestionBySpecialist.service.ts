@@ -1,14 +1,14 @@
 import { StatusCodes } from 'http-status-codes';
-import { Demo } from './demo.model';
-import { IDemo } from './demo.interface';
+import { SuggestionBySpecialist } from './SuggestionBySpecialist.model';
+import { ISuggestionBySpecialist } from './SuggestionBySpecialist.interface';
 import { GenericService } from '../__Generic/generic.services';
 
 
-export class DemoService extends GenericService<
-  typeof Demo,
-  IDemo
+export class SuggestionBySpecialistService extends GenericService<
+  typeof SuggestionBySpecialist,
+  ISuggestionBySpecialist
 > {
   constructor() {
-    super(Demo);
+    super(SuggestionBySpecialist);
   }
 }

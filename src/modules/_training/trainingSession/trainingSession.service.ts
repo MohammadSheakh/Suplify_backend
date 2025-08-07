@@ -1,14 +1,14 @@
 import { StatusCodes } from 'http-status-codes';
-import { Demo } from './demo.model';
-import { IDemo } from './demo.interface';
+import { TrainingSession } from './TrainingSession.model';
+import { ITrainingSession } from './TrainingSession.interface';
 import { GenericService } from '../__Generic/generic.services';
 
 
-export class DemoService extends GenericService<
-  typeof Demo,
-  IDemo
+export class TrainingSessionService extends GenericService<
+  typeof TrainingSession,
+  ITrainingSession
 > {
   constructor() {
-    super(Demo);
+    super(TrainingSession);
   }
 }

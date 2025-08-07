@@ -1,9 +1,9 @@
 import { model, Schema } from 'mongoose';
-import { IDemo, IDemoModel } from './demo.interface';
+import { IDoctorAppointmentSchedule, IDoctorAppointmentScheduleModel } from './DoctorAppointmentSchedule.interface';
 import paginate from '../../common/plugins/paginate';
 
 
-const demoSchema = new Schema<IDemo>(
+const DoctorAppointmentScheduleSchema = new Schema<IDoctorAppointmentSchedule>(
   {
     userId: {
       type: Schema.Types.ObjectId,
@@ -22,9 +22,9 @@ const demoSchema = new Schema<IDemo>(
   { timestamps: true }
 );
 
-demoSchema.plugin(paginate);
+DoctorAppointmentScheduleSchema.plugin(paginate);
 
-demoSchema.pre('save', function (next) {
+DoctorAppointmentScheduleSchema.pre('save', function (next) {
   // Rename _id to _projectId
   // this._taskId = this._id;
   // this._id = undefined;  // Remove the default _id field
@@ -34,15 +34,15 @@ demoSchema.pre('save', function (next) {
 });
 
 // Use transform to rename _id to _projectId
-demoSchema.set('toJSON', {
+DoctorAppointmentScheduleSchema.set('toJSON', {
   transform: function (doc, ret, options) {
-    ret._demoId = ret._id; // Rename _id to _subscriptionId
+    ret._DoctorAppointmentScheduleId = ret._id; // Rename _id to _subscriptionId
     delete ret._id; // Remove the original _id field
     return ret;
   },
 });
 
-export const Demo = model<
-  IDemo,
-  IDemoModel
->('Demo', demoSchema);
+export const DoctorAppointmentSchedule = model<
+  IDoctorAppointmentSchedule,
+  IDoctorAppointmentScheduleModel
+>('DoctorAppointmentSchedule', DoctorAppointmentScheduleSchema);

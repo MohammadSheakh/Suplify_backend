@@ -2,22 +2,22 @@ import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
 import { GenericController } from '../__Generic/generic.controller';
-import { Demo } from './demo.model';
-import { IDemo } from './demo.interface';
-import { DemoService } from './demo.service';
+import { DoctorAppointmentSchedule } from './DoctorAppointmentSchedule.model';
+import { IDoctorAppointmentSchedule } from './DoctorAppointmentSchedule.interface';
+import { DoctorAppointmentScheduleService } from './DoctorAppointmentSchedule.service';
 
 
 // let conversationParticipantsService = new ConversationParticipentsService();
 // let messageService = new MessagerService();
 
-export class DemoController extends GenericController<
-  typeof Demo,
-  IDemo
+export class DoctorAppointmentScheduleController extends GenericController<
+  typeof DoctorAppointmentSchedule,
+  IDoctorAppointmentSchedule
 > {
-  demoService = new DemoService();
+  DoctorAppointmentScheduleService = new DoctorAppointmentScheduleService();
 
   constructor() {
-    super(new DemoService(), 'Demo');
+    super(new DoctorAppointmentScheduleService(), 'DoctorAppointmentSchedule');
   }
 
   // add more methods here if needed or override the existing ones 

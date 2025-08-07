@@ -1,14 +1,14 @@
 import { StatusCodes } from 'http-status-codes';
-import { Demo } from './demo.model';
-import { IDemo } from './demo.interface';
+import { AdherenceAndConsistency } from './AdherenceAndConsistency.model';
+import { IAdherenceAndConsistency } from './AdherenceAndConsistency.interface';
 import { GenericService } from '../__Generic/generic.services';
 
 
-export class DemoService extends GenericService<
-  typeof Demo,
-  IDemo
+export class AdherenceAndConsistencyService extends GenericService<
+  typeof AdherenceAndConsistency,
+  IAdherenceAndConsistency
 > {
   constructor() {
-    super(Demo);
+    super(AdherenceAndConsistency);
   }
 }

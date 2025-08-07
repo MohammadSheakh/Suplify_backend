@@ -1,4 +1,4 @@
-export enum DemoType {
+export enum SpecialistWorkoutClassScheduleType {
   document = 'document',
   image = 'image',
   unknown = 'unknown',

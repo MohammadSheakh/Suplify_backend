@@ -1,4 +1,4 @@
-export enum DemoType {
+export enum SuggestionBySpecialistType {
   document = 'document',
   image = 'image',
   unknown = 'unknown',

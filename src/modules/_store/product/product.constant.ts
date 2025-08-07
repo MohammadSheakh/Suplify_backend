@@ -1,4 +1,4 @@
-export enum DemoType {
+export enum ProductType {
   document = 'document',
   image = 'image',
   unknown = 'unknown',

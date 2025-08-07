@@ -1,14 +1,14 @@
 import { StatusCodes } from 'http-status-codes';
-import { Demo } from './demo.model';
-import { IDemo } from './demo.interface';
+import { DoctorAppointmentSchedule } from './DoctorAppointmentSchedule.model';
+import { IDoctorAppointmentSchedule } from './DoctorAppointmentSchedule.interface';
 import { GenericService } from '../__Generic/generic.services';
 
 
-export class DemoService extends GenericService<
-  typeof Demo,
-  IDemo
+export class DoctorAppointmentScheduleService extends GenericService<
+  typeof DoctorAppointmentSchedule,
+  IDoctorAppointmentSchedule
 > {
   constructor() {
-    super(Demo);
+    super(DoctorAppointmentSchedule);
   }
 }

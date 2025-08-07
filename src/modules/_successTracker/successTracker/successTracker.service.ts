@@ -1,14 +1,14 @@
 import { StatusCodes } from 'http-status-codes';
-import { Demo } from './demo.model';
-import { IDemo } from './demo.interface';
+import { SuccessTracker } from './SuccessTracker.model';
+import { ISuccessTracker } from './SuccessTracker.interface';
 import { GenericService } from '../__Generic/generic.services';
 
 
-export class DemoService extends GenericService<
-  typeof Demo,
-  IDemo
+export class SuccessTrackerService extends GenericService<
+  typeof SuccessTracker,
+  ISuccessTracker
 > {
   constructor() {
-    super(Demo);
+    super(SuccessTracker);
   }
 }
