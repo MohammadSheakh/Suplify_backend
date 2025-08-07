@@ -12,6 +12,14 @@ import i18nextMiddleware from 'i18next-http-middleware';
 
 const app = express();
 
+/***********
+ *
+ * for payment related thing.. we need to use view engine .. 
+ * 
+ * ********* */
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+
 // morgan
 app.use(Morgan.successHandler);
 app.use(Morgan.errorHandler);

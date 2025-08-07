@@ -1,10 +1,10 @@
 import express from 'express';
-import * as validation from './SuccessTracker.validation';
-import { SuccessTrackerController} from './SuccessTracker.controller';
-import { ISuccessTracker } from './SuccessTracker.interface';
-import { validateFiltersForQuery } from '../../middlewares/queryValidation/paginationQueryValidationMiddleware';
-import validateRequest from '../../shared/validateRequest';
-import auth from '../../middlewares/auth';
+import * as validation from './successTracker.validation';
+import { SuccessTrackerController} from './successTracker.controller';
+import { ISuccessTracker } from './successTracker.interface';
+import { validateFiltersForQuery } from '../../../middlewares/queryValidation/paginationQueryValidationMiddleware';
+import validateRequest from '../../../shared/validateRequest';
+import auth from '../../../middlewares/auth';
 
 const multer = require('multer');
 const storage = multer.memoryStorage();

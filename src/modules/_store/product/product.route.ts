@@ -1,10 +1,10 @@
 import express from 'express';
-import * as validation from './Product.validation';
-import { ProductController} from './Product.controller';
-import { IProduct } from './Product.interface';
-import { validateFiltersForQuery } from '../../middlewares/queryValidation/paginationQueryValidationMiddleware';
-import validateRequest from '../../shared/validateRequest';
-import auth from '../../middlewares/auth';
+import * as validation from './product.validation';
+import { ProductController} from './product.controller';
+import { IProduct } from './product.interface';
+import { validateFiltersForQuery } from '../../../middlewares/queryValidation/paginationQueryValidationMiddleware';
+import validateRequest from '../../../shared/validateRequest';
+import auth from '../../../middlewares/auth';
 
 const multer = require('multer');
 const storage = multer.memoryStorage();

@@ -1,11 +1,10 @@
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
-import { GenericController } from '../__Generic/generic.controller';
-import { SpecialistWorkoutClassSchedule } from './SpecialistWorkoutClassSchedule.model';
-import { ISpecialistWorkoutClassSchedule } from './SpecialistWorkoutClassSchedule.interface';
-import { SpecialistWorkoutClassScheduleService } from './SpecialistWorkoutClassSchedule.service';
-
+import { GenericController } from '../../__Generic/generic.controller';
+import { SpecialistWorkoutClassSchedule } from './specialistWorkoutClassSchedule.model';
+import { ISpecialistWorkoutClassSchedule } from './specialistWorkoutClassSchedule.interface';
+import { SpecialistWorkoutClassScheduleService } from './specialistWorkoutClassSchedule.service';
 
 // let conversationParticipantsService = new ConversationParticipentsService();
 // let messageService = new MessagerService();

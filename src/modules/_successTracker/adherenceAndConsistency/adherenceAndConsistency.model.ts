@@ -1,6 +1,6 @@
 import { model, Schema } from 'mongoose';
-import { IAdherenceAndConsistency, IAdherenceAndConsistencyModel } from './AdherenceAndConsistency.interface';
-import paginate from '../../common/plugins/paginate';
+import paginate from '../../../common/plugins/paginate';
+import { IAdherenceAndConsistency, IAdherenceAndConsistencyModel } from './adherenceAndConsistency.interface';
 
 
 const AdherenceAndConsistencySchema = new Schema<IAdherenceAndConsistency>(

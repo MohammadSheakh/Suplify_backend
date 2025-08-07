@@ -1,6 +1,6 @@
 import { model, Schema } from 'mongoose';
-import { ISuccessTracker, ISuccessTrackerModel } from './SuccessTracker.interface';
-import paginate from '../../common/plugins/paginate';
+import { ISuccessTracker, ISuccessTrackerModel } from './successTracker.interface';
+import paginate from '../../../common/plugins/paginate';
 
 
 const SuccessTrackerSchema = new Schema<ISuccessTracker>(

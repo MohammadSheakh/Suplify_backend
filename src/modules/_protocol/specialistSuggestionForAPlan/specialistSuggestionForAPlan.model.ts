@@ -1,6 +1,6 @@
 import { model, Schema } from 'mongoose';
-import { ISpecialistSuggestionForAPlan, ISpecialistSuggestionForAPlanModel } from './SpecialistSuggestionForAPlan.interface';
-import paginate from '../../common/plugins/paginate';
+import { ISpecialistSuggestionForAPlan, ISpecialistSuggestionForAPlanModel } from './specialistSuggestionForAPlan.interface';
+import paginate from '../../../common/plugins/paginate';
 
 
 const SpecialistSuggestionForAPlanSchema = new Schema<ISpecialistSuggestionForAPlan>(

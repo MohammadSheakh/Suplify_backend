@@ -1,6 +1,6 @@
 import { model, Schema } from 'mongoose';
-import { ISpecialistPatientScheduleBooking, ISpecialistPatientScheduleBookingModel } from './SpecialistPatientScheduleBooking.interface';
-import paginate from '../../common/plugins/paginate';
+import { ISpecialistPatientScheduleBooking, ISpecialistPatientScheduleBookingModel } from './specialistPatientScheduleBooking.interface';
+import paginate from '../../../common/plugins/paginate';
 
 
 const SpecialistPatientScheduleBookingSchema = new Schema<ISpecialistPatientScheduleBooking>(

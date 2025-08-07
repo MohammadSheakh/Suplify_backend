@@ -2,9 +2,9 @@ import express from 'express';
 import * as validation from './doctorSpecialist.validation';
 import { doctorSpecialistController} from './doctorSpecialist.controller';
 import { IdoctorSpecialist } from './doctorSpecialist.interface';
-import { validateFiltersForQuery } from '../../middlewares/queryValidation/paginationQueryValidationMiddleware';
-import validateRequest from '../../shared/validateRequest';
-import auth from '../../middlewares/auth';
+import { validateFiltersForQuery } from '../../../middlewares/queryValidation/paginationQueryValidationMiddleware';
+import validateRequest from '../../../shared/validateRequest';
+import auth from '../../../middlewares/auth';
 
 const multer = require('multer');
 const storage = multer.memoryStorage();

@@ -1,7 +1,7 @@
 import { StatusCodes } from 'http-status-codes';
-import { SuggestionBySpecialist } from './SuggestionBySpecialist.model';
-import { ISuggestionBySpecialist } from './SuggestionBySpecialist.interface';
-import { GenericService } from '../__Generic/generic.services';
+import { SuggestionBySpecialist } from './suggestionBySpecialist.model';
+import { ISuggestionBySpecialist } from './suggestionBySpecialist.interface';
+import { GenericService } from '../../__Generic/generic.services';
 
 
 export class SuggestionBySpecialistService extends GenericService<

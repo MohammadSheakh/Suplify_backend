@@ -1,10 +1,10 @@
 import express from 'express';
-import * as validation from './AdherenceAndConsistency.validation';
-import { AdherenceAndConsistencyController} from './AdherenceAndConsistency.controller';
-import { IAdherenceAndConsistency } from './AdherenceAndConsistency.interface';
-import { validateFiltersForQuery } from '../../middlewares/queryValidation/paginationQueryValidationMiddleware';
-import validateRequest from '../../shared/validateRequest';
-import auth from '../../middlewares/auth';
+import * as validation from './adherenceAndConsistency.validation';
+import { AdherenceAndConsistencyController} from './adherenceAndConsistency.controller';
+import { IAdherenceAndConsistency } from './adherenceAndConsistency.interface';
+import { validateFiltersForQuery } from '../../../middlewares/queryValidation/paginationQueryValidationMiddleware';
+import validateRequest from '../../../shared/validateRequest';
+import auth from '../../../middlewares/auth';
 
 const multer = require('multer');
 const storage = multer.memoryStorage();

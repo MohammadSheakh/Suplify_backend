@@ -1,6 +1,6 @@
 import { model, Schema } from 'mongoose';
 import { Iprotocol, IprotocolModel } from './protocol.interface';
-import paginate from '../../common/plugins/paginate';
+import paginate from '../../../common/plugins/paginate';
 
 
 const protocolSchema = new Schema<Iprotocol>(

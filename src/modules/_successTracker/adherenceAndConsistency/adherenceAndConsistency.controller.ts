@@ -1,10 +1,10 @@
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
-import { GenericController } from '../__Generic/generic.controller';
-import { AdherenceAndConsistency } from './AdherenceAndConsistency.model';
-import { IAdherenceAndConsistency } from './AdherenceAndConsistency.interface';
-import { AdherenceAndConsistencyService } from './AdherenceAndConsistency.service';
+import { GenericController } from '../../__Generic/generic.controller';
+import { AdherenceAndConsistency } from './adherenceAndConsistency.model';
+import { IAdherenceAndConsistency } from './adherenceAndConsistency.interface';
+import { AdherenceAndConsistencyService } from './adherenceAndConsistency.service';
 
 
 // let conversationParticipantsService = new ConversationParticipentsService();

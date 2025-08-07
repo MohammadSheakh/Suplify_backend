@@ -1,10 +1,10 @@
 import express from 'express';
-import * as validation from './SpecialistSuggestionForAPlan.validation';
-import { SpecialistSuggestionForAPlanController} from './SpecialistSuggestionForAPlan.controller';
-import { ISpecialistSuggestionForAPlan } from './SpecialistSuggestionForAPlan.interface';
-import { validateFiltersForQuery } from '../../middlewares/queryValidation/paginationQueryValidationMiddleware';
-import validateRequest from '../../shared/validateRequest';
-import auth from '../../middlewares/auth';
+import * as validation from './specialistSuggestionForAPlan.validation';
+import { SpecialistSuggestionForAPlanController} from './specialistSuggestionForAPlan.controller';
+import { ISpecialistSuggestionForAPlan } from './specialistSuggestionForAPlan.interface';
+import { validateFiltersForQuery } from '../../../middlewares/queryValidation/paginationQueryValidationMiddleware';
+import validateRequest from '../../../shared/validateRequest';
+import auth from '../../../middlewares/auth';
 
 const multer = require('multer');
 const storage = multer.memoryStorage();

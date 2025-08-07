@@ -1,6 +1,6 @@
 import { model, Schema } from 'mongoose';
-import { ITrainingProgramPurchase, ITrainingProgramPurchaseModel } from './TrainingProgramPurchase.interface';
-import paginate from '../../common/plugins/paginate';
+import paginate from '../../../common/plugins/paginate';
+import { ITrainingProgramPurchase, ITrainingProgramPurchaseModel } from './trainingProgramPurchase.interface';
 
 
 const TrainingProgramPurchaseSchema = new Schema<ITrainingProgramPurchase>(

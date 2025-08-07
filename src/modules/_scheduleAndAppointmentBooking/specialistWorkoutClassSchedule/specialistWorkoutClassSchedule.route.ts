@@ -1,10 +1,10 @@
 import express from 'express';
-import * as validation from './SpecialistWorkoutClassSchedule.validation';
-import { SpecialistWorkoutClassScheduleController} from './SpecialistWorkoutClassSchedule.controller';
-import { ISpecialistWorkoutClassSchedule } from './SpecialistWorkoutClassSchedule.interface';
-import { validateFiltersForQuery } from '../../middlewares/queryValidation/paginationQueryValidationMiddleware';
-import validateRequest from '../../shared/validateRequest';
-import auth from '../../middlewares/auth';
+import * as validation from './specialistWorkoutClassSchedule.validation';
+import { SpecialistWorkoutClassScheduleController} from './specialistWorkoutClassSchedule.controller';
+import { ISpecialistWorkoutClassSchedule } from './specialistWorkoutClassSchedule.interface';
+import { validateFiltersForQuery } from '../../../middlewares/queryValidation/paginationQueryValidationMiddleware';
+import validateRequest from '../../../shared/validateRequest';
+import auth from '../../../middlewares/auth';
 
 const multer = require('multer');
 const storage = multer.memoryStorage();

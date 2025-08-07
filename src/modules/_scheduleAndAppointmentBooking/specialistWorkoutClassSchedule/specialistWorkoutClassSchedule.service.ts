@@ -1,8 +1,7 @@
 import { StatusCodes } from 'http-status-codes';
-import { SpecialistWorkoutClassSchedule } from './SpecialistWorkoutClassSchedule.model';
-import { ISpecialistWorkoutClassSchedule } from './SpecialistWorkoutClassSchedule.interface';
-import { GenericService } from '../__Generic/generic.services';
-
+import { SpecialistWorkoutClassSchedule } from './specialistWorkoutClassSchedule.model';
+import { ISpecialistWorkoutClassSchedule } from './specialistWorkoutClassSchedule.interface';
+import { GenericService } from '../../__Generic/generic.services';
 
 export class SpecialistWorkoutClassScheduleService extends GenericService<
   typeof SpecialistWorkoutClassSchedule,

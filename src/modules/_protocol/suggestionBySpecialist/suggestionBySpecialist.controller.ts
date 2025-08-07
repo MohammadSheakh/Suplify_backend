@@ -1,10 +1,10 @@
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
-import { GenericController } from '../__Generic/generic.controller';
-import { SuggestionBySpecialist } from './SuggestionBySpecialist.model';
-import { ISuggestionBySpecialist } from './SuggestionBySpecialist.interface';
-import { SuggestionBySpecialistService } from './SuggestionBySpecialist.service';
+import { GenericController } from '../../__Generic/generic.controller';
+import { SuggestionBySpecialist } from './suggestionBySpecialist.model';
+import { ISuggestionBySpecialist } from './suggestionBySpecialist.interface';
+import { SuggestionBySpecialistService } from './suggestionBySpecialist.service';
 
 
 // let conversationParticipantsService = new ConversationParticipentsService();

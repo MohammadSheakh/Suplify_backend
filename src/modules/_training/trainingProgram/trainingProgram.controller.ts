@@ -1,11 +1,9 @@
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
-
-import { GenericController } from '../__Generic/generic.controller';
-import { TrainingProgram } from './TrainingProgram.model';
-import { ITrainingProgram } from './TrainingProgram.interface';
-import { TrainingProgramService } from './TrainingProgram.service';
-
+import { TrainingProgram } from './trainingProgram.model';
+import { ITrainingProgram } from './trainingProgram.interface';
+import { GenericController } from '../../__Generic/generic.controller';
+import { TrainingProgramService } from './trainingProgram.service';
 
 // let conversationParticipantsService = new ConversationParticipentsService();
 // let messageService = new MessagerService();

@@ -1,10 +1,10 @@
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
-import { GenericController } from '../__Generic/generic.controller';
-import { SuccessTracker } from './SuccessTracker.model';
-import { ISuccessTracker } from './SuccessTracker.interface';
-import { SuccessTrackerService } from './SuccessTracker.service';
+import { GenericController } from '../../__Generic/generic.controller';
+import { SuccessTracker } from './successTracker.model';
+import { ISuccessTracker } from './successTracker.interface';
+import { SuccessTrackerService } from './successTracker.service';
 
 
 // let conversationParticipantsService = new ConversationParticipentsService();

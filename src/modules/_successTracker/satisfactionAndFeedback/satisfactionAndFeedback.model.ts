@@ -1,6 +1,6 @@
 import { model, Schema } from 'mongoose';
-import { ISatisfactionAndFeedback, ISatisfactionAndFeedbackModel } from './SatisfactionAndFeedback.interface';
-import paginate from '../../common/plugins/paginate';
+import { ISatisfactionAndFeedback, ISatisfactionAndFeedbackModel } from './satisfactionAndFeedback.interface';
+import paginate from '../../../common/plugins/paginate';
 
 
 const SatisfactionAndFeedbackSchema = new Schema<ISatisfactionAndFeedback>(

@@ -1,7 +1,7 @@
 import { StatusCodes } from 'http-status-codes';
-import { SuccessTracker } from './SuccessTracker.model';
-import { ISuccessTracker } from './SuccessTracker.interface';
-import { GenericService } from '../__Generic/generic.services';
+import { SuccessTracker } from './successTracker.model';
+import { ISuccessTracker } from './successTracker.interface';
+import { GenericService } from '../../__Generic/generic.services';
 
 
 export class SuccessTrackerService extends GenericService<

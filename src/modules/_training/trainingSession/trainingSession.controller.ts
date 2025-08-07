@@ -1,10 +1,10 @@
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
-import { GenericController } from '../__Generic/generic.controller';
-import { TrainingSession } from './TrainingSession.model';
-import { ITrainingSession } from './TrainingSession.interface';
-import { TrainingSessionService } from './TrainingSession.service';
+import { GenericController } from '../../__Generic/generic.controller';
+import { TrainingSession } from './trainingSession.model';
+import { ITrainingSession } from './trainingSession.interface';
+import { TrainingSessionService } from './trainingSession.service';
 
 
 // let conversationParticipantsService = new ConversationParticipentsService();

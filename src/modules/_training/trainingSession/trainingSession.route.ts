@@ -1,10 +1,10 @@
 import express from 'express';
-import * as validation from './TrainingSession.validation';
-import { TrainingSessionController} from './TrainingSession.controller';
-import { ITrainingSession } from './TrainingSession.interface';
-import { validateFiltersForQuery } from '../../middlewares/queryValidation/paginationQueryValidationMiddleware';
-import validateRequest from '../../shared/validateRequest';
-import auth from '../../middlewares/auth';
+import * as validation from './trainingSession.validation';
+import { TrainingSessionController} from './trainingSession.controller';
+import { ITrainingSession } from './trainingSession.interface';
+import { validateFiltersForQuery } from '../../../middlewares/queryValidation/paginationQueryValidationMiddleware';
+import validateRequest from '../../../shared/validateRequest';
+import auth from '../../../middlewares/auth';
 
 const multer = require('multer');
 const storage = multer.memoryStorage();

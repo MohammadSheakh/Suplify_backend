@@ -1,6 +1,6 @@
 import { model, Schema } from 'mongoose';
-import { IProduct, IProductModel } from './Product.interface';
-import paginate from '../../common/plugins/paginate';
+import { IProduct, IProductModel } from './product.interface';
+import paginate from '../../../common/plugins/paginate';
 
 
 const ProductSchema = new Schema<IProduct>(

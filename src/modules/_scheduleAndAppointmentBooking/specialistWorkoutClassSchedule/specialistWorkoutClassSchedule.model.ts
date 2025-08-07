@@ -1,7 +1,6 @@
 import { model, Schema } from 'mongoose';
-import { ISpecialistWorkoutClassSchedule, ISpecialistWorkoutClassScheduleModel } from './SpecialistWorkoutClassSchedule.interface';
-import paginate from '../../common/plugins/paginate';
-
+import { ISpecialistWorkoutClassSchedule, ISpecialistWorkoutClassScheduleModel } from './specialistWorkoutClassSchedule.interface';
+import paginate from '../../../common/plugins/paginate';
 
 const SpecialistWorkoutClassScheduleSchema = new Schema<ISpecialistWorkoutClassSchedule>(
   {

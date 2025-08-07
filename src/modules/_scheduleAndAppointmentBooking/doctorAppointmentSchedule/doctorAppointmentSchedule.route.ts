@@ -1,10 +1,10 @@
 import express from 'express';
-import * as validation from './DoctorAppointmentSchedule.validation';
-import { DoctorAppointmentScheduleController} from './DoctorAppointmentSchedule.controller';
-import { IDoctorAppointmentSchedule } from './DoctorAppointmentSchedule.interface';
-import { validateFiltersForQuery } from '../../middlewares/queryValidation/paginationQueryValidationMiddleware';
-import validateRequest from '../../shared/validateRequest';
-import auth from '../../middlewares/auth';
+import * as validation from './doctorAppointmentSchedule.validation';
+import { DoctorAppointmentScheduleController} from './doctorAppointmentSchedule.controller';
+import { IDoctorAppointmentSchedule } from './doctorAppointmentSchedule.interface';
+import { validateFiltersForQuery } from '../../../middlewares/queryValidation/paginationQueryValidationMiddleware';
+import validateRequest from '../../../shared/validateRequest';
+import auth from '../../../middlewares/auth';
 
 const multer = require('multer');
 const storage = multer.memoryStorage();

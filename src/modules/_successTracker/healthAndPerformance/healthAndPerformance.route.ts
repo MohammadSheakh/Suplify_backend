@@ -1,10 +1,10 @@
 import express from 'express';
-import * as validation from './HealthAndPerformance.validation';
-import { HealthAndPerformanceController} from './HealthAndPerformance.controller';
-import { IHealthAndPerformance } from './HealthAndPerformance.interface';
-import { validateFiltersForQuery } from '../../middlewares/queryValidation/paginationQueryValidationMiddleware';
-import validateRequest from '../../shared/validateRequest';
-import auth from '../../middlewares/auth';
+import * as validation from './healthAndPerformance.validation';
+import { HealthAndPerformanceController} from './healthAndPerformance.controller';
+import { IHealthAndPerformance } from './healthAndPerformance.interface';
+import { validateFiltersForQuery } from '../../../middlewares/queryValidation/paginationQueryValidationMiddleware';
+import validateRequest from '../../../shared/validateRequest';
+import auth from '../../../middlewares/auth';
 
 const multer = require('multer');
 const storage = multer.memoryStorage();

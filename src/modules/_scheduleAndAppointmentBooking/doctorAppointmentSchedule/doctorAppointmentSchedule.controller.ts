@@ -1,10 +1,10 @@
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
-import { GenericController } from '../__Generic/generic.controller';
-import { DoctorAppointmentSchedule } from './DoctorAppointmentSchedule.model';
-import { IDoctorAppointmentSchedule } from './DoctorAppointmentSchedule.interface';
-import { DoctorAppointmentScheduleService } from './DoctorAppointmentSchedule.service';
+import { GenericController } from '../../__Generic/generic.controller';
+import { DoctorAppointmentSchedule } from './doctorAppointmentSchedule.model';
+import { IDoctorAppointmentSchedule } from './doctorAppointmentSchedule.interface';
+import { DoctorAppointmentScheduleService } from './doctorAppointmentSchedule.service';
 
 
 // let conversationParticipantsService = new ConversationParticipentsService();

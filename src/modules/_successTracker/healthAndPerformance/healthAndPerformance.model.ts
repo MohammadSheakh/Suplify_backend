@@ -1,6 +1,6 @@
 import { model, Schema } from 'mongoose';
-import { IHealthAndPerformance, IHealthAndPerformanceModel } from './HealthAndPerformance.interface';
-import paginate from '../../common/plugins/paginate';
+import { IHealthAndPerformance, IHealthAndPerformanceModel } from './healthAndPerformance.interface';
+import paginate from '../../../common/plugins/paginate';
 
 
 const HealthAndPerformanceSchema = new Schema<IHealthAndPerformance>(

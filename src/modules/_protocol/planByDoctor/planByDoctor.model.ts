@@ -1,6 +1,6 @@
 import { model, Schema } from 'mongoose';
 import { IplanByDoctor, IplanByDoctorModel } from './planByDoctor.interface';
-import paginate from '../../common/plugins/paginate';
+import paginate from '../../../common/plugins/paginate';
 
 
 const planByDoctorSchema = new Schema<IplanByDoctor>(

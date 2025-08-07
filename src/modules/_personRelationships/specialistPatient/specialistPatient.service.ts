@@ -1,7 +1,7 @@
 import { StatusCodes } from 'http-status-codes';
 import { specialistPatient } from './specialistPatient.model';
 import { IspecialistPatient } from './specialistPatient.interface';
-import { GenericService } from '../__Generic/generic.services';
+import { GenericService } from '../../__Generic/generic.services';
 
 
 export class specialistPatientService extends GenericService<

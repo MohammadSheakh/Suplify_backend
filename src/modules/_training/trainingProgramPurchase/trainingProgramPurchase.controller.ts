@@ -1,10 +1,10 @@
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
-import { GenericController } from '../__Generic/generic.controller';
-import { TrainingProgramPurchase } from './TrainingProgramPurchase.model';
-import { ITrainingProgramPurchase } from './TrainingProgramPurchase.interface';
-import { TrainingProgramPurchaseService } from './TrainingProgramPurchase.service';
+import { GenericController } from '../../__Generic/generic.controller';
+import { TrainingProgramPurchase } from './trainingProgramPurchase.model';
+import { ITrainingProgramPurchase } from './trainingProgramPurchase.interface';
+import { TrainingProgramPurchaseService } from './trainingProgramPurchase.service';
 
 
 // let conversationParticipantsService = new ConversationParticipentsService();

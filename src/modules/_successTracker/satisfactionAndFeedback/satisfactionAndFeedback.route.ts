@@ -1,10 +1,10 @@
 import express from 'express';
-import * as validation from './SatisfactionAndFeedback.validation';
-import { SatisfactionAndFeedbackController} from './SatisfactionAndFeedback.controller';
-import { ISatisfactionAndFeedback } from './SatisfactionAndFeedback.interface';
-import { validateFiltersForQuery } from '../../middlewares/queryValidation/paginationQueryValidationMiddleware';
-import validateRequest from '../../shared/validateRequest';
-import auth from '../../middlewares/auth';
+import * as validation from './satisfactionAndFeedback.validation';
+import { SatisfactionAndFeedbackController} from './satisfactionAndFeedback.controller';
+import { ISatisfactionAndFeedback } from './satisfactionAndFeedback.interface';
+import { validateFiltersForQuery } from '../../../middlewares/queryValidation/paginationQueryValidationMiddleware';
+import validateRequest from '../../../shared/validateRequest';
+import auth from '../../../middlewares/auth';
 
 const multer = require('multer');
 const storage = multer.memoryStorage();

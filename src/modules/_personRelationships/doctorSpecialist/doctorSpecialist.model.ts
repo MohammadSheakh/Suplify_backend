@@ -1,6 +1,6 @@
 import { model, Schema } from 'mongoose';
 import { IdoctorSpecialist, IdoctorSpecialistModel } from './doctorSpecialist.interface';
-import paginate from '../../common/plugins/paginate';
+import paginate from '../../../common/plugins/paginate';
 
 
 const doctorSpecialistSchema = new Schema<IdoctorSpecialist>(
