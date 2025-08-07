@@ -3,10 +3,9 @@ import paginate from '../../../common/plugins/paginate';
 import {
   OrderStatus,
   OrderType,
+  TOrderRelatedTo,
 } from './order.constant';
 import { IOrder, IOrderModel } from './order.interface';
-
-
 
 const orderSchema = new Schema<IOrder>(
   {
@@ -19,17 +18,15 @@ const orderSchema = new Schema<IOrder>(
       type : Number,
       required : [true, 'totalAmount is needed']
     },
-    orderType : {
-      // TODO: orderType niye chinta korte hboe  🔥🔥
-      // like eta ki store er order .. naki training program er order .. 
-      // naki virtual workout class er order .. naki 
-      // subscription er order ... 
-
+    orderRelatedTo : {
       type : String,
       enum : [
-        OrderType.premium,
-        OrderType.premium,
-        OrderType.premium,
+        TOrderRelatedTo.product,
+        TOrderRelatedTo.labTest,
+        TOrderRelatedTo.appointment,
+        TOrderRelatedTo.trainingProgram,
+        TOrderRelatedTo.workoutClass,
+        TOrderRelatedTo.subscription,
       ],
       required: [
         true,
@@ -37,7 +34,7 @@ const orderSchema = new Schema<IOrder>(
           OrderType
         ).join(', ')}`,
       ],
-    } ,
+    },
     orderStatus: {
       type: String,
       enum: [
@@ -46,6 +43,7 @@ const orderSchema = new Schema<IOrder>(
         OrderStatus.complete,
         OrderStatus.failed,
         OrderStatus.refunded,
+        OrderStatus.cancelled,
       ],
       required: [
         true,
@@ -60,7 +58,45 @@ const orderSchema = new Schema<IOrder>(
       type: String,
       required: [false, 'orderNotes is not required'],
     },
-    
+
+    PaymentTransactionId: {
+      type: Schema.Types.ObjectId,
+      ref: 'PaymentTransaction',
+      default: null,
+    },
+    paymentMethod: {
+      type: String,
+      enum: PAYMENT_METHOD,
+      default: PAYMENT_METHOD.ONLINE,
+    },
+    paymentStatus: {
+      type: String,
+      enum: PAYMENT_STATUS,
+      default: PAYMENT_STATUS.UNPAID,
+    },
+
+    /***********
+     * 
+     * Need to check this ... TODO : 
+     * 
+     * ********** */
+    isPaymentTransferdToVendor: {
+      type: Boolean,
+      default: false,
+    },
+    /***************
+     * 
+     * Shipping Address must add kora lagbe .. 
+     * 
+     * ********** */
+    shippingAddress: {
+      type: String,
+      required: true,
+    },
+    isNeedRefund: {
+      type: Boolean,
+      default: false,
+    },
     isDeleted: {
       type: Boolean,
       required: [false, 'isDeleted is not required'],

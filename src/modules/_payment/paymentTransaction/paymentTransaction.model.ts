@@ -1,26 +1,35 @@
 import { model, Schema } from 'mongoose';
-
 import paginate from '../../../common/plugins/paginate';
+import { IPaymentTransaction, IPaymentTransactionModel } from './paymentTransaction.interface';
+import { CurrencyType } from '../../_subscription/subscriptionPlan/subscriptionPlan.constant';
+import { TPaymentGateway, TPaymentStatus, TTransactionFor } from './paymentTransaction.constant';
 
-
-import { ISubscription, ISubscriptionModel } from './subscription.interface';
-import { CurrencyType } from '../../_subscription/subscription/subscription.constant';
-
-const paymentMethodSchema = new Schema<ISubscription>(
+const paymentTransactionSchema = new Schema<IPaymentTransaction>(
   {
     userId: {
       type: Schema.Types.ObjectId,
       ref: 'User',
       required: true
     },
-    paymentMethodId: {
+    // For product purchases
+    orderId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Order',
+      required: function() { return this.type.toString() === 'order'; }
+    },
+    /**********
+    paymentMethodId: { // Persons Card Infomation.. But no need
       type: Schema.Types.ObjectId,
       ref: 'PaymentMethod',
-      required: true
+      required: false
     },
+    ********** */
     type: {
       type: String,
-      enum: ['subscription', 'order'],
+      enum: [
+        TTransactionFor.order ,
+        TTransactionFor.subscription
+      ],
       required: true
     },
     // For subscription payments
@@ -31,23 +40,35 @@ const paymentMethodSchema = new Schema<ISubscription>(
       required: function() { return this.type.toString() === 'subscription'; } // 🔥🔥 bujhi nai 
     },
 
-    // For product purchases
-    orderId: {
-      type: Schema.Types.ObjectId,
-      ref: 'Order',
-      required: function() { return this.type.toString() === 'order'; }
-    },
-    paymentMethodOrProcessorOrGateway: {
+    paymentGateway: {
       type: String,
-      enum: ['stripe', 'paypal'],
+      enum: [
+        TPaymentGateway.stripe,
+        TPaymentGateway.paypal,
+        TPaymentGateway.none
+      ],
       required: true
     },
+    
+    /***************
     // External payment IDs
     // stripe_payment_intent_id /  paypal_transaction_id
     externalTransactionOrPaymentId: {
       type: String,
       required: 'true' 
     },
+    ********************* */
+
+    transactionId: { // from kappes
+      type: String,
+      default: null,
+    },
+    paymentIntent: { // from kappes
+      type: String,
+      default: null,
+    },
+
+
     // stripe_payment_intent_id: {
     //   type: String,
     //   required: function() { return this.paymentProcessor === 'stripe'; }
@@ -68,11 +89,20 @@ const paymentMethodSchema = new Schema<ISubscription>(
     },
     paymentStatus: {
       type: String,
-      enum: ['pending', 'processing', 'completed', 'failed', 'refunded', 'cancelled'],
-      default: 'pending'
+      enum: [
+        TPaymentStatus.pending, // TODO : we need to add description for each of this
+        TPaymentStatus.processing,
+        TPaymentStatus.completed,
+        TPaymentStatus.failed,
+        TPaymentStatus.refunded,
+        TPaymentStatus.cancelled,
+        TPaymentStatus.partially_refunded,
+        TPaymentStatus.disputed
+      ],
+      default: TPaymentStatus.pending
     },
     
-    description: {
+    description: { // INFO : do we really need this?
       type: String,
       required: false
     },
@@ -88,16 +118,20 @@ const paymentMethodSchema = new Schema<ISubscription>(
         country: String
       }
     },
-    metadata: {
-      type: Map,
-      of: String
+    // metadata: {
+    //   type: Map,
+    //   of: String
+    // },
+    // refundDetails: [{
+    //   amount: Number,
+    //   reason: String,
+    //   date: Date,
+    //   refundId: String
+    // }],
+    gatewayResponse: { // from kappes
+      type: Schema.Types.Mixed,
+      default: null,
     },
-    refundDetails: [{
-      amount: Number,
-      reason: String,
-      date: Date,
-      refundId: String
-    }],
     isDeleted: {
       type: Boolean,
       required: [false, 'isDeleted is not required'],
@@ -107,29 +141,28 @@ const paymentMethodSchema = new Schema<ISubscription>(
   { timestamps: true }
 );
 
-subscriptionSchema.plugin(paginate);
+paymentTransactionSchema.plugin(paginate);
 
-subscriptionSchema.pre('save', function(next) {
+paymentTransactionSchema.pre('save', function(next) {
   // Rename _id to _projectId
   // this._taskId = this._id;
   // this._id = undefined;  // Remove the default _id field
-  this.renewalFee = this.initialFee
-  
+
   next();
 });
 
 
 // Use transform to rename _id to _projectId
-subscriptionSchema.set('toJSON', {
+paymentTransactionSchema.set('toJSON', {
   transform: function (doc, ret, options) {
-    ret._subscriptionId = ret._id;  // Rename _id to _subscriptionId
+    ret._paymentTransactionId = ret._id;  // Rename _id to _paymentTransactionId
     delete ret._id;  // Remove the original _id field
     return ret;
   }
 });
 
 
-export const Subscription = model<ISubscription, ISubscriptionModel>(
-  'Subscription',
-  subscriptionSchema
+export const PaymentTransaction = model<IPaymentTransaction, IPaymentTransactionModel>(
+  'PaymentTransaction',
+  paymentTransactionSchema
 );

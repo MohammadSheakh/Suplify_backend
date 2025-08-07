@@ -12,4 +12,13 @@ export enum OrderStatus {
     complete = 'complete', 
     failed = 'failed',
     refunded = 'refunded',
+    cancelled = 'cancelled',
+}
+export enum TOrderRelatedTo{
+    product = 'product',
+    labTest = 'labTest',
+    appointment = 'appointment',
+    trainingProgram = 'trainingProgram',
+    workoutClass = 'workoutClass',
+    subscription = 'subscription',
 }

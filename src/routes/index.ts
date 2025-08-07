@@ -8,6 +8,7 @@ import { SettingsRoutes } from '../modules/settings/settings.routes';
 import { TrainingProgramRoute } from '../modules/_training/trainingProgram/trainingProgram.route';
 import { ConversationRoute } from '../modules/_chatting/conversation/conversation.route';
 import { MessageRoute } from '../modules/_chatting/message/message.route';
+import { PaymentTransactionRoute } from '../modules/_payment/paymentTransaction/paymentTransaction.route';
 
 // import { ChatRoutes } from '../modules/chat/chat.routes';
 // import { MessageRoutes } from '../modules/message/message.routes';
@@ -62,6 +63,10 @@ const apiRoutes = [
   {
     path: '/message',
     route: MessageRoute,
+  },
+  {
+    path: '/paymentTransaction',
+    route: PaymentTransactionRoute,
   }
 ];
 

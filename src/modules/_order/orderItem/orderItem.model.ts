@@ -20,14 +20,12 @@ const orderItemSchema = new Schema<IOrderItem>(
     itemType :{
       type : String,
       required: [true, 'itemType is required'],
-    }
-    ,
+    },
     
     itemName :{
       type : String,
       required: [true, 'itemName is required'],
-    }
-    ,
+    },
     quantity : {
       type: Number, 
       required: [true, 'quantity is required.. which is a number'],

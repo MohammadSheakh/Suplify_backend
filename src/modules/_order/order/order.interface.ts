@@ -2,14 +2,23 @@ import { Model, Types } from 'mongoose';
 
 
 import { PaginateOptions, PaginateResult } from '../../../types/paginate';
-import { OrderStatus, OrderType } from './order.constant';
+import { OrderStatus, OrderType, TOrderRelatedTo } from './order.constant';
 
 export interface IOrder {
   // _taskId: undefined | Types.ObjectId;
   _id?: Types.ObjectId; // undefined |  Types.ObjectId |
   userId : Types.ObjectId;
   totalAmount: Number;
-  orderType : OrderType.premium;
+  
+  // orderType : OrderType.premium;// not sure
+
+  orderRelatedTo : TOrderRelatedTo.product |
+        TOrderRelatedTo.labTest |
+        TOrderRelatedTo.appointment |
+        TOrderRelatedTo.trainingProgram |
+        TOrderRelatedTo.workoutClass |
+        TOrderRelatedTo.subscription;
+        
   orderStatus : OrderStatus.pending | 
                 OrderStatus.processing | 
                 OrderStatus.complete | 
