@@ -1,11 +1,13 @@
 import express from 'express';
-import * as validation from './planByDoctor.validation';
-import { PaymentTransactionController, planByDoctorController} from './paymentTransaction.controller';
-import { IplanByDoctor } from './planByDoctor.interface';
+
+import { PaymentTransactionController} from './paymentTransaction.controller';
+
 import { validateFiltersForQuery } from '../../../middlewares/queryValidation/paginationQueryValidationMiddleware';
 import validateRequest from '../../../shared/validateRequest';
 import auth from '../../../middlewares/auth';
 import { PaymentTransaction } from './paymentTransaction.model';
+import { IPaymentTransaction } from './paymentTransaction.interface';
+import * as validation from './paymentTransaction.validation';
 
 const multer = require('multer');
 const storage = multer.memoryStorage();
@@ -13,7 +15,7 @@ const upload = multer({ storage: storage });
 
 const router = express.Router();
 
-export const optionValidationChecking = <T extends keyof IplanByDoctor>(
+export const optionValidationChecking = <T extends keyof IPaymentTransaction>(
   filters: T[]
 ) => {
   return filters;
