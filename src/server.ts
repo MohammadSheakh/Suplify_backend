@@ -3,12 +3,13 @@ import mongoose from 'mongoose';
 import { Server } from 'socket.io';
 import app from './app';
 import { errorLogger, logger } from './shared/logger';
-import { socketHelper } from './helpers/socket';
 import { config } from './config';
 import os from 'os';
 import cluster from 'cluster';
 import { createAdapter } from '@socket.io/redis-adapter';
 import { createClient } from 'redis';
+import { initializeRedis, redisPubClient, redisSubClient } from './helpers/redis';
+import { socketHelper } from './helpers/socketForChat';
 
 // in production, use all cores, but in development, limit to 2-4 cores
 const numCPUs = config.environment === 'production' ? os.cpus().length : Math.max(2, Math.min(4, os.cpus().length));
@@ -61,7 +62,7 @@ async function main() {
      *  // Create Redis client for Pub/Sub
      * in terminal .. just write redis-cli
      * **************** */
-    
+    /***********************
     const redisPubClient = createClient({ // for redis .. 
       // 1. https://www.youtube.com/watch?v=QqTB97aMa4c 2. 
       host: '172.22.201.132',  // Update with your Redis configuration // localhost
@@ -90,6 +91,10 @@ async function main() {
         redisSubClient.connect()
       ]);
 
+    ***************/
+
+    // Initialize Redis
+    await initializeRedis();
 
     //socket
     const io = new Server(server, {
@@ -104,7 +109,7 @@ async function main() {
     io.adapter(createAdapter(redisPubClient, redisSubClient));
 
     // Setup socket helper
-    socketHelper.socket(io);
+    socketHelper.socketForChat_V2_Claude(io);
 
     // @ts-ignore
     global.io = io;
