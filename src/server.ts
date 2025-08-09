@@ -1,4 +1,4 @@
-import colors from 'colors';
+import colors from 'colors';// test from ubuntu
 import mongoose from 'mongoose';
 import { Server } from 'socket.io';
 import app from './app';
@@ -64,7 +64,7 @@ async function main() {
     
     const redisPubClient = createClient({ // for redis .. 
       // 1. https://www.youtube.com/watch?v=QqTB97aMa4c 2. 
-      host: 'localhost',  // Update with your Redis configuration
+      host: '172.22.201.132',  // Update with your Redis configuration // localhost
       port: 6379, // 6379
     });
 
