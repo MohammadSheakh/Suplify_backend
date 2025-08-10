@@ -1,6 +1,6 @@
 import { Document, Model, Types } from 'mongoose';
 import { Role } from '../../middlewares/roles';
-import { IMaritalStatus, TGender, TUserStatus } from './user.constant';
+import { IMaritalStatus, TGender, TStatusType, TSubscriptionType, TUserStatus } from './user.constant';
 import { PaginateOptions, PaginateResult } from '../../types/paginate';
 
 export type TProfileImage = {
@@ -17,26 +17,16 @@ export type TUser = {
   _userId: undefined | Types.ObjectId;
   _id:  undefined; // Types.ObjectId |
   // fullName: string;
-  fname: string;
-  lname: string;
+  name: string;
   email: string;
   password: string;
+  status: TStatusType.active | TStatusType.inactive;
+  subscriptionType :  TSubscriptionType.standard |
+  TSubscriptionType.standardPlus | TSubscriptionType.vise 
   profileImage?: TProfileImage;
   fcmToken : string;
-  // photoGallery?: TPhotoGallery[];
-  // status: TUserStatus;
-  // location: {
-  //   latitude: number;
-  //   longitude: number;
-  // };
-  // gender: TGender;
-  address: {
-    streetAddress: string;
-    city: string;
-    zipCode: string;
-    country: string;
-  };
-
+  stripe_customer_id: string;
+  stripeConnectedAccount: string; // from kappes backend 
   role: Role;
 
   isEmailVerified: boolean;

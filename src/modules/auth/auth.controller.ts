@@ -2,9 +2,50 @@ import { StatusCodes } from 'http-status-codes';
 import catchAsync from '../../shared/catchAsync';
 import sendResponse from '../../shared/sendResponse';
 import { AuthService } from './auth.service';
+import { AttachmentService } from '../attachments/attachment.service';
+import { TFolderName } from '../attachments/attachment.constant';
+import { UserProfile } from '../user/userProfile/userProfile.model';
 
 //[🚧][🧑‍💻✅][🧪] // 🆗 
 const register = catchAsync(async (req, res) => {
+
+  /***********
+   * 
+   * Role jodi Doctor hoy .. taile doctor er jonno document upload korar bebostha korte hobe .. 
+   * 
+   * ********** */
+
+  let attachments = [];
+  
+  if (req.files && req.files.attachments) {
+  attachments.push(
+      ...(await Promise.all(
+      req.files.attachments.map(async file => {
+          const attachmenId = await new AttachmentService().uploadSingleAttachment(
+              file, // file to upload 
+              TFolderName.person, // folderName
+          );
+          return attachmenId;
+      })
+      ))
+  );
+  }
+
+  req.body.attachments =  [...attachments];
+
+  /****
+   * 
+   * if attachments are provided .. then we have to create profile and .. get that profile id
+   * to save that into User model ... 
+   * 
+   * *** */
+
+  const userProfile = await UserProfile.create({
+    attachments: req.body.attachments,
+  });
+
+  req.body.profileId = userProfile._id;
+
   const result = await AuthService.createUser(req.body);
   sendResponse(res, {
     code: StatusCodes.CREATED,

@@ -9,6 +9,26 @@ import {
 import OTP from './otp.model';
 import { config } from '../../config';
 
+import EventEmitter from 'events';
+const eventEmitterForOTPCreateAndSendMail = new EventEmitter(); // functional way
+
+
+eventEmitterForOTPCreateAndSendMail.on('eventEmitterForOTPCreateAndSendMail', async (valueFromRequest: any) => {
+  try {
+      const otpDoc = await createOTP(
+        valueFromRequest.email,
+        config.otp.verifyEmailOtpExpiration.toString(),
+        'verify',
+      );
+      await sendVerificationEmail(valueFromRequest.email, otpDoc.otp);
+
+    }catch (error) {
+      console.error('Error occurred while handling token creation and deletion:', error);
+    }
+});
+
+export default eventEmitterForOTPCreateAndSendMail;
+
 const generateOTP = (): string => {
   return crypto.randomInt(100000, 999999).toString();
 };

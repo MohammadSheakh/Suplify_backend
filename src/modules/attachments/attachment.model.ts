@@ -17,31 +17,31 @@ const attachmentSchema = new Schema<IAttachment>(
       ],
       required: [true, 'Attached Type is required. It can be pdf / image'],
     },
-    attachedToId : {
-      type: String,
-      required: [false, 'AttachedToId is required.'],
-    },
-    attachedToType : {
-      enum: [
-        AttachedToType.lifeStyle,
-        AttachedToType.message,
-        AttachedToType.suplifyPartner,
-        AttachedToType.trainingProgram,
-        AttachedToType.user,
-        AttachedToType.workout,
-        AttachedToType.virtualWorkoutClass,
-        AttachedToType.wellnessProduct,
-        AttachedToType.meal,
-        AttachedToType.suppliment,
-      ],
-      type: String,
-      required: [false, 'AttachedToType is required. It can be note / task'],
-    },
-    uploadedByUserId: {
-      type: Schema.Types.ObjectId,
-      ref: 'User',
-      required: [false, 'User Id is required'],
-    },
+    // attachedToId : {
+    //   type: String,
+    //   required: [false, 'AttachedToId is required.'],
+    // },
+    // attachedToType : {
+    //   enum: [
+    //     AttachedToType.lifeStyle,
+    //     AttachedToType.message,
+    //     AttachedToType.suplifyPartner,
+    //     AttachedToType.trainingProgram,
+    //     AttachedToType.user,
+    //     AttachedToType.workout,
+    //     AttachedToType.virtualWorkoutClass,
+    //     AttachedToType.wellnessProduct,
+    //     AttachedToType.meal,
+    //     AttachedToType.suppliment,
+    //   ],
+    //   type: String,
+    //   required: [false, 'AttachedToType is required. It can be note / task'],
+    // },
+    // uploadedByUserId: {
+    //   type: Schema.Types.ObjectId,
+    //   ref: 'User',
+    //   required: [false, 'User Id is required'],
+    // },
   },
   { timestamps: true }
 );

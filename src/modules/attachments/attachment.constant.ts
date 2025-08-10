@@ -4,20 +4,6 @@ export enum AttachmentType {
     unknown = 'unknown',
 }
   
-export enum AttachedToType {
-    user = 'user',
-    meal = 'meal',
-    workout = 'workout',
-    lifeStyle = 'lifeStyle',
-    suplifyPartner = 'suplifyPartner',
-    trainingProgram = 'trainingProgram',
-    message = 'message',
-    suppliment = 'suppliment',
-    wellnessProduct = 'wellnessProduct',
-    virtualWorkoutClass = 'virtualWorkoutClass',
+export enum TFolderName {
+    person = "suplify/person",
 }
-
-// export enum UploaderRole {
-//     projectManager = 'projectManager',
-//     projectSupervisor = 'projectSupervisor',
-// }

@@ -4,12 +4,25 @@ import validateRequest from '../../shared/validateRequest';
 import { UserValidation } from '../user/user.validation';
 import { AuthValidation } from './auth.validations';
 import auth from '../../middlewares/auth';
+const multer = require('multer');
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
 
 const router = Router();
 
-//[🚧][🧑‍💻✅][🧪] // 🆗 
+//[🚧][🧑‍💻✅][🧪] // 🆗
+/***********
+ * 
+ * (Doctor | Patient) (Registration) | as doctor and patient need to provide their documents while registration
+ * 
+ * ********** */ 
 router.post(
   '/register',
+  [
+    upload.fields([
+      { name: 'attachments', maxCount: 15 }, // Allow up to 5 cover photos
+    ]),
+  ],
   validateRequest(UserValidation.createUserValidationSchema),
   AuthController.register,
 );

@@ -1,22 +1,33 @@
 import { model, Schema } from 'mongoose';
 import { IDoctorPatientScheduleBooking, IDoctorPatientScheduleBookingModel } from './doctorPatientScheduleBooking.interface';
 import paginate from '../../../common/plugins/paginate';
+import { TAppointmentStatus } from './doctorPatientScheduleBooking.constant';
 
 
 const DoctorPatientScheduleBookingSchema = new Schema<IDoctorPatientScheduleBooking>(
   {
-    userId: {
+    patientId: {
       type: Schema.Types.ObjectId,
       ref: 'User',
     },
-    message: {
+    doctorScheduleId: {
       type: String,
-      required: [true, 'dateOfBirth is required'],
+      required: [true, 'doctorScheduleId is required'],
     },
     isDeleted: {
       type: Boolean,
       required: [false, 'isDeleted is not required'],
       default: false,
+    },
+    status: {
+      type : String,
+      enum: [
+        TAppointmentStatus.scheduled
+        , TAppointmentStatus.completed
+        , TAppointmentStatus.cancelled
+      ],
+      default: TAppointmentStatus.scheduled,
+      required: [true, 'status is required'],
     },
   },
   { timestamps: true }

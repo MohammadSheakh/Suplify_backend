@@ -7,9 +7,7 @@ const {
   S3Client,
 } = require("@aws-sdk/client-s3");
 const { Readable } = require("stream");
-
 const { Upload } = require("@aws-sdk/lib-storage");
-
 
 // Initialize the S3 client with DigitalOcean Spaces config
 const s3 = new S3Client({
@@ -18,14 +16,14 @@ const s3 = new S3Client({
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
   },
-  endpoint: `https://${process.env.AWS_REGION}.digitaloceanspaces.com`,
+  //endpoint: `https://${process.env.AWS_REGION}.digitaloceanspaces.com`,
 });
 
 
 
 /////////// From Rakib Vai .. 
 // Upload file to DigitalOcean Space
-const uploadFileToSpace = async (
+export const uploadFileToSpace = async (
   file: Express.Multer.File, // : Express.Multer.File
   folder : string // : string
 ) => {
@@ -34,7 +32,7 @@ const uploadFileToSpace = async (
     Bucket: process.env.AWS_BUCKET_NAME,
     Key: fileName,
     Body: file.buffer, // file.stream
-    ACL: ObjectCannedACL.public_read,
+    // ACL: ObjectCannedACL.public_read,
     ContentType: file.mimetype,
   };
 
@@ -44,14 +42,15 @@ const uploadFileToSpace = async (
     await s3.send(command);
 
     // Use the CDN URL for better performance
-    const fileUrl = `https://${process.env.AWS_BUCKET_NAME}.${process.env.AWS_REGION}.cdn.digitaloceanspaces.com/${fileName}`;
+    // const fileUrl = `https://${process.env.AWS_BUCKET_NAME}.${process.env.AWS_REGION}.cdn.digitaloceanspaces.com/${fileName}`;
+    const fileUrl = `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileName}`;
+    
     return fileUrl;
   } catch (error) {
-    console.error("Error uploading to DigitalOcean Space:", error);
-    throw new Error("Failed to upload file to DigitalOcean Space");
+    console.error("Error uploading to AWS:", error);
+    throw new Error("Failed to upload file to AWS");
   }
 };
-
 
 // Helper function to get the content length of a stream
 const getStreamLength = (stream) => {
@@ -101,10 +100,10 @@ const uploadFileToSpaceMohammadSheakh = async (
 
 
 // Delete a specific file from DigitalOcean Space
-const deleteFileFromSpace = async (fileUrl : string) => {
+export const deleteFileFromSpace = async (fileUrl : string) => {
   // : string  : Promise<void>
   const fileKey = fileUrl.split(
-    `${process.env.AWS_BUCKET_NAME}.${process.env.AWS_REGION}.cdn.digitaloceanspaces.com/`
+    `${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/`
   )[1]; // Extract the file path from the CDN URL
 
   const deleteParams = {
@@ -116,10 +115,10 @@ const deleteFileFromSpace = async (fileUrl : string) => {
     const command = new DeleteObjectCommand(deleteParams);
     const result = await s3.send(command);
     console.log("command" , command)
-    console.log(`Successfully deleted ${fileKey} from DigitalOcean Space`);
+    console.log(`Successfully deleted ${fileKey} from AWS S3`); //  from DigitalOcean Space
   } catch (error) {
-    console.error("Error deleting from DigitalOcean Space:", error);
-    throw new Error("Failed to delete file from DigitalOcean Space");
+    console.error("Error deleting  from AWS S3 :", error); // from DigitalOcean Space
+    throw new Error("Failed to delete file from AWS S3 "); // from DigitalOcean Space
   }
 };
 

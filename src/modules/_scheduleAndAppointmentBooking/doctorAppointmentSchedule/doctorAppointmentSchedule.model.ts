@@ -1,17 +1,58 @@
 import { model, Schema } from 'mongoose';
 import { IDoctorAppointmentSchedule, IDoctorAppointmentScheduleModel } from './doctorAppointmentSchedule.interface';
 import paginate from '../../../common/plugins/paginate';
+import { TDoctorAppointmentScheduleStatus } from './doctorAppointmentSchedule.constant';
 
 
 const DoctorAppointmentScheduleSchema = new Schema<IDoctorAppointmentSchedule>(
   {
-    userId: {
+    createdBy: {
       type: Schema.Types.ObjectId,
       ref: 'User',
     },
-    message: {
+    scheduleName: {
       type: String,
-      required: [true, 'dateOfBirth is required'],
+      required: [true, 'scheduleName is required'],
+    },
+    scheduleDate: {
+      type: Date,
+      required: [true, 'scheduleDate is required'],
+    },
+    startTime: {
+      type: Date,
+      required: [true, 'startTime is required . type is Date'],
+    },
+    endTime: {
+      type: Date,
+      required: [true, 'endTime is required . type is Date'],
+    },
+    description : {
+      type: String,
+      required: [true, 'description is required'],
+    },
+    scheduleStatus: {
+      type: String,
+      enum: [
+        TDoctorAppointmentScheduleStatus.available,
+        TDoctorAppointmentScheduleStatus.booked,
+        TDoctorAppointmentScheduleStatus.cancelled,
+      ],
+      default: TDoctorAppointmentScheduleStatus.available,
+      required: [true, 'scheduleStatus is required'],
+    },
+    price : {
+      type: Number,
+      required: [true, 'price is required'],
+    },
+    typeOfLink: {
+      type: String,
+      enum: ['document', 'image', 'unknown'],
+      default: 'unknown',
+      required: [true, 'typeOfLink is required'],
+    },
+    meetingLink:{
+      type : String,
+      required: [true, 'meetingLink is required'],
     },
     isDeleted: {
       type: Boolean,

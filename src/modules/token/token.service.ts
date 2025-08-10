@@ -7,6 +7,24 @@ import { StatusCodes } from 'http-status-codes';
 import { TokenType } from './token.interface';
 import { Token } from './token.model';
 
+import EventEmitter from 'events';
+const eventEmitterForTokenDeleteAndCreate = new EventEmitter(); // functional way
+
+
+eventEmitterForTokenDeleteAndCreate.on('eventEmitForTokenDeleteAndCreate', async (valueFromRequest: any) => {
+  try {
+      await Promise.all([
+        Token.deleteMany({ user: valueFromRequest.user }), // Clean up old tokens
+        Token.create(valueFromRequest)
+      ]);
+    }catch (error) {
+      console.error('Error occurred while handling token creation and deletion:', error);
+    }
+  
+});
+
+export default eventEmitterForTokenDeleteAndCreate;
+
 const getExpirationTime = (expiration: string) => {
   const timeValue = parseInt(expiration);
   if (expiration.includes('d')) {
@@ -52,12 +70,14 @@ const verifyToken = async (
 
 const createVerifyEmailToken = async (user: TUser) => {
   const payload = { userId: user._id, email: user.email, role: user.role };
-  await Token.deleteMany({ user: user._id });
-  const verifyEmailToken = createToken(
+ const verifyEmailToken = createToken(
     payload,
     config.token.TokenSecret,
     config.token.verifyEmailTokenExpiration
   );
+  /**************
+  await Token.deleteMany({ user: user._id });
+  
   const expiresAt = getExpirationTime(config.token.verifyEmailTokenExpiration);
 
   await Token.create({
@@ -66,6 +86,32 @@ const createVerifyEmailToken = async (user: TUser) => {
     type: TokenType.VERIFY,
     expiresAt,
   });
+  ****************/
+
+  /**************
+  
+  const [, tokenDoc] = await Promise.all([
+    Token.deleteMany({ user: user._id }), // Clean up old tokens
+    Token.create({
+      token: verifyEmailToken,
+      user: user._id,
+      type: TokenType.VERIFY,
+      expiresAt: getExpirationTime(config.token.verifyEmailTokenExpiration),
+    })
+  ]);
+
+  ****************/
+
+  // TODO : Need to add type
+  let tokenRelatedValues : any = {
+      token: verifyEmailToken,
+      user: user._id,
+      type: TokenType.VERIFY,
+      expiresAt: getExpirationTime(config.token.verifyEmailTokenExpiration),
+    }
+
+    eventEmitterForTokenDeleteAndCreate.emit('eventEmitForTokenDeleteAndCreate', tokenRelatedValues);
+
   return verifyEmailToken;
 };
 

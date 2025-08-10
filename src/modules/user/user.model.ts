@@ -23,6 +23,11 @@ const userSchema = new Schema<TUser, UserModal>(
       required: [true, 'Name is required'],
       trim: true,
     },
+    profileId: { // as doctor and specialist need to upload documents.. 
+      type: Types.ObjectId,
+      ref: 'UserProfile',
+      required: true,
+    },
     email: {
       type: String,
       required: [true, 'Email is required'],
@@ -63,7 +68,7 @@ const userSchema = new Schema<TUser, UserModal>(
           TSubscriptionType
         ).join(', ')}`,
       ],
-      default: TSubscriptionType.standard, // 7 day free trial provide korte hobe .. chinta korte hobe 
+      //default: TSubscriptionType.standard, // 7 day free trial provide korte hobe .. chinta korte hobe 
     },
 
     status : {
@@ -160,16 +165,16 @@ userSchema.statics.isMatchPassword = async function (
 
 // FIX : ts issue 
 // Middleware to hash password before saving
-userSchema.pre('save', async function (next) {
+// userSchema.pre('save', async function (next) {
 
-  if (this.isModified('password')) {
-    this.password = await bcryptjs.hash(
-      this.password,
-      Number(config.bcrypt.saltRounds),
-    );
-  }
-  next();
-});
+//   if (this.isModified('password')) {
+//     this.password = await bcryptjs.hash(
+//       this.password,
+//       Number(config.bcrypt.saltRounds),
+//     );
+//   }
+//   next();
+// });
 
 // Use transform to rename _id to _projectId
 userSchema.set('toJSON', {

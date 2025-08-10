@@ -5,6 +5,7 @@ import { Attachment } from './attachment.model';
 import { AttachmentType } from './attachment.constant';
 import { GenericService } from '../__Generic/generic.services';
 import { IAttachment } from './attachment.interface';
+import { deleteFileFromSpace, uploadFileToSpace } from '../../middlewares/digitalOcean';
 
 export class AttachmentService extends GenericService<typeof Attachment, IAttachment> {
   constructor() {
@@ -14,9 +15,9 @@ export class AttachmentService extends GenericService<typeof Attachment, IAttach
   async uploadSingleAttachment(
     file: Express.Multer.File,
     folderName: string,
-    user: any,
-    attachedToId : string,
-    attachedToType: IAttachment['attachedToType']
+    // user: any,
+    // attachedToId : string,
+    // attachedToType: IAttachment['attachedToType']
   ) {
     let uploadedFileUrl:string = await uploadFileToSpace(file, folderName);
 
@@ -32,10 +33,7 @@ export class AttachmentService extends GenericService<typeof Attachment, IAttach
     // ekhon amader ke ekta attachment create korte hobe ..
     return await this.create({
       attachment: uploadedFileUrl,
-      uploadedByUserId: user.userId,
-      attachedToId,
       attachmentType: fileType,
-      attachedToType 
     });
   }
 

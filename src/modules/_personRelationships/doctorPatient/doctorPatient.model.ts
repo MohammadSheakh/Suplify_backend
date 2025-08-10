@@ -5,13 +5,13 @@ import paginate from '../../../common/plugins/paginate';
 
 const doctorPatientSchema = new Schema<IdoctorPatient>(
   {
-    userId: {
+    patientId: {
       type: Schema.Types.ObjectId,
       ref: 'User',
     },
-    message: {
-      type: String,
-      required: [true, 'dateOfBirth is required'],
+    doctorId: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
     },
     isDeleted: {
       type: Boolean,

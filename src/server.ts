@@ -12,7 +12,7 @@ import { initializeRedis, redisPubClient, redisSubClient } from './helpers/redis
 import { socketHelper } from './helpers/socketForChat';
 
 // in production, use all cores, but in development, limit to 2-4 cores
-const numCPUs = config.environment === 'production' ? os.cpus().length : Math.max(2, Math.min(4, os.cpus().length));
+const numCPUs = config.environment === 'production' ? os.cpus().length : Math.max(0, Math.min(1, os.cpus().length));
 
 //uncaught exception
 process.on('uncaughtException', error => {
@@ -56,42 +56,11 @@ async function main() {
       );
     });
 
-    /*****************
-     * 
-     * Redis Pub/Sub Setup
-     *  // Create Redis client for Pub/Sub
-     * in terminal .. just write redis-cli
-     * **************** */
-    /***********************
-    const redisPubClient = createClient({ // for redis .. 
-      // 1. https://www.youtube.com/watch?v=QqTB97aMa4c 2. 
-      host: '172.22.201.132',  // Update with your Redis configuration // localhost
-      port: 6379, // 6379
-    });
-
-   
+  
 // 🚧 under construction .. 
       // ⚠️ have some bug .. 
       // 🔵 new feature .. 
-    redisPubClient.on('ready', () => {
-        logger.info(colors.green('♨️  Redis Pub Client ready'));
-      });
   
-    const redisSubClient = redisPubClient.duplicate();
-
-    redisSubClient.on('ready', () => {
-        logger.info(colors.green('♨️  Redis Sub Client ready'));
-    });
-   
-
-
-    // Connect Redis clients
-      await Promise.all([
-        redisPubClient.connect(),
-        redisSubClient.connect()
-      ]);
-
-    ***************/
 
     // Initialize Redis
     await initializeRedis();

@@ -1,7 +1,7 @@
 import moment from 'moment';
 import ApiError from '../../errors/ApiError';
 import { StatusCodes } from 'http-status-codes';
-import { OtpService } from '../otp/otp.service';
+import eventEmitterForOTPCreateAndSendMail, { OtpService } from '../otp/otp.service';
 import { User } from '../user/user.model';
 import bcryptjs from 'bcryptjs';
 import { TUser } from '../user/user.interface';
@@ -19,13 +19,7 @@ const validateUserStatus = (user: TUser) => {
   }
 };
 const createUser = async (userData: TUser) => {
-  if(userData.role == 'projectSupervisor'){
-    if(userData.superVisorsManagerId == null){
-      throw new ApiError(StatusCodes.BAD_REQUEST, 'SuperVisor Manager Id is required');
-    }
-  }else{
-    userData.superVisorsManagerId = null;
-  }
+  
   const existingUser = await User.findOne({ email: userData.email });
   if (existingUser) {
     if (existingUser.isEmailVerified) {
@@ -43,12 +37,45 @@ const createUser = async (userData: TUser) => {
   }
 
   const user = await User.create(userData);
-  // cantunderstand :  
+
+  /************
+  
   //create verification email token
   const verificationToken = await TokenService.createVerifyEmailToken(user);
   //create verification email otp
   const {otp} = await OtpService.createVerificationEmailOtp(user.email);
-  return { user, verificationToken , otp }; // FIXME  : otp remove korte hobe ekhan theke .. 
+  
+  *********** */
+
+  /************
+  // Run token and OTP creation in parallel
+  const [verificationToken, { otp }] = await Promise.all([
+    TokenService.createVerifyEmailToken(user),
+    OtpService.createVerificationEmailOtp(user.email)
+  ]);
+
+  *********** */
+
+  // , { otp }
+  // Run token and OTP creation in parallel
+  const [verificationToken] = await Promise.all([
+    TokenService.createVerifyEmailToken(user),
+    // OtpService.createVerificationEmailOtp(user.email)
+  ]);
+
+  /***********
+   * 
+   * For first time registation .. for doctor and specialist .. we dont want to 
+   * send otp to them .. 
+   * we automatically verify their email from admin panel .. 
+   * 
+   * TODO : we will do this .. 
+   * 
+   * ********* */
+  eventEmitterForOTPCreateAndSendMail.emit('eventEmitterForOTPCreateAndSendMail', { email: user.email });
+
+  // , otp
+  return { user, verificationToken  }; // FIXME  : otp remove korte hobe ekhan theke .. 
 };
 
 const login = async (email: string, reqpassword: string, fcmToken : string) => {
