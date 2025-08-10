@@ -8,6 +8,8 @@ import router from './routes';
 import { Morgan } from './shared/morgen';
 import i18next from './i18n/i18n'; // Import the i18next configuration
 import i18nextMiddleware from 'i18next-http-middleware';
+import webhookHandler from './modules/_payment/stripeAccount/webhookHandler';
+import { welcome } from './utils/welcome';
 // import i18nextFsBackend from 'i18next-fs-backend';
 
 const app = express();
@@ -47,8 +49,17 @@ app.use('/uploads', express.static(path.join(__dirname, '../uploads/')));
 // Use i18next middleware
 app.use(i18nextMiddleware.handle(i18next));
 
+
+app.post('/api/v1/stripe/webhook', express.raw({ type: 'application/json' }), webhookHandler);
+
 // router
 app.use('/api/v1', router);
+
+//live response
+app.get('/', (req: Request, res: Response) => {
+     res.send(welcome());
+});
+
 
 // live response
 app.get('/test', (req: Request, res: Response) => {

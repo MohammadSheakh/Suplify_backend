@@ -1,11 +1,3 @@
-import { Request, Response } from 'express';
-import { StatusCodes } from 'http-status-codes';
-import Stripe from 'stripe';
-import { config } from '../../../config';
-import stripe from '../../../config/stripe.config';
-import { User } from '../../user/user.model';
-import ApiError from '../../../errors/ApiError';
-
 /*
 import { emailHelper } from '../../../helpers/emailHelper';
 import { sendNotifications } from '../../../helpers/notificationsHelper';
@@ -28,6 +20,15 @@ import { Bid } from '../Bid/Bid.model';
 import { Service } from '../Service/Service.model';
 import { User } from '../user/user.model';
 */
+import { Request, Response } from 'express';
+import { StatusCodes } from 'http-status-codes';
+import Stripe from 'stripe';
+import { config } from '../../../config';
+import stripe from '../../../config/stripe.config';
+import { User } from '../../user/user.model';
+import ApiError from '../../../errors/ApiError';
+
+
 
 const webhookHandler = async (req: Request, res: Response): Promise<void> => {
      console.log('Webhook received');
@@ -54,10 +55,12 @@ const webhookHandler = async (req: Request, res: Response): Promise<void> => {
      try {
           switch (event.type) {
                case 'checkout.session.completed':
-                    await handlePaymentSucceeded(event.data.object);
+                    // await handlePaymentSucceeded(event.data.object); // commented by sheakh
+                    console.log('sheakh Payment succeeded:', event.data.object);
                     break;
                case 'transfer.created':
-                    await handleTransferCreated(event.data.object);
+                    // await handleTransferCreated(event.data.object); // commented by sheakh
+                    console.log('sheakh Transfer created:', event.data.object);
                     break;
                default:
                     console.log(`Unhandled event type: ${event.type}`);
