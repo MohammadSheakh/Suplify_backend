@@ -47,12 +47,17 @@ const register = catchAsync(async (req, res) => {
   req.body.profileId = userProfile._id;
 
   const result = await AuthService.createUser(req.body);
-  sendResponse(res, {
-    code: StatusCodes.CREATED,
-    message: 'User created successfully, please verify your email',
-    data: result,
-    success: true,
-  });
+
+  if(req.body.role == 'doctor' || req.body.role == 'specialist') {
+    sendResponse(res, {
+      code: StatusCodes.CREATED,
+      message: `Account create successfully. After checking your documents, you will be notified by email.`,
+      data: result,
+      success: true,
+    });
+  } 
+
+  
 });
 
 const login = catchAsync(async (req, res) => {
