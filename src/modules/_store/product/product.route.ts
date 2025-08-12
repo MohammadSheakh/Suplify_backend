@@ -28,6 +28,16 @@ router.route('/paginate').get(
   controller.getAllWithPagination
 );
 
+/***********
+ * 
+ * ( Admin ) |  Get Shops all category with product counts //[🚧][🧑‍💻][🧪] //✅ 🆗
+ * 
+ * ********** */
+router.route('/category-with-count').get(
+  //auth('common'),
+  controller.categoryWithCount
+);
+
 router.route('/:id').get(
   // auth('common'),
   controller.getById
@@ -57,6 +67,9 @@ router.route('/create').post(
   controller.create
 );
 
+
+
+
 router.route('/delete/:id').delete(
   //auth('common'),
   controller.deleteById
@@ -67,8 +80,14 @@ router.route('/softDelete/:id').put(
   controller.softDeleteById
 );
 
-////////////
-//[🚧][🧑‍💻✅][🧪] // 🆗
+/***********
+ * 
+ * ( Admin ) |  Update Product By Id //[][🧑‍💻][🧪] //🚧✅ 🆗
+ * 
+ * ********** */
+
+
+
 
 
 export const ProductRoute = router;
