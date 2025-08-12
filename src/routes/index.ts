@@ -10,6 +10,7 @@ import { ConversationRoute } from '../modules/_chatting/conversation/conversatio
 import { MessageRoute } from '../modules/_chatting/message/message.route';
 import { PaymentTransactionRoute } from '../modules/_payment/paymentTransaction/paymentTransaction.route';
 import stripeAccountRoutes from '../modules/_payment/stripeAccount/stripeAccount.route';
+import { ProductRoute } from '../modules/_store/product/product.route';
 
 // import { ChatRoutes } from '../modules/chat/chat.routes';
 // import { MessageRoutes } from '../modules/message/message.routes';
@@ -35,11 +36,10 @@ const apiRoutes = [
     path: '/settings',
     route: SettingsRoutes,
   },
-  // {
-  //   path: '/suplifyPartner',
-  //   route: SuplifyPartnerRoute,
-  // },
-
+  {
+    path: '/product',
+    route: ProductRoute,
+  },
   {
     path: '/trainingProgram',
     route: TrainingProgramRoute,

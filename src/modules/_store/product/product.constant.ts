@@ -1,5 +1,7 @@
-export enum ProductType {
-  document = 'document',
-  image = 'image',
-  unknown = 'unknown',
+export enum TProductCategory {
+  labTest = 'labTest',
+  supplement = 'supplement',
+  wellness = 'wellness',
+  fitness = 'fitness',
+  others = 'others'
 }

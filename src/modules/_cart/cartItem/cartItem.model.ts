@@ -1,14 +1,13 @@
 import { model, Schema } from 'mongoose';
+import { ICartItem, ICartItemModel } from './CartItem.interface';
+import paginate from '../../common/plugins/paginate';
 
-import paginate from '../../../common/plugins/paginate';
-import { IOrderItem, IOrderItemModel } from './orderItem.interface';
 
-const orderItemSchema = new Schema<IOrderItem>(
+const CartItemSchema = new Schema<ICartItem>(
   {
-    orderId: { //🔗
+    cartId: {
       type: Schema.Types.ObjectId,
-      ref: 'Order',
-      required: [true, 'Order Id is required'],
+      ref: 'Cart',
     },
     itemId: { //🔗
       // 🔥 confusion ase ... eta ki relational hobe naki non relational hobe 
@@ -41,7 +40,7 @@ const orderItemSchema = new Schema<IOrderItem>(
       required : [true, 'totalPrice is required.. which is a number'],
       min: [0, 'totalPrice must be greater than zero'],
     },
-
+    
     isDeleted: {
       type: Boolean,
       required: [false, 'isDeleted is not required'],
@@ -51,28 +50,27 @@ const orderItemSchema = new Schema<IOrderItem>(
   { timestamps: true }
 );
 
-orderItemSchema.plugin(paginate);
+CartItemSchema.plugin(paginate);
 
-// subscriptionSchema.pre('save', function(next) {
-//   // Rename _id to _projectId
-//   // this._taskId = this._id;
-//   // this._id = undefined;  // Remove the default _id field
-  
-//   next();
-// });
+CartItemSchema.pre('save', function (next) {
+  // Rename _id to _projectId
+  // this._taskId = this._id;
+  // this._id = undefined;  // Remove the default _id field
+  //this.renewalFee = this.initialFee
 
-
-// Use transform to rename _id to _projectId
-orderItemSchema.set('toJSON', {
-  transform: function (doc, ret, options) {
-    ret._subscriptionId = ret._id;  // Rename _id to _subscriptionId
-    delete ret._id;  // Remove the original _id field
-    return ret;
-  }
+  next();
 });
 
+// Use transform to rename _id to _projectId
+CartItemSchema.set('toJSON', {
+  transform: function (doc, ret, options) {
+    ret._CartItemId = ret._id; // Rename _id to _subscriptionId
+    delete ret._id; // Remove the original _id field
+    return ret;
+  },
+});
 
-export const OrderItem = model<IOrderItem, IOrderItemModel>(
-  'OrderItem',
-  orderItemSchema
-);
+export const CartItem = model<
+  ICartItem,
+  ICartItemModel
+>('CartItem', CartItemSchema);

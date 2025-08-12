@@ -6,6 +6,8 @@ import { StatusCodes } from 'http-status-codes';
 import { Request, Response} from 'express';
 import { GenericService } from './generic.services';
 import omit from '../../shared/omit';
+import { AttachmentService } from '../attachments/attachment.service';
+import { TFolderName } from '../attachments/attachment.constant';
 
 // Import your generic service
 
@@ -22,6 +24,35 @@ export class GenericController<ModelType, InterfaceType> {
   // Create
   create = catchAsync(async (req: Request, res: Response) => {
     const data = req.body;
+    const result = await this.service.create(data);
+
+    sendResponse(res, {
+      code: StatusCodes.OK,
+      data: result,
+      message: `${this.modelName} created successfully`,
+      success: true,
+    });
+  });
+
+  createWithAttachments = catchAsync(async (req: Request, res: Response) => {
+    const data = req.body;
+
+    let attachments = [];
+      
+    if (req.files && req.files.attachments) {
+    attachments.push(
+        ...(await Promise.all(
+        req.files.attachments.map(async file => {
+            const attachmenId = await new AttachmentService().uploadSingleAttachment(
+                file, // file to upload 
+                TFolderName.common, // folderName
+            );
+            return attachmenId;
+        })
+        ))
+    );
+    }
+
     const result = await this.service.create(data);
 
     sendResponse(res, {

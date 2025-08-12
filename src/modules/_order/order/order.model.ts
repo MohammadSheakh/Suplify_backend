@@ -3,30 +3,28 @@ import paginate from '../../../common/plugins/paginate';
 import {
   OrderStatus,
   OrderType,
+  PAYMENT_METHOD,
+  PAYMENT_STATUS,
   TOrderRelatedTo,
 } from './order.constant';
 import { IOrder, IOrderModel } from './order.interface';
 
 const orderSchema = new Schema<IOrder>(
   {
-    userId: { //🔗
+    userId: { //🔗 who place the order
       type: Schema.Types.ObjectId,
       ref: 'User',
       required: [true, 'User Id is required'],
-    },
-    totalAmount: {
-      type : Number,
-      required : [true, 'totalAmount is needed']
     },
     orderRelatedTo : {
       type : String,
       enum : [
         TOrderRelatedTo.product,
-        TOrderRelatedTo.labTest,
-        TOrderRelatedTo.appointment,
-        TOrderRelatedTo.trainingProgram,
-        TOrderRelatedTo.workoutClass,
-        TOrderRelatedTo.subscription,
+        // TOrderRelatedTo.labTest,
+        // TOrderRelatedTo.appointment,
+        // TOrderRelatedTo.trainingProgram,
+        // TOrderRelatedTo.workoutClass,
+        // TOrderRelatedTo.subscription,
       ],
       required: [
         true,
@@ -35,7 +33,7 @@ const orderSchema = new Schema<IOrder>(
         ).join(', ')}`,
       ],
     },
-    orderStatus: {
+    status: { // ⚡
       type: String,
       enum: [
         OrderStatus.pending,
@@ -51,52 +49,57 @@ const orderSchema = new Schema<IOrder>(
           OrderStatus
         ).join(', ')}`,
       ],
-    },
-    
-    orderNotes: {
-      //> One Subscription can have multiple features ...
-      type: String,
-      required: [false, 'orderNotes is not required'],
+      default: OrderStatus.pending,
     },
 
-    PaymentTransactionId: {
+    shippingAddress: {
+      type: String,
+      required: true,
+    },
+    deliveryCharge: { // ⚡ from kappes
+          type: Number,
+          default: 0,
+    },
+    finalAmount: {
+      type : Number,
+      required : [true, 'totalAmount is needed']
+    },
+
+    paymentMethod: {
+      type: String,
+      enum: PAYMENT_METHOD,
+      default: PAYMENT_METHOD.online,
+    },
+
+    PaymentTransactionId: { // Same as PaymentId of kappes
       type: Schema.Types.ObjectId,
       ref: 'PaymentTransaction',
       default: null,
     },
-    paymentMethod: {
-      type: String,
-      enum: PAYMENT_METHOD,
-      default: PAYMENT_METHOD.ONLINE,
-    },
+
     paymentStatus: {
       type: String,
       enum: PAYMENT_STATUS,
       default: PAYMENT_STATUS.UNPAID,
     },
 
+    orderNotes: {
+      //> One Subscription can have multiple features ...
+      type: String,
+      required: [false, 'orderNotes is not required'],
+    },
+    
+
     /***********
      * 
      * Need to check this ... TODO : 
      * 
      * ********** */
-    isPaymentTransferdToVendor: {
-      type: Boolean,
-      default: false,
-    },
-    /***************
-     * 
-     * Shipping Address must add kora lagbe .. 
-     * 
-     * ********** */
-    shippingAddress: {
-      type: String,
-      required: true,
-    },
-    isNeedRefund: {
-      type: Boolean,
-      default: false,
-    },
+    // isPaymentTransferdToVendor: {
+    //   type: Boolean,
+    //   default: false,
+    // },
+
     isDeleted: {
       type: Boolean,
       required: [false, 'isDeleted is not required'],

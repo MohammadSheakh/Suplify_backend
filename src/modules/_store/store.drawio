@@ -1,6 +1,6 @@
 <mxfile host="65bd71144e">
     <diagram id="aPfk7o5SNiWSzdZEq8oG" name="Page-1">
-        <mxGraphModel dx="4673" dy="2533" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+        <mxGraphModel dx="2204" dy="-40" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -55,8 +55,11 @@
                 <mxCell id="16" value="For Lab Test Booking&amp;nbsp;" style="edgeLabel;resizable=0;html=1;;align=center;verticalAlign=middle;" parent="1" connectable="0" vertex="1">
                     <mxGeometry x="629.8433080699538" y="1628.2461988479708" as="geometry"/>
                 </mxCell>
-                <mxCell id="17" value="Last Updated at 2 / 08 / 2025&amp;nbsp;" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                <mxCell id="17" value="Last Updated at 2 / 08 / 2025&amp;nbsp;" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
                     <mxGeometry x="470" y="1440" width="710" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="18" value="" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#CCCCFF;" vertex="1" parent="1">
+                    <mxGeometry x="370" y="1600" width="80" height="80" as="geometry"/>
                 </mxCell>
             </root>
         </mxGraphModel>

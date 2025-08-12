@@ -6,4 +6,6 @@ export enum AttachmentType {
   
 export enum TFolderName {
     person = "suplify/person",
+    common = "suplify/common",
+    shop = "suplify/shop",
 }

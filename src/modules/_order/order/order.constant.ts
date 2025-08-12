@@ -4,6 +4,19 @@ export enum OrderType {
     vip = 'vip',
 }
 
+export enum PAYMENT_METHOD {
+    //  COD = 'Cod',
+    //  CARD = 'Card',
+     online = 'online',
+}
+
+
+export enum PAYMENT_STATUS {
+     UNPAID = 'Unpaid',
+     PAID = 'Paid',
+     REFUNDED = 'Refunded',
+}
+
 // SUPTODO : we need to compare these order and orderItem module .. with Fertie project .. 
 
 export enum OrderStatus {

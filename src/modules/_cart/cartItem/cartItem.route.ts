@@ -1,10 +1,10 @@
 import express from 'express';
-import * as validation from './product.validation';
-import { ProductController} from './product.controller';
-import { IProduct } from './product.interface';
-import { validateFiltersForQuery } from '../../../middlewares/queryValidation/paginationQueryValidationMiddleware';
-import validateRequest from '../../../shared/validateRequest';
-import auth from '../../../middlewares/auth';
+import * as validation from './CartItem.validation';
+import { CartItemController} from './CartItem.controller';
+import { ICartItem } from './CartItem.interface';
+import { validateFiltersForQuery } from '../../middlewares/queryValidation/paginationQueryValidationMiddleware';
+import validateRequest from '../../shared/validateRequest';
+import auth from '../../middlewares/auth';
 
 const multer = require('multer');
 const storage = multer.memoryStorage();
@@ -12,14 +12,14 @@ const upload = multer({ storage: storage });
 
 const router = express.Router();
 
-export const optionValidationChecking = <T extends keyof IProduct>(
+export const optionValidationChecking = <T extends keyof ICartItem>(
   filters: T[]
 ) => {
   return filters;
 };
 
 // const taskService = new TaskService();
-const controller = new ProductController();
+const controller = new CartItemController();
 
 //info : pagination route must be before the route with params
 router.route('/paginate').get(
@@ -45,14 +45,14 @@ router.route('/').get(
   controller.getAll
 );
 
-//[🚧][🧑‍💻✅][🧪] // 🆗 - suplify
+//[🚧][🧑‍💻✅][🧪] // 🆗
 router.route('/create').post(
-  [
-    upload.fields([
-      { name: 'attachments', maxCount: 15 }, // Allow up to 5 cover photos
-    ]),
-  ],
-  // auth('common'), // TODO: permission should be admin
+  // [
+  //   upload.fields([
+  //     { name: 'attachments', maxCount: 15 }, // Allow up to 5 cover photos
+  //   ]),
+  // ],
+  auth('common'),
   validateRequest(validation.createHelpMessageValidationSchema),
   controller.create
 );
@@ -71,4 +71,4 @@ router.route('/softDelete/:id').put(
 //[🚧][🧑‍💻✅][🧪] // 🆗
 
 
-export const ProductRoute = router;
+export const CartItemRoute = router;

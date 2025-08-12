@@ -1,17 +1,44 @@
 import { model, Schema } from 'mongoose';
 import { IProduct, IProductModel } from './product.interface';
 import paginate from '../../../common/plugins/paginate';
+import { TProductCategory } from './product.constant';
 
 
 const ProductSchema = new Schema<IProduct>(
   {
-    userId: {
-      type: Schema.Types.ObjectId,
-      ref: 'User',
-    },
-    message: {
+    // userId: {
+    //   type: Schema.Types.ObjectId,
+    //   ref: 'User',
+    // },
+    name: {
       type: String,
       required: [true, 'dateOfBirth is required'],
+    },
+    attachments: [ // for specialist and doctor 
+        {
+            type: Schema.Types.ObjectId,
+            ref: 'Attachment',
+            required: [false, 'Attachments is not required'],
+        }
+    ],
+    description: {
+      type: String,
+      required: [true, 'description is required'],
+    },
+    price: {
+      type: Number,
+      required: [true, 'price is required'],
+    },
+    category: {
+      type: String,
+      enum:[
+        TProductCategory.fitness,
+        TProductCategory.labTest,
+        TProductCategory.supplement,
+        TProductCategory.wellness,
+        TProductCategory.others // not sure .. others should be an option or not 
+      ],
+      required: [true, 'category is required'],
     },
     isDeleted: {
       type: Boolean,
