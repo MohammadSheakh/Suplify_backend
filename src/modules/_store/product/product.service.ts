@@ -3,6 +3,7 @@ import { Product } from './product.model';
 import { IProduct } from './product.interface';
 import { GenericService } from '../../__Generic/generic.services';
 import { TProductCategory } from './product.constant';
+import { getOrSetRedisCache } from '../../../helpers/getOrSetRedisCache';
 
 
 export class ProductService extends GenericService<
@@ -13,7 +14,49 @@ export class ProductService extends GenericService<
     super(Product);
   }
 
+  async categoryWithCount_WithoutCaching () {
+    // const fitnessCount = await this.model.countDocuments({ category: TProductCategory.fitness });
+    // const labTestCount = await this.model.countDocuments({ category: TProductCategory.labTest });
+    // const supplimentCount = await this.model.countDocuments({ category: TProductCategory.supplement });
+    // const wellnessCount = await this.model.countDocuments({ category: TProductCategory.wellness });
+    // const othersCount = await this.model.countDocuments({ category: TProductCategory.others });
+
+    /**********
+     * 
+     * this return the count of each category
+     * 
+     * ********* */
+    const counts = await this.model.aggregate([
+      { $group: { _id: "$category", count: { $sum: 1 } } }
+    ]);
+
+    return {
+      // fitness: fitnessCount,
+      // labTest: labTestCount,
+      // suppliment: supplimentCount,
+      // wellness: wellnessCount,
+      // others: othersCount,
+      counts
+    };
+  }
+
+  /********
+   * 
+   * with caching .. .. this is for example purpose only .. 
+   * we use caching in controller .. 
+   * 
+   * ******** */
   async categoryWithCount () {
+
+    const data = await getOrSetRedisCache(
+      'productCategoryWithCount',
+      async () => {
+        return this.categoryWithCount_WithoutCaching();
+      },
+      3600 // 1 hour TTL
+    );
+
+    /*
     const fitnessCount = await this.model.countDocuments({ category: TProductCategory.fitness });
     const labTestCount = await this.model.countDocuments({ category: TProductCategory.labTest });
     const supplimentCount = await this.model.countDocuments({ category: TProductCategory.supplement });
@@ -27,7 +70,11 @@ export class ProductService extends GenericService<
       wellness: wellnessCount,
       others: othersCount,
     };
+    */
+    return data;
   }
+
+
 
   // add more service here if needed or override the existing ones
 }

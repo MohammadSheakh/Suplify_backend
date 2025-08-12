@@ -9,6 +9,8 @@ import catchAsync from '../../../shared/catchAsync';
 import sendResponse from '../../../shared/sendResponse';
 import { TFolderName } from '../../attachments/attachment.constant';
 import { AttachmentService } from '../../attachments/attachment.service';
+import { getOrSetRedisCache } from '../../../helpers/getOrSetRedisCache';
+import { redisClient } from '../../../helpers/redis';
 
 
 // let conversationParticipantsService = new ConversationParticipentsService();
@@ -97,7 +99,18 @@ export class ProductController extends GenericController<
 
 
   categoryWithCount = catchAsync(async (req: Request, res: Response) => {
-    const result = await this.productService.categoryWithCount();
+    // const result = await this.productService.categoryWithCount();
+
+    await redisClient.del("productCategoryWithCount");
+
+    const result = await getOrSetRedisCache(
+      'productCategoryWithCount',
+      async () => {
+        return this.productService.categoryWithCount_WithoutCaching();
+      },
+      3600 // 1 hour TTL
+    );
+
     sendResponse(res, {
       code: StatusCodes.OK,
       data: result,

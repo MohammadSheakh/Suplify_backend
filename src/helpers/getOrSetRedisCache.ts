@@ -12,11 +12,12 @@ export function getOrSetRedisCache(
         return resolve(JSON.parse(cachedData));
       }
 
-      const data = await cb();
-      await redisClient.setEx(key, ttl, JSON.stringify(data));
-      resolve(data);
+      const freshData = await cb();
+      await redisClient.setEx(key, ttl, JSON.stringify(freshData));
+      resolve(freshData);
     } catch (error) {
       reject(error);
     }
   });
 }
+
