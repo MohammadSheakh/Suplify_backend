@@ -1,5 +1,11 @@
-export enum SpecialistWorkoutClassScheduleType {
-  document = 'document',
-  image = 'image',
-  unknown = 'unknown',
+export enum TSpecialistWorkoutClassSchedule {
+  available = 'available',
+  booked = 'booked',
+  cancelled = 'cancelled',
+}
+
+export enum TMeetingLink {
+  zoom = 'zoom',
+  googleMeet = 'googleMeet',
+  others = 'others',
 }

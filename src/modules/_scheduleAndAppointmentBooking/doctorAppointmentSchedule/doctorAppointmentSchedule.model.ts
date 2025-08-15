@@ -1,7 +1,7 @@
 import { model, Schema } from 'mongoose';
 import { IDoctorAppointmentSchedule, IDoctorAppointmentScheduleModel } from './doctorAppointmentSchedule.interface';
 import paginate from '../../../common/plugins/paginate';
-import { TDoctorAppointmentScheduleStatus } from './doctorAppointmentSchedule.constant';
+import { TDoctorAppointmentScheduleStatus, TMeetingLink } from './doctorAppointmentSchedule.constant';
 
 
 const DoctorAppointmentScheduleSchema = new Schema<IDoctorAppointmentSchedule>(
@@ -46,8 +46,11 @@ const DoctorAppointmentScheduleSchema = new Schema<IDoctorAppointmentSchedule>(
     },
     typeOfLink: {
       type: String,
-      enum: ['document', 'image', 'unknown'],
-      default: 'unknown',
+      enum: [
+        TMeetingLink.zoom,
+        TMeetingLink.googleMeet,
+        TMeetingLink.others
+      ],
       required: [true, 'typeOfLink is required'],
     },
     meetingLink:{

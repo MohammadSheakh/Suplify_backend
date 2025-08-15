@@ -15,31 +15,19 @@ const CartItemSchema = new Schema<ICartItem>(
       ref: 'Product', // 🔥 Product nam e kono table e nai amader .. 
       required: [true, 'itemId is required'],
     },
-    itemType :{
-      type : String,
-      required: [true, 'itemType is required'],
-    },
-    itemName :{
-      type : String,
-      required: [true, 'itemName is required'],
-    },
+    
     quantity : {
       type: Number, 
       required: [true, 'quantity is required.. which is a number'],
     },
-    unitPrice : {
-      type: Number,
-      required : [true, 'unitPrice is required.. which is a number'],
-      min: [0, 'unitPrice must be greater than zero'],
-    },
+    
     /*******
-     * do we really need totalPrice for a product
+     * we dont store unit price here .. as unit price can varry .. 
      * ****** */
-    totalPrice : {
-      type: Number,
-      required : [true, 'totalPrice is required.. which is a number'],
-      min: [0, 'totalPrice must be greater than zero'],
-    },
+
+    /*******
+     * also we dont store total price here .. as unit price can varry ..  
+     * ****** */
     
     isDeleted: {
       type: Boolean,

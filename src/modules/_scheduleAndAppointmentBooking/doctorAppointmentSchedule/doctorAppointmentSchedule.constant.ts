@@ -7,7 +7,5 @@ export enum TDoctorAppointmentScheduleStatus {
 export enum TMeetingLink {
   zoom = 'zoom',
   googleMeet = 'googleMeet',
-  microsoftTeams = 'microsoftTeams',
-  discord = 'discord',
   others = 'others',
 }

@@ -12,9 +12,9 @@ export enum PAYMENT_METHOD {
 
 
 export enum PAYMENT_STATUS {
-     UNPAID = 'Unpaid',
-     PAID = 'Paid',
-     REFUNDED = 'Refunded',
+     unpaid = 'unpaid',
+     paid = 'paid',
+     refunded = 'refunded',
 }
 
 // SUPTODO : we need to compare these order and orderItem module .. with Fertie project .. 

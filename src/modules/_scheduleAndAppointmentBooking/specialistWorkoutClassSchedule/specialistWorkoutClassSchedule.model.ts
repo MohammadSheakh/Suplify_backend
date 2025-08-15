@@ -1,16 +1,60 @@
 import { model, Schema } from 'mongoose';
 import { ISpecialistWorkoutClassSchedule, ISpecialistWorkoutClassScheduleModel } from './specialistWorkoutClassSchedule.interface';
 import paginate from '../../../common/plugins/paginate';
+import { TMeetingLink, TSpecialistWorkoutClassSchedule } from './specialistWorkoutClassSchedule.constant';
 
 const SpecialistWorkoutClassScheduleSchema = new Schema<ISpecialistWorkoutClassSchedule>(
   {
-    userId: {
+    createdBy: { // ref to a specialist
       type: Schema.Types.ObjectId,
       ref: 'User',
     },
-    message: {
+    scheduleName: {
       type: String,
-      required: [true, 'dateOfBirth is required'],
+      required: [true, 'scheduleName is required'],
+    },
+    scheduleDate: {
+      type: Date,
+      required: [true, 'scheduleDate is required'],
+    },
+    startTime: {
+      type: Date,
+      required: [true, 'startTime is required . type is Date'],
+    },
+    endTime: {
+      type: Date,
+      required: [true, 'endTime is required . type is Date'],
+    },
+    description : {
+      type: String,
+      required: [true, 'description is required'],
+    },
+    status: {
+      type: String,
+      enum: [
+        TSpecialistWorkoutClassSchedule.available,
+        TSpecialistWorkoutClassSchedule.booked,
+        TSpecialistWorkoutClassSchedule.cancelled,
+      ],
+      default: TSpecialistWorkoutClassSchedule.available,
+      required: [true, 'scheduleStatus is required'],
+    },
+    price : {
+          type: Number,
+          required: [true, 'price is required'],
+        },
+    typeOfLink: {
+      type: String,
+      enum: [
+        TMeetingLink.zoom,
+        TMeetingLink.googleMeet,
+        TMeetingLink.others
+      ],
+      required: [true, 'typeOfLink is required'],
+    },
+    meetingLink:{
+      type : String,
+      required: [true, 'meetingLink is required'],
     },
     isDeleted: {
       type: Boolean,

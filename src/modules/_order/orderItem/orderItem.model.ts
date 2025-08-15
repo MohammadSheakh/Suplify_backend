@@ -16,14 +16,6 @@ const orderItemSchema = new Schema<IOrderItem>(
       ref: 'Product', // 🔥 Product nam e kono table e nai amader .. 
       required: [true, 'itemId is required'],
     },
-    itemType :{
-      type : String,
-      required: [true, 'itemType is required'],
-    },
-    itemName :{
-      type : String,
-      required: [true, 'itemName is required'],
-    },
     quantity : {
       type: Number, 
       required: [true, 'quantity is required.. which is a number'],

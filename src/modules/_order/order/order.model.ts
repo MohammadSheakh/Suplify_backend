@@ -79,12 +79,15 @@ const orderSchema = new Schema<IOrder>(
 
     paymentStatus: {
       type: String,
-      enum: PAYMENT_STATUS,
-      default: PAYMENT_STATUS.UNPAID,
+      enum: [
+        PAYMENT_STATUS.unpaid,
+        PAYMENT_STATUS.paid,
+        PAYMENT_STATUS.refunded
+      ],
+      default: PAYMENT_STATUS.unpaid,
     },
 
     orderNotes: {
-      //> One Subscription can have multiple features ...
       type: String,
       required: [false, 'orderNotes is not required'],
     },

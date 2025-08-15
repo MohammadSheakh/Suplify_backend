@@ -1,22 +1,36 @@
 import { model, Schema } from 'mongoose';
 import { ISpecialistPatientScheduleBooking, ISpecialistPatientScheduleBookingModel } from './specialistPatientScheduleBooking.interface';
 import paginate from '../../../common/plugins/paginate';
+import { TSpecialistWorkoutClassSchedule } from '../specialistWorkoutClassSchedule/specialistWorkoutClassSchedule.constant';
+import { TAppointmentStatus } from '../doctorPatientScheduleBooking/doctorPatientScheduleBooking.constant';
+import { TScheduleBookingStatus } from './specialistPatientScheduleBooking.constant';
 
 
 const SpecialistPatientScheduleBookingSchema = new Schema<ISpecialistPatientScheduleBooking>(
   {
-    userId: {
+    patientId: {
       type: Schema.Types.ObjectId,
       ref: 'User',
     },
-    message: {
-      type: String,
-      required: [true, 'dateOfBirth is required'],
+    workoutClassScheduleId: {
+      type: Schema.Types.ObjectId,
+      ref: 'SpecialistWorkoutClassSchedule',
+      required: [true, 'workoutClassScheduleId is required'],
     },
     isDeleted: {
       type: Boolean,
       required: [false, 'isDeleted is not required'],
       default: false,
+    },
+    status: {
+      type : String,
+      enum: [
+        TScheduleBookingStatus.cancelled,
+        TScheduleBookingStatus.scheduled,
+        TScheduleBookingStatus.completed
+      ],
+      default: TScheduleBookingStatus.scheduled,
+      required: [true, 'status is required'],
     },
   },
   { timestamps: true }

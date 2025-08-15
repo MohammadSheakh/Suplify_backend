@@ -1,5 +1,5 @@
-export enum SpecialistPatientScheduleBookingType {
-  document = 'document',
-  image = 'image',
-  unknown = 'unknown',
+export enum TScheduleBookingStatus {
+  scheduled = 'scheduled',
+  completed = 'completed',
+  cancelled = 'cancelled',
 }

@@ -11,7 +11,8 @@ const DoctorPatientScheduleBookingSchema = new Schema<IDoctorPatientScheduleBook
       ref: 'User',
     },
     doctorScheduleId: {
-      type: String,
+      type: Schema.Types.ObjectId,
+      ref: 'DoctorAppointmentSchedule',
       required: [true, 'doctorScheduleId is required'],
     },
     isDeleted: {
@@ -22,9 +23,9 @@ const DoctorPatientScheduleBookingSchema = new Schema<IDoctorPatientScheduleBook
     status: {
       type : String,
       enum: [
-        TAppointmentStatus.scheduled
-        , TAppointmentStatus.completed
-        , TAppointmentStatus.cancelled
+        TAppointmentStatus.scheduled,
+        TAppointmentStatus.completed,
+        TAppointmentStatus.cancelled
       ],
       default: TAppointmentStatus.scheduled,
       required: [true, 'status is required'],
