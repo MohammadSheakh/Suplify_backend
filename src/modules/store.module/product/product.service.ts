@@ -1,7 +1,7 @@
 import { StatusCodes } from 'http-status-codes';
 import { Product } from './product.model';
 import { IProduct } from './product.interface';
-import { GenericService } from '../../__Generic/generic.services';
+import { GenericService } from '../../_generic-module/generic.services';
 import { TProductCategory } from './product.constant';
 import { getOrSetRedisCache } from '../../../helpers/getOrSetRedisCache';
 

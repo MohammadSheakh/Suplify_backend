@@ -1,6 +1,6 @@
 import { StatusCodes } from "http-status-codes";
 import sendResponse from "../../../shared/sendResponse";
-import { GenericController } from "../../__Generic/generic.controller";
+import { GenericController } from "../../_generic-module/generic.controller";
 import { IConversation } from "../conversation/conversation.interface";
 import { ConversationParticipents } from "./conversationParticipents.model";
 

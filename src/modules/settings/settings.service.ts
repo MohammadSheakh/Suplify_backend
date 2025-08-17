@@ -5,7 +5,7 @@ import ApiError from '../../errors/ApiError';
 import { settingsType } from './settings.constant';
 import { ISettings } from './settings.interface';
 import { Settings } from './settings.model';
-import { GenericService } from '../__Generic/generic.services';
+import { GenericService } from '../_generic-module/generic.services';
 
 
 const allowedTypes = [

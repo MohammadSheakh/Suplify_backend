@@ -1,7 +1,7 @@
 import { StatusCodes } from 'http-status-codes';
 import { DoctorAppointmentSchedule } from './doctorAppointmentSchedule.model';
 import { IDoctorAppointmentSchedule } from './doctorAppointmentSchedule.interface';
-import { GenericService } from '../../__Generic/generic.services';
+import { GenericService } from '../../_generic-module/generic.services';
 
 
 export class DoctorAppointmentScheduleService extends GenericService<

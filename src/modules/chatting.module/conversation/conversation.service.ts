@@ -1,4 +1,4 @@
-import { GenericService } from "../../__Generic/generic.services";
+import { GenericService } from "../../_generic-module/generic.services";
 import { IConversation } from "./conversation.interface";
 import { Conversation } from "./conversation.model";
 import ApiError from "../../../errors/ApiError";

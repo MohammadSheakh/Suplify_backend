@@ -1,4 +1,4 @@
-import { GenericService } from "../../__Generic/generic.services";
+import { GenericService } from "../../_generic-module/generic.services";
 import { IOrderItem } from "./orderItem.interface";
 import { OrderItem} from "./orderItem.model";
 

@@ -3,7 +3,7 @@ import ApiError from '../../errors/ApiError';
 import { Attachment } from './attachment.model';
 // 🔥🔥 uploadFileToSpace khuje paowa jacche na .. fix korte hobe .. 
 import { AttachmentType } from './attachment.constant';
-import { GenericService } from '../__Generic/generic.services';
+import { GenericService } from '../_generic-module/generic.services';
 import { IAttachment } from './attachment.interface';
 import { deleteFileFromSpace, uploadFileToSpace } from '../../middlewares/digitalOcean';
 

@@ -1,5 +1,5 @@
 import path from 'path';
-import { GenericService } from '../../__Generic/generic.services';
+import { GenericService } from '../../_generic-module/generic.services';
 import { IConversationParticipents } from './conversationParticipents.interface';
 import { ConversationParticipents } from './conversationParticipents.model';
 import { PaginateOptions } from '../../../types/paginate';

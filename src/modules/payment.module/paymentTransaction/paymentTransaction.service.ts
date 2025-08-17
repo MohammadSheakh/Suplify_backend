@@ -1,6 +1,6 @@
 import { StatusCodes } from 'http-status-codes';
 
-import { GenericService } from '../../__Generic/generic.services';
+import { GenericService } from '../../_generic-module/generic.services';
 import { PaymentTransaction } from './paymentTransaction.model';
 import { IPaymentTransaction } from './paymentTransaction.interface';
 

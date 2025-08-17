@@ -1,4 +1,4 @@
-import { GenericController } from "../../__Generic/generic.controller";
+import { GenericController } from "../../_generic-module/generic.controller";
 import { IOrderItem } from "./orderItem.interface";
 import { OrderItem } from "./orderItem.model";
 import { OrderItemService } from "./orderItem.service";

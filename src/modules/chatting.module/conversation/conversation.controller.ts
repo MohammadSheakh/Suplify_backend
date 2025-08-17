@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import catchAsync from '../../../shared/catchAsync';
 import sendResponse from '../../../shared/sendResponse';
-import { GenericController } from '../../__Generic/generic.controller';
+import { GenericController } from '../../_generic-module/generic.controller';
 import { Conversation } from './conversation.model';
 import { ConversationService } from './conversation.service';
 import { StatusCodes } from 'http-status-codes';

@@ -1,4 +1,4 @@
-import { GenericController } from "../../__Generic/generic.controller";
+import { GenericController } from "../../_generic-module/generic.controller";
 import { IUserSubscription } from "./userSubscription.interface";
 import { UserSubscription } from "./userSubscription.model";
 import {  UserSubscriptionService } from "./userSubscription.service";

@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
-import { GenericController } from '../../__Generic/generic.controller';
+import { GenericController } from '../../_generic-module/generic.controller';
 import { SpecialistPatientScheduleBooking } from './specialistPatientScheduleBooking.model';
 import { ISpecialistPatientScheduleBooking } from './specialistPatientScheduleBooking.interface';
 import { SpecialistPatientScheduleBookingService } from './specialistPatientScheduleBooking.service';

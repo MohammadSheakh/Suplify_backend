@@ -1,4 +1,4 @@
-import { GenericService } from "../../__Generic/generic.services";
+import { GenericService } from "../../_generic-module/generic.services";
 import { IUserSubscription } from "./userSubscription.interface";
 import { UserSubscription } from "./userSubscription.model";
 

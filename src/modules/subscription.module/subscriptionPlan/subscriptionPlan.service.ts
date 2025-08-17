@@ -1,5 +1,5 @@
 import Stripe from "stripe";
-import { GenericService } from "../../__Generic/generic.services";
+import { GenericService } from "../../_generic-module/generic.services";
 import { ISubscriptionPlan } from "./subscriptionPlan.interface";
 import { SubscriptionPlan } from "./subscriptionPlan.model";
 import { UserSubscriptionService } from "../userSubscription/userSubscription.service";

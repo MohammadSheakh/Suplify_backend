@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import catchAsync from '../../../shared/catchAsync';
-import { GenericController } from '../../__Generic/generic.controller';
+import { GenericController } from '../../_generic-module/generic.controller';
 import { IConfirmPayment, ISubscriptionPlan } from './subscriptionPlan.interface';
 import { SubscriptionPlanService } from './subscriptionPlan.service';
 import sendResponse from '../../../shared/sendResponse';
