@@ -5,12 +5,12 @@ import { AdminRoutes } from '../modules/admin/admin.routes';
 import { AttachmentRoutes } from '../modules/attachments/attachment.route';
 import { NotificationRoutes } from '../modules/notification/notification.routes';
 import { SettingsRoutes } from '../modules/settings/settings.routes';
-import { TrainingProgramRoute } from '../modules/_training/trainingProgram/trainingProgram.route';
-import { ConversationRoute } from '../modules/_chatting/conversation/conversation.route';
-import { MessageRoute } from '../modules/_chatting/message/message.route';
-import { PaymentTransactionRoute } from '../modules/_payment/paymentTransaction/paymentTransaction.route';
-import stripeAccountRoutes from '../modules/_payment/stripeAccount/stripeAccount.route';
-import { ProductRoute } from '../modules/_store/product/product.route';
+import { TrainingProgramRoute } from '../modules/training.module/trainingProgram/trainingProgram.route';
+import { ConversationRoute } from '../modules/chatting.module/conversation/conversation.route';
+import { MessageRoute } from '../modules/chatting.module/message/message.route';
+import { PaymentTransactionRoute } from '../modules/payment.module/paymentTransaction/paymentTransaction.route';
+import stripeAccountRoutes from '../modules/payment.module/stripeAccount/stripeAccount.route';
+import { ProductRoute } from '../modules/store.module/product/product.route';
 
 // import { ChatRoutes } from '../modules/chat/chat.routes';
 // import { MessageRoutes } from '../modules/message/message.routes';

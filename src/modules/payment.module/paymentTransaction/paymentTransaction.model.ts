@@ -1,7 +1,7 @@
 import { model, Schema } from 'mongoose';
 import paginate from '../../../common/plugins/paginate';
 import { IPaymentTransaction, IPaymentTransactionModel } from './paymentTransaction.interface';
-import { CurrencyType } from '../../_subscription/subscriptionPlan/subscriptionPlan.constant';
+import { CurrencyType } from '../../subscription.module/subscriptionPlan/subscriptionPlan.constant';
 import { TPaymentGateway, TPaymentStatus, TTransactionFor } from './paymentTransaction.constant';
 
 const paymentTransactionSchema = new Schema<IPaymentTransaction>(

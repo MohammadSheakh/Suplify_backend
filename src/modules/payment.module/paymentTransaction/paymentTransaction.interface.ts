@@ -1,7 +1,7 @@
 import { Model, Types, Schema } from 'mongoose';
 import { PaginateOptions, PaginateResult } from '../../../types/paginate';
 import { TPaymentGateway, TPaymentStatus, TTransactionFor } from './paymentTransaction.constant';
-import { CurrencyType } from '../../_subscription/subscriptionPlan/subscriptionPlan.constant';
+import { CurrencyType } from '../../subscription.module/subscriptionPlan/subscriptionPlan.constant';
 
 export interface IPaymentTransaction {
   // _taskId: undefined | Types.ObjectId;

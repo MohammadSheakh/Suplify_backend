@@ -11,11 +11,11 @@ import { CurrencyType, InitialDurationType, RenewalFrequncyType, SubscriptionTyp
 import { User } from '../../user/user.model';
 import { UserCustomService } from '../../user/user.service';
 import mongoose from 'mongoose';
-import { PaymentTransactionService } from '../../_payment/paymentTransaction/paymentTransaction.service';
+import { PaymentTransactionService } from '../../payment.module/paymentTransaction/paymentTransaction.service';
 import { SubscriptionPlan } from './subscriptionPlan.model';
 import { UserSubscription } from '../userSubscription/userSubscription.model';
-import { PaymentTransaction } from '../../_payment/paymentTransaction/paymentTransaction.model';
-import { TPaymentStatus } from '../../_payment/paymentTransaction/paymentTransaction.constant';
+import { PaymentTransaction } from '../../payment.module/paymentTransaction/paymentTransaction.model';
+import { TPaymentStatus } from '../../payment.module/paymentTransaction/paymentTransaction.constant';
 import { UserSubscriptionStatusType } from '../userSubscription/userSubscription.constant';
 import { addMonths } from 'date-fns';
 import { IUserSubscription } from '../userSubscription/userSubscription.interface';

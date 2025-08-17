@@ -8,7 +8,7 @@ import router from './routes';
 import { Morgan } from './shared/morgen';
 import i18next from './i18n/i18n'; // Import the i18next configuration
 import i18nextMiddleware from 'i18next-http-middleware';
-import webhookHandler from './modules/_payment/stripeAccount/webhookHandler';
+import webhookHandler from './modules/payment.module/stripeAccount/webhookHandler';
 import { welcome } from './utils/welcome';
 // import i18nextFsBackend from 'i18next-fs-backend';
 
