@@ -3,3 +3,10 @@ export enum TScheduleBookingStatus {
   completed = 'completed',
   cancelled = 'cancelled',
 }
+
+export enum TPaymentStatus {
+     UNPAID = 'unpaid',
+     PAID = 'paid',
+     REFUNDED = 'refunded',
+     CANCELLED = 'cancelled',
+}

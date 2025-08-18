@@ -1,17 +1,40 @@
 import { model, Schema } from 'mongoose';
 import paginate from '../../../common/plugins/paginate';
 import { ITrainingProgramPurchase, ITrainingProgramPurchaseModel } from './trainingProgramPurchase.interface';
+import { PAYMENT_METHOD } from '../../order.module/order/order.constant';
+import { TPaymentStatus } from '../../scheduleAndAppointmentBooking.module/specialistPatientScheduleBooking/specialistPatientScheduleBooking.constant';
 
 
 const TrainingProgramPurchaseSchema = new Schema<ITrainingProgramPurchase>(
   {
-    userId: {
+    trainingProgramId : { // which training program 
+      type: Schema.Types.ObjectId,
+      ref: 'TrainingProgram',
+    },
+    patientId : { // who purchase this
       type: Schema.Types.ObjectId,
       ref: 'User',
     },
-    message: {
+    PaymentTransactionId: { // Same as PaymentId of kappes
+      type: Schema.Types.ObjectId,
+      ref: 'PaymentTransaction',
+      default: null,
+    },
+    paymentMethod: {
       type: String,
-      required: [true, 'dateOfBirth is required'],
+      enum: PAYMENT_METHOD,
+      default: PAYMENT_METHOD.online,
+    },
+    paymentStatus : {
+      type: String,
+      enum: [
+        TPaymentStatus.UNPAID,
+        TPaymentStatus.PAID,
+        TPaymentStatus.REFUNDED,
+        TPaymentStatus.CANCELLED
+      ],
+      default: TPaymentStatus.UNPAID,
+      required: [true, 'paymentStatus is required'],
     },
     isDeleted: {
       type: Boolean,

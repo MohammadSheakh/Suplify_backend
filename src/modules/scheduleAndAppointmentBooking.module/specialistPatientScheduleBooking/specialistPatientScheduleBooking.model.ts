@@ -3,8 +3,8 @@ import { ISpecialistPatientScheduleBooking, ISpecialistPatientScheduleBookingMod
 import paginate from '../../../common/plugins/paginate';
 import { TSpecialistWorkoutClassSchedule } from '../specialistWorkoutClassSchedule/specialistWorkoutClassSchedule.constant';
 import { TAppointmentStatus } from '../doctorPatientScheduleBooking/doctorPatientScheduleBooking.constant';
-import { TScheduleBookingStatus } from './specialistPatientScheduleBooking.constant';
-
+import { TPaymentStatus, TScheduleBookingStatus } from './specialistPatientScheduleBooking.constant';
+import { PAYMENT_METHOD } from '../../order.module/order/order.constant';
 
 const SpecialistPatientScheduleBookingSchema = new Schema<ISpecialistPatientScheduleBooking>(
   {
@@ -32,6 +32,27 @@ const SpecialistPatientScheduleBookingSchema = new Schema<ISpecialistPatientSche
       default: TScheduleBookingStatus.scheduled,
       required: [true, 'status is required'],
     },
+    PaymentTransactionId: { // Same as PaymentId of kappes
+      type: Schema.Types.ObjectId,
+      ref: 'PaymentTransaction',
+      default: null,
+    },
+    paymentMethod: {
+      type: String,
+      enum: PAYMENT_METHOD,
+      default: PAYMENT_METHOD.online,
+    },
+    paymentStatus : {
+      type: String,
+      enum: [
+        TPaymentStatus.UNPAID,
+        TPaymentStatus.PAID,
+        TPaymentStatus.REFUNDED,
+        TPaymentStatus.CANCELLED
+      ],
+      default: TPaymentStatus.UNPAID,
+      required: [true, 'paymentStatus is required'],
+    }
   },
   { timestamps: true }
 );

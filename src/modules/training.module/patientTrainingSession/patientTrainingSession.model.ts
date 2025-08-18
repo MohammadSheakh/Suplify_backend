@@ -1,17 +1,26 @@
 import { model, Schema } from 'mongoose';
 import { IPatientTrainingSession, IPatientTrainingSessionModel } from './PatientTrainingSession.interface';
 import paginate from '../../common/plugins/paginate';
+import { TPatientTrainingSessionStatus } from './patientTrainingSession.constant';
 
 
 const PatientTrainingSessionSchema = new Schema<IPatientTrainingSession>(
   {
+    trainingSessionId: {
+      type: Schema.Types.ObjectId,
+      ref: 'TrainingSession',
+    },
     userId: {
       type: Schema.Types.ObjectId,
       ref: 'User',
     },
-    message: {
+    status: {
       type: String,
-      required: [true, 'dateOfBirth is required'],
+      enum: [
+        TPatientTrainingSessionStatus.complete,
+        TPatientTrainingSessionStatus.incomplete
+      ],
+      default: TPatientTrainingSessionStatus.incomplete
     },
     isDeleted: {
       type: Boolean,

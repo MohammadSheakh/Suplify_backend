@@ -1,5 +1,4 @@
-export enum PatientTrainingSessionType {
-  document = 'document',
-  image = 'image',
-  unknown = 'unknown',
+export enum TPatientTrainingSessionStatus {
+  incomplete = 'incomplete',
+  complete = 'complete'
 }

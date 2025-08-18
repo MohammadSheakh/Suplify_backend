@@ -5,14 +5,31 @@ import paginate from '../../../common/plugins/paginate';
 
 const TrainingProgramSchema = new Schema<ITrainingProgram>(
   {
-    userId: {
+    programName: {
+      type: String,
+      required: [true, 'programName is required'],
+      trim: true
+    },
+    durationInMonths: {
+      type: Number,
+      required: [true, 'durationInMonths is required'],
+    },
+    totalSessionCount:{ // just for show this value .. not for storing .. 
+      type: Number,
+      required: [true, 'totalSessionCount is required'],
+    },
+
+    price: {
+      type: Number,
+      required: [true, 'price is required'],
+      min: [0, 'price must be positive'],
+    },
+
+    createdBy: {  // Refer to Specialist .. who create this training Program .. 
       type: Schema.Types.ObjectId,
       ref: 'User',
     },
-    message: {
-      type: String,
-      required: [true, 'dateOfBirth is required'],
-    },
+
     isDeleted: {
       type: Boolean,
       required: [false, 'isDeleted is not required'],
