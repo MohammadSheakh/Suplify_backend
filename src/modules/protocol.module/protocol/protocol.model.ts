@@ -5,13 +5,22 @@ import paginate from '../../../common/plugins/paginate';
 
 const protocolSchema = new Schema<Iprotocol>(
   {
-    userId: {
+    createdBy: { // Doctor Id .. who create this protocol
       type: Schema.Types.ObjectId,
       ref: 'User',
     },
-    message: {
+    name: { // name of the protocol
       type: String,
-      required: [true, 'dateOfBirth is required'],
+      required: [true, 'name is required'],
+    },
+    totalPlan : { // totalPlanCount
+      type: Number,
+      required: [true, 'totalPlan is required'],
+    },
+
+    patientId: { // Patient Id .. who this protocol is for
+      type: Schema.Types.ObjectId,
+      ref: 'User',
     },
     isDeleted: {
       type: Boolean,

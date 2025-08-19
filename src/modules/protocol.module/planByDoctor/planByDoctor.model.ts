@@ -9,6 +9,11 @@ const planByDoctorSchema = new Schema<IplanByDoctor>(
       type: Schema.Types.ObjectId,
       ref: 'User',
     },
+    suggestionType :{ //🚧🚧🚧🚧🚧🚧🚧🚧
+      type: String,
+      enum: ['text', 'image', 'video'],
+      required: [true, 'suggestionType is required'],
+    },
     message: {
       type: String,
       required: [true, 'dateOfBirth is required'],
