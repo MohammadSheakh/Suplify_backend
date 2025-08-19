@@ -5,13 +5,22 @@ import paginate from '../../../common/plugins/paginate';
 
 const SuggestionBySpecialistSchema = new Schema<ISuggestionBySpecialist>(
   {
-    userId: {
+    
+    keyPoint:{
+      type: String,
+      required: [true, 'keyPoint is required']
+    },
+    solutionName: {
+      type: String,
+      required : [true, 'solutionName is required']
+    },
+    suggestFromStore: {
+      type: String,
+      required: [true, 'suggestFromStore is required'],
+    },
+    createdBy: { // Specialist Id 
       type: Schema.Types.ObjectId,
       ref: 'User',
-    },
-    message: {
-      type: String,
-      required: [true, 'dateOfBirth is required'],
     },
     isDeleted: {
       type: Boolean,

@@ -2,7 +2,7 @@
 To generate new module 
 
 
--> node src/modules/__Generic/generate-module.js NextModule src/modules/
+-> node src/modules/_generic-module/generate-module.js NextModule src/modules/
 
 // break down 
 ->  node <generate-module.js directory>  <module-name>  <output directory>

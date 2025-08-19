@@ -1,10 +1,10 @@
 import { model, Schema } from 'mongoose';
-import { IplanByDoctor, IplanByDoctorModel } from './planByDoctor.interface';
-import paginate from '../../../common/plugins/paginate';
-import { TPlanByDoctor } from './planByDoctor.constant';
+import { IDoctorPlan, IDoctorPlanModel } from './DoctorPlan.interface';
+import paginate from '../../common/plugins/paginate';
+import { TPlanByDoctor } from '../planByDoctor/planByDoctor.constant';
 
 
-const planByDoctorSchema = new Schema<IplanByDoctor>(
+const DoctorPlanSchema = new Schema<IDoctorPlan>(
   {
     planType :{ 
       type: String,
@@ -19,11 +19,6 @@ const planByDoctorSchema = new Schema<IplanByDoctor>(
     createdBy: { // doctor Id 
       type: Schema.Types.ObjectId,
       ref: 'User',
-    },
-
-    protocolId: { // for which protocol
-      type: Schema.Types.ObjectId,
-      ref: 'protocol',
     },
 
     title: {
@@ -43,10 +38,7 @@ const planByDoctorSchema = new Schema<IplanByDoctor>(
       type: Number,
       required: [true, 'totalKeyPoints is required']
     },
-    patientId: { // for which patient
-      type: Schema.Types.ObjectId,
-      ref: 'User',
-    },
+    
     isDeleted: {
       type: Boolean,
       required: [false, 'isDeleted is not required'],
@@ -56,9 +48,9 @@ const planByDoctorSchema = new Schema<IplanByDoctor>(
   { timestamps: true }
 );
 
-planByDoctorSchema.plugin(paginate);
+DoctorPlanSchema.plugin(paginate);
 
-planByDoctorSchema.pre('save', function (next) {
+DoctorPlanSchema.pre('save', function (next) {
   // Rename _id to _projectId
   // this._taskId = this._id;
   // this._id = undefined;  // Remove the default _id field
@@ -68,15 +60,15 @@ planByDoctorSchema.pre('save', function (next) {
 });
 
 // Use transform to rename _id to _projectId
-planByDoctorSchema.set('toJSON', {
+DoctorPlanSchema.set('toJSON', {
   transform: function (doc, ret, options) {
-    ret._planByDoctorId = ret._id; // Rename _id to _subscriptionId
+    ret._DoctorPlanId = ret._id; // Rename _id to _subscriptionId
     delete ret._id; // Remove the original _id field
     return ret;
   },
 });
 
-export const planByDoctor = model<
-  IplanByDoctor,
-  IplanByDoctorModel
->('planByDoctor', planByDoctorSchema);
+export const DoctorPlan = model<
+  IDoctorPlan,
+  IDoctorPlanModel
+>('DoctorPlan', DoctorPlanSchema);

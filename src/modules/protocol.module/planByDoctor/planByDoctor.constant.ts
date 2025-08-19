@@ -1,5 +1,6 @@
-export enum planByDoctorType {
-  document = 'document',
-  image = 'image',
-  unknown = 'unknown',
+export enum TPlanByDoctor {
+  mealPlan = 'mealPlan',
+  workOut = 'workOut',
+  suppliment = 'suppliment',
+  lifeStyleChanges = 'lifeStyleChanges'
 }

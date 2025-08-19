@@ -5,13 +5,17 @@ import paginate from '../../../common/plugins/paginate';
 
 const SpecialistSuggestionForAPlanSchema = new Schema<ISpecialistSuggestionForAPlan>(
   {
-    userId: {
+    suggestionId: {
+      type: Schema.Types.ObjectId,
+      ref: 'SuggestionBySpecialist',
+    },
+    planId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Plan',
+    },
+    createdBy: { // Specialist Id // 
       type: Schema.Types.ObjectId,
       ref: 'User',
-    },
-    message: {
-      type: String,
-      required: [true, 'dateOfBirth is required'],
     },
     isDeleted: {
       type: Boolean,
