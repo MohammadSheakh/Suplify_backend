@@ -7,6 +7,8 @@ import { errorLogger, logger } from '../shared/logger';
 const redisPubClient = createClient({
   host: '172.22.201.132',  // Update with your Redis configuration
   port: 6379,
+  // username: '',
+  // password: ""
 });
 
 const redisSubClient = redisPubClient.duplicate();

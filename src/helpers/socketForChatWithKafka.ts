@@ -506,7 +506,12 @@ const socketForChat_V2_Claude = (io: Server) => {
           senderId: userId,
         });
         ****** */
-       produceMessage(newMessage);
+       await produceMessage({
+          ...messageData,
+          timestamp: new Date(),
+          senderId: userId,
+        });
+        console.log("Message produced to Kafka Broker successfully");
 
 
 
