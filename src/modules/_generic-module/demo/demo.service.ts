@@ -1,7 +1,7 @@
 import { StatusCodes } from 'http-status-codes';
 import { Demo } from './demo.model';
 import { IDemo } from './demo.interface';
-import { GenericService } from '../__Generic/generic.services';
+import { GenericService } from '../_generic-module/generic.services';
 
 
 export class DemoService extends GenericService<
