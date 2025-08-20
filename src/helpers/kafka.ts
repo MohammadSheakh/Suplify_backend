@@ -5,12 +5,14 @@ import { Message } from '../modules/chatting.module/message/message.model';
 
 const kafka = new Kafka({
     // brokers: ['host:port']
-    brokers: ['localhost:9092'],
+    brokers: ['172.26.89.58:9092'],
     // sasl: {
     //     mechanism: 'plain',
     //     username: 'your-username',
     //     password: 'your-password'
     // },
+    maxRequestSize: 369295617, // 10485760, // 10 MB
+    socketTimeout: 30000,
     ssl: {
         rejectUnauthorized: false,
         // ca: [Buffer.from('-----BEGIN CERTIFICATE-----\nYOUR_CERTIFICATE_HERE\n-----END CERTIFICATE-----')]
