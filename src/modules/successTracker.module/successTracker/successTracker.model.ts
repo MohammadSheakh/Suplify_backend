@@ -5,13 +5,25 @@ import paginate from '../../../common/plugins/paginate';
 
 const SuccessTrackerSchema = new Schema<ISuccessTracker>(
   {
-    userId: {
+    createdBy: {//🔗
       type: Schema.Types.ObjectId,
       ref: 'User',
     },
-    message: {
-      type: String,
-      required: [true, 'dateOfBirth is required'],
+    mindsetAndMomentumId: {//🔗
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+    },
+    satisfactionAndFeedbackId: {//🔗
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+    },
+    adherenceAndConsistencyId: {//🔗
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+    },
+    healthAndPerformanceId: {//🔗
+      type: Schema.Types.ObjectId,
+      ref: 'User',
     },
     isDeleted: {
       type: Boolean,

@@ -5,13 +5,26 @@ import paginate from '../../../common/plugins/paginate';
 
 const SatisfactionAndFeedbackSchema = new Schema<ISatisfactionAndFeedback>(
   {
-    userId: {
-      type: Schema.Types.ObjectId,
-      ref: 'User',
+    
+    areYouHappyWithCurrentProgress: {
+      type: Boolean,
+      required: [true, 'areYouHappyWithCurrentProgress is required'],
     },
-    message: {
+    doYouFeelSupported: {
+      type: Boolean,
+      required: [true, 'doYouFeelSupported is required'],
+    },
+    oneThingYouNeedHelpWith: {
       type: String,
-      required: [true, 'dateOfBirth is required'],
+      required: [true, 'oneThingYouNeedHelpWith is required'],
+    },
+    oneHabitYouImprovedOrBuiltThisWeek: {
+      type: String,
+      required: [true, 'oneHabitYouImprovedOrBuiltThisWeek is required'],
+    },
+    wouldYouRecommendUs: {
+      type: Boolean,
+      required: [true, 'wouldYouRecommendUs is required'],
     },
     isDeleted: {
       type: Boolean,

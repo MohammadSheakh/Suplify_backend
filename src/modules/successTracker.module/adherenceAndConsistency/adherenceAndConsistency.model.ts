@@ -5,13 +5,25 @@ import { IAdherenceAndConsistency, IAdherenceAndConsistencyModel } from './adher
 
 const AdherenceAndConsistencySchema = new Schema<IAdherenceAndConsistency>(
   {
-    userId: {
-      type: Schema.Types.ObjectId,
-      ref: 'User',
+    didYouTakeSupplimentsAsRecommended: {
+      type: Number,
+      required: [true, 'didYouTakeSupplimentsAsRecommended is required'],
     },
-    message: {
-      type: String,
-      required: [true, 'dateOfBirth is required'],
+    howManyMealsDidYouFollow: {
+      type: Number,
+      required: [true, 'howManyMealsDidYouFollow is required'],
+    },
+    workoutDidYouCompleteThisWeek: {
+      type: Number,
+      required: [true, 'workoutDidYouCompleteThisWeek is required'],
+    },
+    howConsistentWithHydration: {
+      type: Number,
+      required: [true, 'howConsistentWithHydration is required'],
+    },
+    checkInWithCoachThisWeek: {
+      type: Boolean,
+      required: [true, 'checkInWithCoachThisWeek is required'],
     },
     isDeleted: {
       type: Boolean,

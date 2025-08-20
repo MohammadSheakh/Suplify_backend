@@ -5,13 +5,30 @@ import paginate from '../../../common/plugins/paginate';
 
 const HealthAndPerformanceSchema = new Schema<IHealthAndPerformance>(
   {
-    userId: {
-      type: Schema.Types.ObjectId,
-      ref: 'User',
+    
+    currentWeight : {
+      type: Number,
+      required: [true, 'currentWeight is required'],
     },
-    message: {
-      type: String,
-      required: [true, 'dateOfBirth is required'],
+    bodyFatPercentage : {
+      type: Number,
+      required: [true, 'bodyFatPercentage is required'],
+    },
+    waistMeasurement : {
+      type: Number,
+      required: [true, 'waistMeasurement is required'],
+    },
+    energyLevel : {
+      type: Number,
+      required: [true, 'energyLevel is required'],
+    },
+    sleepQuality : {
+      type: Number,
+      required: [true, 'sleepQuality is required'],
+    },
+    workoutRecoveryRating : {
+      type: Number,
+      required: [true, 'workoutRecoveryRating is required'],
     },
     isDeleted: {
       type: Boolean,
