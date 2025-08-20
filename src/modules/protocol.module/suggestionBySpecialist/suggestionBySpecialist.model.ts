@@ -18,7 +18,7 @@ const SuggestionBySpecialistSchema = new Schema<ISuggestionBySpecialist>(
       type: String,
       required: [true, 'suggestFromStore is required'],
     },
-    createdBy: { // Specialist Id 
+    createdBy: { //🔗 Specialist Id 
       type: Schema.Types.ObjectId,
       ref: 'User',
     },

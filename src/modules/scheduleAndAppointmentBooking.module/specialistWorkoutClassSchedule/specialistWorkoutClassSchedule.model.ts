@@ -5,7 +5,7 @@ import { TMeetingLink, TSpecialistWorkoutClassSchedule } from './specialistWorko
 
 const SpecialistWorkoutClassScheduleSchema = new Schema<ISpecialistWorkoutClassSchedule>(
   {
-    createdBy: { // ref to a specialist
+    createdBy: { //🔗 ref to a specialist
       type: Schema.Types.ObjectId,
       ref: 'User',
     },

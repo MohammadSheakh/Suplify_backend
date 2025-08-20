@@ -8,19 +8,19 @@ const messageSchema = new Schema<IMessage>(
       type: String,
       required: [true, 'text is required'],
     },
-    attachments: [
+    attachments: [//🔗
       {
         type: Schema.Types.ObjectId,
         ref: 'Attachment',
         required: [false, 'Attachments is not required'],
       }
     ],
-    senderId: {
+    senderId: { //🔗
       type: Schema.Types.ObjectId,
       ref: 'User',
       required: [true, 'Sender Id is required'],
     },
-    conversationId : {
+    conversationId : { //🔗
       type: Schema.Types.ObjectId,
       ref: 'Conversation',
       required: [true, 'Conversation Id is required'],

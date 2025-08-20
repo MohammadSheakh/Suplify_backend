@@ -6,11 +6,11 @@ import { TAppointmentStatus } from './doctorPatientScheduleBooking.constant';
 
 const DoctorPatientScheduleBookingSchema = new Schema<IDoctorPatientScheduleBooking>(
   {
-    patientId: {
+    patientId: { //🔗
       type: Schema.Types.ObjectId,
       ref: 'User',
     },
-    doctorScheduleId: {
+    doctorScheduleId: { //🔗
       type: Schema.Types.ObjectId,
       ref: 'DoctorAppointmentSchedule',
       required: [true, 'doctorScheduleId is required'],

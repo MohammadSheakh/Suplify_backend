@@ -5,7 +5,7 @@ import paginate from '../../common/plugins/paginate';
 
 const CartItemSchema = new Schema<ICartItem>(
   {
-    cartId: {
+    cartId: { //🔗
       type: Schema.Types.ObjectId,
       ref: 'Cart',
     },

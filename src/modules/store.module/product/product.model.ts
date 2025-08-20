@@ -12,14 +12,14 @@ const ProductSchema = new Schema<IProduct>(
     // },
     name: {
       type: String,
-      required: [true, 'dateOfBirth is required'],
+      required: [true, 'name is required'],
     },
-    attachments: [ // for specialist and doctor 
-        {
-            type: Schema.Types.ObjectId,
-            ref: 'Attachment',
-            required: [false, 'Attachments is not required'],
-        }
+    attachments: [  //🔗
+      {
+          type: Schema.Types.ObjectId,
+          ref: 'Attachment',
+          required: [false, 'attachments is not required'],
+      }
     ],
     description: {
       type: String,
@@ -40,6 +40,17 @@ const ProductSchema = new Schema<IProduct>(
       ],
       required: [true, 'category is required'],
     },
+    stockQuantity:{
+      type: Number,
+      required: [true, 'stockQuantity is required'],
+    },
+    /************
+     * 
+     * Size, Color
+     * 
+     * Need to add later  
+     * 
+     * ********** */
     isDeleted: {
       type: Boolean,
       required: [false, 'isDeleted is not required'],

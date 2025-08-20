@@ -7,15 +7,15 @@ import { TPaymentStatus } from '../../scheduleAndAppointmentBooking.module/speci
 
 const TrainingProgramPurchaseSchema = new Schema<ITrainingProgramPurchase>(
   {
-    trainingProgramId : { // which training program 
+    trainingProgramId : { //🔗 which training program 
       type: Schema.Types.ObjectId,
       ref: 'TrainingProgram',
     },
-    patientId : { // who purchase this
+    patientId : { //🔗 who purchase this
       type: Schema.Types.ObjectId,
       ref: 'User',
     },
-    PaymentTransactionId: { // Same as PaymentId of kappes
+    PaymentTransactionId: { //🔗 Same as PaymentId of kappes
       type: Schema.Types.ObjectId,
       ref: 'PaymentTransaction',
       default: null,

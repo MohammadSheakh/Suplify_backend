@@ -5,13 +5,28 @@ import paginate from '../../common/plugins/paginate';
 
 const informationVideoSchema = new Schema<IinformationVideo>(
   {
-    userId: {
+    attachments: [ //🔗
+      {
+          type: Schema.Types.ObjectId,
+          ref: 'Attachment',
+          required: [false, 'attachments is not required'],
+      }
+    ],
+    videoLink: {
+      type: String,
+      required: [true, 'videoLink is required'],
+    },
+    title: {
+      type: String,
+      required: [true, 'title is required'],
+    },
+    description: {
+      type: String,
+      required: [true, 'description is required'],
+    },
+    createdBy: { //🔗 specialistId
       type: Schema.Types.ObjectId,
       ref: 'User',
-    },
-    message: {
-      type: String,
-      required: [true, 'dateOfBirth is required'],
     },
     isDeleted: {
       type: Boolean,

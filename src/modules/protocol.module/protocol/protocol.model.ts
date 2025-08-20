@@ -5,7 +5,7 @@ import paginate from '../../../common/plugins/paginate';
 
 const protocolSchema = new Schema<Iprotocol>(
   {
-    createdBy: { // Doctor Id .. who create this protocol
+    createdBy: { //🔗 Doctor Id .. who create this protocol
       type: Schema.Types.ObjectId,
       ref: 'User',
     },
@@ -18,7 +18,7 @@ const protocolSchema = new Schema<Iprotocol>(
       required: [true, 'totalPlan is required'],
     },
 
-    patientId: { // Patient Id .. who this protocol is for
+    patientId: { //🔗 Patient Id .. who this protocol is for
       type: Schema.Types.ObjectId,
       ref: 'User',
     },

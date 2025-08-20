@@ -16,7 +16,7 @@ const DoctorPlanSchema = new Schema<IDoctorPlan>(
       ],
       required: [true, 'planType is required'],
     },
-    createdBy: { // doctor Id 
+    createdBy: { //🔗 doctor Id 
       type: Schema.Types.ObjectId,
       ref: 'User',
     },

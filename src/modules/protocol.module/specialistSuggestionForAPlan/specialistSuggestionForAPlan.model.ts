@@ -5,15 +5,15 @@ import paginate from '../../../common/plugins/paginate';
 
 const SpecialistSuggestionForAPlanSchema = new Schema<ISpecialistSuggestionForAPlan>(
   {
-    suggestionId: {
+    suggestionId: { //🔗
       type: Schema.Types.ObjectId,
       ref: 'SuggestionBySpecialist',
     },
-    planId: {
+    planId: { //🔗
       type: Schema.Types.ObjectId,
       ref: 'Plan',
     },
-    createdBy: { // Specialist Id // 
+    createdBy: { //🔗 Specialist Id // 
       type: Schema.Types.ObjectId,
       ref: 'User',
     },

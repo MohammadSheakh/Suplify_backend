@@ -71,7 +71,7 @@ const orderSchema = new Schema<IOrder>(
       default: PAYMENT_METHOD.online,
     },
 
-    PaymentTransactionId: { // Same as PaymentId of kappes
+    PaymentTransactionId: { //🔗 Same as PaymentId of kappes
       type: Schema.Types.ObjectId,
       ref: 'PaymentTransaction',
       default: null,
@@ -91,7 +91,6 @@ const orderSchema = new Schema<IOrder>(
       type: String,
       required: [false, 'orderNotes is not required'],
     },
-    
 
     /***********
      * 

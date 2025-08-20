@@ -23,7 +23,7 @@ const userSchema = new Schema<TUser, UserModal>(
       required: [true, 'Name is required'],
       trim: true,
     },
-    profileId: { // as doctor and specialist need to upload documents.. 
+    profileId: { //🔗 as doctor and specialist need to upload documents.. 
       type: Types.ObjectId,
       ref: 'UserProfile',
       required: true,

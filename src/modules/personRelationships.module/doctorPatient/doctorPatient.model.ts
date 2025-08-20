@@ -5,11 +5,11 @@ import paginate from '../../../common/plugins/paginate';
 
 const doctorPatientSchema = new Schema<IdoctorPatient>(
   {
-    patientId: {
+    patientId: { //🔗
       type: Schema.Types.ObjectId,
       ref: 'User',
     },
-    doctorId: {
+    doctorId: { //🔗
       type: Schema.Types.ObjectId,
       ref: 'User',
     },

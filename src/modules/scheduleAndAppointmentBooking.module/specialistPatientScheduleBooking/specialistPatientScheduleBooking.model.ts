@@ -8,11 +8,11 @@ import { PAYMENT_METHOD } from '../../order.module/order/order.constant';
 
 const SpecialistPatientScheduleBookingSchema = new Schema<ISpecialistPatientScheduleBooking>(
   {
-    patientId: {
+    patientId: { //🔗
       type: Schema.Types.ObjectId,
       ref: 'User',
     },
-    workoutClassScheduleId: {
+    workoutClassScheduleId: { //🔗
       type: Schema.Types.ObjectId,
       ref: 'SpecialistWorkoutClassSchedule',
       required: [true, 'workoutClassScheduleId is required'],
@@ -32,7 +32,7 @@ const SpecialistPatientScheduleBookingSchema = new Schema<ISpecialistPatientSche
       default: TScheduleBookingStatus.scheduled,
       required: [true, 'status is required'],
     },
-    PaymentTransactionId: { // Same as PaymentId of kappes
+    PaymentTransactionId: { //🔗 Same as PaymentId of kappes
       type: Schema.Types.ObjectId,
       ref: 'PaymentTransaction',
       default: null,

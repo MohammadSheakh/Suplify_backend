@@ -1,5 +1,7 @@
 export enum SubscriptionType {
-    premium = 'premium', 
+    standard = 'standard',
+    standardPlus = 'standardPlus',
+    vise = 'vise'
 }
 
 export enum InitialDurationType {
@@ -9,7 +11,7 @@ export enum InitialDurationType {
     year = 'year',
 }
 
-export enum RenewalFrequncyType {
+export enum RenewalFrequencyType {
     daily = 'daily',
     weekly = 'weekly',
     monthly = 'monthly', 

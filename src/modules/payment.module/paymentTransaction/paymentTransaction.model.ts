@@ -6,13 +6,13 @@ import { TPaymentGateway, TPaymentStatus, TTransactionFor } from './paymentTrans
 
 const paymentTransactionSchema = new Schema<IPaymentTransaction>(
   {
-    userId: {
+    userId: {//🔗
       type: Schema.Types.ObjectId,
       ref: 'User',
       required: true
     },
     // For product purchases
-    orderId: {
+    orderId: {//🔗
       type: Schema.Types.ObjectId,
       ref: 'Order',
       required: function() { return this.type.toString() === 'order'; }
@@ -33,7 +33,7 @@ const paymentTransactionSchema = new Schema<IPaymentTransaction>(
       required: true
     },
     // For subscription payments
-    subscriptionId: {
+    subscriptionId: { //🔗
       type: Schema.Types.ObjectId,
       // ref: 'UserSubscription',
       ref: 'Subscription',

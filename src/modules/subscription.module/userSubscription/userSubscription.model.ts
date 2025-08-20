@@ -113,7 +113,7 @@ const userSubscriptionSchema = new Schema<IUserSubscription>(
     //   default: false, // Indicates if the free trial has been converted to a paid subscription
     // },
 
-    stripe_subscription_id: {
+    stripe_subscription_id: { 
       type: String,
       required: [false, 'stripe_subscription_id is not required'], // 🟢🟢 for recurring payment 
       default: null,

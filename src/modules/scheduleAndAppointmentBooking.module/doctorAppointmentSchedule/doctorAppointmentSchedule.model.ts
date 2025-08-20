@@ -6,7 +6,7 @@ import { TDoctorAppointmentScheduleStatus, TMeetingLink } from './doctorAppointm
 
 const DoctorAppointmentScheduleSchema = new Schema<IDoctorAppointmentSchedule>(
   {
-    createdBy: {
+    createdBy: { //🔗
       type: Schema.Types.ObjectId,
       ref: 'User',
     },

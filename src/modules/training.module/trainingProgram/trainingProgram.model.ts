@@ -25,7 +25,7 @@ const TrainingProgramSchema = new Schema<ITrainingProgram>(
       min: [0, 'price must be positive'],
     },
 
-    createdBy: {  // Refer to Specialist .. who create this training Program .. 
+    createdBy: {  //🔗  Refer to Specialist .. who create this training Program .. 
       type: Schema.Types.ObjectId,
       ref: 'User',
     },

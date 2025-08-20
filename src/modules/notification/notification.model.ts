@@ -13,7 +13,7 @@ const notificationModel = new Schema<INotification>(
     //   type: String,
     //   required: [true, 'Message is required'],
     // },
-    receiverId: {
+    receiverId: {//🔗
       type: Schema.Types.ObjectId,
       ref: 'User',
       required: [false, 'User is required'],

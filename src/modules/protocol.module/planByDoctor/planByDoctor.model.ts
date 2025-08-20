@@ -16,12 +16,12 @@ const planByDoctorSchema = new Schema<IplanByDoctor>(
       ],
       required: [true, 'planType is required'],
     },
-    createdBy: { // doctor Id 
+    createdBy: { //🔗 doctor Id 
       type: Schema.Types.ObjectId,
       ref: 'User',
     },
 
-    protocolId: { // for which protocol
+    protocolId: { //🔗 for which protocol
       type: Schema.Types.ObjectId,
       ref: 'protocol',
     },
@@ -43,7 +43,7 @@ const planByDoctorSchema = new Schema<IplanByDoctor>(
       type: Number,
       required: [true, 'totalKeyPoints is required']
     },
-    patientId: { // for which patient
+    patientId: { //🔗 for which patient
       type: Schema.Types.ObjectId,
       ref: 'User',
     },

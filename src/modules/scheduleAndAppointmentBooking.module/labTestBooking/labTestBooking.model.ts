@@ -6,11 +6,11 @@ import { TPaymentStatus } from '../specialistPatientScheduleBooking/specialistPa
 
 const LabTestBookingSchema = new Schema<ILabTestBooking>(
   {
-    patientId: {
+    patientId: {//🔗
       type: Schema.Types.ObjectId,
       ref: 'User',
     },
-    labTestId: { // Actually Store er ekta Product er Id.. 
+    labTestId: { //🔗 Actually Store er ekta Product er Id.. 
       // As Lab Test gulao amra store e rakhtesi .. 
       type: Schema.Types.ObjectId,
       ref: 'Product',
@@ -55,7 +55,7 @@ const LabTestBookingSchema = new Schema<ILabTestBooking>(
       enum: ['pending', 'confirmed', 'canceled'],
       default: 'pending',
     },
-    PaymentTransactionId: { // Same as PaymentId of kappes
+    PaymentTransactionId: { //🔗 Same as PaymentId of kappes
       type: Schema.Types.ObjectId,
       ref: 'PaymentTransaction',
       default: null,

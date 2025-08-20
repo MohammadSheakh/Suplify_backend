@@ -6,11 +6,11 @@ import { TPatientTrainingSessionStatus } from './patientTrainingSession.constant
 
 const PatientTrainingSessionSchema = new Schema<IPatientTrainingSession>(
   {
-    trainingSessionId: {
+    trainingSessionId: {//🔗
       type: Schema.Types.ObjectId,
       ref: 'TrainingSession',
     },
-    userId: {
+    userId: { //🔗
       type: Schema.Types.ObjectId,
       ref: 'User',
     },

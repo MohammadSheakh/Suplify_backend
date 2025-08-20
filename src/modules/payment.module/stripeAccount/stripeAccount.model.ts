@@ -3,12 +3,12 @@ import { IStripeAccounts } from './stripeAccount.interface';
 
 const stripeAccountSchema = new Schema<IStripeAccounts>(
   {
-    userId: {
+    userId: { //🔗
       type: Schema.Types.ObjectId,
       ref: 'User',
       required: [true, 'user id is required'],
     },
-    accountId: {
+    accountId: { //🔗
       type: String,
       required: [true, 'account id is required'],
     },
