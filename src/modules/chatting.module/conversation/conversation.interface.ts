@@ -8,8 +8,6 @@ export interface IConversation {
   _id?: Types.ObjectId; // undefined |  Types.ObjectId |
   creatorId : Types.ObjectId;
   type: ConversationType.direct | ConversationType.group;
-  siteId ?: Types.ObjectId; // Reference to the site
-  canConversate? : Boolean; // Optional field to control if the user can converse in this chat
   groupName?: string; // Optional group name
   groupProfilePicture?: string; // Optional group profile picture
   groupBio?: string; // Optional group bio

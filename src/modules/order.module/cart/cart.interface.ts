@@ -6,7 +6,7 @@ export interface ICart {
   // _taskId: undefined | Types.ObjectId;
   _id?: Types.ObjectId; // undefined |  Types.ObjectId |
   userId: Types.ObjectId;
-  message : String;
+  itemCount : Number;
 
   isDeleted? : Boolean;  
   createdAt?: Date;

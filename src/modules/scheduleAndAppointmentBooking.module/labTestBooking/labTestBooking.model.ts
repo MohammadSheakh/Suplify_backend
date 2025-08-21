@@ -63,17 +63,17 @@ const LabTestBookingSchema = new Schema<ILabTestBooking>(
     paymentMethod: {
       type: String,
       enum: PAYMENT_METHOD,
-      default: PAYMENT_METHOD.online,
+      // default: PAYMENT_METHOD.online,
     },
     paymentStatus : {
       type: String,
       enum: [
-        TPaymentStatus.UNPAID,
-        TPaymentStatus.PAID,
-        TPaymentStatus.REFUNDED,
-        TPaymentStatus.CANCELLED
+        TPaymentStatus.unpaid,
+        TPaymentStatus.paid,
+        TPaymentStatus.refunded,
+        TPaymentStatus.failed
       ],
-      default: TPaymentStatus.UNPAID,
+      default: TPaymentStatus.unpaid,
       required: [true, 'paymentStatus is required'],
     },
     

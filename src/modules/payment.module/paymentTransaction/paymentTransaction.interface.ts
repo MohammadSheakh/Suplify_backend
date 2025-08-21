@@ -6,16 +6,24 @@ import { CurrencyType } from '../../subscription.module/subscriptionPlan/subscri
 export interface IPaymentTransaction {
   // _taskId: undefined | Types.ObjectId;
   _id?: Types.ObjectId; // undefined |  Types.ObjectId |
-  userId: Types.ObjectId;
-  orderId: Types.ObjectId;
-  paymentMethodId: Types.ObjectId; // INFO : persons card information .. no need to add reference here .. 
-  type : TTransactionFor.order | TTransactionFor.subscription;
-  subscriptionId : Types.ObjectId;
-  paymentGateway: TPaymentGateway.none | TPaymentGateway.paypal | TPaymentGateway.stripe;
-  transactionId : String;
-  paymentIntent : String; // this is also an Id
+  userId: Types.ObjectId; //🔗
+  orderId: Types.ObjectId; //🔗
+  // paymentMethodId: Types.ObjectId; // INFO : persons card information .. no need to add reference here .. 
+  type :  TTransactionFor.productOrder |
+          TTransactionFor.doctorAppointment|
+          TTransactionFor.labTestBooking |
+          TTransactionFor.subscription |
+          TTransactionFor.trainingProgram |
+          TTransactionFor.workoutClass |
+          TTransactionFor.subscription ;
+  subscriptionId : Types.ObjectId; //🔗
+  paymentGateway: TPaymentGateway.none |
+                TPaymentGateway.paypal |
+                TPaymentGateway.stripe;
+  transactionId : String; // from kappes
+  paymentIntent : String; // from kappes
 
-  amount: number;
+  amount: Number;
   currency : CurrencyType.EUR | CurrencyType.USD
   paymentStatus : TPaymentStatus.pending | 
     TPaymentStatus.processing |
@@ -26,7 +34,7 @@ export interface IPaymentTransaction {
     TPaymentStatus.partially_refunded |
     TPaymentStatus.disputed;
 
-    description: string;
+    // description: string;
 
     billingDetails: {
       name: String,

@@ -2,6 +2,8 @@ import { model, Schema } from 'mongoose';
 import { IDoctorPatientScheduleBooking, IDoctorPatientScheduleBookingModel } from './doctorPatientScheduleBooking.interface';
 import paginate from '../../../common/plugins/paginate';
 import { TAppointmentStatus } from './doctorPatientScheduleBooking.constant';
+import { PAYMENT_METHOD } from '../../order.module/order/order.constant';
+import { TPaymentStatus } from '../specialistPatientScheduleBooking/specialistPatientScheduleBooking.constant';
 
 
 const DoctorPatientScheduleBookingSchema = new Schema<IDoctorPatientScheduleBooking>(
@@ -23,12 +25,34 @@ const DoctorPatientScheduleBookingSchema = new Schema<IDoctorPatientScheduleBook
     status: {
       type : String,
       enum: [
+        TAppointmentStatus.pending,
         TAppointmentStatus.scheduled,
         TAppointmentStatus.completed,
         TAppointmentStatus.cancelled
       ],
-      default: TAppointmentStatus.scheduled,
+      // default: TAppointmentStatus.pending,
       required: [true, 'status is required'],
+    },
+    PaymentTransactionId: { //🔗 Same as PaymentId of kappes
+      type: Schema.Types.ObjectId,
+      ref: 'PaymentTransaction',
+      default: null,
+    },
+    paymentMethod: {
+      type: String,
+      enum: PAYMENT_METHOD,
+      // default: PAYMENT_METHOD.online,
+    },
+    paymentStatus : {
+      type: String,
+      enum: [
+        TPaymentStatus.unpaid,
+        TPaymentStatus.paid,
+        TPaymentStatus.refunded,
+        TPaymentStatus.failed
+      ],
+      default: TPaymentStatus.unpaid,
+      required: [true, 'paymentStatus is required'],
     },
   },
   { timestamps: true }

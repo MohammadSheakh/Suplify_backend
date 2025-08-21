@@ -25,11 +25,12 @@ const SpecialistPatientScheduleBookingSchema = new Schema<ISpecialistPatientSche
     status: {
       type : String,
       enum: [
+        TScheduleBookingStatus.pending,
         TScheduleBookingStatus.cancelled,
         TScheduleBookingStatus.scheduled,
         TScheduleBookingStatus.completed
       ],
-      default: TScheduleBookingStatus.scheduled,
+      // default: TScheduleBookingStatus.scheduled,
       required: [true, 'status is required'],
     },
     PaymentTransactionId: { //🔗 Same as PaymentId of kappes
@@ -40,17 +41,17 @@ const SpecialistPatientScheduleBookingSchema = new Schema<ISpecialistPatientSche
     paymentMethod: {
       type: String,
       enum: PAYMENT_METHOD,
-      default: PAYMENT_METHOD.online,
+      // default: PAYMENT_METHOD.online,
     },
     paymentStatus : {
       type: String,
       enum: [
-        TPaymentStatus.UNPAID,
-        TPaymentStatus.PAID,
-        TPaymentStatus.REFUNDED,
-        TPaymentStatus.CANCELLED
+        TPaymentStatus.unpaid,
+        TPaymentStatus.paid,
+        TPaymentStatus.refunded,
+        TPaymentStatus.failed
       ],
-      default: TPaymentStatus.UNPAID,
+      // default: TPaymentStatus.UNPAID,
       required: [true, 'paymentStatus is required'],
     }
   },

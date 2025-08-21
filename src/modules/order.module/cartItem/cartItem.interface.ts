@@ -4,9 +4,10 @@ import { PaginateOptions, PaginateResult } from '../../../types/paginate';
 export interface ICartItem {
   // _taskId: undefined | Types.ObjectId;
   _id?: Types.ObjectId; // undefined |  Types.ObjectId |
-  userId: Types.ObjectId;
-  message : String;
-
+  cartId: Types.ObjectId; //🔗
+  itemId :  Types.ObjectId; //🔗
+  quantity : Number;
+  
   isDeleted? : Boolean;  
   createdAt?: Date;
   updatedAt?: Date;

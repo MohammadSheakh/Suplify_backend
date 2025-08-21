@@ -1,6 +1,5 @@
 import { Model, Types } from 'mongoose';
 import { PaginateOptions, PaginateResult } from '../../../types/paginate';
-import { RoleType } from './conversationParticipents.constant';
 
 export interface IConversationParticipents {
   // _taskId: undefined | Types.ObjectId;
@@ -8,7 +7,6 @@ export interface IConversationParticipents {
   userId : Types.ObjectId;
   conversationId: Types.ObjectId;
   joinedAt : Date;
-  role :  RoleType.bot | RoleType.user;
   isDeleted : boolean;
   createdAt?: Date;
   updatedAt?: Date;

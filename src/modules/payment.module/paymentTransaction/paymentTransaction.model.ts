@@ -17,21 +17,6 @@ const paymentTransactionSchema = new Schema<IPaymentTransaction>(
       ref: 'Order',
       required: function() { return this.type.toString() === 'order'; }
     },
-    /**********
-    paymentMethodId: { // Persons Card Infomation.. But no need
-      type: Schema.Types.ObjectId,
-      ref: 'PaymentMethod',
-      required: false
-    },
-    ********** */
-    type: {
-      type: String,
-      enum: [
-        TTransactionFor.order ,
-        TTransactionFor.subscription
-      ],
-      required: true
-    },
     // For subscription payments
     subscriptionId: { //🔗
       type: Schema.Types.ObjectId,
@@ -40,6 +25,44 @@ const paymentTransactionSchema = new Schema<IPaymentTransaction>(
       required: function() { return this.type.toString() === 'subscription'; } // 🔥🔥 bujhi nai 
     },
 
+    bookedLabTestId: { //🔗
+      type: Schema.Types.ObjectId,
+      ref: 'LabTestBooking',
+      required: function() { return this.type.toString() === 'labTest'; }
+    },
+
+    bookedAppointmentId : { //🔗
+      type: Schema.Types.ObjectId,
+      ref: 'DoctorPatientScheduleBooking',
+      required: function() { return this.type.toString() === 'appointment'; }
+    },
+
+    bookedWorkoutClassScheduleId: { //🔗
+      type: Schema.Types.ObjectId,
+      ref: 'SpecialistPatientScheduleBooking',
+      required: function() { return this.type.toString() === 'workoutClass'; }
+    },
+
+    bookedTrainingProgramId: {
+      type: Schema.Types.ObjectId,
+      ref: 'TrainingProgram',
+      required: function() { return this.type.toString() === 'trainingProgram'; }
+    },
+
+    type: {
+      type: String,
+      enum: [
+        TTransactionFor.productOrder,
+        TTransactionFor.doctorAppointment,
+        TTransactionFor.labTestBooking,
+        TTransactionFor.subscription ,
+        TTransactionFor.trainingProgram ,
+        TTransactionFor.workoutClass ,
+        TTransactionFor.subscription 
+      ],
+      required: true
+    },
+    
     paymentGateway: {
       type: String,
       enum: [
@@ -49,7 +72,21 @@ const paymentTransactionSchema = new Schema<IPaymentTransaction>(
       ],
       required: true
     },
-    
+    transactionId: { // from kappes
+      type: String,
+      default: null,
+    },
+    paymentIntent: { // from kappes
+      type: String,
+      default: null,
+    },
+    /**********
+    paymentMethodId: { // Persons Card Infomation.. But no need
+      type: Schema.Types.ObjectId,
+      ref: 'PaymentMethod',
+      required: false
+    },
+    ********** */
     /***************
     // External payment IDs
     // stripe_payment_intent_id /  paypal_transaction_id
@@ -59,15 +96,7 @@ const paymentTransactionSchema = new Schema<IPaymentTransaction>(
     },
     ********************* */
 
-    transactionId: { // from kappes
-      type: String,
-      default: null,
-    },
-    paymentIntent: { // from kappes
-      type: String,
-      default: null,
-    },
-
+    
 
     // stripe_payment_intent_id: {
     //   type: String,
@@ -102,10 +131,10 @@ const paymentTransactionSchema = new Schema<IPaymentTransaction>(
       default: TPaymentStatus.pending
     },
     
-    description: { // INFO : do we really need this?
-      type: String,
-      required: false
-    },
+    // description: { // INFO : do we really need this?
+    //   type: String,
+    //   required: false
+    // },
     billingDetails: {
       name: String,
       email: String,
@@ -118,16 +147,7 @@ const paymentTransactionSchema = new Schema<IPaymentTransaction>(
         country: String
       }
     },
-    // metadata: {
-    //   type: Map,
-    //   of: String
-    // },
-    // refundDetails: [{
-    //   amount: Number,
-    //   reason: String,
-    //   date: Date,
-    //   refundId: String
-    // }],
+    
     gatewayResponse: { // from kappes
       type: Schema.Types.Mixed,
       default: null,

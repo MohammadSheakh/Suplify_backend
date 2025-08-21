@@ -5,12 +5,18 @@ import { PaginateOptions, PaginateResult } from '../../../types/paginate';
 export interface IinformationVideo {
   // _taskId: undefined | Types.ObjectId;
   _id?: Types.ObjectId; // undefined |  Types.ObjectId |
-  userId: Types.ObjectId;
-  message : String;
+  
+  attachments?: Types.ObjectId[];
+  videoLink : String;
+
+  title: String;
+  description: String;
+  createdBy : Types.ObjectId; //🔗 specialistId
+  quantity : Number;
 
   isDeleted? : Boolean;  
   createdAt?: Date;
-  updatedAt?: Date;
+  updatedAt?: Date; 
 }
 
 export interface IinformationVideoModel extends Model<IinformationVideo> {
