@@ -23,7 +23,7 @@ services:
     container_name: suplify-redis
     restart: always
     ports:
-      - "6379:6379"
+      - "6380:6379"
 
   kafka:
     image: bitnami/kafka:3.7.0

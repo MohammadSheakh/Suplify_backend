@@ -2,11 +2,13 @@
 import { createClient } from 'redis';
 import colors from 'colors';
 import { errorLogger, logger } from '../shared/logger';
+import { config } from '../config';
 
 // Create Redis clients
 const redisPubClient = createClient({
-  host: '172.22.201.132',  // Update with your Redis configuration
-  port: 6379,
+
+  host: config.redis.host,  // Update with your Redis configuration // For Office->'172.22.201.132' // Docker->redis
+  port: config.redis.port, // For Office  6379 
   // username: '',
   // password: ""
 });
