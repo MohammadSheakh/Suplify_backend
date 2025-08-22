@@ -26,6 +26,18 @@ const globalErrorHandler: ErrorRequestHandler = (error, req, res, next) => {
       .join(', ')}`;
     errorMessages = simplifiedError.errorMessages;
   }
+  /**********
+   * 
+   * We have to handle Mongoose bad Objectid
+   * error.name = 'CastError' 
+   * message should be Resource not found  404
+   * ---------------------
+   * 
+   * Mongoose duplicate key ..
+   * if(error.code === 11000)
+   * duplicate field value entered
+   * 
+   * ********** */
   // Handle ValidationError (e.g., Mongoose)
   else if (error.name === 'ValidationError') {
     const simplifiedError = handleValidationError(error);
