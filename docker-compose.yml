@@ -13,9 +13,11 @@ services:
       - kafka
     volumes:
       - .:/usr/src/app
-      - /usr/src/app/node_modules
-    command: pnpm start
-
+      - /usr/src/app
+    command: pnpm run dev
+#  🔁 Why remove - /usr/src/app/node_modules?
+#If you mount an empty named volume (/usr/src/app/node_modules), it overrides the real node_modules from the image → your app breaks because modules are missing inside container.
+# For development, just mount your code and let the image keep its node_modules.
   redis:
     image: redis:7-alpine
     container_name: suplify-redis
