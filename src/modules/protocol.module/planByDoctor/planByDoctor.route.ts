@@ -12,11 +12,19 @@ const upload = multer({ storage: storage });
 
 const router = express.Router();
 
-export const optionValidationChecking = <T extends keyof IplanByDoctor>(
+export const optionValidationChecking = <T extends keyof IplanByDoctor | 'sortBy' | 'page' | 'limit' | 'populate'>(
   filters: T[]
 ) => {
   return filters;
 };
+
+const paginationOptions: Array<'sortBy' | 'page' | 'limit' | 'populate'> = [
+  'sortBy',
+  'page',
+  'limit',
+  'populate',
+];
+
 
 // const taskService = new TaskService();
 const controller = new planByDoctorController();

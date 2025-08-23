@@ -16,15 +16,17 @@ export const optionValidationChecking = <T extends keyof IConversation | 'sortBy
   return filters;
 };
 
-// const taskService = new TaskService();
-const controller = new ConversationController();
-
 const paginationOptions: Array<'sortBy' | 'page' | 'limit' | 'populate'> = [
   'sortBy',
   'page',
   'limit',
   'populate',
 ];
+
+// const taskService = new TaskService();
+const controller = new ConversationController();
+
+
 
 //info : pagination route must be before the route with params
 router.route('/paginate').get(
