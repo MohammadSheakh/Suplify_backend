@@ -1,6 +1,6 @@
 import { model, Schema } from 'mongoose';
-import { ICart, ICartModel } from './Cart.interface';
-import paginate from '../../common/plugins/paginate';
+import { ICart, ICartModel } from './cart.interface';
+import paginate from '../../../common/plugins/paginate';
 
 const CartSchema = new Schema<ICart>(
   {

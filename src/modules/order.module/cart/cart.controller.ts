@@ -1,10 +1,10 @@
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
-import { GenericController } from '../__Generic/generic.controller';
-import { Cart } from './Cart.model';
+import { GenericController } from '../../_generic-module/generic.controller';
+import { Cart } from './cart.model';
 import { ICart } from './Cart.interface';
-import { CartService } from './Cart.service';
+import { CartService } from './cart.service';
 
 
 // let conversationParticipantsService = new ConversationParticipentsService();

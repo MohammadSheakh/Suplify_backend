@@ -74,7 +74,52 @@ export class ProductService extends GenericService<
     return data;
   }
 
+  /*******
+   * 
+   * (Landing Page) : E-Commerce 
+   * 
+   * ****** */
+  async showAllCategoryAndItsLimitedProducts() {
+    const result = await this.model.aggregate([
+      /************   here based on patients subscription .. we show labTest  // TODO :::: 
+      {
+        $match: {
+          ...(userName === "Sheakh" && { category: { $ne: "basketBall" } })
+        },
+      },
+      ********* */
+      {
+        $group: {
+          _id: "$category",
+          products: { $push: "$$ROOT" },
+        },
+      },
+      {
+        $project: {
+          category: "$_id",
+          products: { $slice: ["$products", 5] }, // Limit to 5 products per category
+        },
+      },
+    ]);
 
+    return result;
+  }
+
+  /***********
+ * 
+ * ( Landing Page ) |  get-product-details-with-related-products  //[][🧑‍💻][🧪] //🚧✅ 🆗
+ * 
+ * ********** */
+  async getProductDetailsWithRelatedProducts(productId: string) {
+    console.log("🟢", productId);
+    const result = await this.model.findById(productId);
+
+    const relatedProducts = await this.model.find({ category: result.category,
+      _id: { $ne: productId }
+     }).limit(5);
+
+    return { product: result, relatedProducts };
+  }
 
   // add more service here if needed or override the existing ones
 }

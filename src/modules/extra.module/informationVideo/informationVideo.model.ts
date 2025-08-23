@@ -1,6 +1,6 @@
 import { model, Schema } from 'mongoose';
 import { IinformationVideo, IinformationVideoModel } from './informationVideo.interface';
-import paginate from '../../common/plugins/paginate';
+import paginate from '../../../common/plugins/paginate';
 
 
 const informationVideoSchema = new Schema<IinformationVideo>(

@@ -1,10 +1,10 @@
 export enum TTransactionFor {
-    subscription = 'subscription',
-    productOrder = 'productOrder',
-    doctorAppointment = 'doctorAppointment',
-    workoutClass = 'workoutClass',
-    trainingProgram = 'trainingProgram',
-    labTestBooking = 'labTestBooking',
+    SubscriptionPlan = 'SubscriptionPlan',
+    Order = 'Order',
+    DoctorPatientScheduleBooking = 'DoctorPatientScheduleBooking',
+    SpecialistPatientScheduleBooking = 'SpecialistPatientScheduleBooking',
+    TrainingProgramPurchase = 'TrainingProgramPurchase',
+    LabTestBooking = 'LabTestBooking',
 }
 export enum TPaymentGateway {
     stripe = 'stripe',

@@ -1,7 +1,7 @@
 import express from 'express';
 import { UserRoutes } from '../modules/user/user.route';
 import { AuthRoutes } from '../modules/auth/auth.routes';
-import { AdminRoutes } from '../modules/admin/admin.routes';
+// import { AdminRoutes } from '../modules/admin/admin.routes';
 import { AttachmentRoutes } from '../modules/attachments/attachment.route';
 import { NotificationRoutes } from '../modules/notification/notification.routes';
 import { SettingsRoutes } from '../modules/settings/settings.routes';
@@ -25,10 +25,10 @@ const apiRoutes = [
     path: '/user',
     route: UserRoutes,
   },
-  {
-    path: '/admin',
-    route: AdminRoutes,
-  },
+  // {
+  //   path: '/admin',
+  //   route: AdminRoutes,
+  // },
 
   ////////////////////// Created By Mohammad Sheakh
 

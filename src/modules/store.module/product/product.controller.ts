@@ -11,6 +11,8 @@ import { TFolderName } from '../../attachments/attachment.constant';
 import { AttachmentService } from '../../attachments/attachment.service';
 import { getOrSetRedisCache } from '../../../helpers/getOrSetRedisCache';
 import { redisClient } from '../../../helpers/redis';
+import omit from '../../../shared/omit';
+import pick from '../../../shared/pick';
 
 
 // let conversationParticipantsService = new ConversationParticipentsService();
@@ -64,26 +66,19 @@ export class ProductController extends GenericController<
     });
   });
 
-
-
   getAllWithPagination = catchAsync(async (req: Request, res: Response) => {
     //const filters = pick(req.query, ['_id', 'title']); // now this comes from middleware in router
     const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']); ;
     const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
 
     const populateOptions: (string | {path: string, select: string}[]) = [
-      // {
-      //   path: 'personId',
-      //   select: 'name ' 
-      // },
-      // 'personId'
-      // {
-      //   path: 'siteId',
-      //   select: ''
-      // }
+      {
+        path: 'attachments',
+        select: 'attachmentType attachment' 
+      },
     ];
 
-    const select = ''; 
+    const select = '-createdAt -updatedAt -__v'; 
 
     const result = await this.service.getAllWithPagination(filters, options, populateOptions, select);
 
@@ -95,13 +90,10 @@ export class ProductController extends GenericController<
     });
   });
 
-
-
-
   categoryWithCount = catchAsync(async (req: Request, res: Response) => {
     // const result = await this.productService.categoryWithCount();
 
-    await redisClient.del("productCategoryWithCount");
+    // await redisClient.del("productCategoryWithCount");
 
     const result = await getOrSetRedisCache(
       'productCategoryWithCount',
@@ -115,6 +107,40 @@ export class ProductController extends GenericController<
       code: StatusCodes.OK,
       data: result,
       message: `${this.modelName} categories with count retrieved successfully`,
+      success: true,
+    });
+  });
+
+
+  /*******
+   * 
+   * (Landing Page) : E-Commerce 
+   * 
+   * ****** */
+  showAllCategoryAndItsLimitedProducts = catchAsync(async (req: Request, res: Response) => {
+    const result = await this.productService.showAllCategoryAndItsLimitedProducts();
+    sendResponse(res, {
+      code: StatusCodes.OK,
+      data: result,
+      message: `${this.modelName} categories with limited products retrieved successfully`,
+      success: true,
+    });
+  });
+
+
+  /***********
+ * 
+ * ( Landing Page ) |  get-product-details-with-related-products  //[][🧑‍💻][🧪] //🚧✅ 🆗
+ * 
+ * ********** */
+  getProductDetailsWithRelatedProducts = catchAsync(async (req: Request, res: Response) => {
+    const { productId } = req.params;
+    const result = await this.productService.getProductDetailsWithRelatedProducts(productId);
+
+    sendResponse(res, {
+      code: StatusCodes.OK,
+      data: result,
+      message: `${this.modelName} details with related products retrieved successfully`,
       success: true,
     });
   });

@@ -1,10 +1,10 @@
 import express from 'express';
-import * as validation from './DoctorPlan.validation';
-import { DoctorPlanController} from './DoctorPlan.controller';
-import { IDoctorPlan } from './DoctorPlan.interface';
-import { validateFiltersForQuery } from '../../middlewares/queryValidation/paginationQueryValidationMiddleware';
-import validateRequest from '../../shared/validateRequest';
-import auth from '../../middlewares/auth';
+import * as validation from './doctorPlan.validation';
+import { DoctorPlanController} from './doctorPlan.controller';
+import { IDoctorPlan } from './doctorPlan.interface';
+import { validateFiltersForQuery } from '../../../middlewares/queryValidation/paginationQueryValidationMiddleware';
+import validateRequest from '../../../shared/validateRequest';
+import auth from '../../../middlewares/auth';
 
 const multer = require('multer');
 const storage = multer.memoryStorage();

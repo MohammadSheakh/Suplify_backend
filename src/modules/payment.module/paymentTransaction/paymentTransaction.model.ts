@@ -11,58 +11,28 @@ const paymentTransactionSchema = new Schema<IPaymentTransaction>(
       ref: 'User',
       required: true
     },
-    // For product purchases
-    orderId: {//🔗
-      type: Schema.Types.ObjectId,
-      ref: 'Order',
-      required: function() { return this.type.toString() === 'order'; }
-    },
-    // For subscription payments
-    subscriptionId: { //🔗
-      type: Schema.Types.ObjectId,
-      // ref: 'UserSubscription',
-      ref: 'Subscription',
-      required: function() { return this.type.toString() === 'subscription'; } // 🔥🔥 bujhi nai 
-    },
-
-    bookedLabTestId: { //🔗
-      type: Schema.Types.ObjectId,
-      ref: 'LabTestBooking',
-      required: function() { return this.type.toString() === 'labTest'; }
-    },
-
-    bookedAppointmentId : { //🔗
-      type: Schema.Types.ObjectId,
-      ref: 'DoctorPatientScheduleBooking',
-      required: function() { return this.type.toString() === 'appointment'; }
-    },
-
-    bookedWorkoutClassScheduleId: { //🔗
-      type: Schema.Types.ObjectId,
-      ref: 'SpecialistPatientScheduleBooking',
-      required: function() { return this.type.toString() === 'workoutClass'; }
-    },
-
-    bookedTrainingProgramId: {
-      type: Schema.Types.ObjectId,
-      ref: 'TrainingProgram',
-      required: function() { return this.type.toString() === 'trainingProgram'; }
-    },
-
-    type: {
+    
+    referenceFor: {
       type: String,
       enum: [
-        TTransactionFor.productOrder,
-        TTransactionFor.doctorAppointment,
-        TTransactionFor.labTestBooking,
-        TTransactionFor.subscription ,
-        TTransactionFor.trainingProgram ,
-        TTransactionFor.workoutClass ,
-        TTransactionFor.subscription 
+        TTransactionFor.SubscriptionPlan,
+        TTransactionFor.Order,
+        TTransactionFor.DoctorPatientScheduleBooking,
+        TTransactionFor.SpecialistPatientScheduleBooking,
+        TTransactionFor.TrainingProgramPurchase,
+        TTransactionFor.LabTestBooking
       ],
       required: true
     },
-    
+
+    referenceId: { type: Schema.Types.ObjectId, refPath: 'referenceFor', required: true },
+
+    /**********
+     * 
+     * const refModel = mongoose.model(result.type);
+     * const isExistRefference = await refModel.findById(result.refferenceId).session(session);
+     * ********** */
+
     paymentGateway: {
       type: String,
       enum: [
@@ -186,3 +156,44 @@ export const PaymentTransaction = model<IPaymentTransaction, IPaymentTransaction
   'PaymentTransaction',
   paymentTransactionSchema
 );
+
+
+/***********************
+    // For product purchases
+    orderId: {//🔗
+      type: Schema.Types.ObjectId,
+      ref: 'Order',
+      required: function() { return this.type.toString() === 'order'; }
+    },
+    // For subscription payments
+    subscriptionId: { //🔗
+      type: Schema.Types.ObjectId,
+      // ref: 'UserSubscription',
+      ref: 'Subscription',
+      required: function() { return this.type.toString() === 'subscription'; } // 🔥🔥 bujhi nai 
+    },
+
+    bookedLabTestId: { //🔗
+      type: Schema.Types.ObjectId,
+      ref: 'LabTestBooking',
+      required: function() { return this.type.toString() === 'labTest'; }
+    },
+
+    bookedAppointmentId : { //🔗
+      type: Schema.Types.ObjectId,
+      ref: 'DoctorPatientScheduleBooking',
+      required: function() { return this.type.toString() === 'appointment'; }
+    },
+
+    bookedWorkoutClassScheduleId: { //🔗
+      type: Schema.Types.ObjectId,
+      ref: 'SpecialistPatientScheduleBooking',
+      required: function() { return this.type.toString() === 'workoutClass'; }
+    },
+
+    bookedTrainingProgramId: {
+      type: Schema.Types.ObjectId,
+      ref: 'TrainingProgram',
+      required: function() { return this.type.toString() === 'trainingProgram'; }
+    },
+    *********************************/

@@ -1,7 +1,7 @@
 import { StatusCodes } from 'http-status-codes';
-import { CartItem } from './CartItem.model';
-import { ICartItem } from './CartItem.interface';
-import { GenericService } from '../__Generic/generic.services';
+import { CartItem } from './cartItem.model';
+import { ICartItem } from './cartItem.interface';
+import { GenericService } from '../../_generic-module/generic.services';
 
 
 export class CartItemService extends GenericService<

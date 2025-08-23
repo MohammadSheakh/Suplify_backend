@@ -1,6 +1,6 @@
 import { model, Schema } from 'mongoose';
-import { IDoctorPlan, IDoctorPlanModel } from './DoctorPlan.interface';
-import paginate from '../../common/plugins/paginate';
+import { IDoctorPlan, IDoctorPlanModel } from './doctorPlan.interface';
+import paginate from '../../../common/plugins/paginate';
 import { TPlanByDoctor } from '../planByDoctor/planByDoctor.constant';
 
 

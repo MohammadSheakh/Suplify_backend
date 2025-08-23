@@ -9,13 +9,12 @@ export interface IPaymentTransaction {
   userId: Types.ObjectId; //🔗
   orderId: Types.ObjectId; //🔗
   // paymentMethodId: Types.ObjectId; // INFO : persons card information .. no need to add reference here .. 
-  type :  TTransactionFor.productOrder |
-          TTransactionFor.doctorAppointment|
-          TTransactionFor.labTestBooking |
-          TTransactionFor.subscription |
-          TTransactionFor.trainingProgram |
-          TTransactionFor.workoutClass |
-          TTransactionFor.subscription ;
+  type :  TTransactionFor.DoctorPatientScheduleBooking |
+          TTransactionFor.Order |
+          TTransactionFor.LabTestBooking |
+          TTransactionFor.SubscriptionPlan |
+          TTransactionFor.TrainingProgramPurchase |
+          TTransactionFor.SpecialistPatientScheduleBooking;
   subscriptionId : Types.ObjectId; //🔗
   paymentGateway: TPaymentGateway.none |
                 TPaymentGateway.paypal |

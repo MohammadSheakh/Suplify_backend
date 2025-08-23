@@ -12,7 +12,7 @@ const upload = multer({ storage: storage });
 
 const router = express.Router();
 
-export const optionValidationChecking = <T extends keyof IProduct>(
+export const optionValidationChecking = <T extends keyof IProduct  | 'sortBy' | 'page' | 'limit' | 'populate'>(
   filters: T[]
 ) => {
   return filters;
@@ -21,10 +21,17 @@ export const optionValidationChecking = <T extends keyof IProduct>(
 // const taskService = new TaskService();
 const controller = new ProductController();
 
+const paginationOptions: Array<'sortBy' | 'page' | 'limit' | 'populate'> = [
+  'sortBy',
+  'page',
+  'limit',
+  'populate',
+];
+
 //info : pagination route must be before the route with params
 router.route('/paginate').get(
   //auth('common'),
-  validateFiltersForQuery(optionValidationChecking(['_id'])),
+  validateFiltersForQuery(optionValidationChecking(['_id','category', ...paginationOptions ])),
   controller.getAllWithPagination
 );
 
@@ -87,7 +94,31 @@ router.route('/softDelete/:id').put(
  * ********** */
 
 
+/***********
+ * 
+ * ( Landing Page ) |  show-all-category-and-its-limited-products  //[][🧑‍💻][🧪] //🚧✅ 🆗
+ * 
+ * ********** */
+router.route('/by/category').get(
+  //auth('patient'), 
+  /******
+   * 
+   * 🟢 based on patients subscription status .. we 
+   * show labTest
+   *  
+   * **** */
+   
+  controller.showAllCategoryAndItsLimitedProducts
+)
 
+/***********
+ * 
+ * ( Landing Page ) |  get-product-details-with-related-products  //[][🧑‍💻][🧪] //🚧✅ 🆗
+ * 
+ * ********** */
+router.route('/:productId/related').get(
+  controller.getProductDetailsWithRelatedProducts
+)
 
 
 export const ProductRoute = router;
