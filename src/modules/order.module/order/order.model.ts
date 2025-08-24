@@ -28,7 +28,7 @@ const orderSchema = new Schema<IOrder>(
       ],
       required: [
         true,
-        `orderType is required it can be ${Object.values(
+        `orderRelatedTo is required it can be ${Object.values(
           TOrderRelatedTo
         ).join(', ')}`,
       ],

@@ -27,6 +27,7 @@ const informationVideoSchema = new Schema<IinformationVideo>(
     createdBy: { //🔗 specialistId
       type: Schema.Types.ObjectId,
       ref: 'User',
+      required: [true, 'createdBy is required'],
     },
     isDeleted: {
       type: Boolean,
