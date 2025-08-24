@@ -2,20 +2,24 @@ import { Model, Types } from 'mongoose';
 import { PaginateOptions, PaginateResult } from '../../../types/paginate';
 
 
-export interface IDemo {
+export interface IMindsetAndMomentum {
   // _taskId: undefined | Types.ObjectId;
   _id?: Types.ObjectId; // undefined |  Types.ObjectId |
-  userId: Types.ObjectId;
-  message : String;
+
+  howMotivatedDoYouFeel: Number;
+  oneWinFromPastWeekThatYourProudOf : String;
+  biggestChallengeofThisWeek : String;
+  oneHabitYouImprovedOrBuiltThisWeek : String;
+  howConfidentAreYou : Number;
 
   isDeleted? : Boolean;  
   createdAt?: Date;
   updatedAt?: Date;
 }
 
-export interface IDemoModel extends Model<IDemo> {
+export interface IMindsetAndMomentumModel extends Model<IMindsetAndMomentum> {
   paginate: (
     query: Record<string, any>,
     options: PaginateOptions
-  ) => Promise<PaginateResult<IDemo>>;
+  ) => Promise<PaginateResult<IMindsetAndMomentum>>;
 }

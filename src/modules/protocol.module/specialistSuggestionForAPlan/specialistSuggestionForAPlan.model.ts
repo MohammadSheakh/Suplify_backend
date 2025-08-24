@@ -8,14 +8,17 @@ const SpecialistSuggestionForAPlanSchema = new Schema<ISpecialistSuggestionForAP
     suggestionId: { //🔗
       type: Schema.Types.ObjectId,
       ref: 'SuggestionBySpecialist',
+      required: [true, 'suggestionId is required'],
     },
     planId: { //🔗
       type: Schema.Types.ObjectId,
       ref: 'Plan',
+      required: [true, 'planId is required'],
     },
     createdBy: { //🔗 Specialist Id // 
       type: Schema.Types.ObjectId,
       ref: 'User',
+      required: [true, 'createdBy is required'],
     },
     isDeleted: {
       type: Boolean,

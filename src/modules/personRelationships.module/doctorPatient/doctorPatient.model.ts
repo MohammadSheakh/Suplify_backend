@@ -8,10 +8,12 @@ const doctorPatientSchema = new Schema<IdoctorPatient>(
     patientId: { //🔗
       type: Schema.Types.ObjectId,
       ref: 'User',
+      required: [true, 'patientId is required'],
     },
     doctorId: { //🔗
       type: Schema.Types.ObjectId,
       ref: 'User',
+      required: [true, 'doctorId is required'],
     },
     isDeleted: {
       type: Boolean,

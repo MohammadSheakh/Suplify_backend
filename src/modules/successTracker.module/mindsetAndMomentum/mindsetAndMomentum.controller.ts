@@ -2,22 +2,22 @@ import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
 import { GenericController } from '../_generic-module/generic.controller';
-import { Demo } from './demo.model';
-import { IDemo } from './demo.interface';
-import { DemoService } from './demo.service';
+import { MindsetAndMomentum } from './MindsetAndMomentum.model';
+import { IMindsetAndMomentum } from './MindsetAndMomentum.interface';
+import { MindsetAndMomentumService } from './MindsetAndMomentum.service';
 
 
 // let conversationParticipantsService = new ConversationParticipentsService();
 // let messageService = new MessagerService();
 
-export class DemoController extends GenericController<
-  typeof Demo,
-  IDemo
+export class MindsetAndMomentumController extends GenericController<
+  typeof MindsetAndMomentum,
+  IMindsetAndMomentum
 > {
-  demoService = new DemoService();
+  MindsetAndMomentumService = new MindsetAndMomentumService();
 
   constructor() {
-    super(new DemoService(), 'Demo');
+    super(new MindsetAndMomentumService(), 'MindsetAndMomentum');
   }
 
   // add more methods here if needed or override the existing ones 

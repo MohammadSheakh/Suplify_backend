@@ -22,10 +22,14 @@ const paymentTransactionSchema = new Schema<IPaymentTransaction>(
         TTransactionFor.TrainingProgramPurchase,
         TTransactionFor.LabTestBooking
       ],
-      required: true
+      required: [true, `referenceFor is required .. it can be  ${Object.values(TTransactionFor).join(
+              ', '
+            )}`],
     },
 
-    referenceId: { type: Schema.Types.ObjectId, refPath: 'referenceFor', required: true },
+    referenceId: { type: Schema.Types.ObjectId, refPath: 'referenceFor',
+       required: [true, 'referenceId is required']
+       },
 
     /**********
      * 
@@ -40,7 +44,9 @@ const paymentTransactionSchema = new Schema<IPaymentTransaction>(
         TPaymentGateway.paypal,
         TPaymentGateway.none
       ],
-      required: true
+      required: [true, `paymentGateway is required .. it can be  ${Object.values(TPaymentGateway).join(
+              ', '
+            )}`],
     },
     transactionId: { // from kappes
       type: String,
@@ -119,6 +125,11 @@ const paymentTransactionSchema = new Schema<IPaymentTransaction>(
     },
     
     gatewayResponse: { // from kappes
+      /*****
+       * 
+       * we need to store full response .. this will help us to debug payment related issue 
+       * 
+       * *** */
       type: Schema.Types.Mixed,
       default: null,
     },

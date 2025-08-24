@@ -1,4 +1,4 @@
-export const enum settingsType {
+export enum settingsType {
   aboutUs = 'aboutUs',
   contactUs = 'contactUs',
   privacyPolicy = 'privacyPolicy',

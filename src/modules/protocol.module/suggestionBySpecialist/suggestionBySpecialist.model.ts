@@ -5,7 +5,6 @@ import paginate from '../../../common/plugins/paginate';
 
 const SuggestionBySpecialistSchema = new Schema<ISuggestionBySpecialist>(
   {
-    
     keyPoint:{
       type: String,
       required: [true, 'keyPoint is required']
@@ -21,6 +20,7 @@ const SuggestionBySpecialistSchema = new Schema<ISuggestionBySpecialist>(
     createdBy: { //🔗 Specialist Id 
       type: Schema.Types.ObjectId,
       ref: 'User',
+      required: [true, 'createdBy is required'],
     },
     isDeleted: {
       type: Boolean,

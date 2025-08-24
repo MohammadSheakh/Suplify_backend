@@ -1,5 +1,5 @@
-export enum LabTestBookingType {
-  document = 'document',
-  image = 'image',
-  unknown = 'unknown',
+export enum TLabTestBookingStatus {
+  pending = 'pending',
+  confirmed = 'confirmed',
+  canceled = 'canceled',
 }

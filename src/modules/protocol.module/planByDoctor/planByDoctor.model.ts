@@ -14,16 +14,20 @@ const planByDoctorSchema = new Schema<IplanByDoctor>(
         TPlanByDoctor.suppliment,
         TPlanByDoctor.workOut
       ],
-      required: [true, 'planType is required'],
+      required: [true, `planType is required .. it can be  ${Object.values(TPlanByDoctor).join(
+              ', '
+            )}`],
     },
     createdBy: { //🔗 doctor Id 
       type: Schema.Types.ObjectId,
       ref: 'User',
+      required: [true, 'createdBy is required'],
     },
 
     protocolId: { //🔗 for which protocol
       type: Schema.Types.ObjectId,
       ref: 'protocol',
+      required: [true, 'protocolId is required'],
     },
 
     title: {
@@ -46,6 +50,7 @@ const planByDoctorSchema = new Schema<IplanByDoctor>(
     patientId: { //🔗 for which patient
       type: Schema.Types.ObjectId,
       ref: 'User',
+      required: [true, 'patientId is required'],
     },
     isDeleted: {
       type: Boolean,

@@ -6,10 +6,7 @@ import { TProductCategory } from './product.constant';
 
 const ProductSchema = new Schema<IProduct>(
   {
-    // userId: {
-    //   type: Schema.Types.ObjectId,
-    //   ref: 'User',
-    // },
+    
     name: {
       type: String,
       required: [true, 'name is required'],
@@ -38,7 +35,9 @@ const ProductSchema = new Schema<IProduct>(
         TProductCategory.wellness,
         TProductCategory.others // not sure .. others should be an option or not 
       ],
-      required: [true, 'category is required'],
+      required: [true, `category is required .. it can be  ${Object.values(TProductCategory).join(
+                ', '
+              )}`],
     },
     stockQuantity:{
       type: Number,

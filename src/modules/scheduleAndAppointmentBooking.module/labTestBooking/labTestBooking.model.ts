@@ -3,17 +3,20 @@ import paginate from '../../common/plugins/paginate';
 import { ILabTestBooking, ILabTestBookingModel } from './LabTestBooking.interface';
 import { PAYMENT_METHOD } from '../../order.module/order/order.constant';
 import { TPaymentStatus } from '../specialistPatientScheduleBooking/specialistPatientScheduleBooking.constant';
+import { TLabTestBookingStatus } from './labTestBooking.constant';
 
 const LabTestBookingSchema = new Schema<ILabTestBooking>(
   {
     patientId: {//🔗
       type: Schema.Types.ObjectId,
       ref: 'User',
+      required: [true, 'patientId is required'],
     },
     labTestId: { //🔗 Actually Store er ekta Product er Id.. 
       // As Lab Test gulao amra store e rakhtesi .. 
       type: Schema.Types.ObjectId,
       ref: 'Product',
+      required: [true, 'labTestId is required'],
     },
     appointmentDate : {
       type: Date,
@@ -52,13 +55,30 @@ const LabTestBookingSchema = new Schema<ILabTestBooking>(
     },
     status:{ // 🟢🟢 need to think about this .. with UI
       type: String,
-      enum: ['pending', 'confirmed', 'canceled'],
-      default: 'pending',
+      enum: [TLabTestBookingStatus.pending, TLabTestBookingStatus.confirmed, TLabTestBookingStatus.canceled],
+      required: [true, `status is required .. it can be  ${Object.values(TLabTestBookingStatus).join(
+              ', '
+            )}`],
+      default: TLabTestBookingStatus.pending,
+      /***********
+       * 
+       * Initially status should be pending .. 
+       * 
+       * In webhook .. update the status based on the payment status
+       * 
+       * ********* */
     },
     PaymentTransactionId: { //🔗 Same as PaymentId of kappes
       type: Schema.Types.ObjectId,
       ref: 'PaymentTransaction',
       default: null,
+
+      /*********
+       * 
+       * In webhook we update this .. 
+       * Initially this should be null 
+       * 
+       * ********* */
     },
     paymentMethod: {
       type: String,
@@ -74,7 +94,16 @@ const LabTestBookingSchema = new Schema<ILabTestBooking>(
         TPaymentStatus.failed
       ],
       default: TPaymentStatus.unpaid,
-      required: [true, 'paymentStatus is required'],
+      required: [true, `paymentStatus is required .. it can be  ${Object.values(TPaymentStatus).join(
+              ', '
+            )}`],
+      /********
+       * 
+       * Initially This should be unpaid .. 
+       * 
+       * In webhook we update this as paid .. 
+       * 
+       * ******** */
     },
     
     isDeleted: {

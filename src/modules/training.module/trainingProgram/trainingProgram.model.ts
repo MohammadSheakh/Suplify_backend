@@ -18,7 +18,6 @@ const TrainingProgramSchema = new Schema<ITrainingProgram>(
       type: Number,
       required: [true, 'totalSessionCount is required'],
     },
-
     price: {
       type: Number,
       required: [true, 'price is required'],
@@ -28,6 +27,7 @@ const TrainingProgramSchema = new Schema<ITrainingProgram>(
     createdBy: {  //🔗  Refer to Specialist .. who create this training Program .. 
       type: Schema.Types.ObjectId,
       ref: 'User',
+      required: [true, 'createdBy is required'],
     },
 
     isDeleted: {

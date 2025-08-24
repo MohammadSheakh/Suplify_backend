@@ -11,6 +11,7 @@ const DoctorPatientScheduleBookingSchema = new Schema<IDoctorPatientScheduleBook
     patientId: { //🔗
       type: Schema.Types.ObjectId,
       ref: 'User',
+      required: [true, 'patientId is required'],
     },
     doctorScheduleId: { //🔗
       type: Schema.Types.ObjectId,
@@ -31,7 +32,9 @@ const DoctorPatientScheduleBookingSchema = new Schema<IDoctorPatientScheduleBook
         TAppointmentStatus.cancelled
       ],
       // default: TAppointmentStatus.pending,
-      required: [true, 'status is required'],
+      required: [true, `status is required .. it can be  ${Object.values(TAppointmentStatus).join(
+              ', '
+            )}`],
     },
     PaymentTransactionId: { //🔗 Same as PaymentId of kappes
       type: Schema.Types.ObjectId,
@@ -41,6 +44,9 @@ const DoctorPatientScheduleBookingSchema = new Schema<IDoctorPatientScheduleBook
     paymentMethod: {
       type: String,
       enum: PAYMENT_METHOD,
+      required: [true, `paymentMethod is required .. it can be  ${Object.values(PAYMENT_METHOD).join(
+              ', '
+            )}`],
       // default: PAYMENT_METHOD.online,
     },
     paymentStatus : {
@@ -52,7 +58,9 @@ const DoctorPatientScheduleBookingSchema = new Schema<IDoctorPatientScheduleBook
         TPaymentStatus.failed
       ],
       default: TPaymentStatus.unpaid,
-      required: [true, 'paymentStatus is required'],
+      required: [true, `paymentStatus is required .. it can be  ${Object.values(TPaymentStatus).join(
+              ', '
+            )}`],
     },
   },
   { timestamps: true }

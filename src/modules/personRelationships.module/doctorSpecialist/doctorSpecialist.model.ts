@@ -8,10 +8,11 @@ const doctorSpecialistSchema = new Schema<IdoctorSpecialist>(
     userId: {
       type: Schema.Types.ObjectId,
       ref: 'User',
+      required: [true, 'userId is required'],
     },
     message: {
       type: String,
-      required: [true, 'dateOfBirth is required'],
+      required: [true, 'message is required'],
     },
     isDeleted: {
       type: Boolean,

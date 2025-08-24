@@ -44,6 +44,7 @@
     "@aws-sdk/lib-storage": "^3.758.0",
     "@mailchimp/mailchimp_marketing": "^3.0.80",
     "@socket.io/redis-adapter": "^8.3.0",
+    "@types/mongoose": "^5.11.97",
     "bcryptjs": "^3.0.2",
     "body-parser": "^1.20.3",
     "bull": "^4.16.5",

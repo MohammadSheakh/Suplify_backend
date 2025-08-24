@@ -12,7 +12,9 @@ const settingsSchema = new Schema<ISettings>(
         settingsType.privacyPolicy,
         settingsType.termsAndConditions,
       ],
-      required: true,
+      required: [true, `type is required .. it can be  ${Object.values(settingsType).join(
+              ', '
+            )}`],
     },
     details: {
       type: String,

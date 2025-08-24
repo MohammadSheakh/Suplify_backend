@@ -1,10 +1,10 @@
 import express from 'express';
-import * as validation from './PatientTrainingSession.validation';
-import { PatientTrainingSessionController} from './PatientTrainingSession.controller';
+import * as validation from './patientTrainingSession.validation';
+import { PatientTrainingSessionController} from './patientTrainingSession.controller';
 import { IPatientTrainingSession } from './PatientTrainingSession.interface';
-import { validateFiltersForQuery } from '../../middlewares/queryValidation/paginationQueryValidationMiddleware';
-import validateRequest from '../../shared/validateRequest';
-import auth from '../../middlewares/auth';
+import { validateFiltersForQuery } from '../../../middlewares/queryValidation/paginationQueryValidationMiddleware';
+import validateRequest from '../../../shared/validateRequest';
+import auth from '../../../middlewares/auth';
 
 const multer = require('multer');
 const storage = multer.memoryStorage();
@@ -31,7 +31,7 @@ const controller = new PatientTrainingSessionController();
 //info : pagination route must be before the route with params
 router.route('/paginate').get(
   //auth('common'),
-  validateFiltersForQuery(optionValidationChecking(['_id'])),
+  validateFiltersForQuery(optionValidationChecking(['_id', ...paginationOptions])),
   controller.getAllWithPagination
 );
 

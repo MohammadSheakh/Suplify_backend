@@ -45,7 +45,7 @@ const orderSchema = new Schema<IOrder>(
       ],
       required: [
         true,
-        `OrderStatus is required it can be ${Object.values(
+        `status is required it can be ${Object.values(
           OrderStatus
         ).join(', ')}`,
       ],
@@ -69,12 +69,29 @@ const orderSchema = new Schema<IOrder>(
       type: String,
       enum: PAYMENT_METHOD,
       default: PAYMENT_METHOD.online,
+      required: [
+        true,
+        `paymentMethod is required it can be ${Object.values(
+          PAYMENT_METHOD
+        ).join(', ')}`,
+      ],
     },
 
     PaymentTransactionId: { //🔗 Same as PaymentId of kappes
       type: Schema.Types.ObjectId,
       ref: 'PaymentTransaction',
-      default: null,
+      required: [true, 'PaymentTransactionId is required'],
+
+      /**
+       * 
+       * we initially set this null ...
+       * 
+       * In webhook after payment suceessfull 
+       * 
+       * we set this .. 
+       * 
+       * */
+
     },
 
     paymentStatus: {
@@ -85,6 +102,19 @@ const orderSchema = new Schema<IOrder>(
         PAYMENT_STATUS.refunded
       ],
       default: PAYMENT_STATUS.unpaid,
+      required: [
+        true,
+        `paymentStatus is required it can be ${Object.values(
+          PAYMENT_STATUS
+        ).join(', ')}`,
+      ],
+      /*******
+       * 
+       * Initially unpaid .. 
+       * 
+       * in webhook handler .. we set this to paid .. 
+       * 
+       * ******* */
     },
 
     orderNotes: {

@@ -10,21 +10,34 @@ const TrainingProgramPurchaseSchema = new Schema<ITrainingProgramPurchase>(
     trainingProgramId : { //🔗 which training program 
       type: Schema.Types.ObjectId,
       ref: 'TrainingProgram',
+      required: [true, 'trainingProgramId is required'],
     },
+    
     patientId : { //🔗 who purchase this
       type: Schema.Types.ObjectId,
       ref: 'User',
+      required: [true, 'patientId is required'],
     },
-    PaymentTransactionId: { //🔗 Same as PaymentId of kappes
+
+    paymentTransactionId: { //🔗 Same as PaymentId of kappes
       type: Schema.Types.ObjectId,
       ref: 'PaymentTransaction',
-      default: null,
+      default: null, 
+      /*********
+       * 
+       * First This should be null ..
+       * In Webhook Handler .. we will update this paymentTransactionId
+       * 
+       * ********* */
+       
     },
+
     paymentMethod: {
       type: String,
       enum: PAYMENT_METHOD,
       default: PAYMENT_METHOD.online,
     },
+
     paymentStatus : {
       type: String,
       enum: [
@@ -34,8 +47,19 @@ const TrainingProgramPurchaseSchema = new Schema<ITrainingProgramPurchase>(
         TPaymentStatus.failed
       ],
       default: TPaymentStatus.unpaid,
-      required: [true, 'paymentStatus is required'],
+      required: [false, `paymentStatus is required .. it can be  ${Object.values(TPaymentStatus).join(
+                ', '
+              )}`],
+
+      /*********
+       * 
+       * First This should be unpaid ..
+       * In Webhook Handler .. we will update this paid
+       * 
+       * ********* */
+
     },
+
     isDeleted: {
       type: Boolean,
       required: [false, 'isDeleted is not required'],

@@ -1,18 +1,20 @@
 import { model, Schema } from 'mongoose';
 import { IPatientTrainingSession, IPatientTrainingSessionModel } from './PatientTrainingSession.interface';
-import paginate from '../../common/plugins/paginate';
+import paginate from '../../../common/plugins/paginate';
 import { TPatientTrainingSessionStatus } from './patientTrainingSession.constant';
 
 
 const PatientTrainingSessionSchema = new Schema<IPatientTrainingSession>(
   {
-    trainingSessionId: {//🔗
+     trainingSessionId: {//🔗
       type: Schema.Types.ObjectId,
       ref: 'TrainingSession',
+      required: [true, `trainingSessionId is required`],
     },
     userId: { //🔗
       type: Schema.Types.ObjectId,
       ref: 'User',
+      required: [true, `userId is required`],
     },
     status: {
       type: String,
@@ -20,7 +22,10 @@ const PatientTrainingSessionSchema = new Schema<IPatientTrainingSession>(
         TPatientTrainingSessionStatus.complete,
         TPatientTrainingSessionStatus.incomplete
       ],
-      default: TPatientTrainingSessionStatus.incomplete
+      default: TPatientTrainingSessionStatus.incomplete,
+      required: [false, `status is not required .. it can be  ${Object.values(TPatientTrainingSessionStatus).join(
+                      ', '
+                    )}`],
     },
     isDeleted: {
       type: Boolean,

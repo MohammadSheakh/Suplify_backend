@@ -8,6 +8,7 @@ const protocolSchema = new Schema<Iprotocol>(
     createdBy: { //🔗 Doctor Id .. who create this protocol
       type: Schema.Types.ObjectId,
       ref: 'User',
+      required: [true, 'createdBy is required'],
     },
     name: { // name of the protocol
       type: String,
@@ -17,10 +18,10 @@ const protocolSchema = new Schema<Iprotocol>(
       type: Number,
       required: [true, 'totalPlan is required'],
     },
-
     patientId: { //🔗 Patient Id .. who this protocol is for
       type: Schema.Types.ObjectId,
       ref: 'User',
+      required: [true, 'patientId is required'],
     },
     isDeleted: {
       type: Boolean,

@@ -15,20 +15,25 @@ export interface ISubscriptionPlan {
   // _taskId: undefined | Types.ObjectId;
   _id?: Types.ObjectId; // undefined |  Types.ObjectId |
   subscriptionName : string;
-  subscriptionType: SubscriptionType.premium;  //   | SubscriptionType.standard | SubscriptionType.vip
+  subscriptionType: SubscriptionType.standard |
+  SubscriptionType.standardPlus |
+  SubscriptionType.vise ;
+   
   initialDuration :  InitialDurationType.month ;
   renewalFrequncy : RenewalFrequncyType.monthly ;
   amount : string //number;
   // renewalFee : 0;
   currency : CurrencyType.USD; //  | CurrencyType.EUR
   features: String[];
-  // freeTrialDuration : Number;
-  // freeTrialEnabled : Boolean;
+  
   fullAccessToInteractiveChat : Boolean;
   canViewCycleInsights: Boolean;
   
   stripe_product_id : String;
   stripe_price_id : String;
+
+  // freeTrialDuration : Number;
+  // freeTrialEnabled : Boolean;
 
   isActive : Boolean;
   isDeleted : Boolean;

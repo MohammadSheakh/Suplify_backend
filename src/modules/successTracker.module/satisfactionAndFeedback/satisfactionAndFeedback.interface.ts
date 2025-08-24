@@ -5,8 +5,12 @@ import { PaginateOptions, PaginateResult } from '../../../types/paginate';
 export interface ISatisfactionAndFeedback {
   // _taskId: undefined | Types.ObjectId;
   _id?: Types.ObjectId; // undefined |  Types.ObjectId |
-  userId: Types.ObjectId;
-  message : String;
+  
+  areYouHappyWithCurrentProgress: Boolean;
+  doYouFeelSupported : Boolean;
+  oneThingYouNeedHelpWith : String
+  oneHabitYouImprovedOrBuiltThisWeek : String
+  wouldYouRecommendUs : Boolean
 
   isDeleted? : Boolean;  
   createdAt?: Date;

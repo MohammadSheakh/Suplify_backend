@@ -1,12 +1,15 @@
 import { Model, Types } from 'mongoose';
 import { PaginateOptions, PaginateResult } from '../../../types/paginate';
+import { TPatientTrainingSessionStatus } from './patientTrainingSession.constant';
 
 
 export interface IPatientTrainingSession {
   // _taskId: undefined | Types.ObjectId;
   _id?: Types.ObjectId; // undefined |  Types.ObjectId |
-  userId: Types.ObjectId;
-  message : String;
+  trainingSessionId: Types.ObjectId; //🔗
+  userId : Types.ObjectId; //🔗
+  status :  TPatientTrainingSessionStatus.complete |
+          TPatientTrainingSessionStatus.incomplete;
 
   isDeleted? : Boolean;  
   createdAt?: Date;

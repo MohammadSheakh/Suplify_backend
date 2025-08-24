@@ -23,7 +23,9 @@ const subscriptionPlanSchema = new Schema<ISubscriptionPlan>(
     subscriptionType: {
       type: String,
       enum: [
-        SubscriptionType.premium,
+        SubscriptionType.standard,
+        SubscriptionType.standardPlus,
+        SubscriptionType.vise
       ],
       required: [
         true,

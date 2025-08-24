@@ -7,6 +7,7 @@ const TrainingSessionSchema = new Schema<ITrainingSession>(
     trainingProgramId: { //🔗 as training program can have multiple training session
       type: Schema.Types.ObjectId,
       ref: 'TrainingProgram', //🧪🧪🧪 check korte hobe thik ase kina .. 
+      required: [true, 'trainingProgramId is required'],
     },
     sessionCount: { // 🟡 why we need this ? 
       type: Number,

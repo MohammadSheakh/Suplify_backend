@@ -1,9 +1,9 @@
 import { model, Schema } from 'mongoose';
-import { IDemo, IDemoModel } from './demo.interface';
+import { IMindsetAndMomentum, IMindsetAndMomentumModel } from './MindsetAndMomentum.interface';
 import paginate from '../../common/plugins/paginate';
 
 
-const demoSchema = new Schema<IDemo>(
+const MindsetAndMomentumSchema = new Schema<IMindsetAndMomentum>(
   {
     howMotivatedDoYouFeel: {
       type: Number,
@@ -34,9 +34,9 @@ const demoSchema = new Schema<IDemo>(
   { timestamps: true }
 );
 
-demoSchema.plugin(paginate);
+MindsetAndMomentumSchema.plugin(paginate);
 
-demoSchema.pre('save', function (next) {
+MindsetAndMomentumSchema.pre('save', function (next) {
   // Rename _id to _projectId
   // this._taskId = this._id;
   // this._id = undefined;  // Remove the default _id field
@@ -46,15 +46,15 @@ demoSchema.pre('save', function (next) {
 });
 
 // Use transform to rename _id to _projectId
-demoSchema.set('toJSON', {
+MindsetAndMomentumSchema.set('toJSON', {
   transform: function (doc, ret, options) {
-    ret._demoId = ret._id; // Rename _id to _subscriptionId
+    ret._MindsetAndMomentumId = ret._id; // Rename _id to _subscriptionId
     delete ret._id; // Remove the original _id field
     return ret;
   },
 });
 
-export const Demo = model<
-  IDemo,
-  IDemoModel
->('Demo', demoSchema);
+export const MindsetAndMomentum = model<
+  IMindsetAndMomentum,
+  IMindsetAndMomentumModel
+>('MindsetAndMomentum', MindsetAndMomentumSchema);

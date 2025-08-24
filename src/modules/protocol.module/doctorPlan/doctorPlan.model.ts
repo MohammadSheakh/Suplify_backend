@@ -14,11 +14,14 @@ const DoctorPlanSchema = new Schema<IDoctorPlan>(
         TPlanByDoctor.suppliment,
         TPlanByDoctor.workOut
       ],
-      required: [true, 'planType is required'],
+      required: [true, `planType is required .. it can be  ${Object.values(TPlanByDoctor).join(
+              ', '
+            )}`],
     },
     createdBy: { //🔗 doctor Id 
       type: Schema.Types.ObjectId,
       ref: 'User',
+      required: [true, 'createdBy is required'],
     },
 
     title: {

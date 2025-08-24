@@ -5,8 +5,11 @@ import { PaginateOptions, PaginateResult } from '../../../types/paginate';
 export interface ITrainingProgram {
   // _taskId: undefined | Types.ObjectId;
   _id?: Types.ObjectId; // undefined |  Types.ObjectId |
-  userId: Types.ObjectId;
-  message : String;
+  programName : String;
+  durationInMonths : Number;
+  totalSessionCount : Number;
+  price : Number;
+  createdBy : Types.ObjectId;  //🔗
 
   isDeleted? : Boolean;  
   createdAt?: Date;

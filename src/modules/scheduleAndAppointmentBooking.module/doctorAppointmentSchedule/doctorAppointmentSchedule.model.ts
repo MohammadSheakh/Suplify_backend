@@ -9,6 +9,7 @@ const DoctorAppointmentScheduleSchema = new Schema<IDoctorAppointmentSchedule>(
     createdBy: { //🔗
       type: Schema.Types.ObjectId,
       ref: 'User',
+      required: [true, 'createdBy is required'],
     },
     scheduleName: {
       type: String,
@@ -38,7 +39,9 @@ const DoctorAppointmentScheduleSchema = new Schema<IDoctorAppointmentSchedule>(
         TDoctorAppointmentScheduleStatus.cancelled,
       ],
       default: TDoctorAppointmentScheduleStatus.available,
-      required: [true, 'scheduleStatus is required'],
+      required: [true, `scheduleStatus is required .. it can be  ${Object.values(TDoctorAppointmentScheduleStatus).join(
+                ', '
+              )}`],
     },
     price : {
       type: Number,
@@ -51,7 +54,9 @@ const DoctorAppointmentScheduleSchema = new Schema<IDoctorAppointmentSchedule>(
         TMeetingLink.googleMeet,
         TMeetingLink.others
       ],
-      required: [true, 'typeOfLink is required'],
+      required: [true, `typeOfLink is required .. it can be  ${Object.values(TMeetingLink).join(
+                ', '
+              )}`],
     },
     meetingLink:{
       type : String,

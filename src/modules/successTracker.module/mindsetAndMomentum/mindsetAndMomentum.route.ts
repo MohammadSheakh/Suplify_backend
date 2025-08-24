@@ -1,7 +1,7 @@
 import express from 'express';
-import * as validation from './demo.validation';
-import { DemoController} from './demo.controller';
-import { IDemo } from './demo.interface';
+import * as validation from './MindsetAndMomentum.validation';
+import { MindsetAndMomentumController} from './MindsetAndMomentum.controller';
+import { IMindsetAndMomentum } from './MindsetAndMomentum.interface';
 import { validateFiltersForQuery } from '../../middlewares/queryValidation/paginationQueryValidationMiddleware';
 import validateRequest from '../../shared/validateRequest';
 import auth from '../../middlewares/auth';
@@ -12,7 +12,7 @@ const upload = multer({ storage: storage });
 
 const router = express.Router();
 
-export const optionValidationChecking = <T extends keyof IDemo | 'sortBy' | 'page' | 'limit' | 'populate'>(
+export const optionValidationChecking = <T extends keyof IMindsetAndMomentum | 'sortBy' | 'page' | 'limit' | 'populate'>(
   filters: T[]
 ) => {
   return filters;
@@ -27,7 +27,7 @@ const paginationOptions: Array<'sortBy' | 'page' | 'limit' | 'populate'> = [
 
 
 // const taskService = new TaskService();
-const controller = new DemoController();
+const controller = new MindsetAndMomentumController();
 
 //info : pagination route must be before the route with params
 router.route('/paginate').get(
@@ -79,4 +79,4 @@ router.route('/softDelete/:id').put(
 //[🚧][🧑‍💻✅][🧪] // 🆗
 
 
-export const DemoRoute = router;
+export const MindsetAndMomentumRoute = router;

@@ -5,8 +5,12 @@ import { PaginateOptions, PaginateResult } from '../../../types/paginate';
 export interface IAdherenceAndConsistency {
   // _taskId: undefined | Types.ObjectId;
   _id?: Types.ObjectId; // undefined |  Types.ObjectId |
-  userId: Types.ObjectId;
-  message : String;
+  didYouTakeSupplimentsAsRecommended: Number;
+  howManyMealsDidYouFollow : Number;
+
+  workoutDidYouCompleteThisWeek : Number;
+  howConsistentWithHydration : Number;
+  checkInWithCoachThisWeek : Boolean;
 
   isDeleted? : Boolean;  
   createdAt?: Date;

@@ -11,19 +11,19 @@ const SuccessTrackerSchema = new Schema<ISuccessTracker>(
     },
     mindsetAndMomentumId: {//🔗
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: 'MindsetAndMomentum',
     },
     satisfactionAndFeedbackId: {//🔗
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: 'SatisfactionAndFeedback',
     },
     adherenceAndConsistencyId: {//🔗
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: 'AdherenceAndConsistency',
     },
     healthAndPerformanceId: {//🔗
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: 'HealthAndPerformance',
     },
     isDeleted: {
       type: Boolean,
