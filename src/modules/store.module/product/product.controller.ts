@@ -100,7 +100,8 @@ export class ProductController extends GenericController<
       async () => {
         return this.productService.categoryWithCount_WithoutCaching();
       },
-      3600 // 1 hour TTL
+      3600, // 1 hour TTL
+      true
     );
 
     sendResponse(res, {
@@ -118,7 +119,17 @@ export class ProductController extends GenericController<
    * 
    * ****** */
   showAllCategoryAndItsLimitedProducts = catchAsync(async (req: Request, res: Response) => {
-    const result = await this.productService.showAllCategoryAndItsLimitedProducts();
+    // const result = await this.productService.showAllCategoryAndItsLimitedProducts();
+
+    const result = await getOrSetRedisCache(
+      `showAllCategoryAndItsLimitedProducts`,
+      async () => {
+        return this.productService.showAllCategoryAndItsLimitedProducts();
+      },
+      3600, // 1 hour TTL
+      true
+    );
+
     sendResponse(res, {
       code: StatusCodes.OK,
       data: result,
@@ -135,7 +146,17 @@ export class ProductController extends GenericController<
  * ********** */
   getProductDetailsWithRelatedProducts = catchAsync(async (req: Request, res: Response) => {
     const { productId } = req.params;
-    const result = await this.productService.getProductDetailsWithRelatedProducts(productId);
+    // const result = await this.productService.getProductDetailsWithRelatedProducts(productId);
+
+    const result = await getOrSetRedisCache(
+      `product:${productId}`,
+      async () => {
+        return this.productService.getProductDetailsWithRelatedProducts(productId);
+      },
+      120, // 120 seconds = 2 minute
+      true
+    );
+
 
     sendResponse(res, {
       code: StatusCodes.OK,
