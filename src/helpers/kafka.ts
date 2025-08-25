@@ -5,7 +5,7 @@ import { Message } from '../modules/chatting.module/message/message.model';
 
 const kafka = new Kafka({
     // brokers: ['host:port']
-    brokers: ['172.26.89.58:9092'],
+    brokers: ['kafka:9092'], //172.26.89.58:9092
     // sasl: {
     //     mechanism: 'plain',
     //     username: 'your-username',

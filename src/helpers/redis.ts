@@ -7,8 +7,8 @@ import { config } from '../config';
 // Create Redis clients
 const redisPubClient = createClient({
 
-  host: config.redis.host,  // Update with your Redis configuration // For Office->'172.22.201.132' // Docker->redis
-  port: config.redis.port, // For Office  6379 
+  host: config.redis.host || 'redis',  // Update with your Redis configuration // For Office->'172.22.201.132' // Docker->redis
+  port: 6380 // config.redis.port || 6379, // For Office  6379 
   // username: '',
   // password: ""
 });
@@ -40,6 +40,13 @@ redisSubClient.on('error', (err) => {
 
 // Initialize Redis connections
 export async function initializeRedis() {
+
+  // Add this to your main server file or Redis config file
+console.log('Environment Variables: 😄😄😄😄😄😄😄😄😄😄😄😄😄😄😄😄😄😄😄😄😄');
+console.log('REDIS_HOST:', process.env.REDIS_HOST);
+console.log('REDIS_PORT:', process.env.REDIS_PORT);
+console.log('All Redis-related env vars:', Object.keys(process.env).filter(key => key.includes('REDIS')));
+
   try {
     await Promise.all([
       redisPubClient.connect(),

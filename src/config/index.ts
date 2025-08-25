@@ -7,8 +7,8 @@ export const config = {
   socketPort: process.env.SOCKET || 6730,
 
   redis: {
-    host: process.env.REDIS_HOST || 'localhost',
-    port: process.env.REDIS_PORT || 6379,
+    host: process.env.REDIS_HOST, // || 'localhost'
+    port: process.env.REDIS_PORT, // || 6380
   },
 
   database: {
