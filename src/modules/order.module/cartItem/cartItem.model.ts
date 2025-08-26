@@ -1,6 +1,7 @@
 import { model, Schema } from 'mongoose';
 import { ICartItem, ICartItemModel } from './cartItem.interface';
 import paginate from '../../../common/plugins/paginate';
+import { EProduct } from '../../store.module/product/product.model';
 
 
 const CartItemSchema = new Schema<ICartItem>(
@@ -12,7 +13,7 @@ const CartItemSchema = new Schema<ICartItem>(
     itemId: { //🔗
       // 🔥 confusion ase ... eta ki relational hobe naki non relational hobe 
       type: Schema.Types.ObjectId,
-      ref: 'Product', // 🔥 Product nam e kono table e nai amader .. 
+      ref: EProduct.Product, // 🔥 Product nam e kono table e nai amader .. 
       required: [true, 'itemId is required'],
     },
     

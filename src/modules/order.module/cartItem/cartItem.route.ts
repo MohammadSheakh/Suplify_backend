@@ -53,15 +53,15 @@ router.route('/').get(
   controller.getAll
 );
 
-//[🚧][🧑‍💻✅][🧪] // 🆗
+//[🚧][🧑‍💻✅][🧪] // 🆗 //suplify
+/*********
+ * 
+ * Patient | Dashboard | add to cart 
+ * 
+ * ******* */
 router.route('/create').post(
-  // [
-  //   upload.fields([
-  //     { name: 'attachments', maxCount: 15 }, // Allow up to 5 cover photos
-  //   ]),
-  // ],
   auth('common'),
-  validateRequest(validation.createHelpMessageValidationSchema),
+  validateRequest(validation.addToCartValidationSchema),
   controller.create
 );
 
@@ -77,6 +77,7 @@ router.route('/softDelete/:id').put(
 
 ////////////
 //[🚧][🧑‍💻✅][🧪] // 🆗
+
 
 
 export const CartItemRoute = router;

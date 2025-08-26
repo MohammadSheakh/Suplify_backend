@@ -2,7 +2,7 @@ import { Model, Types } from 'mongoose';
 
 
 import { PaginateOptions, PaginateResult } from '../../../types/paginate';
-import { OrderStatus, OrderType, PAYMENT_METHOD, PAYMENT_STATUS, TOrderRelatedTo } from './order.constant';
+import { OrderStatus, OrderType, PaymentMethod, PaymentStatus, TOrderRelatedTo } from './order.constant';
 
 export interface IOrder {
   // _taskId: undefined | Types.ObjectId;
@@ -23,13 +23,13 @@ export interface IOrder {
   shippingAddress : String;
   // deliveryCharge : Number; //⚡ from kappes
   finalAmount : Number;
-  paymentMethod :  PAYMENT_METHOD.online;
+  paymentMethod :  PaymentMethod.online;
 
   PaymentTransactionId : Types.ObjectId; //🔗 
 
-  paymentStatus : PAYMENT_STATUS.unpaid |
-    PAYMENT_STATUS.paid|
-    PAYMENT_STATUS.refunded ;
+  paymentStatus : PaymentStatus.unpaid |
+    PaymentStatus.paid|
+    PaymentStatus.refunded ;
 
   orderNotes : string;
   

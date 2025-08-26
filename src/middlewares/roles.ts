@@ -1,7 +1,14 @@
-export type Role = 'user' | 'admin' | 'specialist' | 'doctor';	
+export type Role = 'patient' | 'admin' | 'specialist' | 'doctor';	
+
+export enum TRole {
+  patient = 'patient',
+  admin = 'admin',
+  specialist = 'specialist',
+  doctor = 'doctor',
+}
 
 const allRoles: Record<Role, string[]> = {
-  user: ['user', 'common'],
+  patient: ['patient', 'common'], 
   admin: ['admin', 'common'],
   specialist: ['specialist', 'common'],
   doctor: ['doctor', 'common'],

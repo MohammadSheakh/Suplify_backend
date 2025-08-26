@@ -11,6 +11,8 @@ import { MessageRoute } from '../modules/chatting.module/message/message.route';
 import { PaymentTransactionRoute } from '../modules/payment.module/paymentTransaction/paymentTransaction.route';
 import stripeAccountRoutes from '../modules/payment.module/stripeAccount/stripeAccount.route';
 import { ProductRoute } from '../modules/store.module/product/product.route';
+import { CartItemRoute } from '../modules/order.module/cartItem/cartItem.route';
+import { Cart } from '../modules/order.module/cart/cart.model';
 
 // import { ChatRoutes } from '../modules/chat/chat.routes';
 // import { MessageRoutes } from '../modules/message/message.routes';
@@ -44,10 +46,14 @@ const apiRoutes = [
     path: '/trainingProgram',
     route: TrainingProgramRoute,
   },
-  // {
-  //   path: '/subscription',
-  //   route: SubscriptionRoute,
-  // },
+  { // 🟢
+    path: '/cart-item',
+    route: CartItemRoute,
+  },
+  { // 🟢
+    path: '/cart',
+    route: Cart,
+  },
   {
     path: '/conversation',
     route: ConversationRoute,

@@ -58,6 +58,12 @@ async function main() {
           `♻️  Application listening on port ${config.backend.baseUrl}/v1`
         )
       );
+
+      logger.info(
+          colors.yellow(
+            `♻️  Shobhoy port ${config.backend.shobhoyUrl}`,
+          ),
+        );
     });
 
   

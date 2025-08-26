@@ -11,7 +11,7 @@ import { generateBookingInvoicePDF } from '../../../utils/generateOrderInvoicePD
 */
 
 /*
-import { BOOKING_STATUS, PAYMENT_STATUS } from '../booking/booking.enums';
+import { BOOKING_STATUS, PaymentStatus } from '../booking/booking.enums';
 import { BID_STATUS } from '../Bid/Bid.enum';
 import { NOTIFICATION_MODEL_TYPE, NotificationTitle } from '../notification/notification.enum';
 
@@ -111,7 +111,7 @@ const handlePaymentSucceeded = async (session: Stripe.Checkout.Session) => {
                booking: booking,
                serviceCategory: serviceCategory,
                method: method,
-               status: PAYMENT_STATUS.PAID,
+               status: PaymentStatus.PAID,
                transactionId: session.id,
                paymentIntent: paymentIntent,
                amount: amount,
@@ -124,7 +124,7 @@ const handlePaymentSucceeded = async (session: Stripe.Checkout.Session) => {
           isBookingExists.status = BOOKING_STATUS.CONFIRMED;
           await isBookingExists.validate();
           isBookingExists.finalAmount = amount;
-          isBookingExists.paymentStatus = PAYMENT_STATUS.PAID;
+          isBookingExists.paymentStatus = PaymentStatus.PAID;
           await isBookingExists.save();
 
 
@@ -211,7 +211,7 @@ const handleTransferCreated = async (transfer: Stripe.Transfer) => {
           }
           // update isTransferd true
           booking.isPaymentTransferd = true;
-          booking.paymentStatus = PAYMENT_STATUS.PAID;
+          booking.paymentStatus = PaymentStatus.PAID;
           booking.status = BOOKING_STATUS.COMPLETED;
           await booking.save();
 
@@ -220,7 +220,7 @@ const handleTransferCreated = async (transfer: Stripe.Transfer) => {
           if (!isExistPayment) {
                throw new ApiError(StatusCodes.BAD_REQUEST, 'Payment not found');
           }
-          isExistPayment.status = PAYMENT_STATUS.PAID;
+          isExistPayment.status = PaymentStatus.PAID;
           await isExistPayment.save();
      } catch (error) {
           console.error('Error in handleTransferCreated:', error);

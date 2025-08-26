@@ -2,7 +2,7 @@ import { model, Schema } from 'mongoose';
 import { IDoctorPatientScheduleBooking, IDoctorPatientScheduleBookingModel } from './doctorPatientScheduleBooking.interface';
 import paginate from '../../../common/plugins/paginate';
 import { TAppointmentStatus } from './doctorPatientScheduleBooking.constant';
-import { PAYMENT_METHOD } from '../../order.module/order/order.constant';
+import { PaymentMethod } from '../../order.module/order/order.constant';
 import { TPaymentStatus } from '../specialistPatientScheduleBooking/specialistPatientScheduleBooking.constant';
 
 
@@ -43,11 +43,11 @@ const DoctorPatientScheduleBookingSchema = new Schema<IDoctorPatientScheduleBook
     },
     paymentMethod: {
       type: String,
-      enum: PAYMENT_METHOD,
-      required: [true, `paymentMethod is required .. it can be  ${Object.values(PAYMENT_METHOD).join(
+      enum: PaymentMethod,
+      required: [true, `paymentMethod is required .. it can be  ${Object.values(PaymentMethod).join(
               ', '
             )}`],
-      // default: PAYMENT_METHOD.online,
+      // default: PaymentMethod.online,
     },
     paymentStatus : {
       type: String,

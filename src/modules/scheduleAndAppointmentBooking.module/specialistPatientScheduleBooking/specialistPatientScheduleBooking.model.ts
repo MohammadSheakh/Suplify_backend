@@ -4,7 +4,7 @@ import paginate from '../../../common/plugins/paginate';
 import { TSpecialistWorkoutClassSchedule } from '../specialistWorkoutClassSchedule/specialistWorkoutClassSchedule.constant';
 import { TAppointmentStatus } from '../doctorPatientScheduleBooking/doctorPatientScheduleBooking.constant';
 import { TPaymentStatus, TScheduleBookingStatus } from './specialistPatientScheduleBooking.constant';
-import { PAYMENT_METHOD } from '../../order.module/order/order.constant';
+import { PaymentMethod } from '../../order.module/order/order.constant';
 
 const SpecialistPatientScheduleBookingSchema = new Schema<ISpecialistPatientScheduleBooking>(
   {
@@ -51,8 +51,8 @@ const SpecialistPatientScheduleBookingSchema = new Schema<ISpecialistPatientSche
     },
     paymentMethod: {
       type: String,
-      enum: PAYMENT_METHOD,
-      // default: PAYMENT_METHOD.online,
+      enum: PaymentMethod,
+      // default: PaymentMethod.online,
     },
     paymentStatus : {
       type: String,

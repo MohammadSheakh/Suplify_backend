@@ -3,8 +3,8 @@ import paginate from '../../../common/plugins/paginate';
 import {
   OrderStatus,
   OrderType,
-  PAYMENT_METHOD,
-  PAYMENT_STATUS,
+  PaymentMethod,
+  PaymentStatus,
   TOrderRelatedTo,
 } from './order.constant';
 import { IOrder, IOrderModel } from './order.interface';
@@ -36,12 +36,15 @@ const orderSchema = new Schema<IOrder>(
     status: { // ⚡
       type: String,
       enum: [
-        OrderStatus.pending,
-        OrderStatus.processing,
-        OrderStatus.complete,
-        OrderStatus.failed,
-        OrderStatus.refunded,
-        OrderStatus.cancelled,
+        OrderStatus.pending,  // Order placed, but no payment attempt yet.
+        OrderStatus.processing,  // Payment is being attempted (checkout in progress).
+        OrderStatus.confirmed, //Payment completed, order is confirmed, preparing for shipment.
+        OrderStatus.completed, // Order delivered successfully, transaction closed
+        OrderStatus.didNotReceived , // Delivery failed (lost, wrong address, courier issue, etc).
+        OrderStatus.productReturned , // Customer returned the product (after delivery).
+        OrderStatus.failed, // Payment attempt failed (insufficient funds, declined, etc).
+        OrderStatus.refunded, // Refund processed (can come from didNotReceive, productReturned, or cancelled after payment)
+        OrderStatus.cancelled, // User/admin cancelled before shipment.
       ],
       required: [
         true,
@@ -67,12 +70,12 @@ const orderSchema = new Schema<IOrder>(
 
     paymentMethod: {
       type: String,
-      enum: PAYMENT_METHOD,
-      default: PAYMENT_METHOD.online,
+      enum: PaymentMethod,
+      default: PaymentMethod.online,
       required: [
         true,
         `paymentMethod is required it can be ${Object.values(
-          PAYMENT_METHOD
+          PaymentMethod
         ).join(', ')}`,
       ],
     },
@@ -97,15 +100,15 @@ const orderSchema = new Schema<IOrder>(
     paymentStatus: {
       type: String,
       enum: [
-        PAYMENT_STATUS.unpaid,
-        PAYMENT_STATUS.paid,
-        PAYMENT_STATUS.refunded
+        PaymentStatus.unpaid,
+        PaymentStatus.paid,
+        PaymentStatus.refunded
       ],
-      default: PAYMENT_STATUS.unpaid,
+      default: PaymentStatus.unpaid,
       required: [
         true,
         `paymentStatus is required it can be ${Object.values(
-          PAYMENT_STATUS
+          PaymentStatus
         ).join(', ')}`,
       ],
       /*******

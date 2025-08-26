@@ -13,6 +13,10 @@ export interface ICartItem {
   updatedAt?: Date;
 }
 
+export interface ICreateCart{
+  itemId: Types.ObjectId;
+}
+
 export interface ICartItemModel extends Model<ICartItem> {
   paginate: (
     query: Record<string, any>,

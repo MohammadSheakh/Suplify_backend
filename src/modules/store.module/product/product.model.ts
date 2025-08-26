@@ -3,6 +3,9 @@ import { IProduct, IProductModel } from './product.interface';
 import paginate from '../../../common/plugins/paginate';
 import { TProductCategory } from './product.constant';
 
+export const enum EProduct {
+  Product = 'Product',
+}
 
 const ProductSchema = new Schema<IProduct>(
   {
@@ -82,4 +85,4 @@ ProductSchema.set('toJSON', {
 export const Product = model<
   IProduct,
   IProductModel
->('Product', ProductSchema);
+>(EProduct.Product, ProductSchema);

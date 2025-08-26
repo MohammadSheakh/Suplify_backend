@@ -492,7 +492,7 @@ export class SubscriptionController extends GenericController<
     // we can call this session  paymentGatewayData
     const session = await this.stripe.checkout.sessions.create({
       mode: 'payment', // You can change it to 'payment' if it's a one-time payment  // 'subscription'
-      payment_method_types: ['card'], // , 'paypal'
+      PaymentMethod_types: ['card'], // , 'paypal'
       customer: stripeCustomerId,
       line_items: [
         {
@@ -708,7 +708,7 @@ export class SubscriptionController extends GenericController<
     // Retrieve the session to verify its status
     const session = await this.stripe.checkout.sessions.retrieve(session_id as string);
     
-    if (session.payment_status !== 'paid') {
+    if (session.PaymentStatus !== 'paid') {
       throw new ApiError(
         StatusCodes.BAD_REQUEST,
         "Payment has not been completed"
@@ -958,7 +958,7 @@ export class SubscriptionController extends GenericController<
       
       // Create checkout session
       const session = await stripe.checkout.sessions.create({
-        payment_method_types: ['card'],
+        PaymentMethod_types: ['card'],
         customer: user.stripeCustomerId,
         line_items: [
           {
@@ -1016,7 +1016,7 @@ export class SubscriptionController extends GenericController<
 
     const session = await this.stripe.checkout.sessions.create({
       mode: 'subscription', // You can change it to 'payment' if it's a one-time payment
-      payment_method_types: ['card'],
+      PaymentMethod_types: ['card'],
       line_items: [
         {
           // price id pass korte hobe ..

@@ -1,6 +1,6 @@
 import { Model, Types } from 'mongoose';
 import { PaginateOptions, PaginateResult } from '../../../types/paginate';
-import { PAYMENT_METHOD } from '../../order.module/order/order.constant';
+import { PaymentMethod } from '../../order.module/order/order.constant';
 import { TPaymentStatus } from '../../scheduleAndAppointmentBooking.module/specialistPatientScheduleBooking/specialistPatientScheduleBooking.constant';
 
 export interface ITrainingProgramPurchase {
@@ -9,7 +9,7 @@ export interface ITrainingProgramPurchase {
   trainingProgramId: Types.ObjectId; //🔗
   patientId: Types.ObjectId; //🔗
   paymentTransactionId: Types.ObjectId | null; //🔗
-  paymentMethod: PAYMENT_METHOD.online;
+  paymentMethod: PaymentMethod.online;
 
   paymentStatus: TPaymentStatus.unpaid |
     TPaymentStatus.paid |

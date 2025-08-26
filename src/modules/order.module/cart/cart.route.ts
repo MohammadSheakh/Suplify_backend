@@ -35,10 +35,21 @@ router.route('/paginate').get(
   controller.getAllWithPagination
 );
 
-router.route('/:id').get(
-  // auth('common'),
-  controller.getById
+/******
+ * 
+ *  Patient | Dashboard | View All cartItem And Details
+ * 
+ * ***** */
+router.route('/view/:cartId').get(
+  auth('common'),
+  // validateRequest(validation.viewCartItemsOfACartValidationSchema),
+  controller.viewCart
 );
+
+// router.route('/:id').get(
+//   // auth('common'),
+//   controller.getById
+// );
 
 router.route('/update/:id').put(
   //auth('common'),
@@ -52,7 +63,7 @@ router.route('/').get(
   controller.getAll
 );
 
-//[🚧][🧑‍💻✅][🧪] // 🆗
+//[🚧][🧑‍💻✅][🧪] // 🆗 
 router.route('/create').post(
   // [
   //   upload.fields([
@@ -60,7 +71,7 @@ router.route('/create').post(
   //   ]),
   // ],
   auth('common'),
-  validateRequest(validation.createHelpMessageValidationSchema),
+  // validateRequest(validation.createHelpMessageValidationSchema),
   controller.create
 );
 
@@ -76,6 +87,7 @@ router.route('/softDelete/:id').put(
 
 ////////////
 //[🚧][🧑‍💻✅][🧪] // 🆗
+
 
 
 export const CartRoute = router;

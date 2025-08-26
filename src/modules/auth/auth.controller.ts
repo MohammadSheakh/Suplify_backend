@@ -5,6 +5,7 @@ import { AuthService } from './auth.service';
 import { AttachmentService } from '../attachments/attachment.service';
 import { TFolderName } from '../attachments/attachment.constant';
 import { UserProfile } from '../user/userProfile/userProfile.model';
+import { Roles, TRole } from '../../middlewares/roles';
 
 //[🚧][🧑‍💻✅][🧪] // 🆗 
 const register = catchAsync(async (req, res) => {
@@ -42,6 +43,7 @@ const register = catchAsync(async (req, res) => {
 
   const userProfile = await UserProfile.create({
     attachments: req.body.attachments,
+    approvalStatus : req.body.role == TRole.patient ? 'approved' : 'pending'
   });
 
   req.body.profileId = userProfile._id;

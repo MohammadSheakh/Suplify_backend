@@ -1,7 +1,7 @@
 import { model, Schema } from 'mongoose';
 import paginate from '../../common/plugins/paginate';
 import { ILabTestBooking, ILabTestBookingModel } from './LabTestBooking.interface';
-import { PAYMENT_METHOD } from '../../order.module/order/order.constant';
+import { PaymentMethod } from '../../order.module/order/order.constant';
 import { TPaymentStatus } from '../specialistPatientScheduleBooking/specialistPatientScheduleBooking.constant';
 import { TLabTestBookingStatus } from './labTestBooking.constant';
 
@@ -82,8 +82,8 @@ const LabTestBookingSchema = new Schema<ILabTestBooking>(
     },
     paymentMethod: {
       type: String,
-      enum: PAYMENT_METHOD,
-      // default: PAYMENT_METHOD.online,
+      enum: PaymentMethod,
+      // default: PaymentMethod.online,
     },
     paymentStatus : {
       type: String,
