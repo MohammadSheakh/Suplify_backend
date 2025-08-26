@@ -13,6 +13,7 @@ import stripeAccountRoutes from '../modules/payment.module/stripeAccount/stripeA
 import { ProductRoute } from '../modules/store.module/product/product.route';
 import { CartItemRoute } from '../modules/order.module/cartItem/cartItem.route';
 import { Cart } from '../modules/order.module/cart/cart.model';
+import { CartRoute } from '../modules/order.module/cart/cart.route';
 
 // import { ChatRoutes } from '../modules/chat/chat.routes';
 // import { MessageRoutes } from '../modules/message/message.routes';
@@ -52,7 +53,7 @@ const apiRoutes = [
   },
   { // 🟢
     path: '/cart',
-    route: Cart,
+    route: CartRoute,
   },
   {
     path: '/conversation',

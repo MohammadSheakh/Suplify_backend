@@ -26,7 +26,7 @@ export class CartService extends GenericService<
      * 
      * find all cartItem of that cart
      * ***** */
-    const cartItems = await CartItem.find({ cartId }).populate({
+    const cartItems = await CartItem.find({ cartId }, { __v: 0, updatedAt:0 }).populate({
       path: 'itemId',
       select: 'name attachments price stockQuantity'
     });

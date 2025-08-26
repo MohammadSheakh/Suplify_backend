@@ -7,17 +7,22 @@ export const viewCartItemsOfACartValidationSchema = z.object({
      
   // }),
 
-  params: z.object({
+  // params: z.object({
+  //   cartId: z.string({
+  //       required_error: 'cartId is required in params.',
+  //       invalid_type_error: 'cartId must be a mongoose object.',
+  //     }).refine(value => mongoose.Types.ObjectId.isValid(value), {
+  //       message: 'cartId must be a valid mongoose ObjectId.',
+  //     }),
+  // }),
+  query: z.object({
     cartId: z.string({
-        required_error: 'cartId is required in params.',
+        required_error: 'cartId is required in query.',
         invalid_type_error: 'cartId must be a mongoose object.',
       }).refine(value => mongoose.Types.ObjectId.isValid(value), {
         message: 'cartId must be a valid mongoose ObjectId.',
       }),
   }),
-  // query: z.object({
-  //   page: z.string().optional(),
-  // }),
    
 });
 

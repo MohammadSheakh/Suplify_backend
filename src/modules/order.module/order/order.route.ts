@@ -50,6 +50,11 @@ router.route('/').get(
   controller.getAll 
 );
 
+/*******
+ * 
+ * Patient | Dashboard | Create Order  
+ * 
+ * ******* */
 router.route('/create').post(
   // [
   //   upload.fields([

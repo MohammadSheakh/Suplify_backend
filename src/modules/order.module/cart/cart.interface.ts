@@ -4,7 +4,7 @@ import { PaginateOptions, PaginateResult } from '../../../types/paginate';
 
 export interface ICart {
   // _taskId: undefined | Types.ObjectId;
-  _id?: Types.ObjectId; // undefined |  Types.ObjectId |
+  _id?: Types.ObjectId; // previously it was _id
   userId: Types.ObjectId;
   itemCount : Number;
 

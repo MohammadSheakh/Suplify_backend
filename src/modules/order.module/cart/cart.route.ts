@@ -31,18 +31,19 @@ const controller = new CartController();
 //info : pagination route must be before the route with params
 router.route('/paginate').get(
   //auth('common'),
-  validateFiltersForQuery(optionValidationChecking(['_id'])),
+  validateFiltersForQuery(optionValidationChecking(['_id', ...paginationOptions])),
   controller.getAllWithPagination
 );
 
 /******
  * 
  *  Patient | Dashboard | View All cartItem And Details
+ *  :cartId:
  * 
  * ***** */
-router.route('/view/:cartId').get(
+router.route('/view').get(
   auth('common'),
-  // validateRequest(validation.viewCartItemsOfACartValidationSchema),
+  validateRequest(validation.viewCartItemsOfACartValidationSchema),
   controller.viewCart
 );
 

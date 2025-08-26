@@ -56,8 +56,31 @@ const orderSchema = new Schema<IOrder>(
     },
 
     shippingAddress: {
-      type: String,
-      required: true,
+      address: {
+        type: String,
+        required: true,
+        trim: true
+      },
+      city: {
+        type: String,
+        // required: true,
+        trim: true
+      },
+      state: {
+        type: String,
+        // required: true,
+        trim: true
+      },
+      zipCode: {
+        type: String,
+        // required: true,
+        trim: true
+      },
+      country: {
+        type: String,
+        required: true,
+        trim: true
+      }
     },
     deliveryCharge: { // ⚡ from kappes
           type: Number,
