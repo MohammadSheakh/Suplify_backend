@@ -33,7 +33,7 @@ services:
     container_name: suplify-redis
     restart: always
     ports:
-      - "6380:6379" #"6380:6379"
+      - "6379:6379" #"6380:6379"
     command: redis-server --appendonly yes
     networks:
       - suplify-network
@@ -53,6 +53,11 @@ services:
       - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@kafka:9093 # localhost
       - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
       - ALLOW_PLAINTEXT_LISTENER=yes
+      # Set reasonable message size limits (10MB) // By Claude
+      - KAFKA_CFG_MESSAGE_MAX_BYTES=10485760
+      - KAFKA_CFG_REPLICA_FETCH_MAX_BYTES=10485760
+      - KAFKA_CFG_SOCKET_REQUEST_MAX_BYTES=10485760
+      - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true
     networks:
       - suplify-network
 

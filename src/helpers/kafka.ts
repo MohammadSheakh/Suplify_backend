@@ -1,4 +1,4 @@
-import {Kafka, Producer} from 'kafkajs'
+import {Kafka, logLevel, Producer} from 'kafkajs'
 import fs from 'fs';
 import path from 'path';
 import { Message } from '../modules/chatting.module/message/message.model';
@@ -11,14 +11,21 @@ const kafka = new Kafka({
     //     username: 'your-username',
     //     password: 'your-password'
     // },
-    maxRequestSize: 369295617, // 10485760, // 10 MB
+    // maxRequestSize: 369295617, // 10485760, // 10 MB
     socketTimeout: 30000,
-    ssl: {
-        rejectUnauthorized: false,
-        // ca: [Buffer.from('-----BEGIN CERTIFICATE-----\nYOUR_CERTIFICATE_HERE\n-----END CERTIFICATE-----')]
-        // ca:[fs.readFileSync(path.resolve('./ca.pem', 'utf-8'))]
-        // we need to keep ca.pem file in server level .. not inside source 
-    }
+    
+    // ssl: {
+    //     rejectUnauthorized: false,
+    //     // ca: [Buffer.from('-----BEGIN CERTIFICATE-----\nYOUR_CERTIFICATE_HERE\n-----END CERTIFICATE-----')]
+    //     // ca:[fs.readFileSync(path.resolve('./ca.pem', 'utf-8'))]
+    //     // we need to keep ca.pem file in server level .. not inside source 
+    // },
+    // Add debug logging
+    logLevel: logLevel.INFO, // Change to DEBUG for more verbose logging
+    retry: {
+        initialRetryTime: 100,
+        retries: 8
+    },
 
 })
 
@@ -35,7 +42,15 @@ let producer : null | Producer = null;
 // i don't want to create producer every time .. i want to cache this 
 export async function createProducer (){
     if (producer) return producer;
-    const _producer = kafka.producer() // make a local producer
+    const _producer = kafka.producer({
+  // Add these limits
+  maxRequestSize: 10485760, // 10 MB // 1048576, // 1MB
+  compression: CompressionTypes.GZIP,
+  
+  // Batch settings
+  batchSize: 16384,
+  lingerMs: 10,
+}) // make a local producer
     await _producer.connect()
     producer = _producer;
     return producer

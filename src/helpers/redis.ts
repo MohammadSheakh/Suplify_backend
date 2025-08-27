@@ -5,12 +5,28 @@ import { errorLogger, logger } from '../shared/logger';
 import { config } from '../config';
 
 // Create Redis clients
+/***********
 const redisPubClient = createClient({
 
   host: config.redis.host || 'redis',  // Update with your Redis configuration // For Office->'172.22.201.132' // Docker->redis
-  port: 6380 // config.redis.port || 6379, // For Office  6379 
+  port: parseInt(config.redis.port) || 6379, // config.redis.port || 6379, // For Office  6379 
   // username: '',
   // password: ""
+  family: 4, // Force IPv4
+  connectTimeout: 10000,
+  lazyConnect: true
+});
+*********** */
+
+// Create Redis clients with CORRECT v4+ syntax
+const redisPubClient = createClient({
+  socket: {
+    host: config.redis.host || 'redis',
+    port: parseInt(config.redis.port) || 6379,
+    family: 4, // Force IPv4
+    connectTimeout: 10000,
+  },
+  // Remove lazyConnect - not needed in v4+
 });
 
 const redisSubClient = redisPubClient.duplicate();
