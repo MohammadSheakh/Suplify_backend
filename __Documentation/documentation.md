@@ -1,12 +1,3 @@
-# Documentation ..
-
-addParticipantsToExistingConversation 
-
-showParticipantsOfAConversation 
-
-removeParticipentsFromAConversation 
-
-
 
 > Suplify-project-scenario
 
