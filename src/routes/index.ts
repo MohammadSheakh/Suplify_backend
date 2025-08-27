@@ -40,40 +40,40 @@ const apiRoutes = [
     route: SettingsRoutes,
   },
   {
-    path: '/product',
+    path: '/products',
     route: ProductRoute,
   },
   {
-    path: '/trainingProgram',
+    path: '/trainingPrograms',
     route: TrainingProgramRoute,
   },
   { // 🟢
-    path: '/cart-item',
+    path: '/cart-items',
     route: CartItemRoute,
   },
   { // 🟢
-    path: '/cart',
+    path: '/carts',
     route: CartRoute,
   },
   {
-    path: '/conversation',
+    path: '/conversations',
     route: ConversationRoute,
   },
 
   {
-    path: '/attachment',
+    path: '/attachments',
     route: AttachmentRoutes,
   },
   {
-    path: '/activity',
+    path: '/activitys',
     route: NotificationRoutes,
   },
   {
-    path: '/message',
+    path: '/messages',
     route: MessageRoute,
   },
   {
-    path: '/paymentTransaction',
+    path: '/paymentTransactions',
     route: PaymentTransactionRoute,
   },
   {
