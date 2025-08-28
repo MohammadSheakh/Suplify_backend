@@ -38,6 +38,15 @@ export interface IOrder {
   updatedAt?: Date;
 }
 
+export interface ICreateOrder{
+  cartId: Types.ObjectId;
+  address: string;
+  city: string;
+  state : string;
+  zipCode : string;
+  country : string;
+}
+
 export interface IOrderModel extends Model<IOrder> {
   paginate: (
     query: Record<string, any>,

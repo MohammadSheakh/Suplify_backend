@@ -1,7 +1,8 @@
+import ApiError from "../../../errors/ApiError";
 import catchAsync from "../../../shared/catchAsync";
 import sendResponse from "../../../shared/sendResponse";
 import { GenericController } from "../../_generic-module/generic.controller";
-import { IOrder } from "./order.interface";
+import { ICreateOrder, IOrder } from "./order.interface";
 import { Order } from "./order.model";
 import { OrderService } from "./order.service";
 import {StatusCodes} from 'http-status' 
@@ -14,7 +15,8 @@ export class OrderController extends GenericController<typeof Order, IOrder> {
     }
 
     create = catchAsync(async (req: Request, res: Response) => {
-        const data = req.body;
+
+        const data = req.body as Partial<ICreateOrder>;
         const result = await orderService.create(data);
 
         sendResponse(res, {

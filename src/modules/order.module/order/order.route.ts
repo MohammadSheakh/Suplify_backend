@@ -1,9 +1,9 @@
 import express from 'express';
-
-import { validateFiltersForQuery } from '../../../middlewares/queryValidation/paginationQueryValidationMiddleware';
 import { OrderController } from './order.controller';
 import { IOrder } from './order.interface';
-
+import { validateFiltersForQuery } from '../../../middlewares/queryValidation/paginationQueryValidationMiddleware';
+import * as validation from './order.validation';
+import validateRequest from '../../../shared/validateRequest';
 const multer = require('multer');
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
@@ -22,15 +22,13 @@ const paginationOptions: Array<'sortBy' | 'page' | 'limit' | 'populate'> = [
   'limit',
   'populate',
 ];
-
-
 // const taskService = new TaskService();
 const controller = new OrderController();
 
 //info : pagination route must be before the route with params
 router.route('/paginate').get(
   //auth('common'),
-  validateFiltersForQuery(optionValidationChecking(['_id'])),
+  validateFiltersForQuery(optionValidationChecking(['_id', ...paginationOptions])),
   controller.getAllWithPagination 
 );
 
@@ -55,14 +53,14 @@ router.route('/').get(
  * Patient | Dashboard | Create Order  
  * 
  * ******* */
-router.route('/create').post(
+router.route('/').post(
   // [
   //   upload.fields([
   //     { name: 'attachments', maxCount: 15 }, // Allow up to 5 cover photos
   //   ]),
   // ],
   //auth('common'),
-  // validateRequest(UserValidation.createUserValidationSchema),
+  validateRequest(validation.createOrderOfAOrderValidationSchema),
   controller.create
 );
 
