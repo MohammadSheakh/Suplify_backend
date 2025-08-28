@@ -14,6 +14,7 @@ import { ProductRoute } from '../modules/store.module/product/product.route';
 import { CartItemRoute } from '../modules/order.module/cartItem/cartItem.route';
 import { Cart } from '../modules/order.module/cart/cart.model';
 import { CartRoute } from '../modules/order.module/cart/cart.route';
+import { OrderRoute } from '../modules/order.module/order/order.route';
 
 // import { ChatRoutes } from '../modules/chat/chat.routes';
 // import { MessageRoutes } from '../modules/message/message.routes';
@@ -54,6 +55,10 @@ const apiRoutes = [
   { // 🟢
     path: '/carts',
     route: CartRoute,
+  },
+   { // 🟢
+    path: '/orders',
+    route: OrderRoute,
   },
   {
     path: '/conversations',
