@@ -115,8 +115,9 @@ const userSchema = new Schema<TUser, UserModal>(
     },
     lockUntil: { type: Date }, // 🔴 not sure 
 
-    // ------------ For Payment Related Thing ... 
-
+    /*******
+     * this is for Order Something .. Like Payment Related Thing .. 
+     * ***** */
     stripe_customer_id: {
       // > stripe er customer id ...
       type: String,
@@ -130,6 +131,7 @@ const userSchema = new Schema<TUser, UserModal>(
     /********
      * 
      * From Kappes Backend .. 
+     * For Sending and Receiving Money Via Stripe .. 
      * 
      * ***** */
     stripeConnectedAccount: {

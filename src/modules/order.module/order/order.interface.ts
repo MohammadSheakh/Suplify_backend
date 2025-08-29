@@ -47,6 +47,17 @@ export interface ICreateOrder{
   country : string;
 }
 
+export interface ICartItem{
+  // _id: Types.ObjectId;
+  cartId: Types.ObjectId;
+  itemId: Types.ObjectId | {
+    _id: Types.ObjectId;
+    name: string;
+    price: number;
+  };
+  quantity: number;
+}
+
 export interface IOrderModel extends Model<IOrder> {
   paginate: (
     query: Record<string, any>,

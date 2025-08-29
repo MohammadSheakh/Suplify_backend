@@ -1,10 +1,12 @@
 import ApiError from "../../../errors/ApiError";
 import { GenericService } from "../../_generic-module/generic.services";
+import { IUser } from "../../token/token.interface";
+import { User } from "../../user/user.model";
 import { Cart } from "../cart/cart.model";
 import { CartItem } from "../cartItem/cartItem.model";
 import { OrderItem } from "../orderItem/orderItem.model";
 import { OrderStatus, PaymentStatus, TOrderRelatedTo } from "./order.constant";
-import { ICreateOrder, IOrder } from "./order.interface";
+import { ICartItem, ICreateOrder, IOrder } from "./order.interface";
 import { Order } from "./order.model";
 import {StatusCodes} from 'http-status' 
 
@@ -13,8 +15,8 @@ export class OrderService extends GenericService<typeof Order, IOrder>{
         super(Order)
     }
 
-    async createV2(data:Partial<ICreateOrder>) : Promise<IOrder> {
-        
+    async createV2(data:Partial<ICreateOrder>, user: IUser) : Promise<IOrder> {
+
         /*********
          * 
          * 1. We need to find out Cart is Exist or not ..
@@ -33,29 +35,27 @@ export class OrderService extends GenericService<typeof Order, IOrder>{
 
         // Check if cart exists
         const cart = await Cart.findOne({ _id: data.cartId });
-        // console.log("🟢🟢", cart)
+        
         if (!cart) {
             throw new ApiError(StatusCodes.NOT_FOUND, 'Cart not found');
         }
 
-        
-        // Create order
-        // const order = await this.model.create({
-        //     userId: data.loggedInUserId,
-        //     orderRelatedTo:  TOrderRelatedTo.product,
-        //     status : OrderStatus.pending,
-        //     shippingAddress: {
-        //         address: data.address,
-        //         city: data.city,
-        //         state: data.state,
-        //         zipCode: data.zipCode,
-        //         country: data.country
-        //     },
-        //     // deliveryCharge // need to think about this
+        const order = new Order({
+            userId: user?.userId,
+            orderRelatedTo:  TOrderRelatedTo.product,
+            status : OrderStatus.pending,
+            shippingAddress: {
+                address: data.address,
+                city: data.city,
+                state: data.state,
+                zipCode: data.zipCode,
+                country: data.country
+            },
+            // deliveryCharge // need to think about this
 
-        //     PaymentTransactionId : null,
-        //     paymentStatus : PaymentStatus.unpaid,
-        // });
+            PaymentTransactionId : null,
+            paymentStatus : PaymentStatus.unpaid,
+        })
 
         /*******
          * 
@@ -68,30 +68,44 @@ export class OrderService extends GenericService<typeof Order, IOrder>{
             path:"itemId",
             select:"price"
             // which help to add orderItems unitPrice and totalPrice
-        });
-        /// 🟢 itemId theke ki ki populate korte hobe .. shegula chinta korte hobe 
+        }).lean<ICartItem[]>();
+        
+        if (!cartItems.length) {
+            throw new ApiError(StatusCodes.BAD_REQUEST, "No Cart Item Found !");
+        }
 
-        // console.log("🟢🟢 cartItems ", cartItems)
+        
+        let finalAmount = 0;
 
         // Create order items
         for (const item of cartItems) {
-            await OrderItem.create({
-                order: order._id,
-                itemId: item.itemId._id,
-                quantity: item.quantity,
-                unitPrice: item.itemId.price,
-                totalPrice: item.quantity * item.itemId.price,
-            });
+            if (typeof item.itemId === "object" && "price" in item.itemId) {
+                finalAmount += item.quantity * item.itemId.price;
+                await OrderItem.create({
+                    order: order._id,
+                    itemId: item.itemId._id,
+                    quantity: item.quantity,
+                    unitPrice: item.itemId.price,
+                    totalPrice: item.quantity * item.itemId.price,
+                });
+            } else {
+                throw new Error("itemId was not populated with price");
+            }
         }
 
+        // add that final amount to order
+        order.finalAmount = finalAmount;
+
+        await order.save();
 
         const stripeCustomer = await stripe.customers.create({
-                    name: thisCustomer?.full_name,
-                    email: thisCustomer?.email,
+                    name: user?.userName,
+                    email: user?.email,
                });
 
         // findbyid and update the user
-        await User.findByIdAndUpdate(thisCustomer?.id, { $set: { stripeCustomerId: stripeCustomer.id } });
+        await User.findByIdAndUpdate(user?.userId, { $set: { stripe_customer_id: stripeCustomer.id } });
+
         const stripeSessionData: any = {
             payment_method_types: ['card'],
             mode: 'payment',

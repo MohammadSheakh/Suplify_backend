@@ -4,7 +4,7 @@ import { config } from '../../config';
 import { addMinutes, addDays } from 'date-fns';
 import ApiError from '../../errors/ApiError';
 import { StatusCodes } from 'http-status-codes';
-import { TokenType } from './token.interface';
+import { IUser, TokenType } from './token.interface';
 import { Token } from './token.model';
 
 import EventEmitter from 'events';
@@ -137,8 +137,14 @@ const createResetPasswordToken = async (user: TUser) => {
 };
 
 const accessAndRefreshToken = async (user: TUser) => {
-  const userFullname = user.fname + ' ' + user.lname;
-  const payload = { userId: user._id, userName:userFullname , email: user.email, role: user.role };
+  let userFullname;
+  if(user.fname && user.lname){
+    userFullname = user.fname + ' ' + user.lname;
+  }else{
+    userFullname = user.name;
+  }
+
+  const payload:IUser = { userId: user?._id, userName: userFullname , email: user.email, role: user.role };
   await Token.deleteMany({ user: user._id });
   const accessToken = createToken(
     payload,

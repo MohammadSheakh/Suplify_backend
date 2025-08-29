@@ -81,7 +81,7 @@ const apiRoutes = [
     path: '/paymentTransactions',
     route: PaymentTransactionRoute,
   },
-  {
+  {  // 🟢 from kappes
     path: '/stripe',
     route: stripeAccountRoutes,
   },

@@ -17,7 +17,7 @@ export class OrderController extends GenericController<typeof Order, IOrder> {
     create = catchAsync(async (req: Request, res: Response) => {
 
         const data = req.body as Partial<ICreateOrder>;
-        const result = await orderService.createV2(data);
+        const result = await orderService.createV2(data, req.user);
 
         sendResponse(res, {
         code: StatusCodes.OK,

@@ -14,3 +14,10 @@ export interface IToken {
   expiresAt: Date;
   type: TokenType;
 }
+
+export interface IUser {
+  userId: string | undefined;
+  userName?: string;
+  email: string;
+  role: string;
+}

@@ -9,7 +9,6 @@ export const enum EProduct {
 
 const ProductSchema = new Schema<IProduct>(
   {
-    
     name: {
       type: String,
       required: [true, 'name is required'],

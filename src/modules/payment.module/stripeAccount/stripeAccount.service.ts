@@ -10,12 +10,25 @@ import ApiError from '../../../errors/ApiError';
 
 // user: IJwtPayload | any
 const createConnectedStripeAccount = async (user: any, host: string, protocol: string): Promise<any> => {
+     /*****
+      * 
+      * from controller we can get that host and protocol
+      * req.get('host') || '', req.protocol
+      * 
+      * and user is req.user
+      * ******* */
+
      const existingAccount = await StripeAccount.findOne({
           user: user.id,
      }).select('user accountId isCompleted');
      console.log('existingAccount', existingAccount);
 
      if (existingAccount) {
+          /*******
+           * 
+           * if stripe account exist for a user .. we create and update account for no reason
+           * 
+           * ******* */
           if (existingAccount.isCompleted) {
                return {
                     success: false,
@@ -39,6 +52,9 @@ const createConnectedStripeAccount = async (user: any, host: string, protocol: s
           };
      }
 
+     /******
+      * if no account found .. create stripe account
+      * ***** */
      const account = await stripe.accounts.create({
           type: 'express',
           email: user.email,
@@ -59,6 +75,13 @@ const createConnectedStripeAccount = async (user: any, host: string, protocol: s
           type: 'account_onboarding',
      });
      console.log('onboardingLink-2', onboardingLink);
+
+     /********
+      * Now if account creation is successful then we pass that user to /success-account/:accountId
+      * which is return_url
+      * 
+      * If something wrong happen .. then we redirect him into refresh_url
+      * ******* */
 
      return {
           success: true,
