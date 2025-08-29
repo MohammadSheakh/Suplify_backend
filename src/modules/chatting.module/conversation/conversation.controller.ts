@@ -280,7 +280,6 @@ export class ConversationController extends GenericController<typeof Conversatio
     const conversationData: IConversation = {
       creatorId: req.user.userId,
       type,
-      siteId: req.body.siteId,
     };
 
     // ✅ FIXED: Check if conversation exists with SAME PARTICIPANTS
@@ -320,7 +319,6 @@ export class ConversationController extends GenericController<typeof Conversatio
             existingConversation = await Conversation.findOne({
               _id: conv._id,
               type: ConversationType.direct,
-              siteId: req.body.siteId,
               isDeleted: false
             }).select('-isDeleted -updatedAt -createdAt -__v');
             break;

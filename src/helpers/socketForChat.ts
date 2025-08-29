@@ -15,7 +15,6 @@ import { ConversationParticipents } from '../modules/chatting.module/conversatio
 import { ConversationParticipentsService } from '../modules/chatting.module/conversationParticipents/conversationParticipents.service';
 import { MessagerService } from '../modules/chatting.module/message/message.service';
 import { populate } from 'dotenv';
-import { userSite } from '../modules/_site/userSite/userSite.model';
 
 declare module 'socket.io' {
   interface Socket {
@@ -600,39 +599,7 @@ const socketForChat_V2_Claude = (io: Server) => {
         }
       });
 
-      /***********
-       * 
-       *   Handle chat blocking 
-       * 
-       * ********** */
-
-      socket.on("isChatBlocked", (data: { conversationId: string; userId: string }, callback) => {
-        try {
-          if (!data.conversationId || !data.userId) {
-            return callback?.({ success: false, message: 'Invalid data provided' });
-          }
-
-          const message = {
-            success: true,
-            message: 'Chat is blocked',
-            data: data.conversationId,
-            timestamp: new Date().toISOString()
-          };
-
-          callback?.(message);
-
-          // Emit to specific user and chat
-          io.emit(`needRefresh::${data.userId}`, {
-            success: true,
-            message: `User ${data.userId} needs refresh`
-          });
-          io.emit(`isChatBlocked::${data.conversationId}`, message);
-
-        } catch (error) {
-          console.error('Error handling conversation block:', error);
-          callback?.({ success: false, message: 'Failed to block conversation' });
-        }
-      });
+      
 
       /*************
        * 
@@ -664,66 +631,7 @@ const socketForChat_V2_Claude = (io: Server) => {
         callback?.({ success: true, message: 'Left conversation successfully' });
       });
 
-      /*************
-       * 
-       * Handle read receipts
-       * 
-       * ************* */
-
-      socket.on('read-all-messages', ({ conversationId, users, readByUserId }) => {
-        if (!conversationId || !Array.isArray(users) || !readByUserId) {
-          return emitError(socket, 'Invalid read receipt data');
-        }
-
-        users.forEach((targetUserId: string) => {
-          if (targetUserId !== userId) { // Don't emit to sender
-            io.to(targetUserId).emit('user-read-all-conversation-messages', {
-              conversationId,
-              readByUserId,
-              timestamp: new Date().toISOString()
-            });
-          }
-        });
-      });
-
-      /*************
-       * 
-       * Handle typing indicators // TODO : logic e jhamela ase .. 
-       * 
-       * ************* */
-      socket.on('typing', (data: TypingData, callback) => {
-        try {
-          if (!data.conversationId || !Array.isArray(data.users)) {
-            return callback?.({ success: false, message: 'Invalid typing data' });
-          }
-
-          const userName = userProfile?.name || user.name;
-          const message = data.status ? `${userName} is typing...` : '';
-
-          // Emit to other users in the conversation
-          data.users.forEach((chatUser: any) => {
-            if (chatUser._id !== userId) {
-              io.to(chatUser._id).emit(`typing::${data.conversationId}`, {
-                status: data.status,
-                writeId: userId,
-                message,
-                timestamp: new Date().toISOString()
-              });
-            }
-          });
-
-          callback?.({
-            success: true,
-            writeId: userId,
-            message,
-            status: data.status
-          });
-
-        } catch (error) {
-          console.error('Error handling typing indicator:', error);
-          callback?.({ success: false, message: 'Failed to update typing status' });
-        }
-      });
+      
 
       
       /*************
@@ -752,7 +660,7 @@ const socketForChat_V2_Claude = (io: Server) => {
   const getOnlineUsers = () => Array.from(onlineUsers);
   const isUserOnline = (userId: string) =>
   {
-    console.log("onlineUsers: ", onlineUsers);
+    console.log("onlineUsers: 😄😄😄😄😄😄😄😄😄😄😄😄😄😄😄", onlineUsers);
     // let res = onlineUsers.has(new ObjectId(userId));
     const isOnline = Array.from(onlineUsers).some(id => id.toString() === userId);
     console.log(`User ${userId} online 🟢 status: ${isOnline}`);

@@ -153,7 +153,7 @@ const handleUserDisconnection = async(
   ************* */
 };
 
-const socketForChat_V2_Claude = (io: Server) => {
+const socketForChat_With_Kafka = (io: Server) => {
   // Better data structures for managing connections - MOVED INSIDE THE FUNCTION
   const onlineUsers = new Set<string>();
   const userSocketMap = new Map<string, string>(); // userId -> socketId
@@ -452,19 +452,7 @@ const socketForChat_V2_Claude = (io: Server) => {
           // Get chat details
           const {conversationData, conversationParticipants} = await getConversationById(messageData.conversationId);
           
-          /********
-           * 
-           * conversationData.canConversate jodi false hoy .. tahole ekta error send korbo je 
-           * message kora jabe na .. 
-           * 
-           * ******** */
-
-          if(conversationData.canConversate === false){
-            const error = "You can't send messages in this conversation";
-            callback?.({ success: false, message: error });
-            return emitError(socket, error);
-          }
-
+          
           /*************
            * 
            * here we will check if the sender is a participant in the conversation or not
@@ -519,20 +507,20 @@ const socketForChat_V2_Claude = (io: Server) => {
          * 
          *  TODO : event emitter er maddhome message create korar por
          *  conversation er lastMessage update korte hobe ..
-         * 
+         * 👍👍👍👍👍
          * ******* */
-          const updatedConversation = await Conversation.findByIdAndUpdate(messageData.conversationId, {
-            lastMessage: newMessage._id,
-          }); // .populate('lastMessage').exec()
+          //const updatedConversation = await Conversation.findByIdAndUpdate(messageData.conversationId, {
+          //  lastMessage: newMessage._id,
+          //}); // .populate('lastMessage').exec()
 
           // Prepare message data for emission
           const messageToEmit = {
             ...messageData,
-            _id: newMessage._id,
+            //_id: newMessage._id, 👍👍👍👍👍
             senderId: userId, // senderId should be the userId
             name: userProfile?.name || user.name,
             image: userProfile?.profileImage,
-            createdAt: newMessage.createdAt || new Date()
+            //createdAt: newMessage.createdAt || new Date()  👍👍👍👍
           };
 
           // Emit to chat room
@@ -563,6 +551,7 @@ const socketForChat_V2_Claude = (io: Server) => {
             // Check if participant is online
             if (Array.from(onlineUsers).some(id => id.toString() === participantId)) {
 
+              /***********👍👍👍👍👍👍
               // Emit to participant's personal room  .to(participantId)
               io.emit(`conversation-list-updated::${participantId}`, {
                 creatorId : updatedConversation?.creatorId,
@@ -579,7 +568,7 @@ const socketForChat_V2_Claude = (io: Server) => {
                 createdAt: "2025-07-19T12:06:00.287Z",
                 _conversationId: updatedConversation?._id,
               });
-              
+              ********** */
             }else{
               // .... TODO: push notification .. 
             }
@@ -592,18 +581,17 @@ const socketForChat_V2_Claude = (io: Server) => {
             success: true,
             message: "Message sent successfully",
             messageDetails: { 
-              messageId : newMessage._id,
+              // messageId : newMessage._id,👍👍👍👍👍
               conversationId: messageData.conversationId,
               senderId: userId,
               text: messageData.text,
-              timestamp: newMessage.createdAt || new Date(),
+              // timestamp: newMessage.createdAt || new Date(),👍👍👍👍👍
               name: userProfile?.name || user.name,
               image: userProfile?.profileImage || null
 
             },
           });
           
-
         } catch (error) {
           console.error('Error sending message:', error);
           const errorMessage = 'Failed to send message';
@@ -781,4 +769,4 @@ const socketForChat_V2_Claude = (io: Server) => {
   };
 };
 
-export const socketHelper = { socketForChat_V2_Claude };
+export const socketHelperForKafka = { socketForChat_With_Kafka };

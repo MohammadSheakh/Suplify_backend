@@ -99,7 +99,7 @@ export class ConversationParticipentsService extends GenericService<
             role: participant.userId.role
           },
           conversations: [],
-          isOnline: global.socketUtils.isUserOnline(userId),
+          // isOnline: global.socketUtils.isUserOnline(userId), // 😄😄😄😄😄😄😄 Not Working .. 
           // participantInfo: {
           //   joinedAt: participant.joinedAt,
           //   isDeleted: participant.isDeleted,
@@ -185,7 +185,7 @@ export class ConversationParticipentsService extends GenericService<
           role: participant.userId.role
         },
         conversations: [],
-        isOnline: global.socketUtils.isUserOnline(userId),
+        // isOnline: global.socketUtils.isUserOnline(userId), // 😄😄😄😄😄😄😄
       };
     }
     

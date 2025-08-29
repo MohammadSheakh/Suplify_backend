@@ -11,6 +11,7 @@ import { createClient } from 'redis';
 import { initializeRedis, redisPubClient, redisSubClient } from './helpers/redis';
 import { socketHelper } from './helpers/socketForChat';
 import { startMessageConsumer } from './helpers/kafka';
+import { socketHelperForKafka } from './helpers/socketForChatWithKafka';
 
 // in production, use all cores, but in development, limit to 2-4 cores
 const numCPUs = config.environment === 'production' ? os.cpus().length : Math.max(0, Math.min(1, os.cpus().length));
@@ -43,7 +44,7 @@ let server: any;
 async function main() {
   try {
 
-    // startMessageConsumer();
+    startMessageConsumer();
 
     await mongoose.connect(config.database.mongoUrl as string, {
       serverSelectionTimeoutMS: 30000, // increase server selection timeout
@@ -88,7 +89,8 @@ async function main() {
     io.adapter(createAdapter(redisPubClient, redisSubClient));
 
     // Setup socket helper
-    socketHelper.socketForChat_V2_Claude(io);
+    // socketHelper.socketForChat_V2_Claude(io);
+    socketHelperForKafka.socketForChat_With_Kafka(io);
 
     // @ts-ignore
     global.io = io;

@@ -58,10 +58,7 @@ redisSubClient.on('error', (err) => {
 export async function initializeRedis() {
 
   // Add this to your main server file or Redis config file
-console.log('Environment Variables: 😄😄😄😄😄😄😄😄😄😄😄😄😄😄😄😄😄😄😄😄😄');
-console.log('REDIS_HOST:', process.env.REDIS_HOST);
-console.log('REDIS_PORT:', process.env.REDIS_PORT);
-console.log('All Redis-related env vars:', Object.keys(process.env).filter(key => key.includes('REDIS')));
+console.log('😄😄😄😄😄😄😄😄😄😄😄😄😄😄😄😄😄😄😄😄😄 process.env.redis_host', process.env.REDIS_HOST, process.env.REDIS_PORT);
 
   try {
     await Promise.all([

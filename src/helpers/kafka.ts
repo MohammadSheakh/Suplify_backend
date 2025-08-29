@@ -1,4 +1,4 @@
-import {Kafka, logLevel, Producer} from 'kafkajs'
+import {CompressionTypes, Kafka, logLevel, Producer} from 'kafkajs'
 import fs from 'fs';
 import path from 'path';
 import { Message } from '../modules/chatting.module/message/message.model';
@@ -101,15 +101,19 @@ export async function startMessageConsumer(){
             
             if(!message.value) return; // if message is empty then return
 
-            console.log(`New  message received: ${message.value.toString()}`)
+            console.log(`New  message received: as string >> ${message.value.toString()}`)
+            // {"conversationId":"68b1a98a8466b931f264aff9",
+            //     "text":"brandNewMsg2",
+            //     "timestamp":"2025-08-29T15:30:40.056Z",
+            //     "senderId":"68ad4950152bc026f1035755"}
+            
             // let put our message into database .. 
-
             try{
             
             const msg = JSON.parse(message.value.toString())
             // await saveMessageToDatabase(msg)
 
-            const newMessage = await Message.create(message);
+            const newMessage = await Message.create(msg);
 
             }catch(err){
                 // if some error happen .. lets log that and pause .. 
