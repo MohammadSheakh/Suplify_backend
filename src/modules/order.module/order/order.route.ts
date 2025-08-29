@@ -4,6 +4,7 @@ import { IOrder } from './order.interface';
 import { validateFiltersForQuery } from '../../../middlewares/queryValidation/paginationQueryValidationMiddleware';
 import * as validation from './order.validation';
 import validateRequest from '../../../shared/validateRequest';
+import auth from '../../../middlewares/auth';
 const multer = require('multer');
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
@@ -59,7 +60,7 @@ router.route('/').post(
   //     { name: 'attachments', maxCount: 15 }, // Allow up to 5 cover photos
   //   ]),
   // ],
-  //auth('common'),
+  auth('common'),
   validateRequest(validation.createOrderOfAOrderValidationSchema),
   controller.create
 );

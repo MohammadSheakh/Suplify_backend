@@ -88,7 +88,8 @@ const orderSchema = new Schema<IOrder>(
     },
     finalAmount: {
       type : Number,
-      required : [true, 'totalAmount is needed']
+      default: 0,
+      required : [false, 'finalAmount is needed . but later we add this']
     },
 
     paymentMethod: {
@@ -106,7 +107,7 @@ const orderSchema = new Schema<IOrder>(
     PaymentTransactionId: { //🔗 Same as PaymentId of kappes
       type: Schema.Types.ObjectId,
       ref: 'PaymentTransaction',
-      required: [true, 'PaymentTransactionId is required'],
+      required: [false, 'PaymentTransactionId is required but after order confirmed'],
 
       /**
        * 

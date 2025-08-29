@@ -5,7 +5,7 @@ import { GenericController } from "../../_generic-module/generic.controller";
 import { ICreateOrder, IOrder } from "./order.interface";
 import { Order } from "./order.model";
 import { OrderService } from "./order.service";
-import {StatusCodes} from 'http-status' 
+import {StatusCodes} from 'http-status-codes' 
 
 let orderService = new OrderService();
 

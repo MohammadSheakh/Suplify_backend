@@ -12,6 +12,7 @@ import { Order } from "./order.model";
 import {StatusCodes} from 'http-status' 
 import stripe from "../../../config/stripe.config";
 import mongoose from "mongoose";
+import { config } from "../../../config";
 
 export class OrderService extends GenericService<typeof Order, IOrder>{
     private stripe: Stripe;
@@ -39,86 +40,106 @@ export class OrderService extends GenericService<typeof Order, IOrder>{
          * 
          * ******* */
 
-
+        let stripeResult ;
+        
+        try {
         const stripeCustomer = await stripe.customers.create({
                     name: user?.userName,
                     email: user?.email,
                });
 
-        await User.findByIdAndUpdate(user?.userId, { $set: { stripe_customer_id: stripeCustomer.id } },{session});
+        await User.findByIdAndUpdate(user?.userId, { $set: { stripe_customer_id: stripeCustomer.id } });
 
 
         const session = await mongoose.startSession();
-        session.startTransaction();
 
-        // Check if cart exists
-        const cart = await Cart.findOne({ _id: data.cartId }).session(session);;
-        
-        if (!cart) {
-            throw new ApiError(StatusCodes.NOT_FOUND, 'Cart not found');
-        }
-
-        const order = new Order({
-            userId: user?.userId,
-            orderRelatedTo:  TOrderRelatedTo.product,
-            status : OrderStatus.pending,
-            shippingAddress: {
-                address: data.address,
-                city: data.city,
-                state: data.state,
-                zipCode: data.zipCode,
-                country: data.country
-            },
-            // deliveryCharge // need to think about this
-
-            PaymentTransactionId : null,
-            paymentStatus : PaymentStatus.unpaid,
-        })
-
-        /*******
-         * 
-         * get all cartItems by cartId
-         * 
-         * ******* */
-
-        const cartItems = await CartItem.find({ cartId: cart._id })
-        .populate({
-            path:"itemId",
-            select:"price"
-            // which help to add orderItems unitPrice and totalPrice
-        }).lean<ICartItem[]>().session(session);
-        
-        if (!cartItems.length) {
-            throw new ApiError(StatusCodes.BAD_REQUEST, "No Cart Item Found !");
-        }
-
-        
         let finalAmount = 0;
+        let createdOrder = null;
+        
 
-        // Create order items
-        for (const item of cartItems) {
-            if (typeof item.itemId === "object" && "price" in item.itemId) {
-                finalAmount += item.quantity * item.itemId.price;
-                await OrderItem.create([
-                {
-                    order: order._id,
-                    itemId: item.itemId._id,
-                    quantity: item.quantity,
-                    unitPrice: item.itemId.price,
-                    totalPrice: item.quantity * item.itemId.price,
-                }], { session });
-            } else {
-                throw new Error("itemId was not populated with price");
+        // session.startTransaction();
+        await session.withTransaction(async () => {
+            // Check if cart exists
+            const cart = await Cart.findOne({ _id: data.cartId }).session(session);;
+            
+            if (!cart) {
+                throw new ApiError(StatusCodes.NOT_FOUND, 'Cart not found');
             }
-        }
 
-        // add that final amount to order
-        order.finalAmount = finalAmount;
+            const order = new Order({
+                userId: user?.userId,
+                orderRelatedTo:  TOrderRelatedTo.product,
+                status : OrderStatus.pending,
+                shippingAddress: {
+                    address: data.address,
+                    city: data.city,
+                    state: data.state,
+                    zipCode: data.zipCode,
+                    country: data.country
+                },
+                // deliveryCharge // need to think about this
 
-        const createdOrder = await order.save({ session }); /***** we have to check its return id or not ************ */
+                PaymentTransactionId : null,
+                paymentStatus : PaymentStatus.unpaid,
+                finalAmount: 0 // we will update this later in this function
+            })
 
-        console.log("🟢🟢 created Order :: ", createdOrder)
+            /*******
+             * 
+             * get all cartItems by cartId
+             * 
+             * ******* */
 
+            const cartItems:ICartItem[] = await CartItem.find({ cartId: cart._id })
+            .populate({
+                path:"itemId",
+                select:"price"
+                // which help to add orderItems unitPrice and totalPrice
+            }).lean<ICartItem[]>().session(session);
+            
+            if (!cartItems.length) {
+                throw new ApiError(StatusCodes.BAD_REQUEST, "No Cart Item Found !");
+            }
+
+            createdOrder = await order.save({ session }); /***** we have to check its return id or not ************ */
+            
+            
+            
+            
+
+            // Create order items
+            for (const item of cartItems) {
+                if (typeof item.itemId === "object" && "price" in item.itemId) {
+                    finalAmount += item.quantity * item.itemId.price;
+
+                    //TODO: we need to check quantity lower than stock quantity
+                    await OrderItem.create([
+                    {
+                        orderId: createdOrder._id,
+                        itemId: item.itemId._id,
+                        quantity: item.quantity,
+                        unitPrice: item.itemId.price,
+                        totalPrice: item.quantity * item.itemId.price,
+                    }], { session });
+                } else {
+                    throw new Error("itemId was not populated with price");
+                }
+            }
+
+            console.log("🟢 Final Amount (before delivery charge): ", finalAmount);
+
+            // add that final amount to order
+            // order.finalAmount = finalAmount;
+
+            await Order.findByIdAndUpdate(
+            createdOrder._id,
+                { $set: { finalAmount } },
+                { new: true, session }
+            );
+
+            console.log("🟢🟢 created Order :: ", createdOrder)
+        });
+        session.endSession();
         
         const stripeSessionData: any = {
             payment_method_types: ['card'],
@@ -158,7 +179,7 @@ export class OrderService extends GenericService<typeof Order, IOrder>{
                 orderId: createdOrder._id.toString(), // in webhook .. in PaymentTransaction Table .. this should be referenceId
                 referenceFor: "Order", // in webhook .. this should be the referenceFor
                 currency: "usd",
-                amount: order.finalAmount.toString(),
+                amount: createdOrder.finalAmount.toString(),
                 /******
                  * 
                  * With this information .. first we create a 
@@ -180,15 +201,20 @@ export class OrderService extends GenericService<typeof Order, IOrder>{
         };
 
 
-        // try {
-        //     const session = await stripe.checkout.sessions.create(stripeSessionData);
-        //     console.log({
-        //             url: session.url,
-        //     });
-        //     result = { url: session.url };
-        // } catch (error) {
-        //     console.log({ error });
-        // }
+        try {
+            const session = await stripe.checkout.sessions.create(stripeSessionData);
+            console.log({
+                    url: session.url,
+            });
+            stripeResult = { url: session.url };
+        } catch (error) {
+            console.log({ error });
+        }
+
+        } catch (err) {
+            console.error("🛑 Error While creating Order", err);
+            throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Order creation failed');
+        }
 
         //======================================= From Co pilot
         // Provide Stripe URL for payment
@@ -207,7 +233,7 @@ export class OrderService extends GenericService<typeof Order, IOrder>{
         //     cancel_url: `${process.env.FRONTEND_URL}/cancel`,
         // });
 
-        return  null // result ;//session.url;
+        return  stripeResult; // result ;//session.url;
     }
 
 }
