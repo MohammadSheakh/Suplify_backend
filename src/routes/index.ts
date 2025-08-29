@@ -78,7 +78,7 @@ const apiRoutes = [
     route: MessageRoute,
   },
   {
-    path: '/paymentTransactions',
+    path: '/payments',
     route: PaymentTransactionRoute,
   },
   {  // 🟢 from kappes
