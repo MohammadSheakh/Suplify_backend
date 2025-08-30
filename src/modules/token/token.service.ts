@@ -144,7 +144,14 @@ const accessAndRefreshToken = async (user: TUser) => {
     userFullname = user.name;
   }
 
-  const payload:IUser = { userId: user?._id, userName: userFullname , email: user.email, role: user.role };
+  const payload:IUser = { 
+    userId: user?._id,
+    userName: userFullname ,
+    email: user.email,
+    role: user.role,
+    stripe_customer_id: user.stripe_customer_id ? user.stripe_customer_id : null
+  };
+
   await Token.deleteMany({ user: user._id });
   const accessToken = createToken(
     payload,

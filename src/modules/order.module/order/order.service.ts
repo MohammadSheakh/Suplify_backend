@@ -43,13 +43,27 @@ export class OrderService extends GenericService<typeof Order, IOrder>{
         let stripeResult ;
         
         try {
-        const stripeCustomer = await stripe.customers.create({
-                    name: user?.userName,
-                    email: user?.email,
-               });
+        /*****
+         * 
+         * If stripeCustomerId found .. we dont need to create that .. 
+         * 
+         * ***** */    
 
-        await User.findByIdAndUpdate(user?.userId, { $set: { stripe_customer_id: stripeCustomer.id } });
+        let stripeCustomer;
+        if(!user.stripe_customer_id){
+            let _stripeCustomer = await stripe.customers.create({
+                name: user?.userName,
+                email: user?.email,
+            });
+            
+            stripeCustomer = _stripeCustomer.id;
 
+            await User.findByIdAndUpdate(user?.userId, { $set: { stripe_customer_id: stripeCustomer.id } });
+        }else{
+            stripeCustomer = user.stripe_customer_id;
+        }
+
+        
 
         const session = await mongoose.startSession();
 

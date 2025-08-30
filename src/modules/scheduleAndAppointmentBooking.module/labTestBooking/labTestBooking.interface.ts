@@ -13,6 +13,15 @@ export interface ILabTestBooking {
   updatedAt?: Date;
 }
 
+export interface IBookLabTest{
+  labTestId: Types.ObjectId;
+  address: string;
+  city: string;
+  state : string;
+  zipCode : string;
+  country : string;
+}
+
 export interface ILabTestBookingModel extends Model<ILabTestBooking> {
   paginate: (
     query: Record<string, any>,
