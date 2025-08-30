@@ -40,7 +40,7 @@ const SpecialistPatientScheduleBookingSchema = new Schema<ISpecialistPatientSche
        * In webhook .. update the status based on the payment status
        **************/
     },
-    PaymentTransactionId: { //🔗 Same as PaymentId of kappes
+    paymentTransactionId: { //🔗 Same as PaymentId of kappes
       type: Schema.Types.ObjectId,
       ref: 'PaymentTransaction',
       default: null,

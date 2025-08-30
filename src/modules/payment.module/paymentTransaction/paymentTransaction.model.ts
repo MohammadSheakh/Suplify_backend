@@ -107,23 +107,6 @@ const paymentTransactionSchema = new Schema<IPaymentTransaction>(
       default: TPaymentStatus.pending
     },
     
-    // description: { // INFO : do we really need this?
-    //   type: String,
-    //   required: false
-    // },
-    billingDetails: {
-      name: String,
-      email: String,
-      address: {
-        line1: String,
-        line2: String,
-        city: String,
-        state: String,
-        postal_code: String,
-        country: String
-      }
-    },
-    
     gatewayResponse: { // from kappes
       /*****
        * 

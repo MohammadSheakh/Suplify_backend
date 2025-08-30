@@ -1,9 +1,9 @@
 import { model, Schema } from 'mongoose';
-import paginate from '../../common/plugins/paginate';
-import { ILabTestBooking, ILabTestBookingModel } from './LabTestBooking.interface';
+import { ILabTestBooking, ILabTestBookingModel } from './labTestBooking.interface';
 import { PaymentMethod } from '../../order.module/order/order.constant';
 import { TPaymentStatus } from '../specialistPatientScheduleBooking/specialistPatientScheduleBooking.constant';
 import { TLabTestBookingStatus } from './labTestBooking.constant';
+import paginate from '../../../common/plugins/paginate';
 
 const LabTestBookingSchema = new Schema<ILabTestBooking>(
   {
@@ -68,7 +68,7 @@ const LabTestBookingSchema = new Schema<ILabTestBooking>(
        * 
        * ********* */
     },
-    PaymentTransactionId: { //🔗 Same as PaymentId of kappes
+    paymentTransactionId: { //🔗 Same as PaymentId of kappes
       type: Schema.Types.ObjectId,
       ref: 'PaymentTransaction',
       default: null,

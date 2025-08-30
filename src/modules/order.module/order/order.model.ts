@@ -104,10 +104,10 @@ const orderSchema = new Schema<IOrder>(
       ],
     },
 
-    PaymentTransactionId: { //🔗 Same as PaymentId of kappes
+    paymentTransactionId: { //🔗 Same as PaymentId of kappes
       type: Schema.Types.ObjectId,
       ref: 'PaymentTransaction',
-      required: [false, 'PaymentTransactionId is required but after order confirmed'],
+      required: [false, 'paymentTransactionId is required but after order confirmed'],
 
       /**
        * 

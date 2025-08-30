@@ -25,7 +25,7 @@ export interface IOrder {
   finalAmount : Number;
   paymentMethod :  PaymentMethod.online;
 
-  PaymentTransactionId : Types.ObjectId; //🔗 
+  paymentTransactionId : Types.ObjectId; //🔗 
 
   paymentStatus : PaymentStatus.unpaid |
     PaymentStatus.paid|

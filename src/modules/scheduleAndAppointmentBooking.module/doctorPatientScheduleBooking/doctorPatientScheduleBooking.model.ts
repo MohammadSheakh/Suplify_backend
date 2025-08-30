@@ -36,7 +36,7 @@ const DoctorPatientScheduleBookingSchema = new Schema<IDoctorPatientScheduleBook
               ', '
             )}`],
     },
-    PaymentTransactionId: { //🔗 Same as PaymentId of kappes
+    paymentTransactionId: { //🔗 Same as PaymentId of kappes
       type: Schema.Types.ObjectId,
       ref: 'PaymentTransaction',
       default: null,
