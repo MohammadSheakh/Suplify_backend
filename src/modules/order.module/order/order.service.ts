@@ -179,7 +179,7 @@ export class OrderService extends GenericService<typeof Order, IOrder>{
                 referenceId: createdOrder._id.toString(), // in webhook .. in PaymentTransaction Table .. this should be referenceId
                 referenceFor: "Order", // in webhook .. this should be the referenceFor
                 currency: "usd",
-                amount: createdOrder.finalAmount.toString(),
+                amount: finalAmount.toString(),
                 user: JSON.stringify(user) // who created this order  // as we have to send notification also may be need to send email
                 
                 /******

@@ -19,8 +19,7 @@ export enum RenewalFrequencyType {
 }
 
 export enum CurrencyType {
-    USD = 'USD',
-    EUR = 'EUR',
-    
+    usd = 'usd',
+    eur = 'eur',
 }
 

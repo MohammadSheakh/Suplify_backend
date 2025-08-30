@@ -37,6 +37,10 @@ app.use(
     credentials: true,
   })
 );
+
+app.post('/api/v1/stripe/webhook', express.raw({ type: 'application/json' }), webhookHandler);
+
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -48,9 +52,6 @@ app.use('/uploads', express.static(path.join(__dirname, '../uploads/')));
 
 // Use i18next middleware
 app.use(i18nextMiddleware.handle(i18next));
-
-
-app.post('/api/v1/stripe/webhook', express.raw({ type: 'application/json' }), webhookHandler);
 
 // router
 app.use('/api/v1', router);

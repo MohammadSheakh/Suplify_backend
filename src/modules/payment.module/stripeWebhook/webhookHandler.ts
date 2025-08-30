@@ -52,7 +52,7 @@ const webhookHandler = async (req: Request, res: Response): Promise<void> => {
                     console.log('🟢🟢 Transfer created:', event.data.object);
                     break;
                default:
-                    console.log(`Unhandled event type: ${event.type}`);
+                    // console.log(`Unhandled event type: ${event.type}`);
                     break;
           }
 

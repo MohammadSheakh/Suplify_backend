@@ -32,12 +32,25 @@ const paginationOptions: Array<'sortBy' | 'page' | 'limit' | 'populate'> = [
 // const taskService = new TaskService();
 const controller = new PaymentTransactionController();
 
+router.route('/').get((req, res) => {
+  console.log("🟢 test page");
+});
 
 router.route('/paginate').get(
   //auth('common'),
   validateFiltersForQuery(optionValidationChecking(['_id'])),
   controller.getAllWithPagination
 );
+
+//[🚧][🧑‍💻✅][🧪] // 🆗
+/****************
+ * 
+ * From kappes Backend
+ * 
+ * ************* */
+
+router.route('/success').get(controller.successPage)
+router.route('/cancel').get(controller.cancelPage);
 
 router.route('/:id').get(
   // auth('common'),
@@ -77,16 +90,5 @@ router.route('/softDelete/:id').put(
   //auth('common'),
   controller.softDeleteById
 );
-
-
-//[🚧][🧑‍💻✅][🧪] // 🆗
-/****************
- * 
- * From kappes Backend
- * 
- * ************* */
-
-router.route('/success').get(controller.successPage)
-router.route('/cancel').get(controller.cancelPage);
 
 export const PaymentTransactionRoute = router;

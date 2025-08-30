@@ -11,7 +11,7 @@ import { StatusCodes } from 'http-status-codes';
 
 // Function for handling a successful payment
 export const handlePaymentSucceeded = async (session: Stripe.Checkout.Session) => {
-     console.log('handlePaymentSucceeded called with session: 🟢🟢', session);
+     // console.log('handlePaymentSucceeded called with session: 🟢🟢', session);
      try {
           const { referenceId, user, referenceFor, currency,  amount }: any = session.metadata;
           // userId // for sending notification .. 
@@ -39,7 +39,7 @@ export const handlePaymentSucceeded = async (session: Stripe.Checkout.Session) =
           }
           
           const newPayment = await PaymentTransaction.create({
-               user: _user.userId,
+               userId: _user.userId,
                referenceFor, // If this is for Order .. we pass "Order" here
                referenceId, // If this is for Order .. then we pass OrderId here
                paymentGateway: TPaymentGateway.stripe,
@@ -55,9 +55,10 @@ export const handlePaymentSucceeded = async (session: Stripe.Checkout.Session) =
           if (referenceFor === TTransactionFor.Order) {
                updatedObjectOfReferenceFor = updateOrderInformation(referenceId, newPayment._id);
           } else if (referenceFor === TTransactionFor.SubscriptionPlan) {
-               // updatedObjectOfReferenceFor = await Subscription.findOne({ _id: referenceId });
+               // updatedObjectOfReferenceFor = updateUserSubscription(referenceId, newPayment._id);
+              
           } else if (referenceFor === TTransactionFor.LabTestBooking) {
-               updatedObjectOfReferenceFor = await LabTestBooking.findOne({ _id: referenceId });
+               // updatedObjectOfReferenceFor = updateLabTestBooking(referenceId, newPayment._id);
           }
 
           if (!updatedObjectOfReferenceFor) {

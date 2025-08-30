@@ -22,6 +22,8 @@ export class PaymentTransactionController extends GenericController<
   }
 
   successPage = catchAsync(async (req: Request, res: Response) => {
+
+    console.log("🟢 success page")
     
     res.render('success.ejs', { frontEndHomePageUrl: config.client.url });
 
