@@ -3,7 +3,7 @@ import { StatusCodes } from 'http-status-codes';
 import { GenericController } from '../../_generic-module/generic.controller';
 import { LabTestBooking } from './labTestBooking.model';
 import { LabTestBookingService } from './labTestBooking.service';
-import { ILabTestBooking } from './labTestBooking.interface';
+import { IBookLabTest, ILabTestBooking } from './labTestBooking.interface';
 import sendResponse from '../../../shared/sendResponse';
 import catchAsync from '../../../shared/catchAsync';
 
@@ -23,7 +23,7 @@ export class LabTestBookingController extends GenericController<
 
   create = catchAsync(async (req: Request, res: Response) => {
 
-    const data = req.body as Partial<ICreateOrder>;
+    const data = req.body as Partial<IBookLabTest>;
     const result = await labTestBookingService.createV2(data, req.user);
 
     sendResponse(res, {
