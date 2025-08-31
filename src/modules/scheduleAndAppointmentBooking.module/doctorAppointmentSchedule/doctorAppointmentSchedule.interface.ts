@@ -1,5 +1,6 @@
 import { Model, Types } from 'mongoose';
 import { PaginateOptions, PaginateResult } from '../../../types/paginate';
+import { TDoctorAppointmentScheduleStatus } from './doctorAppointmentSchedule.constant';
 
 
 export interface IDoctorAppointmentSchedule {
@@ -14,6 +15,9 @@ export interface IDoctorAppointmentSchedule {
   price : string;
   typeOfLink : string;
   meetingLink : string;
+  scheduleStatus?: TDoctorAppointmentScheduleStatus.available
+  | TDoctorAppointmentScheduleStatus.booked
+  | TDoctorAppointmentScheduleStatus.cancelled;
 
   isDeleted? : boolean;  
   createdAt?: Date;

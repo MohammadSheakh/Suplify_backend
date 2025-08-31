@@ -8,6 +8,8 @@ import { DoctorAppointmentScheduleService } from './doctorAppointmentSchedule.se
 import catchAsync from '../../../shared/catchAsync';
 import sendResponse from '../../../shared/sendResponse';
 import { IUser } from '../../token/token.interface';
+import omit from '../../../shared/omit';
+import pick from '../../../shared/pick';
 
 
 // let conversationParticipantsService = new ConversationParticipentsService();
@@ -39,6 +41,38 @@ export class DoctorAppointmentScheduleController extends GenericController<
       success: true,
     });
   });
+
+  //TODO : need to add caching .. 
+  /****
+   * 
+   * Doctor  | Schedule | get all schedule .. (query -> scheduleStatus[available])
+   * ******* */
+  getAllWithPagination = catchAsync(async (req: Request, res: Response) => {
+    //const filters = pick(req.query, ['_id', 'title']); // now this comes from middleware in router
+    const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']); ;
+    const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
+
+    filters.createdBy = (req.user as IUser)?.userId; /** always return logged in users schedule */
+
+    const populateOptions: (string | {path: string, select: string}[]) = [
+      // {
+      //   path: 'personId',
+      //   select: 'name ' 
+      // },
+    ];
+
+    // const select = ''; 
+
+    const result = await this.service.getAllWithPagination(filters, options, populateOptions/*, select*/);
+
+    sendResponse(res, {
+      code: StatusCodes.OK,
+      data: result,
+      message: `All ${this.modelName} with pagination`,
+      success: true,
+    });
+  });
+
 
   // add more methods here if needed or override the existing ones 
 }
