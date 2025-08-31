@@ -1,6 +1,7 @@
 import ApiError from "../../../errors/ApiError";
 import { OrderStatus, PaymentStatus } from "../../order.module/order/order.constant";
 import { Order } from "../../order.module/order/order.model";
+import { TLabTestBookingStatus } from "../../scheduleAndAppointmentBooking.module/labTestBooking/labTestBooking.constant";
 import { LabTestBooking } from "../../scheduleAndAppointmentBooking.module/labTestBooking/labTestBooking.model";
 import { IUser } from "../../token/token.interface";
 import { TUser } from "../../user/user.interface";
@@ -58,7 +59,7 @@ export const handlePaymentSucceeded = async (session: Stripe.Checkout.Session) =
                // updatedObjectOfReferenceFor = updateUserSubscription(referenceId, newPayment._id);
               
           } else if (referenceFor === TTransactionFor.LabTestBooking) {
-               // updatedObjectOfReferenceFor = updateLabTestBooking(referenceId, newPayment._id);
+               updatedObjectOfReferenceFor = updateLabTestBooking(referenceId, newPayment._id);
           }
 
           if (!updatedObjectOfReferenceFor) {
@@ -89,4 +90,18 @@ async function updateOrderInformation(orderId: string, paymentTransactionId: str
      }, { new: true });
 
      return updatedOrder;
+}
+
+async function updateLabTestBooking(labTestId: string, paymentTransactionId: string){
+
+     // isBookingExists = await LabTestBooking.findOne({ _id: labTestId });
+
+     const updatedLabTestBooking = await LabTestBooking.findByIdAndUpdate(labTestId, { 
+          /* update fields */ 
+          paymentTransactionId : paymentTransactionId,
+          paymentStatus: PaymentStatus.paid,
+          status : TLabTestBookingStatus.confirmed
+     }, { new: true });
+
+     return updatedLabTestBooking;
 }

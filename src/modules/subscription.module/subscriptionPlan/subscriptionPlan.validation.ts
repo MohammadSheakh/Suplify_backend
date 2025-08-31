@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { SubscriptionType } from './subscriptionPlan.constant';
+import { TSubscription } from './subscriptionPlan.constant';
 
 export const createSubscriptionPlanValidationSchema = z.object({
   body: z.object({
@@ -22,8 +22,8 @@ export const createSubscriptionPlanValidationSchema = z.object({
         required_error: 'subscriptionType is required, subscriptionType must be a string.',
         invalid_type_error: 'subscriptionType must be a string.',
       })
-      .refine(subscriptionType => Object.keys(SubscriptionType).includes(subscriptionType as keyof typeof SubscriptionType), {
-        message: `subscriptionType must be one of the following: ${Object.keys(SubscriptionType).join(', ')}`,
+      .refine(subscriptionType => Object.keys(TSubscription).includes(subscriptionType as keyof typeof TSubscription), {
+        message: `subscriptionType must be one of the following: ${Object.keys(TSubscription).join(', ')}`,
       }),
 
     features: z.array(z.string({

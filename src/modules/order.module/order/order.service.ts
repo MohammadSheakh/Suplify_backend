@@ -13,6 +13,8 @@ import {StatusCodes} from 'http-status'
 import stripe from "../../../config/stripe.config";
 import mongoose from "mongoose";
 import { config } from "../../../config";
+import { TTransactionFor } from "../../payment.module/paymentTransaction/paymentTransaction.constant";
+import { TCurrency } from "../../../enums/payment";
 
 export class OrderService extends GenericService<typeof Order, IOrder>{
     private stripe: Stripe;
@@ -162,7 +164,7 @@ export class OrderService extends GenericService<typeof Order, IOrder>{
             line_items: [
                     {
                         price_data: {
-                            currency: 'usd', // must be small letter
+                            currency: TCurrency.usd, // must be small letter
                             product_data: {
                                 name: 'Amount',
                             },
@@ -191,8 +193,8 @@ export class OrderService extends GenericService<typeof Order, IOrder>{
                  *  
                  * **** */
                 referenceId: createdOrder._id.toString(), // in webhook .. in PaymentTransaction Table .. this should be referenceId
-                referenceFor: "Order", // in webhook .. this should be the referenceFor
-                currency: "usd",
+                referenceFor: TTransactionFor.Order, // in webhook .. this should be the referenceFor
+                currency: TCurrency.usd,
                 amount: finalAmount.toString(),
                 user: JSON.stringify(user) // who created this order  // as we have to send notification also may be need to send email
                 

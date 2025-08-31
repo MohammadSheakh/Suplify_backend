@@ -2,13 +2,13 @@ import { model, Schema } from 'mongoose';
 import paginate from '../../../common/plugins/paginate';
 
 import {
-  CurrencyType,
-  InitialDurationType,
-  RenewalFrequncyType,
-  SubscriptionType,
+  TInitialDuration,
+  TRenewalFrequency,
+  TSubscription,
 } from './subscriptionPlan.constant';
 
 import { ISubscriptionPlan, ISubscriptionPlanModel } from './subscriptionPlan.interface';
+import { TCurrency } from '../../../enums/payment';
 
 const subscriptionPlanSchema = new Schema<ISubscriptionPlan>(
   {
@@ -23,27 +23,27 @@ const subscriptionPlanSchema = new Schema<ISubscriptionPlan>(
     subscriptionType: {
       type: String,
       enum: [
-        SubscriptionType.standard,
-        SubscriptionType.standardPlus,
-        SubscriptionType.vise
+        TSubscription.standard,
+        TSubscription.standardPlus,
+        TSubscription.vise
       ],
       required: [
         true,
         `subscriptionType is required it can be ${Object.values(
-          SubscriptionType
+          TSubscription
         ).join(', ')}`,
       ],
     },
     initialDuration: {
       type: String,
       enum: [
-        InitialDurationType.month,
-        InitialDurationType.year,
+        TInitialDuration.month,
+        TInitialDuration.year,
       ],
-      default: InitialDurationType.month,
+      default: TInitialDuration.month,
       required: [
         true,
-        `Initial Duration is required.. it can be  ${Object.values(InitialDurationType).join(
+        `Initial Duration is required.. it can be  ${Object.values(TInitialDuration).join(
           ', '
         )}`,
       ],
@@ -51,14 +51,14 @@ const subscriptionPlanSchema = new Schema<ISubscriptionPlan>(
     renewalFrequncy: {
       type: String,
       enum: [
-        RenewalFrequncyType.monthly,
-        RenewalFrequncyType.yearly,
+        TRenewalFrequency.monthly,
+        TRenewalFrequency.yearly,
       ],
-      default: RenewalFrequncyType.monthly,
+      default: TRenewalFrequency.monthly,
       required: [
         true,
         `Renewal Frequncy is required .. It can be  ${Object.values(
-          RenewalFrequncyType
+          TRenewalFrequency
         ).join(', ')}`,
       ],
     },
@@ -74,14 +74,14 @@ const subscriptionPlanSchema = new Schema<ISubscriptionPlan>(
     // },
     currency: {
       type: String,
-      enum: [CurrencyType.USD], // , CurrencyType.EUR
+      enum: [TCurrency.usd], // , TCurrency.EUR
       required: [
         true,
-        `Currency is required .. it can be  ${Object.values(CurrencyType).join(
+        `Currency is required .. it can be  ${Object.values(TCurrency).join(
           ', '
         )}`,
       ],
-      default: CurrencyType.USD,
+      default: TCurrency.usd,
     },
     fullAccessToInteractiveChat: {
       type: Boolean,

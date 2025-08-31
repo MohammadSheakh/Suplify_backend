@@ -1,6 +1,7 @@
 import { Model, Types } from 'mongoose';
 import { PaginateOptions, PaginateResult } from '../../../types/paginate';
-import { CurrencyType, InitialDurationType, RenewalFrequncyType, SubscriptionType } from './subscriptionPlan.constant';
+import { TInitialDuration, TRenewalFrequency, TSubscription } from './subscriptionPlan.constant';
+import { TCurrency } from '../../../enums/payment';
 
 export interface IConfirmPayment {
     userId: string | any;
@@ -15,15 +16,15 @@ export interface ISubscriptionPlan {
   // _taskId: undefined | Types.ObjectId;
   _id?: Types.ObjectId; // undefined |  Types.ObjectId |
   subscriptionName : string;
-  subscriptionType: SubscriptionType.standard |
-  SubscriptionType.standardPlus |
-  SubscriptionType.vise ;
+  subscriptionType: TSubscription.standard |
+  TSubscription.standardPlus |
+  TSubscription.vise ;
    
-  initialDuration :  InitialDurationType.month ;
-  renewalFrequncy : RenewalFrequncyType.monthly ;
+  initialDuration :  TInitialDuration.month ;
+  renewalFrequncy : TRenewalFrequency.monthly ;
   amount : string //number;
   // renewalFee : 0;
-  currency : CurrencyType.USD; //  | CurrencyType.EUR
+  currency : TCurrency.usd; //  | TCurrency.EUR
   features: String[];
   
   fullAccessToInteractiveChat : Boolean;
@@ -44,12 +45,12 @@ export interface ISubscriptionPlan {
 export type TSubscriptionPlan = {
   _id?: Types.ObjectId; // undefined |  Types.ObjectId |
   subscriptionName : string;
-  subscriptionType: SubscriptionType.premium;  //   | SubscriptionType.standard | SubscriptionType.vip
-  initialDuration :  InitialDurationType.month  ;
-  renewalFrequncy :  RenewalFrequncyType.monthly ;
+  subscriptionType: TSubscription.premium;  //   | TSubscription.standard | TSubscription.vip
+  initialDuration :  TInitialDuration.month  ;
+  renewalFrequncy :  TRenewalFrequency.monthly ;
   amount : 0;
   // renewalFee : 0;
-  currency : CurrencyType.USD; //  | CurrencyType.EUR
+  currency : TCurrency.usd; //  | TCurrency.EUR
   features: String[];
   // freeTrialDuration : Number;
   // freeTrialEnabled : Boolean;

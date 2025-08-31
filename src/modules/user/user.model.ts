@@ -3,7 +3,7 @@ import { TProfileImage, TUser, UserModal } from './user.interface';
 import paginate from '../../common/plugins/paginate';
 import bcryptjs from 'bcryptjs';
 import { config } from '../../config';
-import { Gender, MaritalStatus, TStatusType, TSubscriptionType, UserStatus } from './user.constant';
+import { Gender, MaritalStatus, TStatusType, TTSubscription, UserStatus } from './user.constant';
 import { Roles } from '../../middlewares/roles';
 
 // Profile Image Schema
@@ -61,14 +61,14 @@ const userSchema = new Schema<TUser, UserModal>(
     subscriptionType: {
       type: String,
       enum: 
-         [TSubscriptionType.standard, TSubscriptionType.standardPlus, TSubscriptionType.vise],
+         [TTSubscription.standard, TTSubscription.standardPlus, TTSubscription.vise],
       required: [
         false,
-        `SubscriptionType is required it can be ${Object.values(
-          TSubscriptionType
+        `TSubscription is required it can be ${Object.values(
+          TTSubscription
         ).join(', ')}`,
       ],
-      //default: TSubscriptionType.standard, // 7 day free trial provide korte hobe .. chinta korte hobe 
+      //default: TTSubscription.standard, // 7 day free trial provide korte hobe .. chinta korte hobe 
     },
 
     status : {

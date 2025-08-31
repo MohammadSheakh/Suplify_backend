@@ -1,8 +1,8 @@
 import { model, Schema } from 'mongoose';
 import paginate from '../../../common/plugins/paginate';
 import { IPaymentTransaction, IPaymentTransactionModel } from './paymentTransaction.interface';
-import { CurrencyType } from '../../subscription.module/subscriptionPlan/subscriptionPlan.constant';
 import { TPaymentGateway, TPaymentStatus, TTransactionFor } from './paymentTransaction.constant';
+import { TCurrency } from '../../../enums/payment';
 
 const paymentTransactionSchema = new Schema<IPaymentTransaction>(
   {
@@ -64,7 +64,7 @@ const paymentTransactionSchema = new Schema<IPaymentTransaction>(
     },
     currency: {
       type: String,
-      enum: [CurrencyType.usd , CurrencyType.eur],
+      enum: [TCurrency.usd , TCurrency.eur],
       required: true
     },
     paymentStatus: {

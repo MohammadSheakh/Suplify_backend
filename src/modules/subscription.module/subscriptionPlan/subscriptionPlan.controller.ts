@@ -7,7 +7,7 @@ import sendResponse from '../../../shared/sendResponse';
 import { StatusCodes } from 'http-status-codes';
 import Stripe from 'stripe';
 import ApiError from '../../../errors/ApiError';
-import { CurrencyType, InitialDurationType, RenewalFrequncyType, SubscriptionType } from './subscriptionPlan.constant';
+import { TInitialDuration, TRenewalFrequency, TSubscription } from './subscriptionPlan.constant';
 import { User } from '../../user/user.model';
 import { UserCustomService } from '../../user/user.service';
 import mongoose from 'mongoose';
@@ -19,6 +19,7 @@ import { TPaymentStatus } from '../../payment.module/paymentTransaction/paymentT
 import { UserSubscriptionStatusType } from '../userSubscription/userSubscription.constant';
 import { addMonths } from 'date-fns';
 import { IUserSubscription } from '../userSubscription/userSubscription.interface';
+import { TCurrency } from '../../../enums/payment';
 
 const subscriptionPlanService = new SubscriptionPlanService();
 const userCustomService = new UserCustomService();
@@ -124,7 +125,7 @@ export class SubscriptionController extends GenericController<
     let updatedUserSubscription;
 
     let expirationDate;
-    if(subscriptionPlan.initialDuration == InitialDurationType.month){
+    if(subscriptionPlan.initialDuration == TInitialDuration.month){
       expirationDate = addMonths(new Date(), 1);
     }
      
@@ -183,8 +184,8 @@ export class SubscriptionController extends GenericController<
       stripe_payment_intent_id,
       externalTransactionOrPaymentId: stripe_payment_intent_id,
       amount: subscriptionPlan.amount || 0, // 🟢
-      currency: subscriptionPlan.currency || CurrencyType.USD,  // 🟢
-      paymentStatus: TPaymentStatus.succeeded,
+      currency: subscriptionPlan.currency || TCurrency.usd,  // 🟢
+      paymentStatus: TPaymentStatus.completed,
       description: `Subscription payment for user ${userId}`,
     }], { session });
 
@@ -198,13 +199,13 @@ export class SubscriptionController extends GenericController<
       });
     }
 
-    let updateUsersSubscriptionType = await User.findByIdAndUpdate(
+    let updateUsersTSubscription = await User.findByIdAndUpdate(
       userId,
-      { subscriptionType: SubscriptionType.premium },
+      { subscriptionType: TSubscription.standard },
       { new: true, session }
     );
 
-    if (!updateUsersSubscriptionType) {
+    if (!updateUsersTSubscription) {
       await session.abortTransaction();
       session.endSession();
       return res.status(400).json({
@@ -275,7 +276,7 @@ export class SubscriptionController extends GenericController<
      * Calculate dates based on subscription plan
      */
     let expirationDate = new Date();
-    if (subscriptionPlan.initialDuration === InitialDurationType.month) {
+    if (subscriptionPlan.initialDuration === TInitialDuration.month) {
       // Use date-fns for proper date calculation
       expirationDate = addMonths(new Date(), 1);
     }
@@ -357,7 +358,7 @@ export class SubscriptionController extends GenericController<
               stripe_payment_intent_id,
               externalTransactionOrPaymentId: stripe_payment_intent_id,
               amount: subscriptionPlan.amount || 0,
-              currency: subscriptionPlan.currency || CurrencyType.USD,
+              currency: subscriptionPlan.currency || TCurrency.usd,
               paymentStatus: TPaymentStatus.succeeded,
               description: `Subscription payment for user ${userId}`,
             }], { session });
@@ -367,13 +368,13 @@ export class SubscriptionController extends GenericController<
             }
 
             // Update user's subscription type
-            const updateUsersSubscriptionType = await User.findByIdAndUpdate(
+            const updateUsersTSubscription = await User.findByIdAndUpdate(
               userId,
-              { subscriptionType: SubscriptionType.premium },
+              { subscriptionType: TSubscription.premium },
               { new: true, session }
             );
 
-            if (!updateUsersSubscriptionType) {
+            if (!updateUsersTSubscription) {
               throw new Error('Failed to update user subscription type');
             }
 
@@ -564,7 +565,7 @@ export class SubscriptionController extends GenericController<
 
   
     // check if plan is valid
-    // const validPLan = await subscriptionPlanService.getBySubscriptionType(
+    // const validPLan = await subscriptionPlanService.getByTSubscription(
     //   plan as string
     // );
 
@@ -572,14 +573,14 @@ export class SubscriptionController extends GenericController<
     //   throw new ApiError(
     //     StatusCodes.BAD_REQUEST,
     //     `Invalid plan provided in query, it should be ${Object.values(
-    //       SubscriptionType
+    //       TSubscription
     //     ).join(', ')}`
     //   );
     // }
 
     
       switch (plan.toString().toLowerCase()) {
-        case SubscriptionType.premium:
+        case TSubscription.premium:
           priceId = process.env.STRIPE_PREMIUM_PLAN_PRICE_ID; // 🔥 add korte hobe process.env file e .
           break;
         
@@ -587,7 +588,7 @@ export class SubscriptionController extends GenericController<
           throw new ApiError(
             StatusCodes.BAD_REQUEST,
             `Invalid plan provided in query, it should be ${Object.values(
-              SubscriptionType
+              TSubscription
             ).join(', ')}`
           );
       } 
@@ -828,10 +829,10 @@ export class SubscriptionController extends GenericController<
     
     data.subscriptionName = req.body.subscriptionName;
     data.amount = req.body.amount;
-    data.subscriptionType = SubscriptionType.premium;
-    data.initialDuration = InitialDurationType.month;
-    data.renewalFrequncy = RenewalFrequncyType.monthly;
-    data.currency = CurrencyType.USD;
+    data.subscriptionType = TSubscription.premium;
+    data.initialDuration = TInitialDuration.month;
+    data.renewalFrequncy = TRenewalFrequency.monthly;
+    data.currency = TCurrency.usd;
     data.features = req.body.features;
   
     // now we have to create stripe product and price 
@@ -878,10 +879,10 @@ export class SubscriptionController extends GenericController<
     
     data.subscriptionName = req.body.subscriptionName;
     data.amount = req.body.amount;
-    data.subscriptionType = SubscriptionType.premium;
-    data.initialDuration = InitialDurationType.month;
-    data.renewalFrequncy = RenewalFrequncyType.monthly;
-    data.currency = CurrencyType.USD;
+    data.subscriptionType = TSubscription.premium;
+    data.initialDuration = TInitialDuration.month;
+    data.renewalFrequncy = TRenewalFrequency.monthly;
+    data.currency = TCurrency.usd;
     data.features = req.body.features;
 
     if(!data.amount){
@@ -993,7 +994,7 @@ export class SubscriptionController extends GenericController<
       throw new ApiError(
         StatusCodes.BAD_REQUEST,
         `plan must be provided by query params it can be ${Object.values(
-          SubscriptionType
+          TSubscription
         ).join(', ')}`
       );
     }
@@ -1003,7 +1004,7 @@ export class SubscriptionController extends GenericController<
     }
 
     // check if plan is valid
-    const validPlan = await subscriptionService.getBySubscriptionType(
+    const validPlan = await subscriptionService.getByTSubscription(
       plan as string
     );
 

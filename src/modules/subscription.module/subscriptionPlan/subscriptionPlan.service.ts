@@ -16,7 +16,7 @@ export class SubscriptionPlanService extends GenericService<typeof SubscriptionP
 
     userSubscriptionService = new UserSubscriptionService()
 
-    getBySubscriptionType = async (subscriptionType: string) => {
+    getByTSubscription = async (subscriptionType: string) => {
         return await this.model.findOne({ subscriptionType });
     }
 

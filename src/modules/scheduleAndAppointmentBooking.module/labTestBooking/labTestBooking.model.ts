@@ -23,19 +23,13 @@ const LabTestBookingSchema = new Schema<ILabTestBooking>(
       required: [true, 'appointmentDate is required'],
     },
     startTime: {
-      type: Date,
+      type: String,
       required: [true, 'startTime is required'],
     },
     endTime:{
-      type : Date,
+      type : String,
       required: [true, 'endTime is required'],
     },
-    
-    // useDifferentAddress:{ // as our system has no system to track user address .. every time user have to type address .. 
-    //   type: Boolean,
-    //   required: [true, 'useDifferentAddress is required'],
-    //   default: false,
-    // },
 
     address: {
       type:String,

@@ -1,6 +1,6 @@
 import { Document, Model, Types } from 'mongoose';
 import { Role } from '../../middlewares/roles';
-import { IMaritalStatus, TGender, TStatusType, TSubscriptionType, TUserStatus } from './user.constant';
+import { IMaritalStatus, TGender, TStatusType, TTSubscription, TUserStatus } from './user.constant';
 import { PaginateOptions, PaginateResult } from '../../types/paginate';
 
 export type TProfileImage = {
@@ -21,8 +21,8 @@ export type TUser = {
   email: string;
   password: string;
   status: TStatusType.active | TStatusType.inactive;
-  subscriptionType :  TSubscriptionType.standard |
-  TSubscriptionType.standardPlus | TSubscriptionType.vise 
+  subscriptionType :  TTSubscription.standard |
+  TTSubscription.standardPlus | TTSubscription.vise 
   profileImage?: TProfileImage;
   fcmToken : string;
   stripe_customer_id: string;

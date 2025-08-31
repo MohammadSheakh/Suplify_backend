@@ -15,7 +15,7 @@
     /* Language and Environment */
     "target": "es2016" /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */,
     // "lib": [],                                        /* Specify a set of bundled library declaration files that describe the target runtime environment. */
-    "lib": [ // as per chatgpt ..  Object.values(CurrencyType).join( // here values shows error 
+    "lib": [ // as per chatgpt ..  Object.values(TCurrency).join( // here values shows error 
     "es2017",
     "dom"
     ],

@@ -18,13 +18,14 @@ export interface ILabTestBooking {
   city: string;
   state: string;
   zipCode: string;
+
   status: TLabTestBookingStatus.pending | TLabTestBookingStatus.confirmed | TLabTestBookingStatus.canceled;
 
   paymentTransactionId: Types.ObjectId | null;
   paymentMethod: PaymentMethod;
   paymentStatus : TPaymentStatus.failed | TPaymentStatus.unpaid | TPaymentStatus.paid | TPaymentStatus.refunded;
 
-  isDeleted? : Boolean;  
+  isDeleted? : boolean;  
   createdAt?: Date;
   updatedAt?: Date;
 }

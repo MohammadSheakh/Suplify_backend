@@ -1,5 +1,5 @@
 import { cronService } from '../../cron/cron.service';
-import { TStatusType, TSubscriptionType } from '../../user/user.constant';
+import { TStatusType, TTSubscription } from '../../user/user.constant';
 import { User } from '../../user/user.model';
 import { UserSubscriptionStatusType } from './userSubscription.constant';
 import { UserSubscription } from './userSubscription.model';

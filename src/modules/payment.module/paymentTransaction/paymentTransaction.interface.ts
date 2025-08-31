@@ -1,7 +1,7 @@
 import { Model, Types, Schema } from 'mongoose';
 import { PaginateOptions, PaginateResult } from '../../../types/paginate';
 import { TPaymentGateway, TPaymentStatus, TTransactionFor } from './paymentTransaction.constant';
-import { CurrencyType } from '../../subscription.module/subscriptionPlan/subscriptionPlan.constant';
+import { TCurrency } from '../../../enums/payment';
 
 export interface IPaymentTransaction {
   // _taskId: undefined | Types.ObjectId;
@@ -26,7 +26,7 @@ export interface IPaymentTransaction {
   paymentIntent : string; // from kappes
 
   amount: number;
-  currency : CurrencyType.eur | CurrencyType.usd
+  currency : TCurrency.eur | TCurrency.usd
   paymentStatus : TPaymentStatus.pending | 
     TPaymentStatus.processing |
     TPaymentStatus.completed |

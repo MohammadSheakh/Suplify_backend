@@ -1,11 +1,19 @@
 import { StatusCodes } from 'http-status-codes';
-import { IBookLabTest, ILabTestBooking } from './LabTestBooking.interface';
+import { IBookLabTest, ILabTestBooking, ILabTestBookingModel } from './labTestBooking.interface';
 import { GenericService } from '../../_generic-module/generic.services';
 import { LabTestBooking } from './labTestBooking.model';
 import { IUser } from '../../token/token.interface';
 import Stripe from "stripe";
 import stripe from '../../../config/stripe.config';
 import { User } from '../../user/user.model';
+import mongoose from "mongoose";
+import { Product } from '../../store.module/product/product.model';
+import ApiError from '../../../errors/ApiError';
+import { PaymentStatus } from '../../order.module/order/order.constant';
+import { IProduct } from '../../store.module/product/product.interface';
+import { TTransactionFor } from '../../payment.module/paymentTransaction/paymentTransaction.constant';
+import { TCurrency } from '../../../enums/payment';
+import { config } from '../../../config';
 
 export class LabTestBookingService extends GenericService<
   typeof LabTestBooking,
@@ -55,9 +63,8 @@ export class LabTestBookingService extends GenericService<
 
         const session = await mongoose.startSession();
 
-        let finalAmount = 0;
-        let createdOrder = null;
-        
+         let finalAmount = 0;
+         let createdBooking = null;
 
         // session.startTransaction();
         await session.withTransaction(async () => {
@@ -67,37 +74,35 @@ export class LabTestBookingService extends GenericService<
              * 
              * *** */
 
-            const order:IOrder = new Order({
-                userId: user?.userId,
-                orderRelatedTo:  TOrderRelatedTo.product,
-                status : OrderStatus.pending,
-                shippingAddress: {
-                    address: data.address,
-                    city: data.city,
-                    state: data.state,
-                    zipCode: data.zipCode,
-                    country: data.country
-                },
-                // deliveryCharge // need to think about this
+            let isLabTestExist:IProduct = await Product.findById(data.labTestId).session(session);
 
+            if(!isLabTestExist){
+                throw new ApiError(StatusCodes.NOT_FOUND, "Lab Test not found");
+            }
+
+            finalAmount = isLabTestExist.price;
+
+            // now we have to create LabTestBooking
+            const bookedLabTest:ILabTestBooking = new LabTestBooking({
+                patientId: user?.userId, // logged in user
+                labTestId : isLabTestExist._id,
+                appointmentDate : data?.appointmentDate,
+                startTime: data?.startTime,
+                endTime: data?.endTime,
+               
+                address: data.address,
+                city: data.city,
+                state: data.state,
+                zipCode: data.zipCode,
+                country: data.country,
+                
                 paymentTransactionId : null,
                 paymentStatus : PaymentStatus.unpaid,
-                finalAmount: 0 // we will update this later in this function
+                finalAmount: isLabTestExist.price
             })
 
-            
-            console.log("🟢 Final Amount (before delivery charge): ", finalAmount);
+            createdBooking = await bookedLabTest.save({ session });
 
-            // add that final amount to order
-            // order.finalAmount = finalAmount;
-
-            await Order.findByIdAndUpdate(
-            createdOrder._id,
-                { $set: { finalAmount } },
-                { new: true, session }
-            );
-
-            console.log("🟢🟢 created Order :: ", createdOrder)
         });
         session.endSession();
         
@@ -108,7 +113,7 @@ export class LabTestBookingService extends GenericService<
             line_items: [
                     {
                         price_data: {
-                            currency: 'usd', // must be small letter
+                            currency: TCurrency.usd, // must be small letter
                             product_data: {
                                 name: 'Amount',
                             },
@@ -136,9 +141,9 @@ export class LabTestBookingService extends GenericService<
                  * 5. Training Program Buying .. 
                  *  
                  * **** */
-                referenceId: createdOrder._id.toString(), // in webhook .. in PaymentTransaction Table .. this should be referenceId
-                referenceFor: "Order", // in webhook .. this should be the referenceFor
-                currency: "usd",
+                referenceId: createdBooking._id.toString(), // in webhook .. in PaymentTransaction Table .. this should be referenceId
+                referenceFor: TTransactionFor.LabTestBooking, // in webhook .. this should be the referenceFor
+                currency: TCurrency.usd,
                 amount: finalAmount.toString(),
                 user: JSON.stringify(user) // who created this order  // as we have to send notification also may be need to send email
                 

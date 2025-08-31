@@ -1,25 +1,19 @@
-export enum SubscriptionType {
+export enum TSubscription {
     standard = 'standard',
     standardPlus = 'standardPlus',
     vise = 'vise'
 }
 
-export enum InitialDurationType {
+export enum TInitialDuration {
     day = 'day',
     week = 'week',
     month = 'month', 
     year = 'year',
 }
 
-export enum RenewalFrequencyType {
+export enum TRenewalFrequency {
     daily = 'daily',
     weekly = 'weekly',
     monthly = 'monthly', 
     yearly = 'yearly',
 }
-
-export enum CurrencyType {
-    usd = 'usd',
-    eur = 'eur',
-}
-
