@@ -6,9 +6,9 @@ export interface IDemo {
   // _taskId: undefined | Types.ObjectId;
   _id?: Types.ObjectId; // undefined |  Types.ObjectId |
   userId: Types.ObjectId;
-  message : String;
+  message : string;
 
-  isDeleted? : Boolean;  
+  isDeleted? : boolean;  
   createdAt?: Date;
   updatedAt?: Date;
 }

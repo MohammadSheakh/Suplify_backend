@@ -11,12 +11,12 @@ export interface IUserProfile {
               TApprovalStatus.approved |
               TApprovalStatus.rejected;
 
-  protocolNames : [String];
-  howManyPrograms: Number;
+  protocolNames : [string];
+  howManyPrograms: number;
   userId: Types.ObjectId; // for back reference ..
-  description: String;
+  description: string;
 
-  isDeleted? : Boolean;  
+  isDeleted? : boolean;  
   createdAt?: Date;
   updatedAt?: Date;
 }

@@ -7,23 +7,26 @@ export interface IPaymentTransaction {
   // _taskId: undefined | Types.ObjectId;
   _id?: Types.ObjectId; // undefined |  Types.ObjectId |
   userId: Types.ObjectId; //🔗
-  orderId: Types.ObjectId; //🔗
-  // paymentMethodId: Types.ObjectId; // INFO : persons card information .. no need to add reference here .. 
-  type :  TTransactionFor.DoctorPatientScheduleBooking |
+  referenceFor :  TTransactionFor.DoctorPatientScheduleBooking |
           TTransactionFor.Order |
           TTransactionFor.LabTestBooking |
           TTransactionFor.SubscriptionPlan |
           TTransactionFor.TrainingProgramPurchase |
           TTransactionFor.SpecialistPatientScheduleBooking;
-  subscriptionId : Types.ObjectId; //🔗
+  referenceId: Types.ObjectId; //🔗
+  /**********
+     * 
+     * const refModel = mongoose.model(result.type);
+     * const isExistRefference = await refModel.findById(result.refferenceId).session(session);
+     * ********** */
   paymentGateway: TPaymentGateway.none |
                 TPaymentGateway.paypal |
                 TPaymentGateway.stripe;
-  transactionId : String; // from kappes
-  paymentIntent : String; // from kappes
+  transactionId : string; // from kappes
+  paymentIntent : string; // from kappes
 
-  amount: Number;
-  currency : CurrencyType.EUR | CurrencyType.USD
+  amount: number;
+  currency : CurrencyType.eur | CurrencyType.usd
   paymentStatus : TPaymentStatus.pending | 
     TPaymentStatus.processing |
     TPaymentStatus.completed |
@@ -33,20 +36,6 @@ export interface IPaymentTransaction {
     TPaymentStatus.partially_refunded |
     TPaymentStatus.disputed;
 
-    // description: string;
-
-    billingDetails: {
-      name: String,
-      email: String,
-      address: {
-        line1: String,
-        line2: String,
-        city: String,
-        state: String,
-        postal_code: String,
-        country: String
-      }
-    },
     gatewayResponse: {
       type: Schema.Types.Mixed,
       default: null,

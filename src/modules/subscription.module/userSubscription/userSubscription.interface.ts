@@ -13,10 +13,10 @@ export interface IUserSubscription {
   currentPeriodStartDate : Date;
   expirationDate : Date;
   renewalDate : Date;
-  billingCycle: Number;
-  isAutoRenewed : Boolean;
+  billingCycle: number;
+  isAutoRenewed : boolean;
   cancelledAt :  Date ;
-  cancelledAtPeriodEnd : Boolean;
+  cancelledAtPeriodEnd : boolean;
   status :
           UserSubscriptionStatusType.active | 
           UserSubscriptionStatusType.past_due | 
@@ -26,17 +26,12 @@ export interface IUserSubscription {
           UserSubscriptionStatusType.incomplete_expired | 
           UserSubscriptionStatusType.trialing;
   
-  stripe_subscription_id : String; // 🟢🟢 for recurring payment 
-  stripe_transaction_id : String; // 🟢🟢 for one time payment
+  stripe_subscription_id : string; // 🟢🟢 for recurring payment 
+  stripe_transaction_id : string; // 🟢🟢 for one time payment
   // stripe_customer_id : String; // main user collection e rakhte hobe .. 
 
-  // isFreeTrial : Boolean;
-  // freeTrialStartDate : Date;
-  // freeTrialEndDate : Date;
-  // trialConvertedToPaid : Boolean;
+  isActive : boolean;
 
-  isActive : Boolean
-  
   isDeleted : boolean;
   createdAt?: Date;
   updatedAt?: Date;

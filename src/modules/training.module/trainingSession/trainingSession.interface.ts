@@ -6,13 +6,13 @@ export interface ITrainingSession {
   // _taskId: undefined | Types.ObjectId;
   _id?: Types.ObjectId; // undefined |  Types.ObjectId |
   trainingProgramId: Types.ObjectId;
-  sessionCount : Number;
-  title : String;
-  duration : String;
-  benefits : String[];
-  tokenCount : Number;
+  sessionCount : number;
+  title : string;
+  duration : string;
+  benefits : string[];
+  tokenCount : number;
 
-  isDeleted? : Boolean;  
+  isDeleted? : boolean;  
   createdAt?: Date;
   updatedAt?: Date;
 }

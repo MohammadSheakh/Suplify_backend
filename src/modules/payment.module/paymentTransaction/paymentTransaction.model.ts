@@ -56,32 +56,7 @@ const paymentTransactionSchema = new Schema<IPaymentTransaction>(
       type: String,
       default: null,
     },
-    /**********
-    paymentMethodId: { // Persons Card Infomation.. But no need
-      type: Schema.Types.ObjectId,
-      ref: 'PaymentMethod',
-      required: false
-    },
-    ********** */
-    /***************
-    // External payment IDs
-    // stripe_payment_intent_id /  paypal_transaction_id
-    externalTransactionOrPaymentId: {
-      type: String,
-      required: 'true' 
-    },
-    ********************* */
-
     
-
-    // stripe_payment_intent_id: {
-    //   type: String,
-    //   required: function() { return this.paymentProcessor === 'stripe'; }
-    // },
-    // paypal_transaction_id: {
-    //   type: String,
-    //   required: function() { return this.paymentProcessor === 'paypal'; }
-    // },
     amount: {
       type: Number,
       required: true,

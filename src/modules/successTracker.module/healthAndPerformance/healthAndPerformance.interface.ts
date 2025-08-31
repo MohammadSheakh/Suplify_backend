@@ -5,14 +5,14 @@ import { PaginateOptions, PaginateResult } from '../../../types/paginate';
 export interface IHealthAndPerformance {
   // _taskId: undefined | Types.ObjectId;
   _id?: Types.ObjectId; // undefined |  Types.ObjectId |
-  currentWeight: Number;
-  bodyFatPercentage : String;
-  waistMeasurement : Number;
-  energyLevel : Number;
-  sleepQuality : Number;
-  workoutRecoveryRating : Number;
-  
-  isDeleted? : Boolean;  
+  currentWeight: number;
+  bodyFatPercentage : string;
+  waistMeasurement : number;
+  energyLevel : number;
+  sleepQuality : number;
+  workoutRecoveryRating : number;
+
+  isDeleted? : boolean;  
   createdAt?: Date;
   updatedAt?: Date;
 }

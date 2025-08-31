@@ -6,13 +6,13 @@ export interface ISatisfactionAndFeedback {
   // _taskId: undefined | Types.ObjectId;
   _id?: Types.ObjectId; // undefined |  Types.ObjectId |
   
-  areYouHappyWithCurrentProgress: Boolean;
-  doYouFeelSupported : Boolean;
-  oneThingYouNeedHelpWith : String
-  oneHabitYouImprovedOrBuiltThisWeek : String
-  wouldYouRecommendUs : Boolean
+  areYouHappyWithCurrentProgress: boolean;
+  doYouFeelSupported : boolean;
+  oneThingYouNeedHelpWith : string;
+  oneHabitYouImprovedOrBuiltThisWeek : string;
+  wouldYouRecommendUs : boolean;
 
-  isDeleted? : Boolean;  
+  isDeleted? : boolean;  
   createdAt?: Date;
   updatedAt?: Date;
 }

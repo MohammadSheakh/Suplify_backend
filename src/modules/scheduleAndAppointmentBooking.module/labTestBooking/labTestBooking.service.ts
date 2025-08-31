@@ -21,14 +21,12 @@ export class LabTestBookingService extends GenericService<
 
         /*********
          * 
-         * 4. ++++++ We Create Order [OrderStatus.pending] [PaymentStatus.unpaid] [PaymentTransactionId = null]
-         * 4. ++++++ if cartItem found .. and that validates .. like available quantity found ..
-         *                              we create OrderItem
-         * 5. ++ we Provide Stripe URL to payment .. 
+         * 1. ++++++ We Create LabTestBooking [status.pending] [PaymentStatus.unpaid] [PaymentTransactionId = null]
+         * 2. ++ we Provide Stripe URL to payment .. 
          * -----------------------------------------------------------
          * 6. If Payment Successful .. its going to WEBHOOK 
-         * 7. ++++ We create Payment Transaction .. 
-         * 7. ++++ We update Order [OrderStatus.completed] [PaymentStatus.paid] [PaymentTransactionId = <transaction_id>]
+         * 7. ++++ We create Payment Transaction .. referenceId should be that labTestId, referenceFor should be "LabTestBooking"
+         * 7. ++++ We update LabTestBooking [status.confirmed] [PaymentStatus.paid] [PaymentTransactionId = <transaction_id>]
          * 
          * ******* */
 
