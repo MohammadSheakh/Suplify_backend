@@ -22,15 +22,7 @@ export class SettingsService extends GenericService<typeof Settings> {
   }
 
   async createOrUpdateSettings(type: any, payload: any) {
-    // List of allowed settings types
-
-    // const allowedTypes = [
-    //   settingsType.aboutUs,
-    //   settingsType.contactUs,
-    //   settingsType.privacyPolicy,
-    //   settingsType.termsAndConditions,
-    // ];
-
+    
     if (!allowedTypes.includes(type)) {
       throw new ApiError(
         StatusCodes.NOT_FOUND,
@@ -43,6 +35,9 @@ export class SettingsService extends GenericService<typeof Settings> {
     if (existingSetting) {
       // existingSetting.set(payload.details); // ISSUE : not working ..
       existingSetting.details = payload.details;
+      if(type === settingsType.introductionVideo) {
+        existingSetting.introductionVideo = payload.introductionVideo; // Update introductionVideo if provided
+      }
       return await existingSetting.save();
     } else {
       // Ensure payload contains the correct type

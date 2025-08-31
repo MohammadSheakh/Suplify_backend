@@ -5,6 +5,7 @@ import { validateFiltersForQuery } from '../../../middlewares/queryValidation/pa
 import * as validation from './order.validation';
 import validateRequest from '../../../shared/validateRequest';
 import auth from '../../../middlewares/auth';
+import { TRole } from '../../../middlewares/roles';
 const multer = require('multer');
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
@@ -55,12 +56,7 @@ router.route('/').get(
  * 
  * ******* */
 router.route('/').post(
-  // [
-  //   upload.fields([
-  //     { name: 'attachments', maxCount: 15 }, // Allow up to 5 cover photos
-  //   ]),
-  // ],
-  auth('common'),
+  auth(TRole.common), // actually patient can create order
   validateRequest(validation.createOrderOfAOrderValidationSchema),
   controller.create
 );

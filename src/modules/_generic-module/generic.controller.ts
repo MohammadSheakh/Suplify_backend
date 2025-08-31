@@ -23,6 +23,8 @@ export class GenericController<ModelType, InterfaceType> {
 
   // Create
   create = catchAsync(async (req: Request, res: Response) => {
+    console.log("ℹ️hit generic controller");
+    
     const data = req.body;
     const result = await this.service.create(data);
 

@@ -5,10 +5,17 @@ import { PaginateOptions, PaginateResult } from '../../../types/paginate';
 export interface IDoctorAppointmentSchedule {
   // _taskId: undefined | Types.ObjectId;
   _id?: Types.ObjectId; // undefined |  Types.ObjectId |
-  userId: Types.ObjectId;
-  message : String;
+  createdBy: Types.ObjectId;
+  scheduleName : string;
+  scheduleDate : Date; // TODO : is it should be string or Date 
+  startTime : string;
+  endTime : string;
+  description : string;
+  price : string;
+  typeOfLink : string;
+  meetingLink : string;
 
-  isDeleted? : Boolean;  
+  isDeleted? : boolean;  
   createdAt?: Date;
   updatedAt?: Date;
 }

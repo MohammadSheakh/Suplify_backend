@@ -5,6 +5,7 @@ import { IDoctorAppointmentSchedule } from './doctorAppointmentSchedule.interfac
 import { validateFiltersForQuery } from '../../../middlewares/queryValidation/paginationQueryValidationMiddleware';
 import validateRequest from '../../../shared/validateRequest';
 import auth from '../../../middlewares/auth';
+import { TRole } from '../../../middlewares/roles';
 
 const multer = require('multer');
 const storage = multer.memoryStorage();
@@ -31,7 +32,7 @@ const controller = new DoctorAppointmentScheduleController();
 //info : pagination route must be before the route with params
 router.route('/paginate').get(
   //auth('common'),
-  validateFiltersForQuery(optionValidationChecking(['_id'])),
+  validateFiltersForQuery(optionValidationChecking(['_id', ...paginationOptions])),
   controller.getAllWithPagination
 );
 
@@ -52,15 +53,14 @@ router.route('/').get(
   controller.getAll
 );
 
-//[🚧][🧑‍💻✅][🧪] // 🆗
-router.route('/create').post(
-  // [
-  //   upload.fields([
-  //     { name: 'attachments', maxCount: 15 }, // Allow up to 5 cover photos
-  //   ]),
-  // ],
-  auth('common'),
-  validateRequest(validation.createHelpMessageValidationSchema),
+/*********
+ * 
+ *  Doctor | Schedule | Create Doctor Appointment 
+ * 
+ * ******** */
+router.route('/').post(
+  auth(TRole.doctor),
+  validateRequest(validation.createDoctorAppointmentScheduleValidationSchema),
   controller.create
 );
 

@@ -3,4 +3,5 @@ export enum settingsType {
   contactUs = 'contactUs',
   privacyPolicy = 'privacyPolicy',
   termsAndConditions = 'termsAndConditions',
+  introductionVideo = 'introductionVideo',
 }

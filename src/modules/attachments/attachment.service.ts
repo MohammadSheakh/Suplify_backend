@@ -6,6 +6,7 @@ import { AttachmentType } from './attachment.constant';
 import { GenericService } from '../_generic-module/generic.services';
 import { IAttachment } from './attachment.interface';
 import { deleteFileFromSpace, uploadFileToSpace } from '../../middlewares/digitalOcean';
+import { TFolderName } from '../../enums/folderNames';
 
 export class AttachmentService extends GenericService<typeof Attachment, IAttachment> {
   constructor() {

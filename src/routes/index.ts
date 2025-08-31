@@ -15,6 +15,7 @@ import { CartItemRoute } from '../modules/order.module/cartItem/cartItem.route';
 import { Cart } from '../modules/order.module/cart/cart.model';
 import { CartRoute } from '../modules/order.module/cart/cart.route';
 import { OrderRoute } from '../modules/order.module/order/order.route';
+import { DoctorAppointmentScheduleRoute } from '../modules/scheduleAndAppointmentBooking.module/doctorAppointmentSchedule/doctorAppointmentSchedule.route';
 
 // import { ChatRoutes } from '../modules/chat/chat.routes';
 // import { MessageRoutes } from '../modules/message/message.routes';
@@ -65,6 +66,11 @@ const apiRoutes = [
     route: ConversationRoute,
   },
 
+  
+  { // 🟢
+    path: '/doctor-appointments',
+    route: DoctorAppointmentScheduleRoute,
+  },
   {
     path: '/attachments',
     route: AttachmentRoutes,

@@ -20,11 +20,11 @@ const DoctorAppointmentScheduleSchema = new Schema<IDoctorAppointmentSchedule>(
       required: [true, 'scheduleDate is required'],
     },
     startTime: {
-      type: Date,
+      type: String,
       required: [true, 'startTime is required . type is Date'],
     },
     endTime: {
-      type: Date,
+      type: String,
       required: [true, 'endTime is required . type is Date'],
     },
     description : {

@@ -11,6 +11,7 @@ const settingsSchema = new Schema<ISettings>(
         settingsType.contactUs,
         settingsType.privacyPolicy,
         settingsType.termsAndConditions,
+        settingsType.introductionVideo,
       ],
       required: [true, `type is required .. it can be  ${Object.values(settingsType).join(
               ', '
@@ -20,6 +21,10 @@ const settingsSchema = new Schema<ISettings>(
       type: String,
       required: true,
     },
+    introductionVideo:{
+      type: Object,
+      required: false, // This is optional
+    }
   },
   {
     timestamps: true,

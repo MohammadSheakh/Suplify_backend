@@ -5,6 +5,7 @@ export enum TRole {
   admin = 'admin',
   specialist = 'specialist',
   doctor = 'doctor',
+  common = 'common' // its not a role but a common access level
 }
 
 const allRoles: Record<Role, string[]> = {

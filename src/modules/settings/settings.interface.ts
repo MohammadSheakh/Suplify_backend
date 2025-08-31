@@ -6,8 +6,10 @@ export interface ISettings {
     | settingsType.aboutUs
     | settingsType.contactUs
     | settingsType.privacyPolicy
-    | settingsType.termsAndConditions;
+    | settingsType.termsAndConditions
+    | settingsType.introductionVideo;
   details: string;
+  introductionVideo: Object; 
   createdAt: Date;
   updatedAt: Date;
 }

@@ -1,7 +1,6 @@
-export enum FolderName {
-    note = "note",
-    task = "task",
-    aimConstruction = "aimConstruction",
-    user = "user",
-    project = "project",
-}
+export enum TFolderName {
+    informationVideo = "suplify/informationVideo",
+    product = "suplify/product",
+    user = "suplify/user",
+    trainingProgram = "suplify/trainingProgram"
+};

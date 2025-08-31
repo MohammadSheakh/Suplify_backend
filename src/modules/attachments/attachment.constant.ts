@@ -4,8 +4,3 @@ export enum AttachmentType {
     unknown = 'unknown',
 }
   
-export enum TFolderName {
-    person = "suplify/person",
-    common = "suplify/common",
-    shop = "suplify/shop",
-}

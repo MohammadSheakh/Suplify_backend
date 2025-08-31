@@ -1,24 +1,51 @@
 import mongoose from 'mongoose';
 import { z } from 'zod';
+import { TDoctorAppointmentScheduleStatus, TMeetingLink } from './doctorAppointmentSchedule.constant';
 
-export const createHelpMessageValidationSchema = z.object({
+export const createDoctorAppointmentScheduleValidationSchema = z.object({
   body: z.object({
-    DoctorAppointmentSchedule: z  
+    scheduleName: z  
     .string({
-        required_error: 'message is required, message must be a string.',
-        invalid_type_error: 'dateOfBirth must be a string.',
-      }).min(5, {
-      message: 'message must be at least 5 characters long.',
-    }).max(500, {
-      message: 'message must be at most 500 characters long.',
+        required_error: 'scheduleName is required, scheduleName must be a string.',
+        invalid_type_error: 'scheduleName must be a string.',
+      }).min(2, {
+      message: 'scheduleName must be at least 2 characters long.',
+    }).max(300, {
+      message: 'scheduleName must be at most 300 characters long.',
     }),
-  
-     userId: z.string({
-        required_error: 'id is required in params.',
-        invalid_type_error: 'id must be a mongoose object.',
-      }).refine(value => mongoose.Types.ObjectId.isValid(value), {
-        message: 'id must be a valid mongoose ObjectId.',
-      }),
+
+    scheduleDate: z.string({
+      required_error: 'scheduleDate is required.',
+      invalid_type_error: 'scheduleDate must be a string.',
+    }), // TODO : later we have to convert this string to date .. 
+    startTime: z.string({
+      required_error: 'startTime is required.',
+      invalid_type_error: 'startTime must be a string.',
+    }),
+    endTime: z.string({
+      required_error: 'endTime is required.',
+      invalid_type_error: 'endTime must be a string.',
+    }),
+    description: z.string({
+      required_error: 'description is required.',
+      invalid_type_error: 'description must be a string.',
+    }),
+    price: z.string({
+      required_error: 'price is required.',
+      invalid_type_error: 'price must be a string.',
+    }),// TODO : price must be a number 
+    typeOfLink: z.enum([
+      TMeetingLink.zoom,
+      TMeetingLink.googleMeet,
+      TMeetingLink.others
+    ], {
+      required_error: 'typeOfLink is required.',
+      invalid_type_error: 'typeOfLink must be a valid enum value.',
+    }),
+    meetingLink: z.string({
+      required_error: 'meetingLink is required.',
+      invalid_type_error: 'meetingLink must be a string.',
+    }),
   }),
 
   // params: z.object({
