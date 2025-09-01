@@ -1,3 +1,4 @@
+//@ts-ignore
 import { model, Schema } from 'mongoose';
 import { ISettings } from './settings.interface';
 import { settingsType } from './settings.constant';

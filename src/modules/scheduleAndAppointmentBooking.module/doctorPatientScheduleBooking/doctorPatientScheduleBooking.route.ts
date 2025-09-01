@@ -1,3 +1,4 @@
+//@ts-ignore
 import express from 'express';
 import * as validation from './doctorPatientScheduleBooking.validation';
 import { DoctorPatientScheduleBookingController} from './doctorPatientScheduleBooking.controller';
@@ -6,8 +7,9 @@ import { validateFiltersForQuery } from '../../../middlewares/queryValidation/pa
 import validateRequest from '../../../shared/validateRequest';
 import auth from '../../../middlewares/auth';
 import { TRole } from '../../../middlewares/roles';
-
-const multer = require('multer');
+//@ts-ignore
+import multer from 'multer';
+// const multer = require('multer');
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
@@ -49,7 +51,7 @@ router.route('/update/:id').put(
 
 //[🚧][🧑‍💻✅][🧪] // 🆗
 router.route('/').get(
-  auth('commonAdmin'),
+  auth(TRole.common),
   controller.getAll
 );
 

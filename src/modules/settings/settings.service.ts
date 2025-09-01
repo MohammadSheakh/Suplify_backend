@@ -1,5 +1,4 @@
-//[🚧][🧑‍💻✅][🧪] // 🆗
-
+//@ts-ignore
 import { StatusCodes } from 'http-status-codes';
 import ApiError from '../../errors/ApiError';
 import { settingsType } from './settings.constant';
@@ -15,7 +14,7 @@ const allowedTypes = [
   settingsType.termsAndConditions,
 ];
 
-
+//TODO: Must Fix korte hobe 
 export class SettingsService extends GenericService<typeof Settings> {
   constructor() {
     super(Settings);

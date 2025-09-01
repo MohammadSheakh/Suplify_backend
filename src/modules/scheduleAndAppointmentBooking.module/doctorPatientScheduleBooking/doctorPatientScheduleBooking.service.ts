@@ -1,8 +1,10 @@
+//@ts-ignore
 import { StatusCodes } from 'http-status-codes';
 import { DoctorPatientScheduleBooking } from './doctorPatientScheduleBooking.model';
 import { IDoctorPatientScheduleBooking } from './doctorPatientScheduleBooking.interface';
 import { GenericService } from '../../_generic-module/generic.services';
 import { IUser } from '../../token/token.interface';
+//@ts-ignore
 import Stripe from "stripe";
 import stripe from '../../../config/stripe.config';
 
