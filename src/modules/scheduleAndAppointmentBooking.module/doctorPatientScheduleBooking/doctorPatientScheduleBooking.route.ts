@@ -5,6 +5,7 @@ import { IDoctorPatientScheduleBooking } from './doctorPatientScheduleBooking.in
 import { validateFiltersForQuery } from '../../../middlewares/queryValidation/paginationQueryValidationMiddleware';
 import validateRequest from '../../../shared/validateRequest';
 import auth from '../../../middlewares/auth';
+import { TRole } from '../../../middlewares/roles';
 
 const multer = require('multer');
 const storage = multer.memoryStorage();
@@ -53,14 +54,9 @@ router.route('/').get(
 );
 
 //[🚧][🧑‍💻✅][🧪] // 🆗
-router.route('/create').post(
-  // [
-  //   upload.fields([
-  //     { name: 'attachments', maxCount: 15 }, // Allow up to 5 cover photos
-  //   ]),
-  // ],
-  auth('common'),
-  validateRequest(validation.createHelpMessageValidationSchema),
+router.route('/:doctorScheduleId').post(
+  auth(TRole.patient),
+  validateRequest(validation.doctorPatientScheduleBookingValidationSchema),
   controller.create
 );
 

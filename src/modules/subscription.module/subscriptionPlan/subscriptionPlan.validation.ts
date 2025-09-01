@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { TSubscription } from './subscriptionPlan.constant';
+import { TSubscription } from '../../../enums/subscription';
 
 export const createSubscriptionPlanValidationSchema = z.object({
   body: z.object({

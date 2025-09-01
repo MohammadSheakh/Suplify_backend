@@ -124,18 +124,6 @@ const userSubscriptionSchema = new Schema<IUserSubscription>(
       required: [false, 'stripe_transaction_id is not required'], // 🟢🟢 for one time payment
     },
 
-    /*
-    /////////////////////// stripe_customer_id  i think main user collection e rakha better 
-    stripe_customer_id: {
-      // > stripe er customer id ...
-      type: String,
-      required: [
-        true,
-        'stripe_customer_id or external_customer_id is required',
-      ],
-      default: null,
-    },
-    */
     isDeleted: {
       type: Boolean,
       required: [false, 'isDeleted is not required'],

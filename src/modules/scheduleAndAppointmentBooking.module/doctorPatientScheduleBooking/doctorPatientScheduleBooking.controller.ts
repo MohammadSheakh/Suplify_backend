@@ -16,16 +16,14 @@ export class DoctorPatientScheduleBookingController extends GenericController<
   typeof DoctorPatientScheduleBooking,
   IDoctorPatientScheduleBooking
 > {
-  DoctorPatientScheduleBookingService = new DoctorPatientScheduleBookingService();
+  doctorPatientScheduleBookingService = new DoctorPatientScheduleBookingService();
 
   constructor() {
     super(new DoctorPatientScheduleBookingService(), 'DoctorPatientScheduleBooking');
   }
 
   create = catchAsync(async (req: Request, res: Response) => {
-
-    const data = req.body as Partial<IBookLabTest>;
-    const result = await labTestBookingService.createV2(data, req.user);
+    const result = await this.doctorPatientScheduleBookingService.createV2(req.params.doctorScheduleId, req.user);
 
     sendResponse(res, {
     code: StatusCodes.OK,

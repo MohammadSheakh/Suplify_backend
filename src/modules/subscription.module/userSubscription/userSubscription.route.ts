@@ -3,6 +3,8 @@ import express from 'express';
 import { validateFiltersForQuery } from '../../../middlewares/queryValidation/paginationQueryValidationMiddleware';
 import { IUserSubscription } from './userSubscription.interface';
 import { UserSubscriptionController } from './userSubscription.controller';
+import auth from '../../../middlewares/auth';
+import { TRole } from '../../../middlewares/roles';
 
 const multer = require('multer');
 const storage = multer.memoryStorage();
@@ -51,12 +53,7 @@ router.route('/').get(
 );
 
 router.route('/create').post(
-  // [
-  //   upload.fields([
-  //     { name: 'attachments', maxCount: 15 }, // Allow up to 5 cover photos
-  //   ]),
-  // ],
-  //auth('common'),
+  
   // validateRequest(UserValidation.createUserValidationSchema),
   controller.create
 );
@@ -72,5 +69,15 @@ router
 .put(
   //auth('common'),
   controller.softDeleteById);
+
+/*********
+ * 
+ * Patient  | Landing Page | Start Free Trial
+ * 
+ * ****** */  
+router.route('/free-trial/start').post(
+  auth(TRole.patient),
+  controller.startFreeTrial
+);
 
 export const UserSubscriptionRoute = router;

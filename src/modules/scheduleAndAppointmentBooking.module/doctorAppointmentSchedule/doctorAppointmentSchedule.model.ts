@@ -11,6 +11,12 @@ const DoctorAppointmentScheduleSchema = new Schema<IDoctorAppointmentSchedule>(
       ref: 'User',
       required: [true, 'createdBy is required'],
     },
+    booked_by : { //🔗👤 when a patient booked this schedule .. his Id should be here .. 
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      required: [false, 'booked_by is not required'],
+      default: null,
+    },
     scheduleName: {
       type: String,
       required: [true, 'scheduleName is required'],
@@ -26,6 +32,15 @@ const DoctorAppointmentScheduleSchema = new Schema<IDoctorAppointmentSchedule>(
     endTime: {
       type: String,
       required: [true, 'endTime is required . type is Date'],
+    },
+
+    timeLeft: { // ℹ️
+      type: Number,
+      required: [false, 'timeLeft is not required, This is just for show value'],
+    },
+    minutesLeft: { // ℹ️
+      type: Number,
+      required: [false, 'minutesLeft is not required, This is just for show value'],
     },
     description : {
       type: String,

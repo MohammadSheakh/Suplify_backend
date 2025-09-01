@@ -2,17 +2,22 @@ import { StatusCodes } from 'http-status-codes';
 import { DoctorPatientScheduleBooking } from './doctorPatientScheduleBooking.model';
 import { IDoctorPatientScheduleBooking } from './doctorPatientScheduleBooking.interface';
 import { GenericService } from '../../_generic-module/generic.services';
-
+import { IUser } from '../../token/token.interface';
+import Stripe from "stripe";
+import stripe from '../../../config/stripe.config';
 
 export class DoctorPatientScheduleBookingService extends GenericService<
   typeof DoctorPatientScheduleBooking,
-  IDoctorPatientScheduleBooking
-> {
+  IDoctorPatientScheduleBooking> 
+  {
+
+  private stripe: Stripe;
   constructor() {
     super(DoctorPatientScheduleBooking);
+    this.stripe = stripe;
   }
 
-  async createV2(data:Partial<IBookLabTest>, user: IUser) : Promise<ILabTestBooking> {
+  async createV2(doctorScheduleId: string, user: IUser) : Promise<IDoctorPatientScheduleBooking> {
 
         /*********
          * 

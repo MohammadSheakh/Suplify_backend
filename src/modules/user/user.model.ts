@@ -3,8 +3,9 @@ import { TProfileImage, TUser, UserModal } from './user.interface';
 import paginate from '../../common/plugins/paginate';
 import bcryptjs from 'bcryptjs';
 import { config } from '../../config';
-import { Gender, MaritalStatus, TStatusType, TTSubscription, UserStatus } from './user.constant';
+import { TStatusType } from './user.constant';
 import { Roles } from '../../middlewares/roles';
+import { TSubscription } from '../../enums/subscription';
 
 // Profile Image Schema
 const profileImageSchema = new Schema<TProfileImage>({
@@ -61,15 +62,36 @@ const userSchema = new Schema<TUser, UserModal>(
     subscriptionType: {
       type: String,
       enum: 
-         [TTSubscription.standard, TTSubscription.standardPlus, TTSubscription.vise],
+         [
+          TSubscription.none,
+          TSubscription.freeTrial,
+          TSubscription.standard,
+          TSubscription.standardPlus,
+          TSubscription.vise],
       required: [
         false,
         `TSubscription is required it can be ${Object.values(
-          TTSubscription
+          TSubscription
         ).join(', ')}`,
       ],
-      //default: TTSubscription.standard, // 7 day free trial provide korte hobe .. chinta korte hobe 
+      default: TSubscription.standard, // 7 day free trial provide korte hobe .. chinta korte hobe 
     },
+
+    // 🆓 FREE TRIAL TRACKING
+    hasUsedFreeTrial: { //✅ TRIAL_USED (prevent multiple trials)
+      type: Boolean,
+      default: false,
+    },
+
+    // freeTrialStartDate: { //📅 TRIAL_START
+    //   type: Date,
+    //   default: null,
+    // },
+    
+    // freeTrialEndDate: { //📅 TRIAL_END
+    //   type: Date,
+    //   default: null,
+    // },
 
     status : {
       type: String,
@@ -124,6 +146,17 @@ const userSchema = new Schema<TUser, UserModal>(
       required: [
         false,
         'stripe_customer_id is not required',
+      ],
+      default: null,
+    },
+
+    stripe_subscription_id : { /*********
+                                This is important .. 
+                                ****** */
+      type: String,
+      required: [
+        false,
+        'stripe_subscription_id is not required',
       ],
       default: null,
     },

@@ -31,8 +31,8 @@ const controller = new DoctorAppointmentScheduleController();
 
 //info : pagination route must be before the route with params
 router.route('/paginate').get(
-  auth(TRole.doctor),
-  validateFiltersForQuery(optionValidationChecking(['_id','scheduleStatus', ...paginationOptions])),
+  auth(TRole.doctor, TRole.patient),
+  validateFiltersForQuery(optionValidationChecking(['_id','createdBy', 'scheduleStatus', ...paginationOptions])),
   controller.getAllWithPagination
 );
 

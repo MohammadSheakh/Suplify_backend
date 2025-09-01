@@ -10,6 +10,7 @@ import sendResponse from '../../../shared/sendResponse';
 import { IUser } from '../../token/token.interface';
 import omit from '../../../shared/omit';
 import pick from '../../../shared/pick';
+import { TRole } from '../../../middlewares/roles';
 
 
 // let conversationParticipantsService = new ConversationParticipentsService();
@@ -52,7 +53,15 @@ export class DoctorAppointmentScheduleController extends GenericController<
     const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']); ;
     const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
 
-    filters.createdBy = (req.user as IUser)?.userId; /** always return logged in users schedule */
+    /***
+     * 
+     * if logged in user role is doctor .. then return for only his schedules... 
+     * ***/
+    if(req.user && (req.user as IUser)?.role === TRole.doctor){
+      filters.createdBy = (req.user as IUser)?.userId; 
+    }
+    console.log("user from token 🧪", req.user.userId);
+    console.log("filters 🧪", filters);
 
     const populateOptions: (string | {path: string, select: string}[]) = [
       // {

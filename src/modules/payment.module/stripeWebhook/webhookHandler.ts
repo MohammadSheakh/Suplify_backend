@@ -18,6 +18,9 @@ import stripe from '../../../config/stripe.config';
 import { User } from '../../user/user.model';
 import ApiError from '../../../errors/ApiError';
 import { handlePaymentSucceeded } from './handlePaymentSucceeded';
+import { handleFailedPayment } from './handleFailedPayment';
+import { handleSubscriptionCancellation } from './handleSubscriptionCancellation';
+import  {handleSuccessfulPayment} from './handleSuccessfulPayment';
 
 const webhookHandler = async (req: Request, res: Response): Promise<void> => {
      console.log('Webhook received');
@@ -47,9 +50,28 @@ const webhookHandler = async (req: Request, res: Response): Promise<void> => {
                     console.log('🟢🟢', event.data.object);
                     await handlePaymentSucceeded(event.data.object);
                     break;
+               /*******
+                * later we will implement this 
+                * *****/     
                case 'transfer.created':
                     // await handleTransferCreated(event.data.object); // commented by sheakh
                     console.log('🟢🟢 Transfer created:', event.data.object);
+                    break;
+               // 🎯 AUTOMATIC BILLING AFTER TRIAL
+               case 'invoice.payment_succeeded':
+                    await handleSuccessfulPayment(event.data.object);
+                    break;
+               // 💳 PAYMENT FAILED AFTER TRIAL  
+               case 'invoice.payment_failed':
+                    await handleFailedPayment(event.data.object);
+                    break;
+               // 🔄 SUBSCRIPTION CANCELLED
+               case 'customer.subscription.deleted':
+                    await handleSubscriptionCancellation(event.data.object);
+                    break;
+               // ✅ TRIAL CONVERTED TO PAID
+               case 'customer.subscription.updated':
+                    await handleSubscriptionUpdate(event.data.object);
                     break;
                default:
                     // console.log(`Unhandled event type: ${event.type}`);

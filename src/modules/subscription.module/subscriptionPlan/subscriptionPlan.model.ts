@@ -4,11 +4,11 @@ import paginate from '../../../common/plugins/paginate';
 import {
   TInitialDuration,
   TRenewalFrequency,
-  TSubscription,
 } from './subscriptionPlan.constant';
 
 import { ISubscriptionPlan, ISubscriptionPlanModel } from './subscriptionPlan.interface';
 import { TCurrency } from '../../../enums/payment';
+import { TSubscription } from '../../../enums/subscription';
 
 const subscriptionPlanSchema = new Schema<ISubscriptionPlan>(
   {
@@ -34,6 +34,19 @@ const subscriptionPlanSchema = new Schema<ISubscriptionPlan>(
         ).join(', ')}`,
       ],
     },
+    // 🆓🆓🆓🆓 FREE TRIAL FIELDS
+    freeTrialEnabled: { //✅ TRIAL_AVAILABLE
+      type: Boolean,
+      default: true,
+      required: [false, 'freeTrialEnabled is not required'],
+    },
+    freeTrialDurationDays: { //🆓🆓🆓🆓📅 TRIAL_DAYS  
+      type: Number,
+      default: 7, // 7 days free trial
+      min: [0, 'Free trial duration must be non-negative'],
+      required: [false, 'freeTrialDurationDays is not required'],
+    },
+
     initialDuration: {
       type: String,
       enum: [

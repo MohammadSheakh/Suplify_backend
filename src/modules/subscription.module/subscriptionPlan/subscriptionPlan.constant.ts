@@ -1,8 +1,3 @@
-export enum TSubscription {
-    standard = 'standard',
-    standardPlus = 'standardPlus',
-    vise = 'vise'
-}
 
 export enum TInitialDuration {
     day = 'day',
