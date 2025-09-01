@@ -1,11 +1,11 @@
+//@ts-ignore
 import express from 'express';
-
 import { validateFiltersForQuery } from '../../../middlewares/queryValidation/paginationQueryValidationMiddleware';
 import { IUserSubscription } from './userSubscription.interface';
 import { UserSubscriptionController } from './userSubscription.controller';
 import auth from '../../../middlewares/auth';
 import { TRole } from '../../../middlewares/roles';
-
+//@ts-ignore
 const multer = require('multer');
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });

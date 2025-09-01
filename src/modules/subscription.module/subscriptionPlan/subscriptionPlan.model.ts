@@ -1,3 +1,4 @@
+//@ts-ignore
 import { model, Schema } from 'mongoose';
 import paginate from '../../../common/plugins/paginate';
 
@@ -80,14 +81,9 @@ const subscriptionPlanSchema = new Schema<ISubscriptionPlan>(
       required: [false, 'Initial Fee is required'],
       // min: [0, 'Initial Fee must be greater than zero'],
     },
-    // renewalFee: {
-    //   type: Number,
-    //   required: [false, 'Renewal Fee is required'],
-    //   min: [0, 'Renewal Fee must be greater than zero'],
-    // },
     currency: {
       type: String,
-      enum: [TCurrency.usd], // , TCurrency.EUR
+      enum: [TCurrency.usd], 
       required: [
         true,
         `Currency is required .. it can be  ${Object.values(TCurrency).join(
@@ -96,33 +92,10 @@ const subscriptionPlanSchema = new Schema<ISubscriptionPlan>(
       ],
       default: TCurrency.usd,
     },
-    fullAccessToInteractiveChat: {
-      type: Boolean,
-      required: [false, 'isInteractiveChat is not required'],
-      default: false,
-    },
-    canViewCycleInsights: {
-      type: Boolean,
-      required: [false, 'canViewCycleInsights is not required'],
-      default: false,
-    },
-    features: {
-      //> One Subscription can have multiple features ...
-      type: [String],
-      required: [true, 'Features is required'],
-    },
-    // freeTrialDuration: {
-    //   type: Number, // Duration in days
-    //   default: 0, // Default to no free trial
-    //   min: [0, 'Free trial duration must be non-negative'],
-    // },
-    // freeTrialEnabled: {
-    //   type: Boolean,
-    //   default: false, // Indicates if the subscription supports a free trial
-    // },
-  
-    ///////////////////
-
+    /*******
+     * in stripe .. we always have to create new subscription
+     * and we can not update existing subscription ... 
+     * **** */
     stripe_product_id : {
       type: String,
       required: [true, 'stripe_product_id is required'],
@@ -131,9 +104,6 @@ const subscriptionPlanSchema = new Schema<ISubscriptionPlan>(
       type: String,
       required: [true, 'stripe_price_id is required'],
     },
-
-    // as we can not update existing stripe product id and price id
-    // we need to keep them in the database
     
     isActive : {
       type: Boolean,
@@ -154,7 +124,7 @@ const subscriptionPlanSchema = new Schema<ISubscriptionPlan>(
 );
 
 subscriptionPlanSchema.plugin(paginate);
-
+//@ts-ignore
 subscriptionPlanSchema.pre('save', function(next) {
   // Rename _id to _projectId
   // this._taskId = this._id;
@@ -167,6 +137,7 @@ subscriptionPlanSchema.pre('save', function(next) {
 
 // Use transform to rename _id to _projectId
 subscriptionPlanSchema.set('toJSON', {
+  //@ts-ignore
   transform: function (doc, ret, options) {
     ret._subscriptionId = ret._id;  // Rename _id to _subscriptionId
     delete ret._id;  // Remove the original _id field

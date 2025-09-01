@@ -5,6 +5,7 @@ import { IUser } from "../../token/token.interface";
 import { IUserSubscription } from "./userSubscription.interface";
 import { UserSubscription } from "./userSubscription.model";
 import {  UserSubscriptionService } from "./userSubscription.service";
+//@ts-ignore
 import { Request, Response } from 'express';
 
 export class UserSubscriptionController extends GenericController<typeof UserSubscription, IUserSubscription> {
