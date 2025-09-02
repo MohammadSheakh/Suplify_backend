@@ -82,10 +82,10 @@ export class UserSubscriptionService extends GenericService<typeof UserSubscript
             trial_period_days: 7, // 7 days
             metadata: {
                 userId: user._id.toString(),
-                subscriptionType: TSubscription.standard,
-                referenceFor: TTransactionFor.SubscriptionPlan,
-                currency : TCurrency.usd,
-                amount : '0' // because its free trial and customer just book this
+                subscriptionType: TSubscription.standard.toString(),
+                referenceFor: TTransactionFor.SubscriptionPlan.toString(),
+                currency : TCurrency.usd.toString(),
+                amount : '0'.toString() // because its free trial and customer just book this
             }
         },
         
