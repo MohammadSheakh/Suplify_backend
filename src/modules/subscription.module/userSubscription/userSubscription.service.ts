@@ -7,6 +7,10 @@ import { UserSubscription } from "./userSubscription.model";
 import { StatusCodes } from 'http-status-codes';
 import stripe from "../../../config/stripe.config";
 import Stripe from "stripe";
+import { config } from "../../../config";
+import { TSubscription } from "../../../enums/subscription";
+import { TTransactionFor } from "../../payment.module/paymentTransaction/paymentTransaction.constant";
+import { TCurrency } from "../../../enums/payment";
 
 export class UserSubscriptionService extends GenericService<typeof UserSubscription, IUserSubscription>{
     private stripe: Stripe;
@@ -64,10 +68,10 @@ export class UserSubscriptionService extends GenericService<typeof UserSubscript
         payment_method_types: ['card'],
         mode: 'subscription',
         line_items: [{
-            price: subscriptionPlan.stripe_price_id, 
+            price: config.stripe.standard_plan_price_id, 
             /*****
              * 
-             *  🟢 70 dollar er priceId provide korte hobe .. which is comes from database
+             *  🟢 70 dollar er priceId provide korte hobe .. which is comes from env file 
              * 
              * ****** */
             quantity: 1,
@@ -77,21 +81,29 @@ export class UserSubscriptionService extends GenericService<typeof UserSubscript
         subscription_data: {
             trial_period_days: 7, // 7 days
             metadata: {
-            userId: user._id.toString(),
-            planType: planType
+                userId: user._id.toString(),
+                subscriptionType: TSubscription.standard,
+                referenceFor: TTransactionFor.SubscriptionPlan,
+                currency : TCurrency.usd,
+                amount : '0' // because its free trial and customer just book this
             }
         },
         
         // Success/Cancel URLs
-        success_url: `${process.env.FRONTEND_URL}/trial-success?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${process.env.FRONTEND_URL}/trial-cancelled`,
+        // success_url: `${process.env.FRONTEND_URL}/trial-success?session_id={CHECKOUT_SESSION_ID}`,
+        // cancel_url: `${process.env.FRONTEND_URL}/trial-cancelled`,
         
+        success_url: config.stripe.success_url,
+        cancel_url: config.stripe.cancel_url,
+
         // Collect card but don't charge immediately
-        payment_intent_data: {
-            setup_future_usage: 'off_session', // Save card for future charges
-        },
+        // payment_intent_data: {
+        //     setup_future_usage: 'off_session', // Save card for future charges
+        // },
         });
 
-        return null;
+        // TODO MUST :  Try catch use korte hobe 
+
+        return session.url;
     }
 }

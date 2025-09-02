@@ -80,5 +80,6 @@ export const config = {
     stripe_webhook_url: process.env.STRIPE_WEBHOOK_URL,
     success_url: process.env.STRIPE_SUCCESS_URL, // http://10.10.7.79:7000/api/v1/payments/success
     cancel_url: process.env.STRIPE_CANCEL_URL, // http://10.10.7.79:7000/api/v1/payments/cancel
+    standard_plan_price_id: process.env.STRIPE_STANDARD_PLAN_PRICE_ID,
   },
 };

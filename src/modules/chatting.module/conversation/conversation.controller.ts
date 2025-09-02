@@ -1,9 +1,11 @@
+//@ts-ignore
 import { Request, Response } from 'express';
 import catchAsync from '../../../shared/catchAsync';
 import sendResponse from '../../../shared/sendResponse';
 import { GenericController } from '../../_generic-module/generic.controller';
 import { Conversation } from './conversation.model';
 import { ConversationService } from './conversation.service';
+//@ts-ignore
 import { StatusCodes } from 'http-status-codes';
 import { ConversationParticipentsService } from '../conversationParticipents/conversationParticipents.service';
 import ApiError from '../../../errors/ApiError';

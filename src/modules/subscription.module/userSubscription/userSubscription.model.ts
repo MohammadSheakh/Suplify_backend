@@ -84,23 +84,19 @@ const userSubscriptionSchema = new Schema<IUserSubscription>(
         ).join(', ')}`,
       ],
     },
-    // isFreeTrial: {
-    //   type: Boolean,
-    //   default: false, // Indicates if the subscription is currently in the free trial phase
-    // },
-    // freeTrialStartDate: {
-    //   type: Date,
-    //   required: false, // Only required if `isFreeTrial` is true
-    // },
-    // freeTrialEndDate: {
-    //   type: Date,
-    //   required: false, // Only required if `isFreeTrial` is true
-    // },
-    // trialConvertedToPaid: {
-    //   type: Boolean,
-    //   default: false, // Indicates if the free trial has been converted to a paid subscription
-    // },
-
+    isFromFreeTrial :{
+      /******
+       * by this we can track is this subscription
+       * from free trial or not
+       * 
+       * true hoile amader ke
+       * Standard Subscription 
+       * ta assign kore dite hobe
+       * 
+       * ****** */
+      type: Boolean,
+      required:[true, 'isFromFreeTrial is required']
+    },
     stripe_subscription_id: { 
       type: String,
       required: [false, 'stripe_subscription_id is not required'], // 🟢🟢 for recurring payment 
