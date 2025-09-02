@@ -37,25 +37,13 @@ const userSubscriptionSchema = new Schema<IUserSubscription>(
     expirationDate: {
       type: Date,
       required: false,
-      // validate: {
-      //   validator: function (value) {  // 🔴🔴 validation ta check dite hobe .. 
-      //     return value > this.subscriptionStartDate;
-      //   },
-      //   message:
-      //     'expirationDate must be after subscription start date ',
-      // },
+      
     },
 
     renewalDate: {
       type: Date,
       required: false,
-      // validate: {
-      //   validator: function (value) {
-      //     return value > this.subscriptionStartDate;
-      //   },
-      //   message:
-      //     'initial Period End Date must be after subscription start date ',
-      // },
+      
     },
     
     billingCycle: {
@@ -132,7 +120,6 @@ const userSubscriptionSchema = new Schema<IUserSubscription>(
   },
   { 
     timestamps: true,
-    versionKey: false
    }
 );
 

@@ -80,12 +80,7 @@ router.route('/').get(
  *
  */
 //[🚧][🧑‍💻✅][🧪] // 🆗
-router.route('/create').post(
-  // [
-  //   upload.fields([
-  //     { name: 'attachments', maxCount: 15 }, // Allow up to 5 cover photos
-  //   ]),
-  // ],
+router.route('/').post(
   //auth('common'),
   validateRequest(validation.createSubscriptionPlanValidationSchema),
   controller.create
@@ -104,10 +99,7 @@ router
   controller.softDeleteById);
 
 
- ////////////
- 
-
-
+//////////////////////////////////  
 router.route('/customerPortal/:customerId').get(
   auth('common'), 
   controller.customerPortal

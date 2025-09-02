@@ -25,11 +25,6 @@ export const createSubscriptionPlanValidationSchema = z.object({
       .refine(subscriptionType => Object.keys(TSubscription).includes(subscriptionType as keyof typeof TSubscription), {
         message: `subscriptionType must be one of the following: ${Object.keys(TSubscription).join(', ')}`,
       }),
-
-    features: z.array(z.string({
-      required_error: 'features is required, features must be an array of strings.',
-      invalid_type_error: 'features must be an array of strings.',
-    })),
     
     }),
      // params: z.object({

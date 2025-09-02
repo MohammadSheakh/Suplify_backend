@@ -82,16 +82,30 @@ const userSchema = new Schema<TUser, UserModal>(
       type: Boolean,
       default: false,
     },
-
-    // freeTrialStartDate: { //📅 TRIAL_START
-    //   type: Date,
-    //   default: null,
-    // },
-    
-    // freeTrialEndDate: { //📅 TRIAL_END
-    //   type: Date,
-    //   default: null,
-    // },
+    /********
+     * for free trial .. we dont need to create 
+     * a USER_SUBSCRIPTION document .. we can just track this
+     * in USER model
+     * ****** */
+    trialStartDate: {
+      type: Date,
+      default: null,
+    },
+    trialEndDate : {
+      type: Date,
+      default: null,
+    },
+    trialPlanType:{/**** 
+      for which plan we start trial
+      because after trial end we need to create 
+      a userSubscription document ..
+      *****/
+      type: String,
+      enum: [
+        TSubscription.standard,
+      ],
+      default: null,
+    },
 
     status : {
       type: String,

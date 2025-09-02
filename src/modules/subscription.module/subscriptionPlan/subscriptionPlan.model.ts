@@ -119,7 +119,6 @@ const subscriptionPlanSchema = new Schema<ISubscriptionPlan>(
   },
   { 
     timestamps: true ,
-    versionKey: false
   }
 );
 
@@ -144,7 +143,6 @@ subscriptionPlanSchema.set('toJSON', {
     return ret;
   }
 });
-
 
 export const SubscriptionPlan = model<ISubscriptionPlan, ISubscriptionPlanModel>(
   'SubscriptionPlan',

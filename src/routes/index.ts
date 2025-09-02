@@ -17,6 +17,8 @@ import { CartRoute } from '../modules/order.module/cart/cart.route';
 import { OrderRoute } from '../modules/order.module/order/order.route';
 import { DoctorAppointmentScheduleRoute } from '../modules/scheduleAndAppointmentBooking.module/doctorAppointmentSchedule/doctorAppointmentSchedule.route';
 import { UserSubscriptionRoute } from '../modules/subscription.module/userSubscription/userSubscription.route';
+import { SubscriptionPlan } from '../modules/subscription.module/subscriptionPlan/subscriptionPlan.model';
+import { SubscriptionPlanRoute } from '../modules/subscription.module/subscriptionPlan/subscriptionPlan.route';
 
 // import { ChatRoutes } from '../modules/chat/chat.routes';
 // import { MessageRoutes } from '../modules/message/message.routes';
@@ -91,6 +93,10 @@ const apiRoutes = [
   {
     path: '/user-subs',
     route: UserSubscriptionRoute,
+  },
+  { // 🟢
+    path: '/subscription-plans',
+    route: SubscriptionPlanRoute,
   },
   {  // 🟢 from kappes
     path: '/stripe',

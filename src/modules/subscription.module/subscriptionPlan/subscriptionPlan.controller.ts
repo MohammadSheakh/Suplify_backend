@@ -20,6 +20,7 @@ import { UserSubscriptionStatusType } from '../userSubscription/userSubscription
 import { addMonths } from 'date-fns';
 import { IUserSubscription } from '../userSubscription/userSubscription.interface';
 import { TCurrency } from '../../../enums/payment';
+import stripe from "../../../config/stripe.config";
 
 const subscriptionPlanService = new SubscriptionPlanService();
 const userCustomService = new UserCustomService();
@@ -35,13 +36,7 @@ export class SubscriptionController extends GenericController<
   constructor() {
     super(new SubscriptionPlanService(), 'Subscription Plan');
     // Initialize Stripe with secret key (from your Stripe Dashboard) // https://dashboard.stripe.com/test/dashboard
-    this.stripe = new Stripe(
-      process.env.STRIPE_SECRET_KEY as string,
-      {
-        apiVersion: '2025-02-24.acacia',
-        typescript: true,
-      }
-  );
+    this.stripe = stripe;
   }
 
   /**
@@ -620,7 +615,6 @@ export class SubscriptionController extends GenericController<
 
   });
 
-
   confirmPayment = catchAsync(async (req: Request, res: Response) => {
     const userAgent = req.headers['user-agent'];
     // Check if the request is from a mobile device
@@ -693,7 +687,6 @@ export class SubscriptionController extends GenericController<
       data: paymentResult,
     });
   });
-
 
   // 2. Verify Session Completion (Client-side Success Page Handler)
   verifyCheckoutSession = catchAsync(async (req: Request, res: Response) => {
@@ -803,10 +796,12 @@ export class SubscriptionController extends GenericController<
     });
   });
 
-  // ⚡⚡ For Fertie Project 
+  // ⚡⚡ For Fertie Project to suplify project
   /*
-    As Admin can create subscription plan ...
-    //[🚧][🧑‍💻✅][🧪] // 🆗
+   * As Admin can create subscription plan ...
+   * // TODO MUST : this should move to service layer .. 
+   * Lets Create 3 Subscription Plan  
+   *
   */  
   create = catchAsync(async (req: Request, res: Response) => {
 
@@ -815,25 +810,24 @@ export class SubscriptionController extends GenericController<
      * 
      * ***** */
 
-     const existingPlan = await SubscriptionPlan.find({
+    const existingPlan = await SubscriptionPlan.find({
       isActive: true,
-     })
+      subscriptionType : req.body.subscriptionType
+    });
 
-     existingPlan.forEach(async (plan) => {
+    existingPlan.forEach(async (plan:ISubscriptionPlan) => {
       plan.isActive = false;
       await plan.save();
-     });
-
+    });
 
     const data : ISubscriptionPlan = req.body;
     
     data.subscriptionName = req.body.subscriptionName;
     data.amount = req.body.amount;
-    data.subscriptionType = TSubscription.premium;
+    data.subscriptionType = req.body.subscriptionType;
     data.initialDuration = TInitialDuration.month;
     data.renewalFrequncy = TRenewalFrequency.monthly;
     data.currency = TCurrency.usd;
-    data.features = req.body.features;
   
     // now we have to create stripe product and price 
     // and then we have to save the productId and priceId in our database
@@ -846,10 +840,10 @@ export class SubscriptionController extends GenericController<
       unit_amount: Math.round(parseFloat(data?.amount) * 100), // Amount in cents
       currency: data.currency,
       // -- as i dont want to make this recurring ... 
-      // recurring: {
-      //   interval: 'month', // or 'year' for yearly subscriptions
-      //   interval_count: 1, // Number of intervals (e.g., 1 month)
-      // },
+      recurring: {
+        interval: 'month', // or 'year' for yearly subscriptions
+        interval_count: 1, // every 1 month
+      },
       product: product.id,
     });
     data.stripe_product_id = product.id;

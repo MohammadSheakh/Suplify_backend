@@ -1,6 +1,24 @@
 // 5. HANDLE FAILED PAYMENT
 // async function handleFailedPayment(invoice) {
 export const handleFailedPayment = async (invoice) => {
+  /******
+   * invoice.payment_failed → Payment failure
+
+    Stripe gives you:
+
+    invoice.subscription
+
+    invoice.customer
+
+    invoice.next_payment_attempt
+
+    invoice.attempt_count
+
+    👉 Update UserSubscription in DB:
+
+    👉 status = "past_due" or "unpaid"
+   * 
+   * **** */
   try {
     const subscription = await stripe.subscriptions.retrieve(invoice.subscription);
     

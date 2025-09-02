@@ -59,6 +59,11 @@ const webhookHandler = async (req: Request, res: Response): Promise<void> => {
                     break;
                // 🎯 AUTOMATIC BILLING AFTER TRIAL
                case 'invoice.payment_succeeded':
+                    /***
+                     * here we create userSubscription
+                     * 
+                     * Trial converted to paid / renewal succeeded
+                     * *** */
                     await handleSuccessfulPayment(event.data.object);
                     break;
                // 💳 PAYMENT FAILED AFTER TRIAL  
