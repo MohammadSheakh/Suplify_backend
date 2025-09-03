@@ -8,7 +8,7 @@ export interface IAttachment {
   _id?: Types.ObjectId;
   attachment: string;
   attachmentType: AttachmentType.image | AttachmentType.document 
-   | AttachmentType.unknown;
+   | AttachmentType.unknown | AttachmentType.video;
 
   createdAt?: Date;
   updatedAt?: Date;

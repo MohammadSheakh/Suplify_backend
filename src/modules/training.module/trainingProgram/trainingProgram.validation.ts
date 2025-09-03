@@ -1,24 +1,44 @@
 import mongoose from 'mongoose';
 import { z } from 'zod';
 
-export const createHelpMessageValidationSchema = z.object({
+export const createTrainingProgramValidationSchema = z.object({
   body: z.object({
-    TrainingProgram: z  
+    programName: z  
     .string({
-        required_error: 'message is required, message must be a string.',
-        invalid_type_error: 'dateOfBirth must be a string.',
-      }).min(5, {
-      message: 'message must be at least 5 characters long.',
-    }).max(500, {
-      message: 'message must be at most 500 characters long.',
+        required_error: 'programName is required, programName must be a string.',
+        invalid_type_error: 'programName must be a string.',
+      }).min(2, {
+      message: 'programName must be at least 2 characters long.',
+    }).max(200, {
+      message: 'programName must be at most 200 characters long.',
     }),
-  
-     userId: z.string({
-        required_error: 'id is required in params.',
-        invalid_type_error: 'id must be a mongoose object.',
-      }).refine(value => mongoose.Types.ObjectId.isValid(value), {
-        message: 'id must be a valid mongoose ObjectId.',
-      }),
+    description: z  
+    .string({
+        required_error: 'description is required, description must be a string.',
+        invalid_type_error: 'description must be a string.',
+      }).min(2, {
+      message: 'description must be at least 2 characters long.',
+    }).max(200, {
+      message: 'description must be at most 200 characters long.',
+    }),
+    totalSessionCount:z.number({
+      required_error: 'totalSessionCount is required, totalSessionCount must be a number.',
+      invalid_type_error: 'totalSessionCount must be a number.',
+    }).min(1, {
+      message: 'totalSessionCount must be at least 1.',
+    }),
+    price: z.number({
+      required_error: 'price is required, price must be a number.',
+      invalid_type_error: 'price must be a number.',
+    }).min(0, {
+      message: 'price must be a positive number.',
+    }),
+    durationInMonths: z.number({
+      required_error: 'durationInMonths is required, durationInMonths must be a number.',
+      invalid_type_error: 'durationInMonths must be a number.',
+    }).min(1, {
+      message: 'durationInMonths must be at least 1.',
+    }),
   }),
 
   // params: z.object({

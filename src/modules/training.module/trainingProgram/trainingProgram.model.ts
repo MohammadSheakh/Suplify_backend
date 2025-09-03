@@ -10,6 +10,11 @@ const TrainingProgramSchema = new Schema<ITrainingProgram>(
       required: [true, 'programName is required'],
       trim: true
     },
+    description: {
+      type: String,
+      required: [true, 'description is required'],
+      trim: true
+    },
     durationInMonths: {
       type: Number,
       required: [true, 'durationInMonths is required'],
@@ -29,6 +34,22 @@ const TrainingProgramSchema = new Schema<ITrainingProgram>(
       ref: 'User',
       required: [true, 'createdBy is required'],
     },
+
+    attachments: [//🔗🖼️
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'Attachment',
+        required: [false, 'attachments is not required'],
+      }
+    ],
+
+    trailerContent: [//🔗🖼️
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'Attachment',
+        required: [false, 'trailerContent is not required'],
+      }
+    ],
 
     isDeleted: {
       type: Boolean,

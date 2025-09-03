@@ -22,11 +22,24 @@ export class AttachmentService extends GenericService<typeof Attachment, IAttach
   ) {
     let uploadedFileUrl:string = await uploadFileToSpace(file, folderName);
 
-    let fileType :AttachmentType.image | AttachmentType.unknown | AttachmentType.document;
+    const videoMimeTypes = [
+      'video/mp4',
+      'video/mpeg', 
+      'video/quicktime',
+      'video/x-msvideo',
+      'video/webm',
+      'video/x-flv',
+      'video/3gpp'
+    ];
+
+
+    let fileType :AttachmentType.video | AttachmentType.image | AttachmentType.unknown | AttachmentType.document;
     if (file.mimetype.includes('image')) {
       fileType = AttachmentType.image;
     } else if (file.mimetype.includes('application')) {
       fileType = AttachmentType.document;
+    }else if(file.mimetype.startsWith('video/') || videoMimeTypes.includes(file.mimetype)){
+      fileType = AttachmentType.video;
     }else{
       fileType = AttachmentType.unknown;
     }

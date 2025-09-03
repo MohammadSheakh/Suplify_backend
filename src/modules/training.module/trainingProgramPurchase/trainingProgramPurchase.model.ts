@@ -7,6 +7,16 @@ import { TPaymentStatus } from '../../scheduleAndAppointmentBooking.module/speci
 
 const TrainingProgramPurchaseSchema = new Schema<ITrainingProgramPurchase>(
   {
+    /**********
+     * Here we must keep price .. 
+     * because later training program price can be changed .. 
+     * 
+     * ****** */
+    price: {
+      type: Number,
+      required: [true, 'price is required'],
+      min: [0, 'price must be positive'],
+    },
     trainingProgramId : { //🔗 which training program 
       type: Schema.Types.ObjectId,
       ref: 'TrainingProgram',

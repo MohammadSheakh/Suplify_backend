@@ -27,6 +27,14 @@ const PatientTrainingSessionSchema = new Schema<IPatientTrainingSession>(
                       ', '
                     )}`],
     },
+    unlockDate : { 
+      type: Date,
+      required: [true, 'unlockDate is required'],
+    },
+    isUnlocked:{ // its just for show boolean value when query .. 
+      type: Boolean,
+      required: [false, 'isUnlocked is not required'],
+    },
     isDeleted: {
       type: Boolean,
       required: [false, 'isDeleted is not required'],

@@ -10,6 +10,8 @@ export interface ITrainingProgram {
   totalSessionCount : Number;
   price : Number;
   createdBy : Types.ObjectId;  //🔗
+  attachments: Types.ObjectId[];  // Array of attachment IDs
+  trailerContents: Types.ObjectId[];  // Array of trailer content IDs
 
   isDeleted? : Boolean;  
   createdAt?: Date;

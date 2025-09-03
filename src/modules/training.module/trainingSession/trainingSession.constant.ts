@@ -1,5 +1,4 @@
-export enum TrainingSessionType {
-  document = 'document',
-  image = 'image',
-  unknown = 'unknown',
+export enum TDurationUnit {
+  minutes = 'minutes',
+  hours = 'hours',
 }

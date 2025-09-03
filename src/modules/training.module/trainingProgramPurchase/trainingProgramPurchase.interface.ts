@@ -15,6 +15,7 @@ export interface ITrainingProgramPurchase {
     TPaymentStatus.paid |
     TPaymentStatus.refunded |
     TPaymentStatus.failed ;
+  price : number;
 
   isDeleted? : Boolean;  
   createdAt?: Date;
