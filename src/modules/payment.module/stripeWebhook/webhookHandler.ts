@@ -20,7 +20,7 @@ import ApiError from '../../../errors/ApiError';
 import { handlePaymentSucceeded } from './handlePaymentSucceeded';
 import { handleFailedPayment } from './handleFailedPayment';
 import { handleSubscriptionCancellation } from './handleSubscriptionCancellation';
-import  {handleSuccessfulPayment} from './handleSuccessfulPayment';
+import { handleSuccessfulPayment } from './handleSuccessfulPayment';
 
 const webhookHandler = async (req: Request, res: Response): Promise<void> => {
      console.log('Webhook received');
@@ -47,7 +47,8 @@ const webhookHandler = async (req: Request, res: Response): Promise<void> => {
      try {
           switch (event.type) {
                case 'checkout.session.completed':
-                    console.log('🟢🟢', event.data.object);
+                    console.log('🟢checkout.session.completed🟢', event.data.object);
+                    // THIS IS FOR ORDER ... ONE TIME PAYMENT 
                     await handlePaymentSucceeded(event.data.object);
                     break;
                /*******
@@ -55,7 +56,7 @@ const webhookHandler = async (req: Request, res: Response): Promise<void> => {
                 * *****/     
                case 'transfer.created':
                     // await handleTransferCreated(event.data.object); // commented by sheakh
-                    console.log('🟢🟢 Transfer created:', event.data.object);
+                    console.log('🟢transfer.created🟢 Transfer created:', event.data.object);
                     break;
                // 🎯 AUTOMATIC BILLING AFTER TRIAL
                case 'invoice.payment_succeeded':
@@ -64,19 +65,23 @@ const webhookHandler = async (req: Request, res: Response): Promise<void> => {
                      * 
                      * Trial converted to paid / renewal succeeded
                      * *** */
+                    console.log('🟢invoice.payment_succeeded🟢', event.data.object);
                     await handleSuccessfulPayment(event.data.object);
                     break;
                // 💳 PAYMENT FAILED AFTER TRIAL  
                case 'invoice.payment_failed':
+                    console.log("🟢invoice.payment_failed🟢")
                     await handleFailedPayment(event.data.object);
                     break;
                // 🔄 SUBSCRIPTION CANCELLED
                case 'customer.subscription.deleted':
+                    console.log('🟢customer.subscription.deleted🟢')
                     await handleSubscriptionCancellation(event.data.object);
                     break;
                // ✅ TRIAL CONVERTED TO PAID
                case 'customer.subscription.updated':
-                    await handleSubscriptionUpdate(event.data.object);
+                    // TODO Must:
+                    // await handleSubscriptionUpdate(event.data.object);
                     break;
                default:
                     // console.log(`Unhandled event type: ${event.type}`);
@@ -86,8 +91,8 @@ const webhookHandler = async (req: Request, res: Response): Promise<void> => {
           // Responding after handling the event
           res.status(200).json({ received: true });
      } catch (err: any) {
-          console.error('Error handling the event:', err);
-          res.status(500).send(`Internal Server Error: ${err.message}`);
+          console.error('❌❌Error handling the event:', err);
+          res.status(500).send(`❌❌Internal Server Error: ${err.message}`);
      }
 };
 

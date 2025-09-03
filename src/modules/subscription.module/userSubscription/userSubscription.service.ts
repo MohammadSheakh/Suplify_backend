@@ -85,7 +85,7 @@ export class UserSubscriptionService extends GenericService<typeof UserSubscript
                 subscriptionType: TSubscription.standard.toString(),
                 referenceFor: TTransactionFor.SubscriptionPlan.toString(),
                 currency : TCurrency.usd.toString(),
-                amount : '0'.toString() // because its free trial and customer just book this
+                amount : '70'.toString() // because its free trial and customer just book this
             }
         },
         

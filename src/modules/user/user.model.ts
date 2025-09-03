@@ -74,7 +74,7 @@ const userSchema = new Schema<TUser, UserModal>(
           TSubscription
         ).join(', ')}`,
       ],
-      default: TSubscription.standard, // 7 day free trial provide korte hobe .. chinta korte hobe 
+      default: TSubscription.none, 
     },
 
     // 🆓 FREE TRIAL TRACKING
