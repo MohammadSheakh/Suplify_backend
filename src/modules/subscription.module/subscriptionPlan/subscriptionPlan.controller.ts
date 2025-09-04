@@ -7,20 +7,20 @@ import sendResponse from '../../../shared/sendResponse';
 import { StatusCodes } from 'http-status-codes';
 import Stripe from 'stripe';
 import ApiError from '../../../errors/ApiError';
-import { TInitialDuration, TRenewalFrequency, TSubscription } from './subscriptionPlan.constant';
+import { TInitialDuration, TRenewalFrequency } from './subscriptionPlan.constant';
 import { User } from '../../user/user.model';
 import { UserCustomService } from '../../user/user.service';
 import mongoose from 'mongoose';
 import { PaymentTransactionService } from '../../payment.module/paymentTransaction/paymentTransaction.service';
 import { SubscriptionPlan } from './subscriptionPlan.model';
-import { UserSubscription } from '../userSubscription/userSubscription.model';
-import { PaymentTransaction } from '../../payment.module/paymentTransaction/paymentTransaction.model';
-import { TPaymentStatus } from '../../payment.module/paymentTransaction/paymentTransaction.constant';
-import { UserSubscriptionStatusType } from '../userSubscription/userSubscription.constant';
-import { addMonths } from 'date-fns';
-import { IUserSubscription } from '../userSubscription/userSubscription.interface';
+
 import { TCurrency } from '../../../enums/payment';
 import stripe from "../../../config/stripe.config";
+import { IUser } from '../../token/token.interface';
+import { TSubscription } from '../../../enums/subscription';
+import { TTransactionFor } from '../../payment.module/paymentTransaction/paymentTransaction.constant';
+import { IUserSubscription } from '../userSubscription/userSubscription.interface';
+import { UserSubscriptionStatusType } from '../userSubscription/userSubscription.constant';
 
 const subscriptionPlanService = new SubscriptionPlanService();
 const userCustomService = new UserCustomService();
@@ -78,14 +78,14 @@ export class SubscriptionController extends GenericController<
         `Subscription plan not found`
       );
     }
-    const user = await User.findById(userId);
+    const user = await User.findById((req.user as IUser).userId);
     if (!user) {
       throw new ApiError(
         StatusCodes.BAD_REQUEST,
         'User not found'
       );
     }
-    if (user.subscriptionType && user.subscriptionType !== TSubscription.free) {
+    if (user.subscriptionType !== TSubscription.none) {
       throw new ApiError(
         StatusCodes.BAD_REQUEST,
         'User is already subscribed to a plan'
@@ -113,6 +113,42 @@ export class SubscriptionController extends GenericController<
     }
 
 
+    /*******
+     * 
+     * Lets create a userSubscription // TODO : we have to check already have userSubsription or not .. 
+     * 
+     * ******* */
+
+    const newUserSubscription : IUserSubscription = await UserSubscription.create({
+        userId: user._id, //🔗
+        subscriptionPlanId : null, //🔗this will be assign after free trial end .. if stripe charge 70 dollar .. and in webhook we update this with standard plan 
+        subscriptionStartDate: new Date(),
+        currentPeriodStartDate: null, // new Date(), // ⚡ we will update this in webhook after successful payment
+        expirationDate: null, // new Date(new Date().setDate(new Date().getDate() + 1)), // 1 days free trial
+        isFromFreeTrial: false, // this is not from free trial
+        cancelledAtPeriodEnd : false,
+        status : UserSubscriptionStatusType.processing,
+        // isAutoRenewed : 70 dollar pay houar pore true hobe 
+        // billingCycle :  it should be 1 .. after first 70 dollar payment 
+        // renewalDate : will be updated after 70 dollar for standard plan successful payment in webhook 
+        stripe_subscription_id: null, // because its free trial // after 70 dollar payment we will update this 
+        stripe_transaction_id : null, // because its free trial // after 70 dollar payment we will update this 
+    
+        // ⚡⚡⚡⚡ must null assign korte hobe renewal date e 
+
+        /******
+         * 
+         * when a user cancel his subscription
+         * 
+         * we add that date at ** cancelledAt **
+         * 
+         * ** status ** -> cancelled
+         * 
+         * ******* */
+    
+    });
+
+
     // Create a new subscription
     // const subscription = await this.stripe.subscriptions.create({
     //   customer: stripeCustomer,
@@ -135,8 +171,19 @@ export class SubscriptionController extends GenericController<
       subscription_data: {
         metadata: {
           userId: user._id.toString(),
-          subscriptionType: subscriptionPlan.type,
+          subscriptionType: TSubscription.standard.toString(),
           subscriptionPlanId: subscriptionPlan._id.toString(),
+          referenceId: subscriptionPlan._id.toString(),
+          referenceFor:  TTransactionFor.UserSubscription.toString(),
+          /*****
+           * because after 7 days .. after 70 dollar payment successful
+           * 
+           * we need to create a payment transaction for this userSubscription
+           * for that we need referenceId and referenceFor
+           * 
+           * ******* */
+          currency : TCurrency.usd.toString(),
+          amount : '70'.toString() // because its free trial and customer just book this
         },
       },
       success_url: `${config.app.frontendUrl}/subscription/success?session_id={CHECKOUT_SESSION_ID}`,

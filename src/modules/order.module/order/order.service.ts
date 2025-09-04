@@ -65,7 +65,6 @@ export class OrderService extends GenericService<typeof Order, IOrder>{
             stripeCustomer = user.stripe_customer_id;
         }
 
-        
 
         const session = await mongoose.startSession();
 
