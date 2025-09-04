@@ -59,7 +59,7 @@ const webhookHandler = async (req: Request, res: Response): Promise<void> => {
                     console.log('🟢transfer.created🟢 Transfer created:', event.data.object);
                     break;
                // 🎯 AUTOMATIC BILLING AFTER TRIAL
-               case 'invoice.payment_succeeded':
+               case 'invoice.payment_succeeded': // TODO :  we have to use  invoice.paid
                     /***
                      * here we create userSubscription
                      * 

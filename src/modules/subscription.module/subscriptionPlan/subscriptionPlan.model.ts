@@ -43,7 +43,7 @@ const subscriptionPlanSchema = new Schema<ISubscriptionPlan>(
     },
     freeTrialDurationDays: { //🆓🆓🆓🆓📅 TRIAL_DAYS  
       type: Number,
-      default: 7, // 7 days free trial
+      // default: 7, // 7 days free trial
       min: [0, 'Free trial duration must be non-negative'],
       required: [false, 'freeTrialDurationDays is not required'],
     },

@@ -5,6 +5,7 @@ import { SubscriptionController } from './subscriptionPlan.controller';
 import auth from '../../../middlewares/auth';
 import validateRequest from '../../../shared/validateRequest';
 import * as validation from './subscriptionPlan.validation';
+import { TRole } from '../../../middlewares/roles';
 
 const multer = require('multer');
 const storage = multer.memoryStorage();
@@ -75,10 +76,12 @@ router.route('/').get(
   controller.getAll 
 );
 
-/**
- *  this api is for creating subscription plan form admin dashboard .. 
+/*************
+ * 
+ * postman | create subscription plan .. 
+ * this api is for creating subscription plan form admin dashboard .. 
  *
- */
+ **********/
 //[🚧][🧑‍💻✅][🧪] // 🆗
 router.route('/').post(
   //auth('common'),
@@ -86,10 +89,22 @@ router.route('/').post(
   controller.create
 );
 
+/********
+ * 
+ * Patient | Landing Page | Purchase Subscription by subscriptionPlanId 
+ * 
+ * ********* */
+
+router.route('/purchase/:subscriptionPlanId').post(
+  //auth('common'),
+  validateRequest(validation.createSubscriptionPlanValidationSchema),
+  controller.purchaseSubscription
+);
+
 router
   .route('/delete/:id')
   .delete(
-    //auth('common'),
+   auth(TRole.admin),
     controller.deleteById); // FIXME : change to admin
 
 router
