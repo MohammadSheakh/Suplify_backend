@@ -1,15 +1,19 @@
+//@ts-ignore
 import { Request, Response } from 'express';
 import catchAsync from '../../../shared/catchAsync';
 import { GenericController } from '../../_generic-module/generic.controller';
 import { IConfirmPayment, ISubscriptionPlan } from './subscriptionPlan.interface';
 import { SubscriptionPlanService } from './subscriptionPlan.service';
 import sendResponse from '../../../shared/sendResponse';
+//@ts-ignore
 import { StatusCodes } from 'http-status-codes';
+//@ts-ignore
 import Stripe from 'stripe';
 import ApiError from '../../../errors/ApiError';
 import { TInitialDuration, TRenewalFrequency } from './subscriptionPlan.constant';
 import { User } from '../../user/user.model';
 import { UserCustomService } from '../../user/user.service';
+//@ts-ignore
 import mongoose from 'mongoose';
 import { PaymentTransactionService } from '../../payment.module/paymentTransaction/paymentTransaction.service';
 import { SubscriptionPlan } from './subscriptionPlan.model';
@@ -21,6 +25,8 @@ import { TSubscription } from '../../../enums/subscription';
 import { TTransactionFor } from '../../payment.module/paymentTransaction/paymentTransaction.constant';
 import { IUserSubscription } from '../userSubscription/userSubscription.interface';
 import { UserSubscriptionStatusType } from '../userSubscription/userSubscription.constant';
+import { UserSubscription } from '../userSubscription/userSubscription.model';
+import { config } from '../../../config';
 
 const subscriptionPlanService = new SubscriptionPlanService();
 const userCustomService = new UserCustomService();
@@ -62,6 +68,8 @@ export class SubscriptionController extends GenericController<
 // Frontend → Shows success UI, logs analytics, redirects
 
   purchaseSubscriptionForSuplify = catchAsync(async (req: Request, res: Response) => {
+    // TODO : in middleware we have to validate this subscriptionPlanId
+
     const { subscriptionPlanId } = req.params;
     
     if (!subscriptionPlanId) {
@@ -71,141 +79,20 @@ export class SubscriptionController extends GenericController<
       );
     }
 
-    let subscriptionPlan: ISubscriptionPlan | null = await SubscriptionPlan.findById(subscriptionPlanId);
-    if (!subscriptionPlan) {
-      throw new ApiError(
-        StatusCodes.BAD_REQUEST,
-        `Subscription plan not found`
-      );
-    }
-    const user = await User.findById((req.user as IUser).userId);
-    if (!user) {
-      throw new ApiError(
-        StatusCodes.BAD_REQUEST,
-        'User not found'
-      );
-    }
-    if (user.subscriptionType !== TSubscription.none) {
-      throw new ApiError(
-        StatusCodes.BAD_REQUEST,
-        'User is already subscribed to a plan'
-      );
-    }
+    const checkoutUrl = await new SubscriptionPlanService()
+    .purchaseSubscriptionForSuplify(
+      subscriptionPlanId,
+      (req.user as IUser).userId
+    );
 
-    /*****
-     * 
-     * If stripeCustomerId found .. we dont need to create that .. 
-     * 
-     * ***** */    
-
-    let stripeCustomer;
-    if(!user.stripe_customer_id){
-        let _stripeCustomer = await stripe.customers.create({
-            name: user?.userName,
-            email: user?.email,
-        });
-        
-        stripeCustomer = _stripeCustomer.id;
-
-        await User.findByIdAndUpdate(user?.userId, { $set: { stripe_customer_id: stripeCustomer.id } });
-    }else{
-        stripeCustomer = user.stripe_customer_id;
-    }
-
-
-    /*******
-     * 
-     * Lets create a userSubscription // TODO : we have to check already have userSubsription or not .. 
-     * 
-     * ******* */
-
-    const newUserSubscription : IUserSubscription = await UserSubscription.create({
-        userId: user._id, //🔗
-        subscriptionPlanId : null, //🔗this will be assign after free trial end .. if stripe charge 70 dollar .. and in webhook we update this with standard plan 
-        subscriptionStartDate: new Date(),
-        currentPeriodStartDate: null, // new Date(), // ⚡ we will update this in webhook after successful payment
-        expirationDate: null, // new Date(new Date().setDate(new Date().getDate() + 1)), // 1 days free trial
-        isFromFreeTrial: false, // this is not from free trial
-        cancelledAtPeriodEnd : false,
-        status : UserSubscriptionStatusType.processing,
-        // isAutoRenewed : 70 dollar pay houar pore true hobe 
-        // billingCycle :  it should be 1 .. after first 70 dollar payment 
-        // renewalDate : will be updated after 70 dollar for standard plan successful payment in webhook 
-        stripe_subscription_id: null, // because its free trial // after 70 dollar payment we will update this 
-        stripe_transaction_id : null, // because its free trial // after 70 dollar payment we will update this 
-    
-        // ⚡⚡⚡⚡ must null assign korte hobe renewal date e 
-
-        /******
-         * 
-         * when a user cancel his subscription
-         * 
-         * we add that date at ** cancelledAt **
-         * 
-         * ** status ** -> cancelled
-         * 
-         * ******* */
-    
-    });
-
-
-    // Create a new subscription
-    // const subscription = await this.stripe.subscriptions.create({
-    //   customer: stripeCustomer,
-    //   items: [{ price: subscriptionPlan.stripe_price_id }],
-    //   expand: ['latest_invoice.payment_intent'],
-    // });
-
-
-    const session = await stripe.checkout.sessions.create({
-      customer: stripeCustomer,
-      payment_method_types: ['card'],
-      mode: 'subscription',
-      line_items: [
-        {
-          price: subscriptionPlan.stripe_price_id,
-          quantity: 1,
-        },
-      ],
-      // 🎯 Pass metadata to access later in webhooks
-      subscription_data: {
-        metadata: {
-          userId: user._id.toString(),
-          subscriptionType: TSubscription.standard.toString(),
-          subscriptionPlanId: subscriptionPlan._id.toString(),
-          referenceId: subscriptionPlan._id.toString(),
-          referenceFor:  TTransactionFor.UserSubscription.toString(),
-          /*****
-           * because after 7 days .. after 70 dollar payment successful
-           * 
-           * we need to create a payment transaction for this userSubscription
-           * for that we need referenceId and referenceFor
-           * 
-           * ******* */
-          currency : TCurrency.usd.toString(),
-          amount : '70'.toString() // because its free trial and customer just book this
-        },
-      },
-      success_url: `${config.app.frontendUrl}/subscription/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${config.app.frontendUrl}/pricing`,
-    });
 
     // 🔗 Send Checkout URL to frontend
-    res.status(200).json({
-      success: true,
-      message: 'Redirect to Checkout',
-      data: {
-        url: session.url,
-      },
+    sendResponse(res, {
+        code: StatusCodes.OK,
+        data: checkoutUrl,
+        message: `Redirect to Checkout`,
+        success: true,
     });
-
-
-    res.status(200).json({
-      success: true,
-      message: 'Subscription created successfully',
-      data: subscription,
-    });
-
   });
 
   

@@ -1,8 +1,21 @@
+//@ts-ignore
 import Stripe from "stripe";
 import { GenericService } from "../../_generic-module/generic.services";
 import { ISubscriptionPlan } from "./subscriptionPlan.interface";
 import { SubscriptionPlan } from "./subscriptionPlan.model";
 import { UserSubscriptionService } from "../userSubscription/userSubscription.service";
+import stripe from "../../../config/stripe.config";
+import ApiError from "../../../errors/ApiError";
+//@ts-ignore
+import { StatusCodes } from 'http-status-codes';
+import { User } from "../../user/user.model";
+import { TSubscription } from "../../../enums/subscription";
+import { IUserSubscription } from "../userSubscription/userSubscription.interface";
+import { UserSubscription } from "../userSubscription/userSubscription.model";
+import { UserSubscriptionStatusType } from "../userSubscription/userSubscription.constant";
+import { TTransactionFor } from "../../payment.module/paymentTransaction/paymentTransaction.constant";
+import { TCurrency } from "../../../enums/payment";
+import { config } from "../../../config";
 
 export class SubscriptionPlanService extends GenericService<typeof SubscriptionPlan, ISubscriptionPlan>
 {
@@ -10,8 +23,7 @@ export class SubscriptionPlanService extends GenericService<typeof SubscriptionP
     
     constructor(){
         super(SubscriptionPlan)
-         // Initialize Stripe with secret key (from your Stripe Dashboard) // https://dashboard.stripe.com/test/dashboard
-        this.stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string );
+        this.stripe = stripe;
     }
 
     userSubscriptionService = new UserSubscriptionService()
@@ -19,7 +31,137 @@ export class SubscriptionPlanService extends GenericService<typeof SubscriptionP
     getByTSubscription = async (subscriptionType: string) => {
         return await this.model.findOne({ subscriptionType });
     }
+    /*********
+     * 
+     * Patient | Landing Page | Purchase a subscription plan .. 
+     * 
+     * ****** */
+    purchaseSubscriptionForSuplify = async (subscriptionPlanId: string, userId: string | undefined) => {
+        let subscriptionPlan: ISubscriptionPlan | null = await SubscriptionPlan.findById(subscriptionPlanId);
+        if (!subscriptionPlan) {
+            throw new ApiError(
+                StatusCodes.BAD_REQUEST,
+                `Subscription plan not found`
+            );
+        }
+        const user = await User.findById(userId);
+        if (!user) {
+            throw new ApiError(
+                StatusCodes.BAD_REQUEST,
+                'User not found'
+            );
+        }
+        if (user.subscriptionType !== TSubscription.none) {
+            throw new ApiError(
+                StatusCodes.BAD_REQUEST,
+                'User is already subscribed to a plan'
+            );
+        }
 
+        /*****
+         * 
+         * If stripeCustomerId found .. we dont need to create that .. 
+         * 
+         * ***** */    
+
+        let stripeCustomer;
+        if(!user.stripe_customer_id){
+            let _stripeCustomer = await stripe.customers.create({
+                name: user?.userName,
+                email: user?.email,
+            });
+            
+            stripeCustomer = _stripeCustomer.id;
+
+            await User.findByIdAndUpdate(user?.userId, { $set: { stripe_customer_id: stripeCustomer.id } });
+        }else{
+            stripeCustomer = user.stripe_customer_id;
+        }
+
+        /*******
+         * 
+         * Lets create a userSubscription // TODO : we have to check already have userSubsription or not .. 
+         * 
+         * ******* */
+
+        const newUserSubscription : IUserSubscription = await UserSubscription.create({
+            userId: user._id, //🔗
+            subscriptionPlanId : null, //🔗this will be assign after free trial end .. if stripe charge 70 dollar .. and in webhook we update this with standard plan 
+            subscriptionStartDate: new Date(),
+            currentPeriodStartDate: null, // new Date(), // ⚡ we will update this in webhook after successful payment
+            expirationDate: null, // new Date(new Date().setDate(new Date().getDate() + 1)), // 1 days free trial
+            isFromFreeTrial: false, // this is not from free trial
+            cancelledAtPeriodEnd : false,
+            status : UserSubscriptionStatusType.processing,
+            // isAutoRenewed : 70 dollar pay houar pore true hobe 
+            // billingCycle :  it should be 1 .. after first 70 dollar payment 
+            // renewalDate : will be updated after 70 dollar for standard plan successful payment in webhook 
+            stripe_subscription_id: null, // because its free trial // after 70 dollar payment we will update this 
+            stripe_transaction_id : null, // because its free trial // after 70 dollar payment we will update this 
+        
+            // ⚡⚡⚡⚡ must null assign korte hobe renewal date e 
+
+            /******
+             * 
+             * when a user cancel his subscription
+             * 
+             * we add that date at ** cancelledAt **
+             * 
+             * ** status ** -> cancelled
+             * 
+             * ******* */
+        
+        });
+
+        // Create a new subscription
+        // const subscription = await this.stripe.subscriptions.create({
+        //   customer: stripeCustomer,
+        //   items: [{ price: subscriptionPlan.stripe_price_id }],
+        //   expand: ['latest_invoice.payment_intent'],
+        // });
+
+
+        const session = await stripe.checkout.sessions.create({
+            customer: stripeCustomer,
+            payment_method_types: ['card'],
+            mode: 'subscription',
+            line_items: [
+                {
+                price: subscriptionPlan.stripe_price_id,
+                quantity: 1,
+                },
+            ],
+            // 🎯 Pass metadata to access later in webhooks
+            subscription_data: {
+                metadata: {
+                userId: user._id.toString(),
+                subscriptionType: TSubscription.standard.toString(),
+                subscriptionPlanId: subscriptionPlan._id.toString(),
+                referenceId: newUserSubscription._id.toString(),
+                referenceFor:  TTransactionFor.UserSubscription.toString(),
+                /*****
+                 * payment successful
+                 * 
+                 * we need to create a payment transaction for this userSubscription
+                 * for that we need referenceId and referenceFor
+                 * 
+                 * ******* */
+                currency : TCurrency.usd.toString(),
+                amount : subscriptionPlan.amount.toString()
+                },
+            },
+            // success_url: `${config.app.frontendUrl}/subscription/success?session_id={CHECKOUT_SESSION_ID}`,
+            // cancel_url: `${config.app.frontendUrl}/pricing`,
+            success_url: config.stripe.success_url,
+            cancel_url: config.stripe.cancel_url,
+        });
+
+        return session.url;
+    }
+}
+
+
+    /*
     // 4. Helper Methods for Different Webhook Events
     // 4.1 Handle Checkout Session Completed
     handleCheckoutSessionCompleted = async (session: any) => {
@@ -163,7 +305,7 @@ export class SubscriptionPlanService extends GenericService<typeof SubscriptionP
         await userSubscriptionService.update(userSubscription._id, updates);
     }
 
-    /*
+    
     // 4.5 Handle Subscription Canceled
 private async handleSubscriptionCanceled(subscription: any) {
   // Get user subscription by Stripe subscription ID
@@ -192,4 +334,3 @@ userSubscriptionService.getByStripeSubscriptionId = async (stripeSubscriptionId:
 
 
 */
-}
