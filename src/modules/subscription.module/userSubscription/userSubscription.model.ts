@@ -5,6 +5,7 @@ import {
   IUserSubscription,
   IUserSubscriptionModel,
 } from './userSubscription.interface';
+import { User } from '../../user/user.model';
 
 const userSubscriptionSchema = new Schema<IUserSubscription>(
   {
@@ -31,7 +32,7 @@ const userSubscriptionSchema = new Schema<IUserSubscription>(
     currentPeriodStartDate: {
       // renewal period end date
       type: Date,
-      required: true,
+      required: false,
     },
     // renewalDate is not expiration date
     expirationDate: {
@@ -69,6 +70,7 @@ const userSubscriptionSchema = new Schema<IUserSubscription>(
     status: {
       type: String,
       enum: [
+        UserSubscriptionStatusType.processing,
         UserSubscriptionStatusType.active,
         UserSubscriptionStatusType.past_due,
         UserSubscriptionStatusType.cancelled,
@@ -100,7 +102,7 @@ const userSubscriptionSchema = new Schema<IUserSubscription>(
     stripe_subscription_id: { 
       type: String,
       required: [false, 'stripe_subscription_id is not required'], // 🟢🟢 for recurring payment 
-      default: null,
+      // default: null,
     },
 
     stripe_transaction_id : {

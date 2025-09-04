@@ -10,7 +10,7 @@ export interface IPaymentTransaction {
   referenceFor :  TTransactionFor.DoctorPatientScheduleBooking |
           TTransactionFor.Order |
           TTransactionFor.LabTestBooking |
-          TTransactionFor.SubscriptionPlan |
+          TTransactionFor.UserSubscription | // previously it was SubscriptionPlan
           TTransactionFor.TrainingProgramPurchase |
           TTransactionFor.SpecialistPatientScheduleBooking;
   referenceId: Types.ObjectId; //🔗

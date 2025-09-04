@@ -68,6 +68,19 @@ const webhookHandler = async (req: Request, res: Response): Promise<void> => {
                     console.log('🟢invoice.payment_succeeded🟢', event.data.object);
                     await handleSuccessfulPayment(event.data.object);
                     break;
+               case 'customer.subscription.trial_will_end':  
+                    /*****
+                     * 🔥🔥 event.type customer.subscription.trial_will_end
+                     * 
+                     * This event fires 3 days before the trial ends, giving you time to:
+
+                    Notify the user
+                    Handle potential payment failures
+                    Provide last-chance offers
+                    * 
+                    * ****** */
+                    // await handleTrialWillEnd(event.data.object);
+                    break;  
                // 💳 PAYMENT FAILED AFTER TRIAL  
                case 'invoice.payment_failed':
                     console.log("🟢invoice.payment_failed🟢")

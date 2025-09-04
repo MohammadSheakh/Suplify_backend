@@ -15,7 +15,7 @@ const paymentTransactionSchema = new Schema<IPaymentTransaction>(
     referenceFor: {
       type: String,
       enum: [
-        TTransactionFor.SubscriptionPlan,
+        TTransactionFor.UserSubscription, // previously it was SubscriptionPlan
         TTransactionFor.Order,
         TTransactionFor.DoctorPatientScheduleBooking,
         TTransactionFor.SpecialistPatientScheduleBooking,
@@ -23,8 +23,8 @@ const paymentTransactionSchema = new Schema<IPaymentTransaction>(
         TTransactionFor.LabTestBooking
       ],
       required: [true, `referenceFor is required .. it can be  ${Object.values(TTransactionFor).join(
-              ', '
-            )}`],
+        ', '
+      )}`],
     },
 
     referenceId: { type: Schema.Types.ObjectId, refPath: 'referenceFor',

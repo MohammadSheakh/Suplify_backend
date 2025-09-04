@@ -1,4 +1,5 @@
 export enum UserSubscriptionStatusType {
+    processing = 'processing',
     active = 'active',
     past_due = 'past_due',
     cancelled = 'cancelled',

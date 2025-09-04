@@ -1,5 +1,6 @@
 export enum TTransactionFor {
-    SubscriptionPlan = 'SubscriptionPlan',
+    // SubscriptionPlan = 'SubscriptionPlan',
+    UserSubscription = 'UserSubscription',
     Order = 'Order',
     DoctorPatientScheduleBooking = 'DoctorPatientScheduleBooking',
     SpecialistPatientScheduleBooking = 'SpecialistPatientScheduleBooking',

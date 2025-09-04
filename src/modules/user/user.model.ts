@@ -67,7 +67,8 @@ const userSchema = new Schema<TUser, UserModal>(
           TSubscription.freeTrial,
           TSubscription.standard,
           TSubscription.standardPlus,
-          TSubscription.vise],
+          TSubscription.vise
+        ],
       required: [
         false,
         `TSubscription is required it can be ${Object.values(
