@@ -23,7 +23,13 @@ const userSubscriptionSchema = new Schema<IUserSubscription>(
     },
     subscriptionStartDate: {
       type: Date,
-      required: true,
+      required: false, 
+      /******
+       * frist i think required should be true ..
+       * then i thought it should be false ..
+       * it should create in webhook after successful payment
+       * 
+       * ** */
       validate: {
         validator: value => value <= new Date(),
         message: 'Subscription Start Date must be in the past',

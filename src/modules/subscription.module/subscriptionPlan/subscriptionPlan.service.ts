@@ -39,6 +39,28 @@ export class SubscriptionPlanService extends GenericService<typeof SubscriptionP
      * 
      * ****** */
     purchaseSubscriptionForSuplify = async (subscriptionPlanId: string, userId: string | undefined) => {
+        //  User → Clicks "Buy Plan"
+        //        ↓
+        // Backend → Creates Checkout Session (stripe.checkout.sessions.create)
+        //        ↓
+        // Stripe → Returns session.url
+        //        ↓
+        // User → Redirected to Stripe Checkout
+        //        ↓
+        // User → Completes payment
+        //        ↓
+        // Stripe → Redirects to /success?session_id=cs_test_xxx
+        //        ↓
+        // Frontend → Extracts session_id
+        //        ↓
+        // Frontend → Calls YOUR API: GET /api/subscription/verify-session?session_id=...
+        //        ↓
+        // Backend → Calls Stripe: checkout.sessions.retrieve(session_id)
+        //        ↓
+        // Backend → Returns safe data (plan, amount, status)
+        //        ↓
+        // Frontend → Shows success UI, logs analytics, redirects
+        
         let subscriptionPlan: ISubscriptionPlan | null = await SubscriptionPlan.findById(subscriptionPlanId);
         if (!subscriptionPlan) {
             throw new ApiError(
@@ -76,6 +98,7 @@ export class SubscriptionPlanService extends GenericService<typeof SubscriptionP
             stripeCustomer = _stripeCustomer.id;
 
             await User.findByIdAndUpdate(user?._id, { $set: { stripe_customer_id: stripeCustomer } });
+            
         }else{
             stripeCustomer = user.stripe_customer_id;
         }
@@ -89,7 +112,7 @@ export class SubscriptionPlanService extends GenericService<typeof SubscriptionP
         const newUserSubscription : IUserSubscription = await UserSubscription.create({
             userId: user._id, //🔗
             subscriptionPlanId : null, //🔗this will be assign after free trial end .. if stripe charge 70 dollar .. and in webhook we update this with standard plan 
-            subscriptionStartDate: new Date(),
+            subscriptionStartDate: null, //new Date()
             currentPeriodStartDate: null, // new Date(), // ⚡ we will update this in webhook after successful payment
             expirationDate: null, // new Date(new Date().setDate(new Date().getDate() + 1)), // 1 days free trial
             isFromFreeTrial: false, // this is not from free trial
@@ -151,6 +174,17 @@ export class SubscriptionPlanService extends GenericService<typeof SubscriptionP
                 currency : TCurrency.usd.toString(),
                 amount : subscriptionPlan.amount.toString()
                 },
+            },
+            // ✅ Top-level metadata (available directly on session)
+            metadata: {
+                userId: user._id.toString(),
+                subscriptionType: subscriptionPlan.subscriptionType.toString(),
+                subscriptionPlanId: subscriptionPlan._id.toString(),
+                referenceId: newUserSubscription._id.toString(),
+                referenceFor: TTransactionFor.UserSubscription.toString(),
+                currency: TCurrency.usd.toString(),
+                amount: subscriptionPlan.amount.toString(),
+                planNickname: subscriptionPlan.subscriptionName.toString(), // e.g., "Pro Plan"
             },
             // success_url: `${config.app.frontendUrl}/subscription/success?session_id={CHECKOUT_SESSION_ID}`,
             // cancel_url: `${config.app.frontendUrl}/pricing`,

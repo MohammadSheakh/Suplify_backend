@@ -33,7 +33,7 @@ const controller = new SubscriptionController();
 //info : pagination route must be before the route with params
 router.route('/paginate').get(
   //auth('common'),
-  validateFiltersForQuery(optionValidationChecking(['_id'])),
+  validateFiltersForQuery(optionValidationChecking(['_id', ...paginationOptions])),
   controller.getAllWithPagination 
 );
 
@@ -96,8 +96,7 @@ router.route('/').post(
  * ********* */
 
 router.route('/purchase/:subscriptionPlanId').post(
-  //auth('common'),
-  validateRequest(validation.createSubscriptionPlanValidationSchema),
+  auth(TRole.patient),
   controller.purchaseSubscriptionForSuplify
 );
 

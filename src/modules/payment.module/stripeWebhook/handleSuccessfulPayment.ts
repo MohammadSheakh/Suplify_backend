@@ -2,6 +2,29 @@ import stripe from "../../../config/stripe.config";
 import { UserSubscriptionStatusType } from "../../subscription.module/userSubscription/userSubscription.constant";
 import { UserSubscription } from "../../subscription.module/userSubscription/userSubscription.model";
 import { User } from "../../user/user.model";
+import { FailedWebhook } from "./failedWebhook.model";
+
+// ✅ Safe date helper
+const safeDate = (timestamp?: number) => 
+  (timestamp ? new Date(timestamp * 1000) : null);
+
+// ✅ Robust date calculator
+
+const calculateSubscriptionDates = (subscription, invoice) => {
+  const trialEnd   = safeDate(subscription.trial_end);
+  const subStart   = safeDate(subscription.start_date);
+
+  const currentPeriodStart = safeDate(invoice.period_start) || safeDate(subscription.current_period_start);
+  const currentPeriodEnd   = safeDate(invoice.period_end)   || safeDate(subscription.current_period_end);
+
+  return {
+    subscriptionStartDate: subStart,                // first ever subscription date
+    currentPeriodStartDate: currentPeriodStart,     // beginning of this billing cycle
+    expirationDate: trialEnd || currentPeriodEnd,   // trial end OR billing cycle end
+    renewalDate: trialEnd || currentPeriodEnd,      // trial end OR billing cycle end
+    isInTrial: !!trialEnd && trialEnd > new Date()
+  };
+};
 
 export interface IMetadataForFreeTrial{
     userId: string;
@@ -89,15 +112,26 @@ export const handleSuccessfulPayment = async (invoice) => {
       console.error('User not found for customer:', subscription.customer);
       return;
     }
+   
+    // ✅ Use proper Stripe dates instead of manual calculation
+    const dates = calculateSubscriptionDates(subscription, invoice);
+    
+    console.log("✅ Calculated dates:", {
+      subscriptionStart: dates.subscriptionStartDate,
+      currentPeriodStart: dates.currentPeriodStartDate,
+      expirationDate: dates.expirationDate,
+      renewalDate: dates.renewalDate,
+      isInTrial: dates.isInTrial
+    });
+
+
 
     if(invoice.billing_reason === 'subscription_create'){
         console.log("⚡ This is first payment after trial or immediate payment without trial");
 
         const { current_period_start, current_period_end } = subscription;
 
-        const startDate = new Date(current_period_start * 1000);
-        const endDate = new Date(current_period_end * 1000);
-
+      
         // 1. Update UserSubscription with Stripe IDs
         await UserSubscription.findByIdAndUpdate(metadata.referenceId, {
           $set: {
@@ -105,15 +139,22 @@ export const handleSuccessfulPayment = async (invoice) => {
             stripe_transaction_id: invoice.payment_intent,
             subscriptionPlanId: metadata.subscriptionPlanId, // You'll need to fetch this
             status: UserSubscriptionStatusType.active,
-            currentPeriodStartDate: new Date(subscription.start_date * 1000),
-            expirationDate:  new Date(subscription.trial_end * 1000),
+            subscriptionStartDate :  dates.subscriptionStartDate,   // when user first subscribed
+            currentPeriodStartDate: dates.currentPeriodStartDate, // THIS billing cycle start
+            expirationDate: dates.expirationDate,                 // end of trial or billing cycle
+            billingCycle : 1 , // TODO : we have to check already how many billing cycle passed .. 
+            isAutoRenewed : true,
+            renewalDate:  dates.renewalDate, // 
             // Add other fields as needed
           }
         });
 
         // 2. Mark user as having used free trial (option 2: after first payment)
         await User.findByIdAndUpdate(metadata.userId, {
-          $set: { hasUsedFreeTrial: true }
+          $set: { 
+            hasUsedFreeTrial: true,
+            subscriptionType: metadata.subscriptionType 
+           }
         });
 
 
@@ -130,7 +171,24 @@ export const handleSuccessfulPayment = async (invoice) => {
     
     return true;
   } catch (error) {
-    console.error('Error handling successful payment:', error);
+    console.error('⛔ Error handling successful payment:', error);
+
+    // 5. Log for retry
+    // await FailedWebhook.create({
+    //   eventId: invoice.id,
+    //   invoiceId: invoice.id,
+    //   subscriptionId,
+    //   metadata,
+    //   error: error.message,
+    //   stage: 'unknown',
+    //   attemptCount: 1
+    // });
+
+    // 6. Alert (optional)
+    // await sendCriticalAlert(err, invoice, metadata);
+
+    // 7. Re-throw to trigger Stripe retry (optional)
+    // throw err; // only if you want Stripe to retry
   }
 }
 

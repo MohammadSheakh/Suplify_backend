@@ -45,27 +45,7 @@ export class SubscriptionController extends GenericController<
     this.stripe = stripe;
   }
 
-//  User → Clicks "Buy Plan"
-//        ↓
-// Backend → Creates Checkout Session (stripe.checkout.sessions.create)
-//        ↓
-// Stripe → Returns session.url
-//        ↓
-// User → Redirected to Stripe Checkout
-//        ↓
-// User → Completes payment
-//        ↓
-// Stripe → Redirects to /success?session_id=cs_test_xxx
-//        ↓
-// Frontend → Extracts session_id
-//        ↓
-// Frontend → Calls YOUR API: GET /api/subscription/verify-session?session_id=...
-//        ↓
-// Backend → Calls Stripe: checkout.sessions.retrieve(session_id)
-//        ↓
-// Backend → Returns safe data (plan, amount, status)
-//        ↓
-// Frontend → Shows success UI, logs analytics, redirects
+
 
   purchaseSubscriptionForSuplify = catchAsync(async (req: Request, res: Response) => {
     // TODO : in middleware we have to validate this subscriptionPlanId
