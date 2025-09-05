@@ -66,6 +66,21 @@
       <div class="success-icon">✔️</div>
       <h1>Thank You for Your Payment!</h1>
       <p>Your transaction was successful.</p>
+
+      <!-- Display Payment Details -->
+      <div class="details">
+        <div><strong>Customer:</strong> <%= data.customerName %></div>
+        <div><strong>Email:</strong> <%= data.customerEmail %></div>
+        <div><strong>Plan:</strong> <%= data.planNickname %></div>
+        <div><strong>Type:</strong> <%= data.subscriptionType %></div>
+        <div><strong>Amount Paid:</strong> <%= data.amountTotal.toLocaleString() %> <%= data.currency %></div>
+        <div><strong>Status:</strong> <%= data.paymentStatus === 'paid' ? 'Paid' : 'Unpaid' %></div>
+        <div><strong>Session ID:</strong> <%= data.sessionId %></div>
+        <% if (data.subscriptionId) { %>
+          <div><strong>Subscription ID:</strong> <%= data.subscriptionId %></div>
+        <% } %>
+      </div>
+
       <!-- <a href="<%= frontEndHomePageUrl %>" class="btn-home"
         >Return to Home</a
       > -->

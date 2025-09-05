@@ -16,7 +16,7 @@ For Restart
 
 For Start
 > sudo systemctl start redis
-
+> sudo systemctl start redis-server
 
 > sudo lsof -i :6379
 

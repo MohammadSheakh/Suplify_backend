@@ -38,26 +38,26 @@ router.route('/paginate').get(
 );
 
 //[🚧][🧑‍💻✅][🧪] // 🆗
-router.route('/subscribe-from-back-end').get(
-  auth('common'), // FIXME: authentication lagbe .. 
-  validateRequest(validation.subscribeFromBackEndValidationSchema),
-  controller.subscribeFromBackEnd 
-);
+// router.route('/subscribe-from-back-end').get(
+//   auth('common'), // FIXME: authentication lagbe .. 
+//   validateRequest(validation.subscribeFromBackEndValidationSchema),
+//   controller.subscribeFromBackEnd 
+// );
 
-router.route('/subscribe-from-front-end').get(
-  auth('common'), // FIXME: authentication lagbe .. 
-  validateRequest(validation.subscribeFromFrontEndValidationSchema),
-  // controller.subscribeFromFrontEnd // 🔴🔴 
-  controller.subscribeFromFrontEndV2 // 🟢
-);
+// router.route('/subscribe-from-front-end').get(
+//   auth('common'), // FIXME: authentication lagbe .. 
+//   validateRequest(validation.subscribeFromFrontEndValidationSchema),
+//   // controller.subscribeFromFrontEnd // 🔴🔴 
+//   controller.subscribeFromFrontEndV2 // 🟢
+// );
 
-router.route("/confirm-payment").get(
-  controller.confirmPayment
-)
+// router.route("/confirm-payment").get(
+//   controller.confirmPayment
+// )
 
-router.route('/payment-success').get(
-  controller.paymentSuccess
-)
+// router.route('/payment-success').get(
+//   controller.paymentSuccess
+// )
 
 
 router.route('/:id').get(
@@ -98,7 +98,7 @@ router.route('/').post(
 router.route('/purchase/:subscriptionPlanId').post(
   //auth('common'),
   validateRequest(validation.createSubscriptionPlanValidationSchema),
-  controller.purchaseSubscription
+  controller.purchaseSubscriptionForSuplify
 );
 
 router
@@ -115,15 +115,15 @@ router
 
 
 //////////////////////////////////  
-router.route('/customerPortal/:customerId').get(
-  auth('common'), 
-  controller.customerPortal
-)
+// router.route('/customerPortal/:customerId').get(
+//   auth('common'), 
+//   controller.customerPortal
+// )
 
-router.route('/webhook').post(
-  express.raw({ type: 'application/json' }),
-  //auth('common'),
-  controller.webhook
-);
+// router.route('/webhook').post(
+//   express.raw({ type: 'application/json' }),
+//   //auth('common'),
+//   controller.webhook
+// );
 
 export const SubscriptionPlanRoute = router;

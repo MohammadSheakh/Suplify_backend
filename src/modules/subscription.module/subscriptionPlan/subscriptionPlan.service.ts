@@ -16,6 +16,8 @@ import { UserSubscriptionStatusType } from "../userSubscription/userSubscription
 import { TTransactionFor } from "../../payment.module/paymentTransaction/paymentTransaction.constant";
 import { TCurrency } from "../../../enums/payment";
 import { config } from "../../../config";
+import { IUser } from "../../token/token.interface";
+import { TUser } from "../../user/user.interface";
 
 export class SubscriptionPlanService extends GenericService<typeof SubscriptionPlan, ISubscriptionPlan>
 {
@@ -44,7 +46,7 @@ export class SubscriptionPlanService extends GenericService<typeof SubscriptionP
                 `Subscription plan not found`
             );
         }
-        const user = await User.findById(userId);
+        const user:TUser | null = await User.findById(userId);
         if (!user) {
             throw new ApiError(
                 StatusCodes.BAD_REQUEST,
@@ -67,13 +69,13 @@ export class SubscriptionPlanService extends GenericService<typeof SubscriptionP
         let stripeCustomer;
         if(!user.stripe_customer_id){
             let _stripeCustomer = await stripe.customers.create({
-                name: user?.userName,
+                name: user?.name,
                 email: user?.email,
             });
             
             stripeCustomer = _stripeCustomer.id;
 
-            await User.findByIdAndUpdate(user?.userId, { $set: { stripe_customer_id: stripeCustomer.id } });
+            await User.findByIdAndUpdate(user?._id, { $set: { stripe_customer_id: stripeCustomer } });
         }else{
             stripeCustomer = user.stripe_customer_id;
         }
