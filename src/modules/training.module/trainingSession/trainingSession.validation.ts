@@ -40,9 +40,14 @@ export const createTrainingSessionValidationSchema = z.object({
      * 🟡 benefits - array of non-empty strings
      */
     benefits: z
-      .array(z.string().min(1, 
-        { message: 'Each benefit must be a non-empty string' }))
-      .min(1, { message: 'benefits array must have at least one item' }),
+      .array(
+        z.string()
+      // .min(1, 
+      //   { message: 'Each benefit must be a non-empty string' })
+      ).optional(),
+      // .min(0, 
+      //   { message: 'benefits array must have at least one item' }
+      // ),
     
     tokenCount: z
       .number()
@@ -54,18 +59,18 @@ export const createTrainingSessionValidationSchema = z.object({
     /**
      * Optional: coverPhotos - array of ObjectIds referencing Attachment
      */
-    coverPhotos: z
-      .array(ObjectIdSchema)
-      .optional()
-      .default([]),
+    // coverPhotos: z
+    //   .array(ObjectIdSchema)
+    //   .optional()
+    //   .default([]),
 
     /**
      * Optional: attachments - array of ObjectIds referencing Attachment
      */
-    attachments: z
-      .array(ObjectIdSchema)
-      .optional()
-      .default([]),
+    // attachments: z
+    //   .array(ObjectIdSchema)
+    //   .optional()
+    //   .default([]),
 
     /**
      * Optional: external_link (URL format recommended)
@@ -81,10 +86,10 @@ export const createTrainingSessionValidationSchema = z.object({
     /**
      * Optional: trailerContent - array of Attachment ObjectIds
      */
-    trailerContent: z
-      .array(ObjectIdSchema)
-      .optional()
-      .default([]),
+    // trailerContents: z
+    //   .array(ObjectIdSchema)
+    //   .optional()
+    //   .default([]),
 
   }),
 });

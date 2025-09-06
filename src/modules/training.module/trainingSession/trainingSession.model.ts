@@ -71,7 +71,7 @@ const TrainingSessionSchema = new Schema<ITrainingSession>(
       required: [false, 'external_link is not required'],
     },
 
-    trailerContent: [//🔗🖼️
+    trailerContents: [//🔗🖼️
       {
         type: Schema.Types.ObjectId,
         ref: 'Attachment',

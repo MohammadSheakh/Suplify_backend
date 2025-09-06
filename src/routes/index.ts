@@ -19,6 +19,7 @@ import { DoctorAppointmentScheduleRoute } from '../modules/scheduleAndAppointmen
 import { UserSubscriptionRoute } from '../modules/subscription.module/userSubscription/userSubscription.route';
 import { SubscriptionPlan } from '../modules/subscription.module/subscriptionPlan/subscriptionPlan.model';
 import { SubscriptionPlanRoute } from '../modules/subscription.module/subscriptionPlan/subscriptionPlan.route';
+import { TrainingSessionRoute } from '../modules/training.module/trainingSession/trainingSession.route';
 
 // import { ChatRoutes } from '../modules/chat/chat.routes';
 // import { MessageRoutes } from '../modules/message/message.routes';
@@ -51,6 +52,10 @@ const apiRoutes = [
   { // 🟢
     path: '/training-programs',
     route: TrainingProgramRoute,
+  },
+  { // 🟢
+    path: '/training-sessions',
+    route: TrainingSessionRoute,
   },
   { // 🟢
     path: '/cart-items',

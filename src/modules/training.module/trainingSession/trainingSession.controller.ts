@@ -27,6 +27,7 @@ export class TrainingSessionController extends GenericController<
   createWithAttachments = catchAsync(async (req: Request, res: Response) => {
     const data:ITrainingSession = req.body;
 
+    /*
     let coverPhotos = []; // For cover photo .. 
 
     // TODO : attachments ta data er moddhe add korte hobe .. 
@@ -44,8 +45,9 @@ export class TrainingSessionController extends GenericController<
         ))
     );
     }
+    */
 
-    let attachments = []; // For actual training session video  
+    //let attachments = []; // For actual training session video  
 
     // TODO : attachments ta data er moddhe add korte hobe .. 
     
@@ -55,7 +57,8 @@ export class TrainingSessionController extends GenericController<
      * post na korle file upload korte hobe ...
      * 
      * ********* */  
-    if(data.external)
+    /*
+    if(data.external_link)
 
     if (req.files && req.files.attachments) {
     attachments.push(
@@ -70,9 +73,21 @@ export class TrainingSessionController extends GenericController<
         ))
     );
     }
+    */
+
+    //📈⚙️ Process all file upload in parallel
+    const [coverPhotos, trailerContents, attachments ] = await Promise.all([
+      this.processFiles(req.files?.coverPhotos , TFolderName.trainingProgram),
+      this.processFiles(req.files?.trailerContents , TFolderName.trainingProgram),
+      (!data.external_link) 
+      ? this.processFiles(req.files?.attachments, TFolderName.trainingProgram) 
+      : Promise.resolve([]),
+      
+    ]);
 
     data.coverPhotos = coverPhotos;
     data.attachments = attachments;
+    data.trailerContents = trailerContents;
 
     /*****
      * 
@@ -84,7 +99,7 @@ export class TrainingSessionController extends GenericController<
 
     console.log('🧪 session count for program:', sessionCount);
 
-    // data.sessionCount = sessionCount;
+    data.sessionCount = ++ sessionCount  ;
 
     const result = await this.service.create(data);
 
@@ -95,6 +110,18 @@ export class TrainingSessionController extends GenericController<
       success: true,
     });
   });
+
+  private async processFiles(files: any[], folderName: TFolderName): Promise<string[]> {
+    if (!files || files.length === 0) return [];
+    
+    // All files upload in parallel
+    const uploadPromises = files.map(file => 
+      new AttachmentService().uploadSingleAttachment(file, folderName)
+    );
+    
+    return await Promise.all(uploadPromises);
+  }
+
 
   // add more methods here if needed or override the existing ones 
 }

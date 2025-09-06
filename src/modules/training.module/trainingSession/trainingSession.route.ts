@@ -62,7 +62,9 @@ router.route('/').get(
 router.route('/').post(
   [
     upload.fields([
-      { name: 'attachments', maxCount: 15 }, // Allow up to 5 cover photos
+      { name: 'attachments', maxCount: 1 },
+      { name: 'coverPhotos', maxCount: 1 }, // Allow up to 1 cover photo
+      { name: 'trailerContents', maxCount: 1 }, // Allow up to 1 trailer video
     ]),
   ],
   auth(TRole.specialist),

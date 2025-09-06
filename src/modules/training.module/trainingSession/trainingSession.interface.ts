@@ -17,7 +17,7 @@ export interface ITrainingSession {
   coverPhotos : Types.ObjectId[];
   attachments : Types.ObjectId[];
   external_link : string;
-  trailerContent: Types.ObjectId[];
+  trailerContents: Types.ObjectId[];
 
   isDeleted? : boolean;  
   createdAt?: Date;
