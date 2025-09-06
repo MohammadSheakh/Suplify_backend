@@ -1,7 +1,8 @@
 import mongoose from 'mongoose';
 import { z } from 'zod';
+import { TMeetingLink, TSession } from './specialistWorkoutClassSchedule.constant';
 
-export const createHelpMessageValidationSchema = z.object({
+export const createWorkoutClassSessionValidationSchema = z.object({
   body: z.object({
     price: z  // TODO:  make this number 
     .string({
@@ -9,19 +10,19 @@ export const createHelpMessageValidationSchema = z.object({
         invalid_type_error: 'dateOfBirth must be a string.',
       }),
 
-    scheduleDate: z.date({
-        required_error: 'scheduleDate is required, scheduleDate must be a Date.',
-        invalid_type_error: 'scheduleDate must be a Date.',
+    scheduleDate: z.string({ // TODO this should be date /*** in controller we convert this to date *** */
+        required_error: 'scheduleDate is required, scheduleDate must be a string.',
+        invalid_type_error: 'scheduleDate must be a string.',
       }),
 
-    startTime: z.date({
-        required_error: 'startTime is required, startTime must be a Date.',
-        invalid_type_error: 'startTime must be a Date.',
+    startTime: z.string({
+        required_error: 'startTime is required, startTime must be a string.',
+        invalid_type_error: 'startTime must be a string.',
       }),
 
-    endTime: z.date({
-        required_error: 'endTime is required, endTime must be a Date.',
-        invalid_type_error: 'endTime must be a Date.',
+    endTime: z.string({
+        required_error: 'endTime is required, endTime must be a string.',
+        invalid_type_error: 'endTime must be a string.',
       }),
 
     scheduleName: z
@@ -48,10 +49,22 @@ export const createHelpMessageValidationSchema = z.object({
         message: 'description must be at most 1000 characters long.',
       }),
 
-    typeOfLink: z.enum(['zoom', 'googleMeet', 'others'], {
-        required_error: 'typeOfLink is required, typeOfLink must be a string.',
-        invalid_type_error: 'typeOfLink must be a string.',
-      }),
+    typeOfLink: z.enum([
+      TMeetingLink.zoom,
+      TMeetingLink.googleMeet, 
+      TMeetingLink.others
+    ], {
+      required_error: 'typeOfLink is required, typeOfLink must be a string.',
+      invalid_type_error: 'typeOfLink must be a string.',
+    }),
+
+    sessionType: z.enum([
+      TSession.private,
+      TSession.group
+    ], {
+      required_error: 'sessionType is required, sessionType must be a string.',
+      invalid_type_error: 'sessionType must be a string.',
+    }),
 
     meetingLink: z
       .string({
@@ -65,13 +78,6 @@ export const createHelpMessageValidationSchema = z.object({
         message: 'meetingLink must be at most 1000 characters long.',
       }),
 
-    //
-    //  userId: z.string({
-    //     required_error: 'id is required in params.',
-    //     invalid_type_error: 'id must be a mongoose object.',
-    //   }).refine(value => mongoose.Types.ObjectId.isValid(value), {
-    //     message: 'id must be a valid mongoose ObjectId.',
-    //   }),
   }),
 
   // params: z.object({

@@ -1,7 +1,7 @@
 import { model, Schema } from 'mongoose';
 import { ISpecialistWorkoutClassSchedule, ISpecialistWorkoutClassScheduleModel } from './specialistWorkoutClassSchedule.interface';
 import paginate from '../../../common/plugins/paginate';
-import { TMeetingLink, TSpecialistWorkoutClassSchedule } from './specialistWorkoutClassSchedule.constant';
+import { TMeetingLink, TSession, TSpecialistWorkoutClassSchedule } from './specialistWorkoutClassSchedule.constant';
 
 const SpecialistWorkoutClassScheduleSchema = new Schema<ISpecialistWorkoutClassSchedule>(
   {
@@ -18,12 +18,12 @@ const SpecialistWorkoutClassScheduleSchema = new Schema<ISpecialistWorkoutClassS
       required: [true, 'scheduleDate is required'],
     },
     startTime: {
-      type: Date,
-      required: [true, 'startTime is required . type is Date'],
+      type: String,
+      required: [true, 'startTime is required . type is String'],
     },
     endTime: {
-      type: Date,
-      required: [true, 'endTime is required . type is Date'],
+      type: String,
+      required: [true, 'endTime is required . type is String'],
     },
     description : {
       type: String,
@@ -55,6 +55,16 @@ const SpecialistWorkoutClassScheduleSchema = new Schema<ISpecialistWorkoutClassS
         required: [true, `status is required .. it can be  ${Object.values(TMeetingLink).join(
                 ', '
               )}`],
+    },
+    sessionType: {
+      type: String,
+      enum: [
+        TSession.private,
+        TSession.group
+      ],
+      required: [true, `sessionType is required .. it can be  ${Object.values(TSession).join(
+        ', '
+      )}`],   
     },
     meetingLink:{
       type : String,

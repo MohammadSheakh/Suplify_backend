@@ -5,6 +5,12 @@ import { GenericController } from '../../_generic-module/generic.controller';
 import { SpecialistWorkoutClassSchedule } from './specialistWorkoutClassSchedule.model';
 import { ISpecialistWorkoutClassSchedule } from './specialistWorkoutClassSchedule.interface';
 import { SpecialistWorkoutClassScheduleService } from './specialistWorkoutClassSchedule.service';
+import sendResponse from '../../../shared/sendResponse';
+import catchAsync from '../../../shared/catchAsync';
+import omit from '../../../shared/omit';
+import pick from '../../../shared/pick';
+import { IUser } from '../../token/token.interface';
+import { TRole } from '../../../middlewares/roles';
 
 // let conversationParticipantsService = new ConversationParticipentsService();
 // let messageService = new MessagerService();
@@ -18,6 +24,63 @@ export class SpecialistWorkoutClassScheduleController extends GenericController<
   constructor() {
     super(new SpecialistWorkoutClassScheduleService(), 'SpecialistWorkoutClassSchedule');
   }
+
+  create = catchAsync(async (req: Request, res: Response) => {
+    
+    const data:ISpecialistWorkoutClassSchedule = req.body;
+    data.scheduleDate  = new Date(req.body.scheduleDate);
+
+    const result = await this.service.create(data);
+
+    sendResponse(res, {
+      code: StatusCodes.OK,
+      data: result,
+      message: `${this.modelName} created successfully`,
+      success: true,
+    });
+  });
+
+
+  //TODO : need to add caching .. 
+  /****
+   * 
+   * Specialist  | WorkoutClass | get all  .. (query -> scheduleStatus[available])
+   * ******* */
+  getAllWithPagination = catchAsync(async (req: Request, res: Response) => {
+    //const filters = pick(req.query, ['_id', 'title']); // now this comes from middleware in router
+    const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']); ;
+    const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
+
+    /***
+     * 
+     * if logged in user role is doctor .. then return for only his schedules... 
+     * 
+     * ***/
+    if(req.user && (req.user as IUser)?.role === TRole.doctor){
+      filters.createdBy = (req.user as IUser)?.userId; 
+    }
+    // console.log("user from token 🧪", req.user.userId);
+    // console.log("filters 🧪", filters);
+
+    const populateOptions: (string | {path: string, select: string}[]) = [
+      // {
+      //   path: 'personId',
+      //   select: 'name ' 
+      // },
+    ];
+
+    // const select = ''; 
+
+    const result = await this.service.getAllWithPagination(filters, options, populateOptions/*, select*/);
+
+    sendResponse(res, {
+      code: StatusCodes.OK,
+      data: result,
+      message: `All ${this.modelName} with pagination`,
+      success: true,
+    });
+  });
+
 
   // add more methods here if needed or override the existing ones 
 }

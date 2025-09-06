@@ -20,6 +20,7 @@ import { UserSubscriptionRoute } from '../modules/subscription.module/userSubscr
 import { SubscriptionPlan } from '../modules/subscription.module/subscriptionPlan/subscriptionPlan.model';
 import { SubscriptionPlanRoute } from '../modules/subscription.module/subscriptionPlan/subscriptionPlan.route';
 import { TrainingSessionRoute } from '../modules/training.module/trainingSession/trainingSession.route';
+import { SpecialistWorkoutClassScheduleRoute } from '../modules/scheduleAndAppointmentBooking.module/specialistWorkoutClassSchedule/specialistWorkoutClassSchedule.route';
 
 // import { ChatRoutes } from '../modules/chat/chat.routes';
 // import { MessageRoutes } from '../modules/message/message.routes';
@@ -78,6 +79,10 @@ const apiRoutes = [
   { // 🟢
     path: '/doctor-appointments',
     route: DoctorAppointmentScheduleRoute,
+  },
+  { // 🟢
+    path: '/workout-schedules',
+    route: SpecialistWorkoutClassScheduleRoute,
   },
   {
     path: '/attachments',

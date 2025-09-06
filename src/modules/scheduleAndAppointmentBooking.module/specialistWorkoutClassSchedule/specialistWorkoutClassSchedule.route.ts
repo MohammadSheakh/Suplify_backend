@@ -30,9 +30,15 @@ const paginationOptions: Array<'sortBy' | 'page' | 'limit' | 'populate'> = [
 // const taskService = new TaskService();
 const controller = new SpecialistWorkoutClassScheduleController();
 
+
+/********
+ * 
+ * Specialist | WorkoutClass | Get all Workout Class of a specialist
+ * 
+ * ******** */
 //info : pagination route must be before the route with params
 router.route('/paginate').get(
-  //auth('common'),
+  auth(TRole.specialist),
   validateFiltersForQuery(optionValidationChecking(['_id', ...paginationOptions])),
   controller.getAllWithPagination
 );
@@ -53,10 +59,14 @@ router.route('/').get(
   auth('commonAdmin'),
   controller.getAll
 );
-
+/********
+ * 
+ * Specialist | WorkoutClass | Create Workout Class
+ * 
+ * ******** */
 router.route('/').post(
   auth(TRole.specialist),
-  validateRequest(validation.createHelpMessageValidationSchema),
+  validateRequest(validation.createWorkoutClassSessionValidationSchema),
   controller.create
 );
 

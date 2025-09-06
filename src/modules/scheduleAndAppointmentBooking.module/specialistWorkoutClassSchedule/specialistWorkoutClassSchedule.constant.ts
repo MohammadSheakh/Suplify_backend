@@ -9,3 +9,8 @@ export enum TMeetingLink {
   googleMeet = 'googleMeet',
   others = 'others',
 }
+
+export enum TSession{
+  private = 'private',
+  group = 'group',
+}
