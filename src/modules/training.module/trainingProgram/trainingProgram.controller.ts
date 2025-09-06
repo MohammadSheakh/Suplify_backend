@@ -29,8 +29,8 @@ export class TrainingProgramController extends GenericController<
 
     data.createdBy = (req.user as IUser).userId;
 
+    /**************** ⚠️
     let attachments = [];
-      
     if (req.files && req.files.attachments) {
     attachments.push(
         ...(await Promise.all(
@@ -60,6 +60,14 @@ export class TrainingProgramController extends GenericController<
         ))
     );
     }
+    *************** */
+
+    
+  //📈⚙️ Process both file types in parallel
+  const [attachments, trailerContents] = await Promise.all([
+    this.processFiles(req.files?.attachments, TFolderName.trainingProgram),
+    this.processFiles(req.files?.trailerContents, TFolderName.trainingProgram)
+  ]);
 
     data.trailerContents = trailerContents;
     data.attachments = attachments;
@@ -74,6 +82,17 @@ export class TrainingProgramController extends GenericController<
     });
   });
 
+  private async processFiles(files: any[], folderName: TFolderName): Promise<string[]> {
+    if (!files || files.length === 0) return [];
+    
+    // All files upload in parallel
+    const uploadPromises = files.map(file => 
+      new AttachmentService().uploadSingleAttachment(file, folderName)
+    );
+    
+    return await Promise.all(uploadPromises);
+  }
 
   // add more methods here if needed or override the existing ones 
 }
+

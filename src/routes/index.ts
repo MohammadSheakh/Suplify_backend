@@ -48,8 +48,8 @@ const apiRoutes = [
     path: '/products',
     route: ProductRoute,
   },
-  {
-    path: '/trainingPrograms',
+  { // 🟢
+    path: '/training-programs',
     route: TrainingProgramRoute,
   },
   { // 🟢

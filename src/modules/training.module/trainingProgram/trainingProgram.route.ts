@@ -59,14 +59,14 @@ router.route('/').get(
  * Specialist | Specialist Dashboard | Create Training Program...  
  * 
  * ****** */
-router.route('/create').post(
+router.route('/').post(
   [
     upload.fields([
       { name: 'attachments', maxCount: 1 }, // Allow up to 1 cover photo
       { name: 'trailerContents', maxCount: 1 }, // Allow up to 1 trailer video
     ]),
   ],
-  auth(TRole.patient),
+  auth(TRole.specialist),
   validateRequest(validation.createTrainingProgramValidationSchema),
   controller.createWithAttachments
 );

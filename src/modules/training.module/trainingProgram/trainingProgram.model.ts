@@ -43,7 +43,7 @@ const TrainingProgramSchema = new Schema<ITrainingProgram>(
       }
     ],
 
-    trailerContent: [//🔗🖼️
+    trailerContents: [//🔗🖼️
       {
         type: Schema.Types.ObjectId,
         ref: 'Attachment',
