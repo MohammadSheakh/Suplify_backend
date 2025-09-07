@@ -1,11 +1,14 @@
+//@ts-ignore
 import express from 'express';
 import * as validation from './informationVideo.validation';
 import { informationVideoController} from './informationVideo.controller';
 import { IinformationVideo } from './informationVideo.interface';
-import { validateFiltersForQuery } from '../../middlewares/queryValidation/paginationQueryValidationMiddleware';
-import validateRequest from '../../shared/validateRequest';
-import auth from '../../middlewares/auth';
 
+import { TRole } from '../../../middlewares/roles';
+import { validateFiltersForQuery } from '../../../middlewares/queryValidation/paginationQueryValidationMiddleware';
+import auth from '../../../middlewares/auth';
+import validateRequest from '../../../shared/validateRequest';
+//@ts-ignore
 const multer = require('multer');
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
@@ -28,11 +31,32 @@ const paginationOptions: Array<'sortBy' | 'page' | 'limit' | 'populate'> = [
 // const taskService = new TaskService();
 const controller = new informationVideoController();
 
+/********
+ * 
+ * Specialist  | Information Video | View all infomation video for logged in specialist 
+ * 
+ * TODO : return only important fields 
+ * 
+ * ******** */
 //info : pagination route must be before the route with params
 router.route('/paginate').get(
-  //auth('common'),
-  validateFiltersForQuery(optionValidationChecking(['_id'])),
+  auth(TRole.specialist),
+  validateFiltersForQuery(optionValidationChecking(['_id','createdBy', ...paginationOptions])),
   controller.getAllWithPagination
+);
+
+
+/*******
+ * 
+ * Patient | Landing Page | Information video 
+ * 
+ * only subscription -> (standard  + above) patient can view the video
+ * 
+ * ****** */
+router.route('/paginate/patient').get(
+  auth(TRole.specialist),
+  validateFiltersForQuery(optionValidationChecking(['_id','createdBy', ...paginationOptions])),
+  controller.getAllWithPaginationForPatient
 );
 
 router.route('/:id').get(
@@ -52,16 +76,21 @@ router.route('/').get(
   controller.getAll
 );
 
-//[🚧][🧑‍💻✅][🧪] // 🆗
-router.route('/create').post(
-  // [
-  //   upload.fields([
-  //     { name: 'attachments', maxCount: 15 }, // Allow up to 5 cover photos
-  //   ]),
-  // ],
-  auth('common'),
-  validateRequest(validation.createHelpMessageValidationSchema),
-  controller.create
+/********
+ * 
+ * Specialist | Information Video | Create Infomation video .. 
+ * 
+ * ********* */
+router.route('/').post(
+  [
+    upload.fields([
+      { name: 'thumbnail', maxCount: 1 },
+      { name: 'video', maxCount: 1 }
+    ]),
+  ],
+  auth(TRole.specialist),
+  validateRequest(validation.createInfomationVideoValidationSchema),
+  controller.createWithAttachments
 );
 
 router.route('/delete/:id').delete(

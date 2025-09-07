@@ -21,4 +21,5 @@ export interface IUser {
   email: string;
   role: string;
   stripe_customer_id : string | null;
+  subscriptionPlan : string | null;
 }

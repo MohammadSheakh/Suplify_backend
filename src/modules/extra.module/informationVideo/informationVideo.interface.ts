@@ -1,3 +1,4 @@
+//@ts-ignore
 import { Model, Types } from 'mongoose';
 import { PaginateOptions, PaginateResult } from '../../../types/paginate';
 
@@ -6,7 +7,8 @@ export interface IinformationVideo {
   // _taskId: undefined | Types.ObjectId;
   _id?: Types.ObjectId; // undefined |  Types.ObjectId |
   
-  attachments?: Types.ObjectId[];
+  thumbnail?: Types.ObjectId[];
+  video?: Types.ObjectId[];
   videoLink : String;
 
   title: String;

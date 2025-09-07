@@ -21,6 +21,7 @@ import { SubscriptionPlan } from '../modules/subscription.module/subscriptionPla
 import { SubscriptionPlanRoute } from '../modules/subscription.module/subscriptionPlan/subscriptionPlan.route';
 import { TrainingSessionRoute } from '../modules/training.module/trainingSession/trainingSession.route';
 import { SpecialistWorkoutClassScheduleRoute } from '../modules/scheduleAndAppointmentBooking.module/specialistWorkoutClassSchedule/specialistWorkoutClassSchedule.route';
+import { informationVideoRoute } from '../modules/extra.module/informationVideo/informationVideo.route';
 
 // import { ChatRoutes } from '../modules/chat/chat.routes';
 // import { MessageRoutes } from '../modules/message/message.routes';
@@ -74,8 +75,11 @@ const apiRoutes = [
     path: '/conversations',
     route: ConversationRoute,
   },
+  { // 🟢
+    path: '/information-videos',
+    route: informationVideoRoute,
+  },
 
-  
   { // 🟢
     path: '/doctor-appointments',
     route: DoctorAppointmentScheduleRoute,

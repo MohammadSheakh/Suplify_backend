@@ -9,6 +9,7 @@ import catchAsync from '../../../shared/catchAsync';
 import { TFolderName } from '../../../enums/folderNames';
 import { AttachmentService } from '../../attachments/attachment.service';
 import sendResponse from '../../../shared/sendResponse';
+import { processFiles } from '../../../helpers/processFilesToUpload';
 
 
 // let conversationParticipantsService = new ConversationParticipentsService();
@@ -27,60 +28,12 @@ export class TrainingSessionController extends GenericController<
   createWithAttachments = catchAsync(async (req: Request, res: Response) => {
     const data:ITrainingSession = req.body;
 
-    /*
-    let coverPhotos = []; // For cover photo .. 
-
-    // TODO : attachments ta data er moddhe add korte hobe .. 
-      
-    if (req.files && req.files.coverPhotos) {
-    coverPhotos.push(
-        ...(await Promise.all(
-        req.files.attachments.map(async file => {
-            const attachmenId = await new AttachmentService().uploadSingleAttachment(
-                file, // file to upload 
-                TFolderName.trainingProgram, // folderName
-            );
-            return attachmenId;
-        })
-        ))
-    );
-    }
-    */
-
-    //let attachments = []; // For actual training session video  
-
-    // TODO : attachments ta data er moddhe add korte hobe .. 
-    
-    /***********
-     * 
-     * external_link post korse kina check korte hobe ..
-     * post na korle file upload korte hobe ...
-     * 
-     * ********* */  
-    /*
-    if(data.external_link)
-
-    if (req.files && req.files.attachments) {
-    attachments.push(
-        ...(await Promise.all(
-        req.files.attachments.map(async file => {
-            const attachmenId = await new AttachmentService().uploadSingleAttachment(
-                file, // file to upload 
-                TFolderName.trainingProgram, // folderName
-            );
-            return attachmenId;
-        })
-        ))
-    );
-    }
-    */
-
     //📈⚙️ Process all file upload in parallel
     const [coverPhotos, trailerContents, attachments ] = await Promise.all([
-      this.processFiles(req.files?.coverPhotos , TFolderName.trainingProgram),
-      this.processFiles(req.files?.trailerContents , TFolderName.trainingProgram),
+      processFiles(req.files?.coverPhotos , TFolderName.trainingProgram),
+      processFiles(req.files?.trailerContents , TFolderName.trainingProgram),
       (!data.external_link) 
-      ? this.processFiles(req.files?.attachments, TFolderName.trainingProgram) 
+      ? processFiles(req.files?.attachments, TFolderName.trainingProgram) 
       : Promise.resolve([]),
       
     ]);
@@ -111,16 +64,18 @@ export class TrainingSessionController extends GenericController<
     });
   });
 
-  private async processFiles(files: any[], folderName: TFolderName): Promise<string[]> {
-    if (!files || files.length === 0) return [];
+  // --------- we move this function to helpers folder .. 
+  
+  // private async processFiles(files: any[], folderName: TFolderName): Promise<string[]> {
+  //   if (!files || files.length === 0) return [];
     
-    // All files upload in parallel
-    const uploadPromises = files.map(file => 
-      new AttachmentService().uploadSingleAttachment(file, folderName)
-    );
+  //   // All files upload in parallel
+  //   const uploadPromises = files.map(file => 
+  //     new AttachmentService().uploadSingleAttachment(file, folderName)
+  //   );
     
-    return await Promise.all(uploadPromises);
-  }
+  //   return await Promise.all(uploadPromises);
+  // }
 
 
   // add more methods here if needed or override the existing ones 

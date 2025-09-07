@@ -1,15 +1,22 @@
+//@ts-ignore
 import { model, Schema } from 'mongoose';
 import { IinformationVideo, IinformationVideoModel } from './informationVideo.interface';
 import paginate from '../../../common/plugins/paginate';
 
-
 const informationVideoSchema = new Schema<IinformationVideo>(
   {
-    attachments: [ //🔗
+    thumbnail: [ //🔗
       {
           type: Schema.Types.ObjectId,
           ref: 'Attachment',
-          required: [false, 'attachments is not required'],
+          required: [false, 'thumbnail is not required'],
+      }
+    ],
+    video: [ //🔗
+      {
+          type: Schema.Types.ObjectId,
+          ref: 'Attachment',
+          required: [false, 'video is not required'],
       }
     ],
     videoLink: {
