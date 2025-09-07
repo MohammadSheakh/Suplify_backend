@@ -8,10 +8,39 @@ export type TProfileImage = {
   // file: Record<string, any>;
 };
 
-export type TPhotoGallery = {
-  imageUrl: string;
-  file: Record<string, any>;
-};
+export interface IUser extends Document {
+  _userId: undefined | Types.ObjectId;
+  _id:  undefined; // Types.ObjectId |
+  // fullName: string;
+  name: string;
+  email: string;
+  password: string;
+  status: TStatusType.active | TStatusType.inactive;
+  subscriptionType :  TSubscription.standard |
+  TSubscription.standardPlus | TSubscription.vise 
+  hasUsedFreeTrial: boolean;
+  // freeTrialStartDate: Date;
+  // freeTrialEndDate: Date;
+  profileImage?: TProfileImage;
+  fcmToken : string;
+  stripe_customer_id: string;
+  stripeConnectedAccount: string; // from kappes backend 
+  role: Role;
+
+  isEmailVerified: boolean;
+  isVip  : Boolean,
+  isStandard  : Boolean,
+  isPremium :  Boolean
+
+  phoneNumber : string;
+  isDeleted: boolean;
+  lastPasswordChange: Date;
+  isResetPassword: boolean;
+  failedLoginAttempts: number;
+  lockUntil: Date | undefined;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
 export type TUser = {
   _userId: undefined | Types.ObjectId;

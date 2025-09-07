@@ -1,71 +1,68 @@
 import express from 'express';
-import { UserController } from './user.controller';
-import auth from '../../middlewares/auth';
-import validateRequest from '../../shared/validateRequest';
-import { UserValidation } from './user.validation';
 import fileUploadHandler from '../../shared/fileUploadHandler';
 import convertHeicToPngMiddleware from '../../shared/convertHeicToPngMiddleware';
+import { UserController } from './user.controller';
+import { validateFiltersForQuery } from '../../middlewares/queryValidation/paginationQueryValidationMiddleware';
+import auth from '../../middlewares/auth';
+import { IUser } from './user.interface';
 const UPLOADS_FOLDER = 'uploads/users';
 const upload = fileUploadHandler(UPLOADS_FOLDER);
 
+export const optionValidationChecking = <T extends keyof IUser | 'sortBy' | 'page' | 'limit' | 'populate'>(
+  filters: T[]
+) => {
+  return filters;
+};
+
+const paginationOptions: Array<'sortBy' | 'page' | 'limit' | 'populate'> = [
+  'sortBy',
+  'page',
+  'limit',
+  'populate',
+];
+
 const router = express.Router();
 
+// const taskService = new TaskService();
+const controller = new UserController();
 
 //info : pagination route must be before the route with params
 router.route('/paginate').get(
-  auth('projectManager'),
-  UserController.getAllUserWithPagination
+  //auth('common'),
+  validateFiltersForQuery(optionValidationChecking(['_id', ...paginationOptions])),
+  controller.getAllWithPagination
 );
 
-
-
-//[🚧][🧑‍💻✅][🧪🆗] //  
-// get all Projects by User Id  // :userId
-router.route('/projects').get(auth('common'),
-UserController.getAllProjectsByUserId
+router.route('/:id').get(
+  // auth('common'),
+  controller.getById
 );
 
-router
-  .route('/profile-image')
-  .post(
-    auth('common'),
-    upload.single('profile_image'),
-    convertHeicToPngMiddleware(UPLOADS_FOLDER),
-    UserController.updateProfileImage
-  );
-// sub routes must be added after the main routes
-router
-  .route('/profile')
-  .get(auth('common'), UserController.getMyProfile)
-  .patch(
-    auth('common'),
-    validateRequest(UserValidation.updateUserValidationSchema),
-    upload.single('profile_image'),
-    convertHeicToPngMiddleware(UPLOADS_FOLDER),
-    UserController.updateMyProfile
-  )
-  .delete(auth('common'), UserController.deleteMyProfile);
+router.route('/update/:id').put(
+  //auth('common'),
+  // validateRequest(UserValidation.createUserValidationSchema),
+  controller.updateById
+);
 
-//main routes
-router.route('/').get(auth('common'), UserController.getAllUsers);
+//[🚧][🧑‍💻✅][🧪] // 🆗
+router.route('/').get(
+  auth('commonAdmin'),
+  controller.getAll
+);
 
-router
-  .route('/:userId')
-  .get(auth('common'), UserController.getSingleUser)
-  .put(
-    auth('common'),
-    validateRequest(UserValidation.updateUserValidationSchema),
-    UserController.updateUserProfile
-  )
-  .patch(
-    auth('admin'),
-    validateRequest(UserValidation.changeUserStatusValidationSchema),
-    UserController.updateUserStatus
-  );
+router.route('/delete/:id').delete(
+  //auth('common'),
+  controller.deleteById
+); // FIXME : change to admin
 
-  ///////////////////////////////////////////////
+router.route('/softDelete/:id').put(
+  //auth('common'),
+  controller.softDeleteById
+);
 
-  router.get
-  
+////////////
+//[🚧][🧑‍💻✅][🧪] // 🆗
 
-export const UserRoutes = router;
+
+export const UserRoute = router;
+

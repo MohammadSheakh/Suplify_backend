@@ -1,4 +1,6 @@
+//@ts-ignore
 import mongoose from 'mongoose';
+//@ts-ignore
 import { z } from 'zod';
 
 export const createInfomationVideoValidationSchema = z.object({
@@ -31,23 +33,13 @@ export const createInfomationVideoValidationSchema = z.object({
     }).max(1000, {
       message: 'description must be at most 1000 characters long.',
     }),
-  
-    //--------- This will handle in controller .. 
-    //  createdBy: z.string({  //🔗 specialistId
-    //     required_error: 'createdBy is required.',
-    //     invalid_type_error: 'createdBy must be a mongoose object.',
-    //   }).refine(value => mongoose.Types.ObjectId.isValid(value), {
-    //     message: 'createdBy must be a valid mongoose ObjectId.',
-    //   }),
   }),
-
   // params: z.object({
   //   id: z.string().optional(),
   // }),
   // query: z.object({
   //   page: z.string().optional(),
   // }),
-   
 });
 
 
