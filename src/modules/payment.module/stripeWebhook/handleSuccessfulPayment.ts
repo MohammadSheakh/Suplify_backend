@@ -5,26 +5,26 @@ import { User } from "../../user/user.model";
 import { FailedWebhook } from "./failedWebhook.model";
 
 // ✅ Safe date helper
-const safeDate = (timestamp?: number) => 
-  (timestamp ? new Date(timestamp * 1000) : null);
+// const safeDate = (timestamp?: number) => 
+//   (timestamp ? new Date(timestamp * 1000) : null);
 
-// ✅ Robust date calculator
+// // ✅ Robust date calculator
 
-const calculateSubscriptionDates = (subscription, invoice) => {
-  const trialEnd   = safeDate(subscription.trial_end);
-  const subStart   = safeDate(subscription.start_date);
+// const calculateSubscriptionDates = (subscription, invoice) => {
+//   const trialEnd   = safeDate(subscription.trial_end);
+//   const subStart   = safeDate(subscription.start_date);
 
-  const currentPeriodStart = safeDate(invoice.period_start) || safeDate(subscription.current_period_start);
-  const currentPeriodEnd   = safeDate(invoice.period_end)   || safeDate(subscription.current_period_end);
+//   const currentPeriodStart = safeDate(invoice.period_start) || safeDate(subscription.current_period_start);
+//   const currentPeriodEnd   = safeDate(invoice.period_end)   || safeDate(subscription.current_period_end);
 
-  return {
-    subscriptionStartDate: subStart,                // first ever subscription date
-    currentPeriodStartDate: currentPeriodStart,     // beginning of this billing cycle
-    expirationDate: trialEnd || currentPeriodEnd,   // trial end OR billing cycle end
-    renewalDate: trialEnd || currentPeriodEnd,      // trial end OR billing cycle end
-    isInTrial: !!trialEnd && trialEnd > new Date()
-  };
-};
+//   return {
+//     subscriptionStartDate: subStart,                // first ever subscription date
+//     currentPeriodStartDate: currentPeriodStart,     // beginning of this billing cycle
+//     expirationDate: trialEnd || currentPeriodEnd,   // trial end OR billing cycle end
+//     renewalDate: trialEnd || currentPeriodEnd,      // trial end OR billing cycle end
+//     isInTrial: !!trialEnd && trialEnd > new Date()
+//   };
+// };
 
 export interface IMetadataForFreeTrial{
     userId: string;
@@ -48,6 +48,7 @@ export interface IMetadataForFreeTrial{
  * ****** */
 
 export const handleSuccessfulPayment = async (invoice) => {
+  console.log("1️⃣ ℹ️");
   try {
     // if (invoice.billing_reason !== 'subscription_cycle') {
     //   return; // Only handle recurring subscription payments
@@ -84,29 +85,33 @@ export const handleSuccessfulPayment = async (invoice) => {
     
     // ✅ Access metadata from subscription, not invoice
     const metadata:IMetadataForFreeTrial = subscription.metadata;
-    
-    console.log("⚡⚡⚡ subscription metadata :: ", {
+ 
+    const invoiceInfo = {
+      customer : invoice.customer,
+      payment_intent : invoice.payment_intent,
+      price_id : invoice.lines.data[0].price.id,
+      period_start : invoice.period_start,
+      period_end : invoice.period_end,
+      amount_paid : invoice.amount_paid,
+      billing_reason : invoice.billing_reason,
+      subscriptionId : invoice.subscription,
+      subscription_metadata :  {
         userId: metadata.userId,
         subscriptionType: metadata.subscriptionType,
         referenceId : metadata.referenceId,
         referenceFor: metadata.referenceFor,
         currency: metadata.currency,
         amount: metadata.amount
-    });
+      }
+    }
+
+    console.log("⚡⚡⚡ invoiceInfo from handleSuccessfulPayment -> amount paid :: ", invoiceInfo ) 
+
 
     // Find user by Stripe customer ID
     const user = await User.findOne({ 
       stripe_customer_id: subscription.customer 
     });
-
-    // console.log("⚡ User found -> stripe_customer_id :: ", user?.stripe_customer_id);
-    // console.log("⚡ invoice -> stripe_customer_id:: ", invoice.customer);
-    // console.log("⚡ invoice -> payment intent Id (transaction reference) :: ", invoice.payment_intent )
-    // console.log("⚡ invoice -> price Id :: ", invoice.lines.data[0].price.id )
-    // console.log("⚡ invoice -> period_start , period_end :: ", invoice.period_start , invoice.period_end )
-    // console.log("⚡ invoice -> amount paid :: ", invoice.amount_paid )    
-     console.log("⚡ invoice.billing_reason :: ", invoice.billing_reason)
-    // console.log("⚡ invoice.subscription which is may be subscriptionId :: ",invoice.subscription); 
 
     if (!user) {
       console.error('User not found for customer:', subscription.customer);
@@ -114,24 +119,14 @@ export const handleSuccessfulPayment = async (invoice) => {
     }
    
     // ✅ Use proper Stripe dates instead of manual calculation
-    const dates = calculateSubscriptionDates(subscription, invoice);
-    
-    console.log("✅ Calculated dates:", {
-      subscriptionStart: dates.subscriptionStartDate,
-      currentPeriodStart: dates.currentPeriodStartDate,
-      expirationDate: dates.expirationDate,
-      renewalDate: dates.renewalDate,
-      isInTrial: dates.isInTrial
-    });
-
-
+    // const dates = calculateSubscriptionDates(subscription, invoice);
+   
 
     if(invoice.billing_reason === 'subscription_create'){
         console.log("⚡ This is first payment after trial or immediate payment without trial");
 
         const { current_period_start, current_period_end } = subscription;
 
-      
         // 1. Update UserSubscription with Stripe IDs
         await UserSubscription.findByIdAndUpdate(metadata.referenceId, {
           $set: {
@@ -139,12 +134,12 @@ export const handleSuccessfulPayment = async (invoice) => {
             stripe_transaction_id: invoice.payment_intent,
             subscriptionPlanId: metadata.subscriptionPlanId, // You'll need to fetch this
             status: UserSubscriptionStatusType.active,
-            subscriptionStartDate :  dates.subscriptionStartDate,   // when user first subscribed
-            currentPeriodStartDate: dates.currentPeriodStartDate, // THIS billing cycle start
-            expirationDate: dates.expirationDate,                 // end of trial or billing cycle
-            billingCycle : 1 , // TODO : we have to check already how many billing cycle passed .. 
+            subscriptionStartDate :  new Date(invoice.period_start * 1000),   // when user first subscribed
+            // currentPeriodStartDate: null, // THIS billing cycle start
+            // expirationDate: null,                 // end of trial or billing cycle
+            // billingCycle : 1 , // TODO : we have to check already how many billing cycle passed .. 
             isAutoRenewed : true,
-            renewalDate:  dates.renewalDate, // 
+            // renewalDate:  null, // 
             // Add other fields as needed
           }
         });

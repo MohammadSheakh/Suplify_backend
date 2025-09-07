@@ -1,17 +1,8 @@
-/************
- * 
- *  Working ... Sheakh
- * 
- * ********** */
-/*
-import { emailHelper } from '../../../helpers/emailHelper';
-import { sendNotifications } from '../../../helpers/notificationsHelper';
-import { emailTemplate } from '../../../shared/emailTemplate';
-import { generateBookingInvoicePDF } from '../../../utils/generateOrderInvoicePDF';
-*/
-
+//@ts-ignore
 import { Request, Response } from 'express';
+//@ts-ignore
 import { StatusCodes } from 'http-status-codes';
+//@ts-ignore
 import Stripe from 'stripe';
 import { config } from '../../../config';
 import stripe from '../../../config/stripe.config';
@@ -21,6 +12,7 @@ import { handlePaymentSucceeded } from './handlePaymentSucceeded';
 import { handleFailedPayment } from './handleFailedPayment';
 import { handleSubscriptionCancellation } from './handleSubscriptionCancellation';
 import { handleSuccessfulPayment } from './handleSuccessfulPayment';
+import { handleSubscriptionDates } from './handleSubscriptionDates';
 
 const webhookHandler = async (req: Request, res: Response): Promise<void> => {
      console.log('Webhook received');
@@ -46,9 +38,8 @@ const webhookHandler = async (req: Request, res: Response): Promise<void> => {
      console.log('event.type', event.type);
      try {
           switch (event.type) {
-               case 'checkout.session.completed':
-                    console.log('🟢checkout.session.completed🟢', event.data.object);
-                    // THIS IS FOR ORDER ... ONE TIME PAYMENT 
+               case 'checkout.session.completed': // THIS IS FOR ORDER ... ONE TIME PAYMENT 
+                    // console.log('🟢checkout.session.completed🟢', event.data.object);
                     await handlePaymentSucceeded(event.data.object);
                     break;
                /*******
@@ -56,7 +47,7 @@ const webhookHandler = async (req: Request, res: Response): Promise<void> => {
                 * *****/     
                case 'transfer.created':
                     // await handleTransferCreated(event.data.object); // commented by sheakh
-                    console.log('🟢transfer.created🟢 Transfer created:', event.data.object);
+                    // console.log('🟢transfer.created🟢 Transfer created:', event.data.object);
                     break;
                // 🎯 AUTOMATIC BILLING AFTER TRIAL
                case 'invoice.payment_succeeded': // TODO :  we have to use  invoice.paid
@@ -65,8 +56,20 @@ const webhookHandler = async (req: Request, res: Response): Promise<void> => {
                      * 
                      * Trial converted to paid / renewal succeeded
                      * *** */
-                    console.log('🟢invoice.payment_succeeded🟢', event.data.object);
+                    // console.log('🟢invoice.payment_succeeded🟢', event.data.object);
                     await handleSuccessfulPayment(event.data.object);
+                    break;
+               // ✅ TRY TO GET ACURATE DATE FROM HERE ..  AFTER PAYMENT FOR SUBSCRIPTION
+               case 'customer.subscription.created':
+                    /******
+                     * 
+                     * when a subscription is purchased ..this event will be fired at first ..
+                     * then after payment invoice.payment_succeeded will be fired
+                     * 
+                     * we can get subscription dates from here
+                     * 
+                     * ***** */
+                    await handleSubscriptionDates(event.data.object);
                     break;
                case 'customer.subscription.trial_will_end':  
                     /*****
@@ -84,7 +87,7 @@ const webhookHandler = async (req: Request, res: Response): Promise<void> => {
                // 💳 PAYMENT FAILED AFTER TRIAL  
                case 'invoice.payment_failed':
                     console.log("🟢invoice.payment_failed🟢")
-                    await handleFailedPayment(event.data.object);
+                    // await handleFailedPayment(event.data.object);
                     break;
                // 🔄 SUBSCRIPTION CANCELLED
                case 'customer.subscription.deleted':

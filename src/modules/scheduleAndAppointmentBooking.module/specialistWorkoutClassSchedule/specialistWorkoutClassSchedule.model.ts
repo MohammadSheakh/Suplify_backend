@@ -38,8 +38,8 @@ const SpecialistWorkoutClassScheduleSchema = new Schema<ISpecialistWorkoutClassS
       ],
       default: TSpecialistWorkoutClassSchedule.available,
       required: [true, `status is required .. it can be  ${Object.values(TSpecialistWorkoutClassSchedule).join(
-              ', '
-            )}`],
+        ', '
+      )}`],
     },
     price : {
           type: Number,
@@ -48,13 +48,13 @@ const SpecialistWorkoutClassScheduleSchema = new Schema<ISpecialistWorkoutClassS
     typeOfLink: {
       type: String,
       enum: [
-        TMeetingLink.zoom,
-          TMeetingLink.googleMeet,
-          TMeetingLink.others
-        ],
-        required: [true, `status is required .. it can be  ${Object.values(TMeetingLink).join(
-                ', '
-              )}`],
+      TMeetingLink.zoom,
+        TMeetingLink.googleMeet,
+        TMeetingLink.others
+      ],
+      required: [true, `status is required .. it can be  ${Object.values(TMeetingLink).join(
+        ', '
+      )}`],
     },
     sessionType: {
       type: String,
