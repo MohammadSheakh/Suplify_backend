@@ -1,18 +1,20 @@
+//@ts-ignore
 import { StatusCodes } from 'http-status-codes';
 import catchAsync from '../../shared/catchAsync';
 import sendResponse from '../../shared/sendResponse';
 import { AuthService } from './auth.service';
 import { AttachmentService } from '../attachments/attachment.service';
-import { TFolderName } from '../attachments/attachment.constant';
 import { UserProfile } from '../user/userProfile/userProfile.model';
 import { Roles, TRole } from '../../middlewares/roles';
+import { TFolderName } from '../../enums/folderNames';
 
 //[🚧][🧑‍💻✅][🧪] // 🆗 
-const register = catchAsync(async (req, res) => {
+const register = catchAsync(async (req :Request, res:Response) => {
 
   /***********
    * 
-   * Role jodi Doctor hoy .. taile doctor er jonno document upload korar bebostha korte hobe .. 
+   * Role jodi Doctor / Specialist hoy .. taile doctor er jonno document upload korar bebostha 
+   * korte hobe .. 
    * 
    * ********** */
 
@@ -24,7 +26,7 @@ const register = catchAsync(async (req, res) => {
       req.files.attachments.map(async file => {
           const attachmenId = await new AttachmentService().uploadSingleAttachment(
               file, // file to upload 
-              TFolderName.person, // folderName
+              TFolderName.user, // folderName
           );
           return attachmenId;
       })
@@ -59,10 +61,17 @@ const register = catchAsync(async (req, res) => {
     });
   } 
 
+  sendResponse(res, {
+    code: StatusCodes.CREATED,
+    message: `Account create successfully, Please verify your email to login`,
+    data: result,
+    success: true,
+  });
+
   
 });
 
-const login = catchAsync(async (req, res) => {
+const login = catchAsync(async (req :Request, res:Response) => {
   const { email, password, fcmToken } = req.body;
   const result = await AuthService.login(email, password, fcmToken);
 
@@ -82,7 +91,7 @@ const login = catchAsync(async (req, res) => {
 });
 
 //[🚧][🧑‍💻✅][🧪]  // 🆗
-const verifyEmail = catchAsync(async (req, res) => {
+const verifyEmail = catchAsync(async (req :Request, res:Response) => {
   console.log(req.body);
   const { email, token, otp } = req.body;
   const result = await AuthService.verifyEmail(email, token, otp);
@@ -96,7 +105,7 @@ const verifyEmail = catchAsync(async (req, res) => {
   });
 });
 
-const resendOtp = catchAsync(async (req, res) => {
+const resendOtp = catchAsync(async (req :Request, res:Response) => {
   const { email } = req.body;
   const result = await AuthService.resendOtp(email);
   sendResponse(res, {
@@ -106,7 +115,7 @@ const resendOtp = catchAsync(async (req, res) => {
     success: true,
   });
 });
-const forgotPassword = catchAsync(async (req, res) => {
+const forgotPassword = catchAsync(async (req :Request, res:Response) => {
   const result = await AuthService.forgotPassword(req.body.email);
   sendResponse(res, {
     code: StatusCodes.OK,
@@ -116,7 +125,7 @@ const forgotPassword = catchAsync(async (req, res) => {
   });
 });
 
-const changePassword = catchAsync(async (req, res) => {
+const changePassword = catchAsync(async (req :Request, res:Response) => {
   const { userId } = req.user;
   const { currentPassword, newPassword } = req.body;
   const result = await AuthService.changePassword(
@@ -131,7 +140,7 @@ const changePassword = catchAsync(async (req, res) => {
     success: true,
   });
 });
-const resetPassword = catchAsync(async (req, res) => {
+const resetPassword = catchAsync(async (req :Request, res:Response) => {
   const { email, password, otp } = req.body;
   const result = await AuthService.resetPassword(email, password, otp);
   sendResponse(res, {
@@ -144,7 +153,7 @@ const resetPassword = catchAsync(async (req, res) => {
   });
 });
 
-const logout = catchAsync(async (req, res) => {
+const logout = catchAsync(async (req :Request, res:Response) => {
   await AuthService.logout(req.body.refreshToken);
   sendResponse(res, {
     code: StatusCodes.OK,
@@ -153,7 +162,7 @@ const logout = catchAsync(async (req, res) => {
   });
 });
 
-const refreshToken = catchAsync(async (req, res) => {
+const refreshToken = catchAsync(async (req :Request, res:Response) => {
   const tokens = await AuthService.refreshAuth(req.body.refreshToken);
   sendResponse(res, {
     code: StatusCodes.OK,
