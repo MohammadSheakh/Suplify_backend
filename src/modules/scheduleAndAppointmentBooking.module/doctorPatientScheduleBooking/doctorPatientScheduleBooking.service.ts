@@ -5,32 +5,95 @@ import { IDoctorPatientScheduleBooking } from './doctorPatientScheduleBooking.in
 import { GenericService } from '../../_generic-module/generic.services';
 import { IUser } from '../../token/token.interface';
 //@ts-ignore
+import mongoose from 'mongoose';
+//@ts-ignore
 import Stripe from "stripe";
 import stripe from '../../../config/stripe.config';
+import { User } from '../../user/user.model';
+import ApiError from '../../../errors/ApiError';
+import { config } from '../../../config';
+import { TSubscription } from '../../../enums/subscription';
+import { TDoctorAppointmentScheduleStatus } from '../doctorAppointmentSchedule/doctorAppointmentSchedule.constant';
+import { IDoctorAppointmentSchedule } from '../doctorAppointmentSchedule/doctorAppointmentSchedule.interface';
+import { TAppointmentStatus } from './doctorPatientScheduleBooking.constant';
+import { TPaymentStatus } from '../specialistPatientScheduleBooking/specialistPatientScheduleBooking.constant';
 
 export class DoctorPatientScheduleBookingService extends GenericService<
   typeof DoctorPatientScheduleBooking,
   IDoctorPatientScheduleBooking> 
   {
+    private stripe: Stripe;
+    constructor() {
+        super(DoctorPatientScheduleBooking);
+        this.stripe = stripe;
+    }
 
-  private stripe: Stripe;
-  constructor() {
-    super(DoctorPatientScheduleBooking);
-    this.stripe = stripe;
-  }
+    async createV2(doctorScheduleId: string, user: IUser) : Promise<IDoctorPatientScheduleBooking> 
+    {
+        /******
+         * 📝
+         * First We have to check user's subscriptionPlan
+         * 1. if "none".. we dont let him to book appointment
+         * 2. if "freeTrial" .. need to pay // TODO : need to talk with client about this feature
+         * 3. if "standard" or "standardPlus" .. they need to pay to book appointment
+         * 4. if "vise" ... no payment required to book appointment
+         * ******* */
+    
+        if(user.subscriptionPlan === TSubscription.none){
+            throw new ApiError(StatusCodes.FORBIDDEN, 'You need to subscribe a plan to book appointment with doctor');
+        }
 
-  async createV2(doctorScheduleId: string, user: IUser) : Promise<IDoctorPatientScheduleBooking> {
+        const existingSchedule:IDoctorAppointmentSchedule = await DoctorPatientScheduleBooking.findOne({
+            id: doctorScheduleId,
+            status: TDoctorAppointmentScheduleStatus.available 
+            // { $in: [TDoctorAppointmentScheduleStatus.available] } // Check for both pending and scheduled statuses
+        });
+        if (!existingSchedule) {
+            throw new ApiError(StatusCodes.NOT_FOUND, 'Doctor schedule not found');
+        }
+
+        if(user.subscriptionPlan == TSubscription.vise){
+            // no payment required ..
+            /******
+             * 
+             * check appointment schedule 
+             * if scheduleStatus[available]
+             * if scheduleDate >= today
+             * if timeLeft > 0 // so, we dont think about startTime .. 
+             * ++++++ create doctorPatientScheduleBooking
+             * **** */
+
+            const createBooking = await this.create({
+                patientId: user.userId,
+                doctorScheduleId: existingSchedule._id,
+                doctorId: existingSchedule.createdBy,// ⚡ this will help us to query easily
+                status:  TAppointmentStatus.scheduled,
+                paymentTransactionId: null,
+                paymentMethod: null,
+                paymentStatus: TPaymentStatus.unpaid,
+            });
+
+            /***
+             * TODO : MUST : send notification to doctor and patient
+             * ** */
+
+            return  createBooking;
+        }
 
         /*********
-         * 
-         * 4. ++++++ We Create Order [OrderStatus.pending] [PaymentStatus.unpaid] [PaymentTransactionId = null]
-         * 4. ++++++ if cartItem found .. and that validates .. like available quantity found ..
-         *                              we create OrderItem
+         * 📝
+         * 3  ++++++ First Make DoctorAppointmentSchedule [scheduleStatus.booked] after payment done .. we add  [booked_by = patientId]
+         * 4. ++++++ We Create DoctorPatientScheduleBooking [status.pending] [PaymentStatus.unpaid] [PaymentTransactionId = null]
          * 5. ++ we Provide Stripe URL to payment .. 
          * -----------------------------------------------------------
          * 6. If Payment Successful .. its going to WEBHOOK 
          * 7. ++++ We create Payment Transaction .. 
-         * 7. ++++ We update Order [OrderStatus.completed] [PaymentStatus.paid] [PaymentTransactionId = <transaction_id>]
+         * 7. ++++ We update DoctorPatientScheduleBooking [status.scheduled] [PaymentStatus.paid] [PaymentTransactionId = <transaction_id>]
+         * 8. ++++ We update DoctorAppointmentSchedule [booked_by = patientId]
+         * 
+         * 9. If Payment Failed .. its going to WEBHOOK
+         * 10. ++++ We update DoctorPatientScheduleBooking [status.cancelled] [PaymentStatus.failed] [PaymentTransactionId = null] 
+         * 11. ++++ We update DoctorAppointmentSchedule [scheduleStatus.available] [booked_by = null]
          * 
          * ******* */
 
@@ -59,7 +122,7 @@ export class DoctorPatientScheduleBookingService extends GenericService<
 
         const session = await mongoose.startSession();
 
-        let finalAmount = 0;
+        
         let createdOrder = null;
         
 
@@ -71,21 +134,14 @@ export class DoctorPatientScheduleBookingService extends GenericService<
              * 
              * *** */
 
-            const order:IOrder = new Order({
-                userId: user?.userId,
-                orderRelatedTo:  TOrderRelatedTo.product,
-                status : OrderStatus.pending,
-                shippingAddress: {
-                    address: data.address,
-                    city: data.city,
-                    state: data.state,
-                    zipCode: data.zipCode,
-                    country: data.country
-                },
-                // deliveryCharge // need to think about this
+            const createdDoctorPatientScheduleBooking: IDoctorPatientScheduleBooking = new DoctorPatientScheduleBooking({
+                patientId: user.userId,
+                doctorScheduleId: existingSchedule._id,
+                doctorId: existingSchedule.createdBy,// ⚡ this will help us to query easily
+                status:  TAppointmentStatus.scheduled,
 
                 paymentTransactionId : null,
-                paymentStatus : PaymentStatus.unpaid,
+                paymentStatus : TPaymentStatus.unpaid,
                 finalAmount: 0 // we will update this later in this function
             })
 
@@ -167,21 +223,21 @@ export class DoctorPatientScheduleBookingService extends GenericService<
         };
 
 
-        try {
-            const session = await stripe.checkout.sessions.create(stripeSessionData);
-            console.log({
-                    url: session.url,
-            });
-            stripeResult = { url: session.url };
-        } catch (error) {
-            console.log({ error });
-        }
-
-        } catch (err) {
-            console.error("🛑 Error While creating Order", err);
-            throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Order creation failed');
-        }
-
-        return  stripeResult; // result ;//session.url;
+    try {
+        const session = await stripe.checkout.sessions.create(stripeSessionData);
+        console.log({
+                url: session.url,
+        });
+        stripeResult = { url: session.url };
+    } catch (error) {
+        console.log({ error });
     }
+
+    } catch (err) {
+        console.error("🛑 Error While creating Order", err);
+        throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Order creation failed');
+    }
+
+    return  stripeResult; // result ;//session.url;
+}
 }

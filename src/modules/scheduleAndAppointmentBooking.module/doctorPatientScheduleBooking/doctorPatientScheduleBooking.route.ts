@@ -55,7 +55,11 @@ router.route('/').get(
   controller.getAll
 );
 
-//[🚧][🧑‍💻✅][🧪] // 🆗
+/***********
+ * 
+ *  Patient | Book Appointment from Doctor's Available Schedule
+ * 
+ * *********** */
 router.route('/:doctorScheduleId').post(
   auth(TRole.patient),
   validateRequest(validation.doctorPatientScheduleBookingValidationSchema),

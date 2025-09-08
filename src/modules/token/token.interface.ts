@@ -1,4 +1,6 @@
+//@ts-ignore
 import { Types } from 'mongoose';
+import { TSubscription } from '../../enums/subscription';
 
 export enum TokenType {
   ACCESS = 'access',
@@ -21,5 +23,6 @@ export interface IUser {
   email: string;
   role: string;
   stripe_customer_id : string | null;
-  subscriptionPlan : string | null;
+  subscriptionPlan : TSubscription | null; // ENUM
 }
+
