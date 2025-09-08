@@ -23,6 +23,7 @@ import { TrainingSessionRoute } from '../modules/training.module/trainingSession
 import { SpecialistWorkoutClassScheduleRoute } from '../modules/scheduleAndAppointmentBooking.module/specialistWorkoutClassSchedule/specialistWorkoutClassSchedule.route';
 import { informationVideoRoute } from '../modules/extra.module/informationVideo/informationVideo.route';
 import { UserRoutes } from '../modules/user/user.route';
+import { DoctorPatientScheduleBookingRoute } from '../modules/scheduleAndAppointmentBooking.module/doctorPatientScheduleBooking/doctorPatientScheduleBooking.route';
 
 // import { ChatRoutes } from '../modules/chat/chat.routes';
 // import { MessageRoutes } from '../modules/message/message.routes';
@@ -85,6 +86,13 @@ const apiRoutes = [
     path: '/doctor-appointments',
     route: DoctorAppointmentScheduleRoute,
   },
+  
+  { // 🟢
+    path: '/doctor-appointments/bookings',
+    route: DoctorPatientScheduleBookingRoute,
+  },
+
+  
   { // 🟢
     path: '/workout-schedules',
     route: SpecialistWorkoutClassScheduleRoute,

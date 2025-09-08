@@ -11,7 +11,10 @@ import { TUser } from "../../user/user.interface";
 import { User } from "../../user/user.model";
 import { TPaymentGateway, TPaymentStatus, TTransactionFor } from "../paymentTransaction/paymentTransaction.constant";
 import { PaymentTransaction } from "../paymentTransaction/paymentTransaction.model";
+//@ts-ignore
 import { StatusCodes } from 'http-status-codes';
+//@ts-ignore
+import mongoose from "mongoose";
 
 // Function for handling a successful payment
 export const handlePaymentSucceeded = async (session: Stripe.Checkout.Session) => {
@@ -58,10 +61,11 @@ export const handlePaymentSucceeded = async (session: Stripe.Checkout.Session) =
           let updatedObjectOfReferenceFor: any;
           if (referenceFor === TTransactionFor.Order) {
                updatedObjectOfReferenceFor = updateOrderInformation(referenceId, newPayment._id);
-          } else if (referenceFor === TTransactionFor.SubscriptionPlan) {
-               // updatedObjectOfReferenceFor = updateUserSubscription(referenceId, newPayment._id);
-              
-          } else if (referenceFor === TTransactionFor.LabTestBooking) {
+          } 
+          // else if (referenceFor === TTransactionFor.SubscriptionPlan) {
+          //       updatedObjectOfReferenceFor = updateUserSubscription(referenceId, newPayment._id);
+          // }
+          else if (referenceFor === TTransactionFor.LabTestBooking) {
                updatedObjectOfReferenceFor = updateLabTestBooking(referenceId, newPayment._id);
           
           }else if (referenceFor === TTransactionFor.DoctorPatientScheduleBooking) {
@@ -113,6 +117,12 @@ async function updateLabTestBooking(labTestId: string, paymentTransactionId: str
      return updatedLabTestBooking;
 }
 
+
+/**********
+* 
+*  const refModel = mongoose.model(result.type);
+*  const isExistRefference = await refModel.findById(result.refferenceId).session(session);
+* ********** */
 async function updateDoctorPatientScheduleBooking(
      thisCustomer: TUser,
      doctorPatientScheduleBookingId: string,
@@ -129,7 +139,7 @@ async function updateDoctorPatientScheduleBooking(
           status : TAppointmentStatus.scheduled
      }, { new: true });
 
-     await DoctorAppointmentSchedule.findByIdAndUpdate(
+     await mongoose.model(doctorAppointmentScheduleIdReferenceFor).findByIdAndUpdate(
           doctorAppointmentScheduleId, 
           {
                /* update fields */
@@ -137,6 +147,15 @@ async function updateDoctorPatientScheduleBooking(
           },
           { new: true }
      );
+
+     // await DoctorAppointmentSchedule.findByIdAndUpdate(
+     //      doctorAppointmentScheduleId, 
+     //      {
+     //           /* update fields */
+     //           booked_by: thisCustomer._id, // this is patientId
+     //      },
+     //      { new: true }
+     // );
 
      return updatedDoctorPatientScheduleBooking;
 }

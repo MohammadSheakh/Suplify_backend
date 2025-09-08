@@ -19,6 +19,7 @@ import { TAppointmentStatus } from './doctorPatientScheduleBooking.constant';
 import { TPaymentStatus } from '../specialistPatientScheduleBooking/specialistPatientScheduleBooking.constant';
 import { PaymentMethod } from '../../order.module/order/order.constant';
 import { TTransactionFor } from '../../payment.module/paymentTransaction/paymentTransaction.constant';
+import { DoctorAppointmentSchedule } from '../doctorAppointmentSchedule/doctorAppointmentSchedule.model';
 
 export class DoctorPatientScheduleBookingService extends GenericService<
   typeof DoctorPatientScheduleBooking,
@@ -45,17 +46,21 @@ export class DoctorPatientScheduleBookingService extends GenericService<
             throw new ApiError(StatusCodes.FORBIDDEN, 'You need to subscribe a plan to book appointment with doctor');
         }
 
-        const existingSchedule:IDoctorAppointmentSchedule = await DoctorPatientScheduleBooking.findOne({
-            id: doctorScheduleId,
-            status: TDoctorAppointmentScheduleStatus.available 
+        console.log("⚡⚡", doctorScheduleId)
+        const existingSchedule:IDoctorAppointmentSchedule = await DoctorAppointmentSchedule.findOne(
+            {
+                _id: doctorScheduleId,
+               scheduleStatus: TDoctorAppointmentScheduleStatus.available 
             // { $in: [TDoctorAppointmentScheduleStatus.available] } // Check for both pending and scheduled statuses
-        });
+            }
+        );
+
         if (!existingSchedule) {
             throw new ApiError(StatusCodes.NOT_FOUND, 'Doctor schedule not found');
         }
 
         existingSchedule.scheduleStatus = TDoctorAppointmentScheduleStatus.booked;
-        existingSchedule.booked_by = user.userId;
+        // existingSchedule.booked_by = user.userId; // we update this in webhook
 
         if(user.subscriptionPlan == TSubscription.vise){
             // no payment required ..
@@ -140,7 +145,7 @@ export class DoctorPatientScheduleBookingService extends GenericService<
             // session.startTransaction();
             await session.withTransaction(async () => {
                 
-                createdDoctorPatientScheduleBooking = new DoctorPatientScheduleBooking({
+                createdDoctorPatientScheduleBooking = await DoctorPatientScheduleBooking.create({
                     patientId: user.userId,  //🔗
                     doctorScheduleId: existingSchedule._id,  //🔗
                     doctorId: existingSchedule.createdBy,//🔗 ⚡ this will help us to query easily

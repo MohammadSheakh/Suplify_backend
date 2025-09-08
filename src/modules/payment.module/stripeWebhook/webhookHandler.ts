@@ -40,17 +40,26 @@ const webhookHandler = async (req: Request, res: Response): Promise<void> => {
           switch (event.type) {
                case 'checkout.session.completed': // THIS IS FOR ORDER ... ONE TIME PAYMENT 
                     // console.log('🟢checkout.session.completed🟢', event.data.object);
+                    console.log("🪝checkout.session.completed")
                     await handlePaymentSucceeded(event.data.object);
+                    break;
+               case 'payment_intent.payment_failed':
+               case 'checkout.session.expired':
+                    // Happens when the checkout session expires (user didn’t complete the payment).
+                    console.log("🪝checkout.session.expired")
+                    await handleFailedPayment(event.data.object);
                     break;
                /*******
                 * later we will implement this 
                 * *****/     
                case 'transfer.created':
+                    console.log("🪝transfer.created")
                     // await handleTransferCreated(event.data.object); // commented by sheakh
                     // console.log('🟢transfer.created🟢 Transfer created:', event.data.object);
                     break;
                // 🎯 AUTOMATIC BILLING AFTER TRIAL
                case 'invoice.payment_succeeded': // TODO :  we have to use  invoice.paid
+                    console.log("🪝invoice.payment_succeeded")
                     /***
                      * here we create userSubscription
                      * 
@@ -61,6 +70,7 @@ const webhookHandler = async (req: Request, res: Response): Promise<void> => {
                     break;
                // ✅ TRY TO GET ACURATE DATE FROM HERE ..  AFTER PAYMENT FOR SUBSCRIPTION
                case 'customer.subscription.created':
+                    console.log("🪝customer.subscription.created")
                     /******
                      * 
                      * when a subscription is purchased ..this event will be fired at first ..
@@ -72,6 +82,7 @@ const webhookHandler = async (req: Request, res: Response): Promise<void> => {
                     await handleSubscriptionDates(event.data.object);
                     break;
                case 'customer.subscription.trial_will_end':  
+                    console.log("🪝customer.subscription.trial_will_end")
                     /*****
                      * 🔥🔥 event.type customer.subscription.trial_will_end
                      * 
@@ -86,12 +97,12 @@ const webhookHandler = async (req: Request, res: Response): Promise<void> => {
                     break;  
                // 💳 PAYMENT FAILED AFTER TRIAL  
                case 'invoice.payment_failed':
-                    console.log("🟢invoice.payment_failed🟢")
-                    // await handleFailedPayment(event.data.object);
+                    console.log("🪝invoice.payment_failed")
+                    await handleFailedPayment(event.data.object);
                     break;
                // 🔄 SUBSCRIPTION CANCELLED
                case 'customer.subscription.deleted':
-                    console.log('🟢customer.subscription.deleted🟢')
+                    console.log('🪝customer.subscription.deleted')
                     await handleSubscriptionCancellation(event.data.object);
                     break;
                // ✅ TRIAL CONVERTED TO PAID
@@ -101,6 +112,7 @@ const webhookHandler = async (req: Request, res: Response): Promise<void> => {
                     break;
                default:
                     // console.log(`Unhandled event type: ${event.type}`);
+                    console.log("🪝🪝unhandled🪝🪝", event.type)
                     break;
           }
 

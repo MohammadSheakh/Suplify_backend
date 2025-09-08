@@ -23,6 +23,7 @@ export class DoctorPatientScheduleBookingController extends GenericController<
   }
 
   create = catchAsync(async (req: Request, res: Response) => {
+    console.log('req.params 🟢🟢', req.params);
     const result = await this.doctorPatientScheduleBookingService.createV2(req.params.doctorScheduleId, req.user);
 
     sendResponse(res, {
