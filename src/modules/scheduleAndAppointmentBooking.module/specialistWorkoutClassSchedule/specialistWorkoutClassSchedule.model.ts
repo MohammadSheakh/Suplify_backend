@@ -42,9 +42,9 @@ const SpecialistWorkoutClassScheduleSchema = new Schema<ISpecialistWorkoutClassS
       )}`],
     },
     price : {
-          type: Number,
-          required: [true, 'price is required'],
-        },
+      type: Number,
+      required: [true, 'price is required'],
+    },
     typeOfLink: {
       type: String,
       enum: [

@@ -1,6 +1,9 @@
 import ApiError from "../../../errors/ApiError";
 import { OrderStatus, PaymentStatus } from "../../order.module/order/order.constant";
 import { Order } from "../../order.module/order/order.model";
+import { DoctorAppointmentSchedule } from "../../scheduleAndAppointmentBooking.module/doctorAppointmentSchedule/doctorAppointmentSchedule.model";
+import { TAppointmentStatus } from "../../scheduleAndAppointmentBooking.module/doctorPatientScheduleBooking/doctorPatientScheduleBooking.constant";
+import { DoctorPatientScheduleBooking } from "../../scheduleAndAppointmentBooking.module/doctorPatientScheduleBooking/doctorPatientScheduleBooking.model";
 import { TLabTestBookingStatus } from "../../scheduleAndAppointmentBooking.module/labTestBooking/labTestBooking.constant";
 import { LabTestBooking } from "../../scheduleAndAppointmentBooking.module/labTestBooking/labTestBooking.model";
 import { IUser } from "../../token/token.interface";
@@ -14,7 +17,7 @@ import { StatusCodes } from 'http-status-codes';
 export const handlePaymentSucceeded = async (session: Stripe.Checkout.Session) => {
      // console.log('handlePaymentSucceeded called with session: 🟢🟢', session);
      try {
-          const { referenceId, user, referenceFor, currency,  amount }: any = session.metadata;
+          const { referenceId, user, referenceFor, currency,  amount,  referenceId2, referenceFor2 }: any = session.metadata;
           // userId // for sending notification .. 
 
           let _user:IUser = JSON.parse(user);
@@ -60,6 +63,10 @@ export const handlePaymentSucceeded = async (session: Stripe.Checkout.Session) =
               
           } else if (referenceFor === TTransactionFor.LabTestBooking) {
                updatedObjectOfReferenceFor = updateLabTestBooking(referenceId, newPayment._id);
+          
+          }else if (referenceFor === TTransactionFor.DoctorPatientScheduleBooking) {
+               updatedObjectOfReferenceFor = 
+               updateDoctorPatientScheduleBooking(thisCustomer, referenceId, newPayment._id, referenceId2, referenceFor2);
           }
 
           if (!updatedObjectOfReferenceFor) {
@@ -105,3 +112,32 @@ async function updateLabTestBooking(labTestId: string, paymentTransactionId: str
 
      return updatedLabTestBooking;
 }
+
+async function updateDoctorPatientScheduleBooking(
+     thisCustomer: TUser,
+     doctorPatientScheduleBookingId: string,
+     paymentTransactionId: string,
+     doctorAppointmentScheduleId : string,
+     doctorAppointmentScheduleIdReferenceFor: string
+
+){
+
+     const updatedDoctorPatientScheduleBooking = await DoctorPatientScheduleBooking.findByIdAndUpdate(doctorPatientScheduleBookingId, { 
+          /* update fields */ 
+          paymentTransactionId : paymentTransactionId,
+          paymentStatus: PaymentStatus.paid,
+          status : TAppointmentStatus.scheduled
+     }, { new: true });
+
+     await DoctorAppointmentSchedule.findByIdAndUpdate(
+          doctorAppointmentScheduleId, 
+          {
+               /* update fields */
+               booked_by: thisCustomer._id, // this is patientId
+          },
+          { new: true }
+     );
+
+     return updatedDoctorPatientScheduleBooking;
+}
+

@@ -15,7 +15,8 @@ export interface IDoctorPatientScheduleBooking {
   paymentTransactionId?: Types.ObjectId | null;
   paymentMethod: PaymentMethod | null; // ENUM
   paymentStatus: TPaymentStatus; // ENUM
-
+  price: number; // required
+  
   isDeleted? : Boolean;  
   createdAt?: Date;
   updatedAt?: Date;

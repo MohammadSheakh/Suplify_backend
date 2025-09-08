@@ -7,6 +7,7 @@ export interface IDoctorAppointmentSchedule {
   // _taskId: undefined | Types.ObjectId;
   _id?: Types.ObjectId; // undefined |  Types.ObjectId |
   createdBy: Types.ObjectId;
+  booked_by : Types.ObjectId | null; // 🔥 when a patient booked this schedule .. his Id should be here ..
   scheduleName : string;
   scheduleDate : Date; // TODO : is it should be string or Date 
   startTime : string;

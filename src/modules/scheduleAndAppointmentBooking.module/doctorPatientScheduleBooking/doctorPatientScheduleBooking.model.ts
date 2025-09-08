@@ -41,6 +41,10 @@ const DoctorPatientScheduleBookingSchema = new Schema<IDoctorPatientScheduleBook
               ', '
             )}`],
     },
+    price : {
+      type: Number,
+      required: [true, 'price is required'],
+    },
     paymentTransactionId: { //🔗 Same as PaymentId of kappes
       type: Schema.Types.ObjectId,
       ref: 'PaymentTransaction',

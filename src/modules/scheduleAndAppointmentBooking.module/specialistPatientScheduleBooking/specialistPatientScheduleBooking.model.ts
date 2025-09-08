@@ -1,8 +1,7 @@
+//@ts-ignore
 import { model, Schema } from 'mongoose';
 import { ISpecialistPatientScheduleBooking, ISpecialistPatientScheduleBookingModel } from './specialistPatientScheduleBooking.interface';
 import paginate from '../../../common/plugins/paginate';
-import { TSpecialistWorkoutClassSchedule } from '../specialistWorkoutClassSchedule/specialistWorkoutClassSchedule.constant';
-import { TAppointmentStatus } from '../doctorPatientScheduleBooking/doctorPatientScheduleBooking.constant';
 import { TPaymentStatus, TScheduleBookingStatus } from './specialistPatientScheduleBooking.constant';
 import { PaymentMethod } from '../../order.module/order/order.constant';
 
@@ -58,6 +57,10 @@ const SpecialistPatientScheduleBookingSchema = new Schema<ISpecialistPatientSche
       type: String,
       enum: PaymentMethod,
       // default: PaymentMethod.online,
+    },
+    price : {
+      type: Number,
+      required: [true, 'price is required'],
     },
     paymentStatus : {
       type: String,
