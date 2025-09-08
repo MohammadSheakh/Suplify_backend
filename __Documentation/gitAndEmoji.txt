@@ -1,0 +1,27 @@
+//📈⚙️ -> optimization related
+// ⚠️ -> bad code 
+// 🟢 -> new section
+// TODO -> self explanatory
+// Robust System -> 🧱💪
+// Ok System -> 🆗
+
+-------------------------
+
+(Module) fix : Commit Message
+(Module) feat : Commit Message
+(Module) :wrench:  Commit Message  <chore>
+(Module) :hammer:   or :recycle: Commit Message <refactor>
+
+:zap: ⚡ -> performance improvement with refactoring  <perf>
+:broom: -> clean up
+
+:memo: -> documentation only    <chore>
+
+:wrench: -> config   <chore>
+
+:fire: -> remove code    <chore>
+
+:construction: -> work in progress
+
+Ask AI :: 
+this is my coding structure .. is my coding standard ? rate my way of coding out of 10 ..

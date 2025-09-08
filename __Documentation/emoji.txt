@@ -1,6 +1,0 @@
-//📈⚙️ -> optimization related
-// ⚠️ -> bad code 
-// 🟢 -> new section
-// TODO -> self explanatory
-// Robust System -> 🧱💪
-// Ok System -> 🆗

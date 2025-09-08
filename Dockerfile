@@ -21,3 +21,7 @@ EXPOSE 3000
 
 # Start dev server with hot reload
 CMD ["pnpm", "run", "dev"]
+
+##----- docker compose up --build
+##----- docker build -t anyName .
+
