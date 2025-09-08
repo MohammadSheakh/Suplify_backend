@@ -18,6 +18,11 @@ const SpecialistPatientScheduleBookingSchema = new Schema<ISpecialistPatientSche
       ref: 'SpecialistWorkoutClassSchedule',
       required: [true, 'workoutClassScheduleId is required'],
     },
+    specialistId: { //🔗🔥🔥🔥 will provides significant performance and functionality benefits
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      required: [true, 'specialistId is required'],
+    },
     isDeleted: {
       type: Boolean,
       required: [false, 'isDeleted is not required'],

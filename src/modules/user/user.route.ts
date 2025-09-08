@@ -64,5 +64,5 @@ router.route('/softDelete/:id').put(
 //[🚧][🧑‍💻✅][🧪] // 🆗
 
 
-export const UserRoute = router;
+export const UserRoutes = router;
 

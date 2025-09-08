@@ -1,5 +1,5 @@
+//@ts-ignore
 import express from 'express';
-import { UserRoutes } from '../modules/user/user.route';
 import { AuthRoutes } from '../modules/auth/auth.routes';
 // import { AdminRoutes } from '../modules/admin/admin.routes';
 import { AttachmentRoutes } from '../modules/attachments/attachment.route';
@@ -22,6 +22,7 @@ import { SubscriptionPlanRoute } from '../modules/subscription.module/subscripti
 import { TrainingSessionRoute } from '../modules/training.module/trainingSession/trainingSession.route';
 import { SpecialistWorkoutClassScheduleRoute } from '../modules/scheduleAndAppointmentBooking.module/specialistWorkoutClassSchedule/specialistWorkoutClassSchedule.route';
 import { informationVideoRoute } from '../modules/extra.module/informationVideo/informationVideo.route';
+import { UserRoutes } from '../modules/user/user.route';
 
 // import { ChatRoutes } from '../modules/chat/chat.routes';
 // import { MessageRoutes } from '../modules/message/message.routes';

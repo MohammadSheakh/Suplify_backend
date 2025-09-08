@@ -12,7 +12,7 @@ import Stripe from 'stripe';
 import ApiError from '../../../errors/ApiError';
 import { TInitialDuration, TRenewalFrequency } from './subscriptionPlan.constant';
 import { User } from '../../user/user.model';
-import { UserCustomService } from '../../user/user.service';
+import { UserService } from '../../user/user.service';
 //@ts-ignore
 import mongoose from 'mongoose';
 import { PaymentTransactionService } from '../../payment.module/paymentTransaction/paymentTransaction.service';
@@ -29,7 +29,7 @@ import { UserSubscription } from '../userSubscription/userSubscription.model';
 import { config } from '../../../config';
 
 const subscriptionPlanService = new SubscriptionPlanService();
-const userCustomService = new UserCustomService();
+const userService = new UserService();
 
 const paymentTransactionService = new PaymentTransactionService();
 

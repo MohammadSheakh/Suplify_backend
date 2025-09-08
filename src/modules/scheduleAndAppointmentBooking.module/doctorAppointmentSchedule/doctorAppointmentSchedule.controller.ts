@@ -28,6 +28,11 @@ export class DoctorAppointmentScheduleController extends GenericController<
     super(new DoctorAppointmentScheduleService(), 'DoctorAppointmentSchedule');
   }
 
+  /**********
+   * 
+   * Doctor | Create Doctor Appointment Schedule 
+   * 
+   * ********* */
   create = catchAsync(async (req: Request, res: Response) => {
     console.log("ℹ️hit generic controller");
 

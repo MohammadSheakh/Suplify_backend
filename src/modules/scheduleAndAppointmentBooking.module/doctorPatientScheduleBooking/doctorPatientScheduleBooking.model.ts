@@ -18,6 +18,11 @@ const DoctorPatientScheduleBookingSchema = new Schema<IDoctorPatientScheduleBook
       ref: 'DoctorAppointmentSchedule',
       required: [true, 'doctorScheduleId is required'],
     },
+    doctorId: { //🔗 🔥🔥🔥 will provides significant performance and functionality benefits
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      required: [true, 'doctorId is required'],
+    },
     isDeleted: {
       type: Boolean,
       required: [false, 'isDeleted is not required'],
