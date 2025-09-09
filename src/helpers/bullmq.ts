@@ -17,7 +17,9 @@ interface IScheduleJob {
   data :{
     scheduleId: string; // doctorAppointmentSchedule
     appointmentBookingId:string; // doctorAppointmentBooking
-  }
+  },
+  id: string
+
 }
 
 // Create Worker
@@ -51,6 +53,6 @@ export const scheduleWorker = new Worker(
   }
 );
 
-scheduleWorker.on("failed", (job, err) => {
+scheduleWorker.on("failed", (job:IScheduleJob, err:any) => {
   console.error(`❌ Job ${job?.id} failed`, err);
 });
