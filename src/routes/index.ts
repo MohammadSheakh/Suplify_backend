@@ -24,6 +24,7 @@ import { SpecialistWorkoutClassScheduleRoute } from '../modules/scheduleAndAppoi
 import { informationVideoRoute } from '../modules/extra.module/informationVideo/informationVideo.route';
 import { UserRoutes } from '../modules/user/user.route';
 import { DoctorPatientScheduleBookingRoute } from '../modules/scheduleAndAppointmentBooking.module/doctorPatientScheduleBooking/doctorPatientScheduleBooking.route';
+import { doctorPatientRoute } from '../modules/personRelationships.module/doctorPatient/doctorPatient.route';
 
 // import { ChatRoutes } from '../modules/chat/chat.routes';
 // import { MessageRoutes } from '../modules/message/message.routes';
@@ -92,7 +93,10 @@ const apiRoutes = [
     route: DoctorPatientScheduleBookingRoute,
   },
 
-  
+  { // 🟢
+    path: '/doctor-patient',
+    route: doctorPatientRoute,
+  },
   { // 🟢
     path: '/workout-schedules',
     route: SpecialistWorkoutClassScheduleRoute,

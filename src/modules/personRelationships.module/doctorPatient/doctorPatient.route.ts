@@ -5,6 +5,7 @@ import { IdoctorPatient } from './doctorPatient.interface';
 import { validateFiltersForQuery } from '../../../middlewares/queryValidation/paginationQueryValidationMiddleware';
 import validateRequest from '../../../shared/validateRequest';
 import auth from '../../../middlewares/auth';
+import { TRole } from '../../../middlewares/roles';
 
 const multer = require('multer');
 const storage = multer.memoryStorage();
@@ -29,9 +30,14 @@ const paginationOptions: Array<'sortBy' | 'page' | 'limit' | 'populate'> = [
 // const taskService = new TaskService();
 const controller = new doctorPatientController();
 
+/**********
+ * 
+ * Patient | Get all Patients Doctor .. 
+ * 
+ * ******** */
 //info : pagination route must be before the route with params
 router.route('/paginate').get(
-  //auth('common'),
+  auth(TRole.patient),
   validateFiltersForQuery(optionValidationChecking(['_id'])),
   controller.getAllWithPagination
 );
