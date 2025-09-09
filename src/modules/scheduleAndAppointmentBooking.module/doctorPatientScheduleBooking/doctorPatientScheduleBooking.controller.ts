@@ -23,7 +23,10 @@ export class DoctorPatientScheduleBookingController extends GenericController<
   }
 
   create = catchAsync(async (req: Request, res: Response) => {
-    console.log('req.params 🟢🟢', req.params);
+    /********
+     * here we also check if relation ship between doctor and patient exist or not
+     *  if not then we create the relationship 
+     * *** */
     const result = await this.doctorPatientScheduleBookingService.createV2(req.params.doctorScheduleId, req.user);
 
     sendResponse(res, {

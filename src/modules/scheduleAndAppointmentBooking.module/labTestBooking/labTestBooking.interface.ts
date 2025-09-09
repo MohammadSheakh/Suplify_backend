@@ -11,8 +11,8 @@ export interface ILabTestBooking {
   patientId: Types.ObjectId;//🔗
   labTestId: Types.ObjectId;//🔗
   appointmentDate : Date; // '2023-10-10'
-  startTime : string; // ''
-  endTime : string;
+  startTime : Date; // Not Sure .. previously it was string
+  endTime : Date; // Not Sure .. previously it was string
 
   address: string;
   city: string;
@@ -34,9 +34,9 @@ export interface IBookLabTest{
   labTestId: Types.ObjectId;
   
   appointmentDate : Date; // '2023-10-10'
-  startTime : string ; // ''
-  endTime : string;
-  
+  startTime : Date; // Not Sure .. previously it was string
+  endTime : Date; // Not Sure .. previously it was string
+
   address: string;
   city: string;
   state : string;

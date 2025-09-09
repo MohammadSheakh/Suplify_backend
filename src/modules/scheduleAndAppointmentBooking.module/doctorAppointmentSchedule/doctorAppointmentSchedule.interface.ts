@@ -10,8 +10,8 @@ export interface IDoctorAppointmentSchedule {
   booked_by : Types.ObjectId | null; // 🔥 when a patient booked this schedule .. his Id should be here ..
   scheduleName : string;
   scheduleDate : Date; // TODO : is it should be string or Date 
-  startTime : string;
-  endTime : string;
+  startTime : Date;
+  endTime : Date;
   description : string;
   price : string;
   typeOfLink : string;

@@ -129,8 +129,8 @@ async function updateDoctorPatientScheduleBooking(
      paymentTransactionId: string,
      doctorAppointmentScheduleId : string,
      doctorAppointmentScheduleIdReferenceFor: string
-
 ){
+     console.log("☑️HIT☑️ handlePaymentSucceed -> updateDoctorPatientScheduleBooking >>> doctorAppointmentScheduleId", doctorAppointmentScheduleId)
 
      const updatedDoctorPatientScheduleBooking = await DoctorPatientScheduleBooking.findByIdAndUpdate(doctorPatientScheduleBookingId, { 
           /* update fields */ 
@@ -139,7 +139,7 @@ async function updateDoctorPatientScheduleBooking(
           status : TAppointmentStatus.scheduled
      }, { new: true });
 
-     await mongoose.model(doctorAppointmentScheduleIdReferenceFor).findByIdAndUpdate(
+     const result = await mongoose.model(doctorAppointmentScheduleIdReferenceFor).findByIdAndUpdate(
           doctorAppointmentScheduleId, 
           {
                /* update fields */
@@ -147,6 +147,8 @@ async function updateDoctorPatientScheduleBooking(
           },
           { new: true }
      );
+
+     console.log("result ::::", result)
 
      // await DoctorAppointmentSchedule.findByIdAndUpdate(
      //      doctorAppointmentScheduleId, 

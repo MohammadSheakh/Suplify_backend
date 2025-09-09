@@ -20,6 +20,8 @@ import { TPaymentStatus } from '../specialistPatientScheduleBooking/specialistPa
 import { PaymentMethod } from '../../order.module/order/order.constant';
 import { TTransactionFor } from '../../payment.module/paymentTransaction/paymentTransaction.constant';
 import { DoctorAppointmentSchedule } from '../doctorAppointmentSchedule/doctorAppointmentSchedule.model';
+import { DoctorPatient } from '../../personRelationships.module/doctorPatient/doctorPatient.model';
+import { scheduleQueue } from '../../../helpers/bullmq';
 
 export class DoctorPatientScheduleBookingService extends GenericService<
   typeof DoctorPatientScheduleBooking,
@@ -46,7 +48,6 @@ export class DoctorPatientScheduleBookingService extends GenericService<
             throw new ApiError(StatusCodes.FORBIDDEN, 'You need to subscribe a plan to book appointment with doctor');
         }
 
-        console.log("⚡⚡", doctorScheduleId)
         const existingSchedule:IDoctorAppointmentSchedule = await DoctorAppointmentSchedule.findOne(
             {
                 _id: doctorScheduleId,
@@ -57,6 +58,26 @@ export class DoctorPatientScheduleBookingService extends GenericService<
 
         if (!existingSchedule) {
             throw new ApiError(StatusCodes.NOT_FOUND, 'Doctor schedule not found');
+        }
+
+        /********
+         * 📝
+         * here we also check if relation ship between doctor and patient exist or not
+         *  if not then we create the relationship 
+         */
+        
+        const doctorPatientRelation = await DoctorPatient.findOne({
+            doctorId: existingSchedule.createdBy,
+            patientId: user.userId
+        });
+
+        if (!doctorPatientRelation) {
+            // Create the relationship if it doesn't exist
+            const newRelation = new DoctorPatient({
+                doctorId: existingSchedule.createdBy,
+                patientId: user.userId
+            });
+            await newRelation.save();
         }
 
         existingSchedule.scheduleStatus = TDoctorAppointmentScheduleStatus.booked;
@@ -71,12 +92,13 @@ export class DoctorPatientScheduleBookingService extends GenericService<
              * if scheduleDate >= today
              * if timeLeft > 0 // so, we dont think about startTime .. //TODO :
              * ++++++ create doctorPatientScheduleBooking
+             * 
              * **** */
 
             existingSchedule.scheduleStatus = TDoctorAppointmentScheduleStatus.booked;
             existingSchedule.booked_by = user.userId;
 
-            const createBooking = await this.create({
+            const createdBooking = await this.create({
                 patientId: user.userId,
                 doctorScheduleId: existingSchedule._id,
                 doctorId: existingSchedule.createdBy,// ⚡ this will help us to query easily
@@ -93,7 +115,27 @@ export class DoctorPatientScheduleBookingService extends GenericService<
 
             await existingSchedule.save();
 
-            return  createBooking;
+
+            /********** ♻️ WE MOVE THIS TO A FUNCTION  
+             
+            const endTime = new Date(existingSchedule.endTime); 
+            // TODO: adjust with startTime/endTime logic
+
+            const delay = endTime.getTime() - Date.now();
+            if (delay > 0) {
+                await scheduleQueue.add(
+                    "makeDoctorAppointmentScheduleAvailable",
+                    { scheduleId: existingSchedule._id },
+                    { delay }
+                );
+                console.log(`⏰ Job added to free schedule ${existingSchedule._id} in ${delay / 1000}s`);
+            }
+
+            ********* */
+
+            addToBullQueueToFreeDoctorAppointmentSchedule(existingSchedule, createdBooking);
+
+            return  createdBooking;
         }
 
         /*********
@@ -158,6 +200,8 @@ export class DoctorPatientScheduleBookingService extends GenericService<
                 })
 
                 await existingSchedule.save({ session });
+
+                addToBullQueueToFreeDoctorAppointmentSchedule(existingSchedule, createdDoctorPatientScheduleBooking);
 
             });
             session.endSession();
@@ -241,4 +285,23 @@ export class DoctorPatientScheduleBookingService extends GenericService<
 
     return stripeResult; // result ;//session.url;
 }
+}
+
+
+async function addToBullQueueToFreeDoctorAppointmentSchedule(existingSchedule : IDoctorAppointmentSchedule, createdBooking: IDoctorPatientScheduleBooking){
+    const endTime = new Date(existingSchedule.endTime); 
+    // TODO: adjust with startTime/endTime logic
+
+    const delay = endTime.getTime() - Date.now();
+    if (delay > 0) {
+        await scheduleQueue.add(
+            "makeDoctorAppointmentScheduleAvailable",
+            { 
+                scheduleId: existingSchedule._id,
+                appointmentBookingId : createdBooking._id,
+            },
+            { delay }
+        );
+        console.log(`⏰ Job added to free schedule ${existingSchedule._id} in ${delay / 1000}s`);
+    }
 }

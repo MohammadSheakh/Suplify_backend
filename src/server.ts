@@ -12,6 +12,7 @@ import { initializeRedis, redisPubClient, redisSubClient } from './helpers/redis
 import { socketHelper } from './helpers/socketForChat';
 import { startMessageConsumer } from './helpers/kafka';
 import { socketHelperForKafka } from './helpers/socketForChatWithKafka';
+import { scheduleWorker } from './helpers/bullmq'; // ⬅️ ADD THIS
 
 // in production, use all cores, but in development, limit to 2-4 cores
 const numCPUs = config.environment === 'production' ? os.cpus().length : Math.max(0, Math.min(1, os.cpus().length));
@@ -68,11 +69,6 @@ async function main() {
     });
 
   
-// 🚧 under construction .. 
-      // ⚠️ have some bug .. 
-      // 🔵 new feature .. 
-  
-
     // Initialize Redis
     await initializeRedis();
 
@@ -94,6 +90,10 @@ async function main() {
 
     // @ts-ignore
     global.io = io;
+
+    // 🔥 Start BullMQ Worker (listens for schedule jobs)
+    scheduleWorker; // just reference
+
   } catch (error) {
     errorLogger.error(colors.red('🤢 Issue from server.ts => ', error));
   }

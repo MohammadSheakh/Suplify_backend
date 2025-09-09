@@ -15,12 +15,12 @@ export const createWorkoutClassSessionValidationSchema = z.object({
         invalid_type_error: 'scheduleDate must be a string.',
       }),
 
-    startTime: z.string({
+    startTime: z.string({  // TODO this should be date /*** in controller we convert this to date *** */
         required_error: 'startTime is required, startTime must be a string.',
         invalid_type_error: 'startTime must be a string.',
       }),
 
-    endTime: z.string({
+    endTime: z.string({ // TODO this should be date /*** in controller we convert this to date *** */
         required_error: 'endTime is required, endTime must be a string.',
         invalid_type_error: 'endTime must be a string.',
       }),

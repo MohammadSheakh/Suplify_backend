@@ -59,6 +59,8 @@ router.route('/').get(
  * 
  *  Patient | Book Appointment from Doctor's Available Schedule
  * 
+ *  here we also check if relation ship between doctor and patient exist or not
+ *  if not then we create the relationship 
  * *********** */
 router.route('/:doctorScheduleId').post(
   auth(TRole.patient),

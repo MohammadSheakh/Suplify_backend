@@ -14,15 +14,15 @@ export const createDoctorAppointmentScheduleValidationSchema = z.object({
       message: 'scheduleName must be at most 300 characters long.',
     }),
 
-    scheduleDate: z.string({
+    scheduleDate: z.string({ // TODO : it should be Date
       required_error: 'scheduleDate is required.',
       invalid_type_error: 'scheduleDate must be a string.',
     }), // TODO : later we have to convert this string to date .. 
-    startTime: z.string({
+    startTime: z.string({ // TODO : it should be Date
       required_error: 'startTime is required.',
       invalid_type_error: 'startTime must be a string.',
     }),
-    endTime: z.string({
+    endTime: z.string({ // TODO : it should be Date
       required_error: 'endTime is required.',
       invalid_type_error: 'endTime must be a string.',
     }),

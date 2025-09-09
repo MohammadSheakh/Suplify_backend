@@ -44,7 +44,7 @@ specialistPatientSchema.set('toJSON', {
   },
 });
 
-export const specialistPatient = model<
+export const SpecialistPatient = model<
   IspecialistPatient,
   IspecialistPatientModel
->('specialistPatient', specialistPatientSchema);
+>('SpecialistPatient', specialistPatientSchema);

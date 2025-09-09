@@ -18,12 +18,12 @@ const SpecialistWorkoutClassScheduleSchema = new Schema<ISpecialistWorkoutClassS
       required: [true, 'scheduleDate is required'],
     },
     startTime: {
-      type: String,
-      required: [true, 'startTime is required . type is String'],
+      type: Date,
+      required: [true, 'startTime is required . type is Date'],
     },
     endTime: {
-      type: String,
-      required: [true, 'endTime is required . type is String'],
+      type: Date,
+      required: [true, 'endTime is required . type is Date'],
     },
     description : {
       type: String,

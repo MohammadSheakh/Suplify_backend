@@ -22,12 +22,12 @@ const LabTestBookingSchema = new Schema<ILabTestBooking>(
       type: Date,
       required: [true, 'appointmentDate is required'],
     },
-    startTime: {
-      type: String,
+    startTime: { // Previously it was string
+      type: Date,
       required: [true, 'startTime is required'],
     },
-    endTime:{
-      type : String,
+    endTime:{ // Previously it was string
+      type : Date,
       required: [true, 'endTime is required'],
     },
 

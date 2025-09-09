@@ -51,6 +51,7 @@
     "bcryptjs": "^3.0.2",
     "body-parser": "^1.20.3",
     "bull": "^4.16.5",
+    "bullmq": "^5.58.5",
     "colors": "^1.4.0",
     "convert-csv-to-json": "^2.50.0",
     "cookie-parser": "^1.4.7",

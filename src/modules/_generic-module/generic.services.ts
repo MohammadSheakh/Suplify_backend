@@ -1,3 +1,4 @@
+//@ts-ignore
 import { StatusCodes } from 'http-status-codes';
 import ApiError from '../../errors/ApiError';
 import { PaginateOptions } from '../../types/paginate';
