@@ -1,14 +1,15 @@
+//@ts-ignore
 import { StatusCodes } from 'http-status-codes';
-import { doctorPatient } from './doctorPatient.model';
-import { IdoctorPatient } from './doctorPatient.interface';
+import { DoctorPatient } from './doctorPatient.model';
+import { IDoctorPatient } from './doctorPatient.interface';
 import { GenericService } from '../../_generic-module/generic.services';
 
 
-export class doctorPatientService extends GenericService<
-  typeof doctorPatient,
-  IdoctorPatient
+export class DoctorPatientService extends GenericService<
+  typeof DoctorPatient,
+  IDoctorPatient
 > {
   constructor() {
-    super(doctorPatient);
+    super(DoctorPatient);
   }
 }

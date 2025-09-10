@@ -1,7 +1,7 @@
 import express from 'express';
 import * as validation from './doctorPatient.validation';
-import { doctorPatientController} from './doctorPatient.controller';
-import { IdoctorPatient } from './doctorPatient.interface';
+import { DoctorPatientController} from './doctorPatient.controller';
+import { IDoctorPatient } from './doctorPatient.interface';
 import { validateFiltersForQuery } from '../../../middlewares/queryValidation/paginationQueryValidationMiddleware';
 import validateRequest from '../../../shared/validateRequest';
 import auth from '../../../middlewares/auth';
@@ -13,7 +13,7 @@ const upload = multer({ storage: storage });
 
 const router = express.Router();
 
-export const optionValidationChecking = <T extends keyof IdoctorPatient | 'sortBy' | 'page' | 'limit' | 'populate'>(
+export const optionValidationChecking = <T extends keyof IDoctorPatient | 'sortBy' | 'page' | 'limit' | 'populate'>(
   filters: T[]
 ) => {
   return filters;
@@ -28,7 +28,7 @@ const paginationOptions: Array<'sortBy' | 'page' | 'limit' | 'populate'> = [
 
 
 // const taskService = new TaskService();
-const controller = new doctorPatientController();
+const controller = new DoctorPatientController();
 
 /**********
  * 

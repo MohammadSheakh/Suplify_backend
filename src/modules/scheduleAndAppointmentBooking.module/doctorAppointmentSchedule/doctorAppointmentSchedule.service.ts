@@ -30,7 +30,6 @@ export class DoctorAppointmentScheduleService extends GenericService<
         // const endTime = zonedTimeToUtc(data.endTime, 'Asia/Dhaka');
 
         
-
         // Convert local time string (e.g., "2025-09-10T12:40:00") to UTC Date object
         const startTime = DateTime.fromISO(data.startTime, { zone: 'Asia/Dhaka' })
         .toUTC()
