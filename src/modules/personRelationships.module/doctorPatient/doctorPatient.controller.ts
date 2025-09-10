@@ -2,7 +2,8 @@
 import { Request, Response } from 'express';
 //@ts-ignore
 import { StatusCodes } from 'http-status-codes';
-
+//@ts-ignore
+import mongoose from 'mongoose';
 import { GenericController } from '../../_generic-module/generic.controller';
 import { DoctorPatient } from './doctorPatient.model';
 import { IDoctorPatient } from './doctorPatient.interface';
@@ -11,6 +12,7 @@ import sendResponse from '../../../shared/sendResponse';
 import catchAsync from '../../../shared/catchAsync';
 import omit from '../../../shared/omit';
 import pick from '../../../shared/pick';
+import { PaginationHelpers } from '../../../common/service/paginationHelpers';
 
 
 // let conversationParticipantsService = new ConversationParticipentsService();
@@ -59,6 +61,46 @@ export class DoctorPatientController extends GenericController<
       success: true,
     });
   });
+
+/**********
+ * 
+ * Patient | Get all Unknown Doctor .. 
+ * 
+ * ******** */
+  getUnknownDoctors = catchAsync(async (req: Request, res: Response) => {
+    //const filters = pick(req.query, ['_id', 'title']); // now this comes from middleware in router
+    const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']); ;
+    const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
+
+    const { patientId } = req.user.userId;
+    // const { page, limit } = PaginationHelpers.extractPaginationFromQuery(req.query);
+    const { search } = req.query;
+
+      // Validate patientId
+      // if (!mongoose.Types.ObjectId.isValid(patientId)) {
+      //   return res.status(400).json({
+      //     success: false,
+      //     message: 'Invalid patient ID'
+      //   });
+      // }
+
+      const result = await this.doctorPatientService.getUnknownDoctorsForPatient(req.user.userId, {
+        page: options.page,
+        limit: options.limit
+      });
+
+      // data: {
+      //     doctors: result.results,
+      //     pagination: result.pagination
+      //   }
+    sendResponse(res, {
+      code: StatusCodes.OK,
+      data: result,
+      message: `All ${this.modelName} with pagination`,
+      success: true,
+    });
+  });
+
 
   // add more methods here if needed or override the existing ones 
 }
