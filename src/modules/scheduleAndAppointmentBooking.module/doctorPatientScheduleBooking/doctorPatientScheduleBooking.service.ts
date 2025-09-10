@@ -7,6 +7,8 @@ import { IUser } from '../../token/token.interface';
 //@ts-ignore
 import mongoose from 'mongoose';
 //@ts-ignore
+import colors from 'colors';
+//@ts-ignore
 import Stripe from "stripe";
 import stripe from '../../../config/stripe.config';
 import { User } from '../../user/user.model';
@@ -22,6 +24,7 @@ import { TTransactionFor } from '../../payment.module/paymentTransaction/payment
 import { DoctorAppointmentSchedule } from '../doctorAppointmentSchedule/doctorAppointmentSchedule.model';
 import { DoctorPatient } from '../../personRelationships.module/doctorPatient/doctorPatient.model';
 import { scheduleQueue } from '../../../helpers/bullmq';
+import { logger } from '../../../shared/logger';
 
 export class DoctorPatientScheduleBookingService extends GenericService<
   typeof DoctorPatientScheduleBooking,
@@ -288,11 +291,52 @@ export class DoctorPatientScheduleBookingService extends GenericService<
 }
 
 
-async function addToBullQueueToFreeDoctorAppointmentSchedule(existingSchedule : IDoctorAppointmentSchedule, createdBooking: IDoctorPatientScheduleBooking){
-    const endTime = new Date(existingSchedule.endTime); 
-    // TODO: adjust with startTime/endTime logic
+function formatDelay(ms: number): string {
+  const totalSeconds = Math.floor(ms / 1000);
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
 
-    const delay = endTime.getTime() - Date.now();
+  if (minutes > 0 && seconds > 0) {
+    return `${minutes} minute${minutes > 1 ? 's' : ''} ${seconds} second${seconds > 1 ? 's' : ''}`;
+  } else if (minutes > 0) {
+    return `${minutes} minute${minutes > 1 ? 's' : ''}`;
+  } else {
+    return `${seconds} second${seconds > 1 ? 's' : ''}`;
+  }
+}
+
+
+async function addToBullQueueToFreeDoctorAppointmentSchedule(existingSchedule : IDoctorAppointmentSchedule, createdBooking: IDoctorPatientScheduleBooking){
+    
+    // const endTime = new Date(existingSchedule.endTime); 
+    // const delay = endTime.getTime() - Date.now();
+    
+
+    // 🔍 DEBUG: Let's see what we're actually working with
+    console.log("🔍 Raw existingSchedule.endTime:", existingSchedule.endTime);
+    console.log("🔍 typeof existingSchedule.endTime:", typeof existingSchedule.endTime);
+    console.log("🔍 existingSchedule.endTime.constructor.name:", existingSchedule.endTime?.constructor?.name);
+    
+    const endTime = new Date(existingSchedule.endTime);
+    
+    console.log("🔍 Parsed endTime:", endTime);
+    console.log("🔍 endTime.toISOString():", endTime.toISOString());
+    console.log("🔍 endTime.getTime():", endTime.getTime());
+    
+    const now = Date.now();
+    console.log("🔍 Current time (Date.now()):", now);
+    console.log("🔍 Current time as Date:", new Date(now).toISOString());
+    
+    const delay = endTime.getTime() - now;
+    console.log("🔍 Calculated delay (ms):", delay);
+    console.log("🔍 Calculated delay (minutes):", delay / 1000 / 60);
+    
+    // Original logging
+    console.log('👉 schedule booking time : ', now) 
+    console.log("👉 Scheduling job to free up schedule at : ", endTime , " ⚡ ",  endTime.getTime()); 
+    console.log("👉 delay :", delay); 
+
+
     if (delay > 0) {
         await scheduleQueue.add(
             "makeDoctorAppointmentScheduleAvailable",
@@ -302,6 +346,8 @@ async function addToBullQueueToFreeDoctorAppointmentSchedule(existingSchedule : 
             },
             { delay }
         );
-        console.log(`⏰ Job added to free schedule ${existingSchedule._id} in ${delay / 1000}s`);
+        // ${delay / 1000}s -> 
+        console.log(`⏰ Job added to free schedule ${existingSchedule._id} in ${formatDelay(delay)} min`);
+        logger.info(colors.green(`⏰ Job added to free schedule ${existingSchedule._id} in ${formatDelay(delay)} min`));
     }
 }

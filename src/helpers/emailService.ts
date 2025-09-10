@@ -1,4 +1,6 @@
+//@ts-ignore
 import colors from 'colors';
+//@ts-ignore
 import nodemailer from 'nodemailer';
 import { errorLogger, logger } from '../shared/logger';
 import { ISendEmail } from '../types/email';

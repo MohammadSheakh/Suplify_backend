@@ -19,7 +19,6 @@ interface IScheduleJob {
     appointmentBookingId:string; // doctorAppointmentBooking
   },
   id: string
-
 }
 
 // Create Worker
@@ -32,10 +31,15 @@ export const scheduleWorker = new Worker(
     if (job.name === "makeDoctorAppointmentScheduleAvailable") {
       const { scheduleId, appointmentBookingId } = job.data;
 
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      tomorrow.setHours(0, 0, 0, 0); // reset to midnight
+
       await DoctorAppointmentSchedule.findByIdAndUpdate(scheduleId, {
         $set: { 
             scheduleStatus: TDoctorAppointmentScheduleStatus.available,
-            booked_by: null
+            booked_by: null,
+            scheduleDate: tomorrow
         }
       });
 
