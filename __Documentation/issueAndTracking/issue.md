@@ -10,6 +10,9 @@ Issue 🔥  /  Solved ☑️ 📝
 | 📝     |                   |              | conversation list should be updated                 |             | /8/     | sikring  |
 | 🔥     | Conversation      |              | isOnline: global.socketUtils.isUserOnline(userId)   |             | /8/     |          |
 | 📝     |                   |              | give me error                                       |             | /8/     |          |
-| 🔥     | Information Video |              | 🔥must implementget caching information all video   |             | 7/9/     |          |
+| 🔥     | Information Video |              | must implementget caching information all video     |             | 7/9/    |          |
+| 🔥     | Appointment       |              | Doctor appointment must contain start and end time  |             | 7/9/    |          |
+
+
 
 

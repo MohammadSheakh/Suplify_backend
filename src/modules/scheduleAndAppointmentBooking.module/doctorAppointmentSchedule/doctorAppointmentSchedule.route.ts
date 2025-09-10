@@ -36,6 +36,14 @@ router.route('/paginate').get(
   controller.getAllWithPagination
 );
 
+/********
+ * 
+ * Patient | Get A Doctors All Appointment Schedule 
+ * 📝 here we want to show last 3 booked schedule .. two [completed] one [scheduled]
+ * and all schedule of doctor which are [available]
+ * 
+ * ***** */
+
 router.route('/:id').get(
   // auth('common'),
   controller.getById

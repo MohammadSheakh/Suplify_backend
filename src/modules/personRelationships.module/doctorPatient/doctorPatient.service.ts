@@ -89,13 +89,8 @@ export class DoctorPatientService extends GenericService<
         $project: {
           _id: 1,
           name: 1,
-          // email: 1,
-          // phone: 1,
-          // specialization: 1,
           profileImage : 1,
-          // experience: 1,
           avatar: 1,
-          // createdAt: 1,
           profile: 1
         }
       }
