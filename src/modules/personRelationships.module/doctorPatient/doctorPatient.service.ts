@@ -16,7 +16,12 @@ export class DoctorPatientService extends GenericService<
     super(DoctorPatient);
   }
 
-  async getUnknownDoctorsForPatient(patientId: string, options: PaginateOptions = {}) {
+  // 🟢🟢🟢 sheakh
+  async getUnknownDoctorsForPatient(patientId: string, 
+    // options: PaginateOptions = {}
+    filters : any,
+    options :any
+  ) {
     // Business logic: Build the aggregation pipeline
     const pipeline = [
       // Match all doctors
@@ -53,25 +58,56 @@ export class DoctorPatientService extends GenericService<
           'relationship.0': { $exists: false }
         }
       },
+      /********************************* */
+
+      {
+      $lookup: {
+        from: 'userprofiles', // References 'UserProfile' collection
+        localField: 'profileId',
+        foreignField: '_id',
+        pipeline: [
+          {
+            $project: {
+              description: 1,
+              approvalStatus: 1,
+            }
+          }
+        ],
+        as: 'profile'
+      }
+    },
+    {
+      $unwind: {
+        path: '$profile',
+        preserveNullAndEmptyArrays: true
+      }
+    },
+
+      /********************************* */
       // Project only needed fields
       {
         $project: {
           _id: 1,
           name: 1,
-          email: 1,
-          phone: 1,
-          specialization: 1,
-          experience: 1,
+          // email: 1,
+          // phone: 1,
+          // specialization: 1,
+          profileImage : 1,
+          // experience: 1,
           avatar: 1,
-          createdAt: 1
+          // createdAt: 1,
+          profile: 1
         }
       }
     ];
 
     // Use pagination service for aggregation
-    return await PaginationService.aggregationPaginate(User, pipeline, {
-      page: options.page,
-      limit: options.limit
-    });
+    return await PaginationService.aggregationPaginate(User, pipeline,
+      //  {
+      //   page: options.page,
+      //   limit: options.limit
+      // }
+      options
+    );
   }
 }

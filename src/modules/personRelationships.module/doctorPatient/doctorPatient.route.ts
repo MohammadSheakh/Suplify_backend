@@ -38,7 +38,7 @@ const controller = new DoctorPatientController();
 //info : pagination route must be before the route with params
 router.route('/paginate').get(
   auth(TRole.patient),
-  validateFiltersForQuery(optionValidationChecking(['_id'])),
+  validateFiltersForQuery(optionValidationChecking(['_id', ...paginationOptions])),
   controller.getAllWithPagination
 );
 
@@ -49,7 +49,7 @@ router.route('/paginate').get(
  * ******** */
 router.route('/paginate/others').get(
   auth(TRole.patient),
-  validateFiltersForQuery(optionValidationChecking(['_id'])),
+  validateFiltersForQuery(optionValidationChecking(['_id', ...paginationOptions])),
   controller.getUnknownDoctors
 );
 

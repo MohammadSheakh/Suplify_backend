@@ -3,7 +3,7 @@ import { FilterQuery, Schema } from 'mongoose';
 //@ts-ignore
 import { PaginateOptions, PaginateResult } from '../../types/paginate';
 
-// Plugin function for pagination
+// Plugin function for pagination 
 const paginate = <T>(schema: Schema<T>) => {
   schema.statics.paginate = async function (
     filter: FilterQuery<T>,

@@ -71,28 +71,21 @@ export class DoctorPatientController extends GenericController<
     //const filters = pick(req.query, ['_id', 'title']); // now this comes from middleware in router
     const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']); ;
     const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
-
-    const { patientId } = req.user.userId;
     // const { page, limit } = PaginationHelpers.extractPaginationFromQuery(req.query);
-    const { search } = req.query;
-
-      // Validate patientId
-      // if (!mongoose.Types.ObjectId.isValid(patientId)) {
-      //   return res.status(400).json({
-      //     success: false,
-      //     message: 'Invalid patient ID'
-      //   });
+    
+    const result = await this.doctorPatientService.getUnknownDoctorsForPatient(req.user.userId,
+      // {
+      //   page: options.page,
+      //   limit: options.limit
       // }
+      filters,
+      options
+    );
 
-      const result = await this.doctorPatientService.getUnknownDoctorsForPatient(req.user.userId, {
-        page: options.page,
-        limit: options.limit
-      });
-
-      // data: {
-      //     doctors: result.results,
-      //     pagination: result.pagination
-      //   }
+    // data: {
+    //     doctors: result.results,
+    //     pagination: result.pagination
+    //   }
     sendResponse(res, {
       code: StatusCodes.OK,
       data: result,
