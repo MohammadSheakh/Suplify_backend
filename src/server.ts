@@ -12,7 +12,8 @@ import { initializeRedis, redisPubClient, redisSubClient } from './helpers/redis
 import { socketHelper } from './helpers/socketForChat';
 import { startMessageConsumer } from './helpers/kafka';
 import { socketHelperForKafka } from './helpers/socketForChatWithKafka';
-import { scheduleWorker } from './helpers/bullmq'; // ⬅️ ADD THIS
+import { startScheduleWorker } from './helpers/bullmq'; // ⬅️ ADD THIS
+import connectToDb from './config/mongoDbConfig';
 
 // in production, use all cores, but in development, limit to 2-4 cores
 const numCPUs = config.environment === 'production' ? os.cpus().length : Math.max(0, Math.min(1, os.cpus().length));
@@ -47,10 +48,13 @@ async function main() {
 
     // startMessageConsumer();
 
-    await mongoose.connect(config.database.mongoUrl as string, {
-      serverSelectionTimeoutMS: 30000, // increase server selection timeout
-      socketTimeoutMS: 45000, // increase socket timeout
-    });
+    // await mongoose.connect(config.database.mongoUrl as string, {
+    //   serverSelectionTimeoutMS: 30000, // increase server selection timeout
+    //   socketTimeoutMS: 45000, // increase socket timeout
+    // });
+
+    await connectToDb();
+
     logger.info(colors.green('🎯 Database connected successfully'));
     const port =
       typeof config.port === 'number' ? config.port : Number(config.port);
@@ -92,7 +96,7 @@ async function main() {
     global.io = io;
 
     // 🔥 Start BullMQ Worker (listens for schedule jobs)
-    scheduleWorker; // just reference
+    startScheduleWorker; // just reference
 
   } catch (error) {
     errorLogger.error(colors.red('🤢 Issue from server.ts => ', error));

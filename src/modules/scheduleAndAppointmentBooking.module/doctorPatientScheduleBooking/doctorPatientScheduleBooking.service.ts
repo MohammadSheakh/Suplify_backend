@@ -109,6 +109,11 @@ export class DoctorPatientScheduleBookingService extends GenericService<
                 paymentTransactionId: null,
                 paymentMethod: null,
                 paymentStatus: TPaymentStatus.unpaid,
+
+                scheduleDate: existingSchedule.scheduleDate,
+                startTime: existingSchedule.startTime,
+                endTime: existingSchedule.endTime,
+                
                 price: parseInt(existingSchedule.price)
             });
 

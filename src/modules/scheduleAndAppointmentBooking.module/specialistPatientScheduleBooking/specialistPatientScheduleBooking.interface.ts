@@ -23,6 +23,10 @@ export interface ISpecialistPatientScheduleBooking {
   price: number; // required
   paymentStatus: TPaymentStatus; // required, initially should be unpaid
   
+  scheduleDate : Date; // TODO : is it should be string or Date 
+  startTime : Date;
+  endTime : Date;
+
   createdAt?: Date;
   updatedAt?: Date;
 }

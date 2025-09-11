@@ -3,7 +3,7 @@ import { Queue, Worker } from "bullmq";
 import { redisPubClient } from "./redis"; 
 import { DoctorAppointmentSchedule } from "../modules/scheduleAndAppointmentBooking.module/doctorAppointmentSchedule/doctorAppointmentSchedule.model";
 import { TDoctorAppointmentScheduleStatus } from "../modules/scheduleAndAppointmentBooking.module/doctorAppointmentSchedule/doctorAppointmentSchedule.constant";
-import { logger } from "../shared/logger";
+import { errorLogger, logger } from "../shared/logger";
 import { DoctorPatientScheduleBooking } from "../modules/scheduleAndAppointmentBooking.module/doctorPatientScheduleBooking/doctorPatientScheduleBooking.model";
 import { TAppointmentStatus } from "../modules/scheduleAndAppointmentBooking.module/doctorPatientScheduleBooking/doctorPatientScheduleBooking.constant";
 
@@ -22,9 +22,12 @@ interface IScheduleJob {
 }
 
 // Create Worker
-export const scheduleWorker = new Worker(
+export const startScheduleWorker = () => {
+const worker = new Worker(
   "scheduleQueue",
   async (job:IScheduleJob) => {
+    // TODO : add try catch 
+
     console.log(`Processing job ${job.id} of type ${job.name}⚡${job.data}`);
     logger.info('Processing job', job.name, " ⚡ ", job.data);
 
@@ -57,6 +60,8 @@ export const scheduleWorker = new Worker(
   }
 );
 
-scheduleWorker.on("failed", (job:IScheduleJob, err:any) => {
-  console.error(`❌ Job ${job?.id} failed`, err);
+worker.on("failed", (job:IScheduleJob, err:any) => {
+  console.error(`❌ Job.id ${job?.id} :: ${job.name} {job.} failed`, err);
+  errorLogger.error(`❌ Job.id ${job?.id} :: ${job.name} {job.} failed`, err);
 });
+}

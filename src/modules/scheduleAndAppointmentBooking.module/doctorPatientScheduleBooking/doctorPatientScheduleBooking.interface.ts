@@ -16,6 +16,9 @@ export interface IDoctorPatientScheduleBooking {
   paymentMethod: PaymentMethod | null; // ENUM
   paymentStatus: TPaymentStatus; // ENUM
   price: number; // required
+  scheduleDate : Date; // TODO : is it should be string or Date 
+  startTime : Date;
+  endTime : Date;
   
   isDeleted? : Boolean;  
   createdAt?: Date;

@@ -34,13 +34,13 @@ export class DoctorAppointmentScheduleController extends GenericController<
    * 
    * ********* */
   create = catchAsync(async (req: Request, res: Response) => {
-    console.log("ℹ️hit generic controller");
+    const userTimeZone = req.header('X-Time-Zone') || 'Asia/Dhaka'; //TODO: Timezone must from env file
 
     const data: IDoctorAppointmentSchedule = req.body;
 
     data.createdBy = (req.user as IUser)?.userId;
 
-    const result = await this.doctorAppointmentScheduleService.create(data);
+    const result = await this.doctorAppointmentScheduleService.createV2(data, userTimeZone);
 
     sendResponse(res, {
       code: StatusCodes.OK,

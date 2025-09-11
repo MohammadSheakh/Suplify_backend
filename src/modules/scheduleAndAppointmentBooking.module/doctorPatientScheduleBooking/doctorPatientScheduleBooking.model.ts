@@ -71,6 +71,18 @@ const DoctorPatientScheduleBookingSchema = new Schema<IDoctorPatientScheduleBook
               ', '
             )}`],
     },
+    scheduleDate: {
+      type: Date,
+      required: [true, 'scheduleDate is required'],
+    },
+    startTime: {
+      type: Date,
+      required: [true, 'startTime is required . type is Date'],
+    },
+    endTime: {
+      type: Date,
+      required: [true, 'endTime is required . type is Date'],
+    },
   },
   { timestamps: true }
 );

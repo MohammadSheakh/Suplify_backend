@@ -64,7 +64,7 @@ router.route('/').get(
 /*********
  * 
  *  Doctor | Schedule | Create Doctor Appointment 
- * 
+ *  must send X-Time-Zone in header
  * ******** */
 router.route('/').post(
   auth(TRole.doctor),
