@@ -110,7 +110,9 @@ export class DoctorAppointmentScheduleService extends GenericService<
                         _id: 1,
                         status: 1,
                         scheduleDate: 1,
-                        patientId: 1
+                        patientId: 1,
+                        startTime: 1,
+                        endTime: 1,
                         // Add any other fields you need from booking
                     }
                 }
@@ -180,13 +182,14 @@ export class DoctorAppointmentScheduleService extends GenericService<
                 },
 
                 // ✅ Return full array of bookings
-                //patientBookings: 1, // ← This includes all bookings with _id, status, etc.
+                patientBookings: 1, // ← This includes all bookings with _id, status, etc.
       
                 // 👇 Booking fields — will be null for S2, S3 👇 Inject booking info if exists
-                patientBookingId: "$patientBookings._id",
-                patientBookingStatus: "$patientBookings.status",
-                patientBookingScheduleDate: "$patientBookings.scheduleDate",
-                patientBookingCreatedAt: "$patientBookings.createdAt",
+                // patientBookingId: "$patientBookings._id",
+                // patientBookingStatus: "$patientBookings.status",
+                // patientBookingScheduleDate: "$patientBookings.scheduleDate",
+                // patientBookingCreatedAt: "$patientBookings.createdAt",
+
 
                 // 👇 Optional: include if you want to know if this schedule is booked by this patient
                 // isBookedByPatient: { $ne: ["$patientBookings", null] } // true for S1, false for S2/S3
