@@ -172,6 +172,7 @@ export class DoctorPatientScheduleBookingService extends GenericService<
              * 
              * ***** */    
 
+        
             let stripeCustomer;
             if(!user.stripe_customer_id){
                 let _stripeCustomer = await stripe.customers.create({
@@ -201,6 +202,11 @@ export class DoctorPatientScheduleBookingService extends GenericService<
                     doctorId: existingSchedule.createdBy,//🔗 ⚡ this will help us to query easily
                     status:  TAppointmentStatus.pending, // in webhook -> scheduled.. 
                     price: parseInt(existingSchedule.price),
+
+                    scheduleDate: existingSchedule.scheduleDate,
+                    startTime: existingSchedule.startTime,
+                    endTime: existingSchedule.endTime,
+                
 
                     paymentTransactionId : null, // in webhook -> we will update this
                     paymentStatus : TPaymentStatus.unpaid, // in webhook -> paid
@@ -288,7 +294,7 @@ export class DoctorPatientScheduleBookingService extends GenericService<
 
     } catch (err) {
         console.error("🛑 Error While creating Order", err);
-        throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Order creation failed');
+        throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, `Order creation failed ${err}`);
     }
 
     return stripeResult; // result ;//session.url;
@@ -318,28 +324,28 @@ async function addToBullQueueToFreeDoctorAppointmentSchedule(existingSchedule : 
     
 
     // 🔍 DEBUG: Let's see what we're actually working with
-    console.log("🔍 Raw existingSchedule.endTime:", existingSchedule.endTime);
-    console.log("🔍 typeof existingSchedule.endTime:", typeof existingSchedule.endTime);
-    console.log("🔍 existingSchedule.endTime.constructor.name:", existingSchedule.endTime?.constructor?.name);
+    // console.log("🔍 Raw existingSchedule.endTime:", existingSchedule.endTime);
+    // console.log("🔍 typeof existingSchedule.endTime:", typeof existingSchedule.endTime);
+    // console.log("🔍 existingSchedule.endTime.constructor.name:", existingSchedule.endTime?.constructor?.name);
     
     const endTime = new Date(existingSchedule.endTime);
     
-    console.log("🔍 Parsed endTime:", endTime);
-    console.log("🔍 endTime.toISOString():", endTime.toISOString());
-    console.log("🔍 endTime.getTime():", endTime.getTime());
+    // console.log("🔍 Parsed endTime:", endTime);
+    // console.log("🔍 endTime.toISOString():", endTime.toISOString());
+    // console.log("🔍 endTime.getTime():", endTime.getTime());
     
     const now = Date.now();
-    console.log("🔍 Current time (Date.now()):", now);
-    console.log("🔍 Current time as Date:", new Date(now).toISOString());
+    // console.log("🔍 Current time (Date.now()):", now);
+    // console.log("🔍 Current time as Date:", new Date(now).toISOString());
     
     const delay = endTime.getTime() - now;
-    console.log("🔍 Calculated delay (ms):", delay);
-    console.log("🔍 Calculated delay (minutes):", delay / 1000 / 60);
+    // console.log("🔍 Calculated delay (ms):", delay);
+    // console.log("🔍 Calculated delay (minutes):", delay / 1000 / 60);
     
     // Original logging
-    console.log('👉 schedule booking time : ', now) 
-    console.log("👉 Scheduling job to free up schedule at : ", endTime , " ⚡ ",  endTime.getTime()); 
-    console.log("👉 delay :", delay); 
+    // console.log('👉 schedule booking time : ', now) 
+    // console.log("👉 Scheduling job to free up schedule at : ", endTime , " ⚡ ",  endTime.getTime()); 
+    // console.log("👉 delay :", delay); 
 
 
     if (delay > 0) {
