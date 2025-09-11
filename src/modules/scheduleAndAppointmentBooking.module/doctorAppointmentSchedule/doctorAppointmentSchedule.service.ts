@@ -76,7 +76,8 @@ export class DoctorAppointmentScheduleService extends GenericService<
     return transformedDoc;
 
   }
-
+ 
+  // ⚙️
   async getAllAvailableScheduleAndRecentBookedScheduleOfDoctor(filters:any, options: PaginateOptions, populateOptions:any, patientId:string) : Promise<any> {
     const pipeline = [
         // 1. Match schedules for the doctor
@@ -149,6 +150,34 @@ export class DoctorAppointmentScheduleService extends GenericService<
                 endTime: 1,
                 scheduleStatus: 1,
                 booked_by: 1,
+
+                // ✅ Include meeting info
+                // meetingLink: 1,
+                // typeOfLink: 1,
+                typeOfLink: {
+                    $cond: {
+                        if: {
+                            $in: [
+                                "$patientBookings.status",
+                                ["scheduled", "completed"] // 👈 your allowed statuses
+                            ]
+                        },
+                        then: "$typeOfLink",
+                        else: null
+                    }
+                },
+                meetingLink: {
+                    $cond: {
+                        if: {
+                            $in: [
+                                "$patientBookings.status",
+                                ["scheduled", "completed"]
+                            ]
+                        },
+                        then: "$meetingLink",
+                        else: null
+                    }
+                },
 
                 // ✅ Return full array of bookings
                 //patientBookings: 1, // ← This includes all bookings with _id, status, etc.

@@ -93,7 +93,7 @@ export class DoctorAppointmentScheduleController extends GenericController<
     });
   });
 
-  /********
+  /********⚙️
    * 
    * Patient | Get A Doctors All Appointment Schedule 
    * 📝 here we want to show last 3 booked schedule .. two [completed] one [scheduled]
@@ -122,13 +122,14 @@ export class DoctorAppointmentScheduleController extends GenericController<
     const result : IPaginateResult = await this.doctorAppointmentScheduleService.getAllAvailableScheduleAndRecentBookedScheduleOfDoctor(filters, options, populateOptions, patientId/*, select*/);
 
     //--- Convert startTime/endTime for each item in results
-    // const convertedResults = result.results.map(item => ({
-    //   ...item.toObject(), // or spread if already plain object
-    //   startTime: toLocalTime(item.startTime, userTimeZone),
-    //   endTime: toLocalTime(item.endTime, userTimeZone),
-    // }));
+    const convertedResults = result.results.map(item => ({
+      ...item,//.toObject(), // or spread if already plain object
+      startTime: toLocalTime(item.startTime, userTimeZone),
+      endTime: toLocalTime(item.endTime, userTimeZone),
+    }));
 
-    // result.results = convertedResults;
+    //@ts-ignore
+    result.results = convertedResults;
 
     sendResponse(res, {
       code: StatusCodes.OK,
