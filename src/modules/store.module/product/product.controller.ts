@@ -80,6 +80,34 @@ export class ProductController extends GenericController<
 
     const select = '-createdAt -updatedAt -__v'; 
 
+
+
+    // Only cache page 1 with standard limit
+    const shouldCache = (!options.page || options.page === '1') && 
+                      (!options.limit || parseInt(options.limit) <= 20);
+    
+    if (shouldCache) {
+      // Create cache key based on filters and sort
+      const cacheKey = `products_page1_${JSON.stringify(filters)}_${options.sortBy || 'default'}`;
+      
+      const result = await getOrSetRedisCache(
+        cacheKey,
+        async () => {
+          return this.service.getAllWithPagination(filters, options, populateOptions, select);
+        },
+        1800, // 30 minutes TTL
+        true
+      );
+      
+      return sendResponse(res, {
+        code: StatusCodes.OK,
+        data: result,
+        message: `All ${this.modelName} with pagination`,
+        success: true,
+      });
+    }
+
+
     const result = await this.service.getAllWithPagination(filters, options, populateOptions, select);
 
     sendResponse(res, {

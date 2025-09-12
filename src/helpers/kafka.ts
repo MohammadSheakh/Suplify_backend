@@ -2,6 +2,7 @@ import {CompressionTypes, Kafka, logLevel, Producer} from 'kafkajs'
 import fs from 'fs';
 import path from 'path';
 import { Message } from '../modules/chatting.module/message/message.model';
+import { Conversation } from '../modules/chatting.module/conversation/conversation.model';
 
 const kafka = new Kafka({
     // brokers: ['host:port']
@@ -110,10 +111,15 @@ export async function startMessageConsumer(){
             // let put our message into database .. 
             try{
             
+            // TODO Must : need to Add type    
             const msg = JSON.parse(message.value.toString())
             // await saveMessageToDatabase(msg)
 
             const newMessage = await Message.create(msg);
+
+            const updatedConversation = await Conversation.findByIdAndUpdate(newMessage.conversationId, {
+             lastMessage: newMessage._id,
+            });
 
             }catch(err){
                 // if some error happen .. lets log that and pause .. 

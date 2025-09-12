@@ -14,8 +14,7 @@ import { ConversationParticipents } from '../modules/chatting.module/conversatio
 
 import { ConversationParticipentsService } from '../modules/chatting.module/conversationParticipents/conversationParticipents.service';
 import { MessagerService } from '../modules/chatting.module/message/message.service';
-import { populate } from 'dotenv';
-import { userSite } from '../modules/_site/userSite/userSite.model';
+
 
 /////////////////////////////////////////
 import { produceMessage } from './kafka';
@@ -439,15 +438,15 @@ const socketForChat_With_Kafka = (io: Server) => {
 
       socket.on('send-new-message', async (messageData: MessageData, callback) => {
 
-        console.log("requested user Id 🟡🟡",  userId)
+        // console.log("requested user Id 🟡🟡",  userId)
         try {
-          console.log('New message received:', messageData);
+          // console.log('New message received:', messageData);
 
-          if (!messageData.conversationId || !messageData.text?.trim()) {
-            const error = 'Chat ID and message content are required';
-            callback?.({ success: false, message: error });
-            return emitError(socket, error);
-          }
+          // if (!messageData.conversationId || !messageData.text?.trim()) {
+          //   const error = 'Chat ID and message content are required';
+          //   callback?.({ success: false, message: error });
+          //   return emitError(socket, error);
+          // }
 
           // Get chat details
           const {conversationData, conversationParticipants} = await getConversationById(messageData.conversationId);
@@ -501,12 +500,9 @@ const socketForChat_With_Kafka = (io: Server) => {
         });
         console.log("Message produced to Kafka Broker successfully");
 
-
-
         /********
          * 
-         *  TODO : event emitter er maddhome message create korar por
-         *  conversation er lastMessage update korte hobe ..
+         *  lets also do this in kafka consumer ..
          * 👍👍👍👍👍
          * ******* */
           //const updatedConversation = await Conversation.findByIdAndUpdate(messageData.conversationId, {
