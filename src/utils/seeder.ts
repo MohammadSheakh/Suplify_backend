@@ -4,6 +4,7 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import { User } from '../modules/user/user.model';
 import { UserProfile } from '../modules/user/userProfile/userProfile.model';
+import { TSubscription } from '../enums/subscription';
 // Load environment variables
 dotenv.config();
 
@@ -21,6 +22,7 @@ const usersData = [
     //     $oid: "68982eb2d5f4042c5c0bbb94"
     //   }
     // },
+    subscriptionType: TSubscription.vise,
     fcmToken: null,
     status: 'active',
     role: 'admin',

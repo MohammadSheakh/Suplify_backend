@@ -63,14 +63,15 @@ const userSchema = new Schema<TUser, UserModal>(
      * ******** */
     subscriptionType: {
       type: String,
-      enum: 
-         [
-          TSubscription.none,
-          TSubscription.freeTrial,
-          TSubscription.standard,
-          TSubscription.standardPlus,
-          TSubscription.vise
-        ],
+      enum: TSubscription 
+      // [
+      //     TSubscription.none,
+      //     TSubscription.freeTrial,
+      //     TSubscription.standard,
+      //     TSubscription.standardPlus,
+      //     TSubscription.vise
+      // ]
+      ,
       required: [
         false,
         `TSubscription is required it can be ${Object.values(
