@@ -2,6 +2,7 @@ Markdown Table Prettifier ---- Ctrl K Ctrl F
 cm -> can't measure
 ℹ️🟡 -> incomplete
 🧪 -> test pass
+⚠️ need to optimize
 | /8/ |    |  |  |       |          |
 | /8/ |    |  |  |       |          |
 

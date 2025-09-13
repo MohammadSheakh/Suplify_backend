@@ -40,7 +40,7 @@ const createUser = async (userData: TUser, userProfileId:string) => {
 
   const user = await User.create(userData);
 
-  // 
+  // TODO : ⚠️ need to optimize this 
   await UserProfile.findByIdAndUpdate(userProfileId, { userId: user._id });
 
   /************

@@ -1,3 +1,4 @@
+//@ts-ignore
 import express from 'express';
 import * as validation from './trainingProgram.validation';
 import { TrainingProgramController} from './trainingProgram.controller';
@@ -6,7 +7,7 @@ import { validateFiltersForQuery } from '../../../middlewares/queryValidation/pa
 import validateRequest from '../../../shared/validateRequest';
 import auth from '../../../middlewares/auth';
 import { TRole } from '../../../middlewares/roles';
-
+//@ts-ignore
 const multer = require('multer');
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
@@ -26,15 +27,18 @@ const paginationOptions: Array<'sortBy' | 'page' | 'limit' | 'populate'> = [
   'populate',
 ];
 
-
 // const taskService = new TaskService();
 const controller = new TrainingProgramController();
-
+/*******
+ * 
+ * Patient | Get all Training Program of a Specialist .. 
+ * ⚠️ need to add aggregation
+ * ****** */
 //info : pagination route must be before the route with params
 router.route('/paginate').get(
-  //auth('common'),
-  validateFiltersForQuery(optionValidationChecking(['_id', ...paginationOptions])),
-  controller.getAllWithPagination
+  auth(TRole.patient),
+  validateFiltersForQuery(optionValidationChecking(['_id', 'createdBy', ...paginationOptions])),
+  controller.getAllWithAggregation
 );
 
 router.route('/:id').get(

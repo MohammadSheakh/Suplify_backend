@@ -1,16 +1,19 @@
+//@ts-ignore
 import { Request, Response } from 'express';
+//@ts-ignore
 import { StatusCodes } from 'http-status-codes';
 import { TrainingProgram } from './trainingProgram.model';
 import { ITrainingProgram } from './trainingProgram.interface';
 import { GenericController } from '../../_generic-module/generic.controller';
-import { TrainingProgramService } from './trainingProgram.service';
+import  eventEmitForUpdateSpecialistUserProfile, { TrainingProgramService } from './trainingProgram.service';
 import catchAsync from '../../../shared/catchAsync';
-import { AttachmentService } from '../../attachments/attachment.service';
 import { TFolderName } from '../../../enums/folderNames';
 import sendResponse from '../../../shared/sendResponse';
-import { TUser } from '../../user/user.interface';
 import { IUser } from '../../token/token.interface';
 import { processFiles } from '../../../helpers/processFilesToUpload';
+import omit from '../../../shared/omit';
+import pick from '../../../shared/pick';
+import { User } from '../../user/user.model';
 
 // let conversationParticipantsService = new ConversationParticipentsService();
 // let messageService = new MessagerService();
@@ -19,11 +22,43 @@ export class TrainingProgramController extends GenericController<
   typeof TrainingProgram,
   ITrainingProgram
 > {
-  TrainingProgramService = new TrainingProgramService();
+  trainingProgramService = new TrainingProgramService();
 
   constructor() {
     super(new TrainingProgramService(), 'TrainingProgram');
   }
+
+  /***********
+   * 
+   * Patient | Get all Training Program of a Specialist ..
+   * ⚠️ need to add aggregation  
+   * ********* */
+  getAllWithAggregation = catchAsync(async (req: Request, res: Response) => {
+    const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']); ;
+    const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
+
+    const result = await this.trainingProgramService.getAllWithAggregation(filters, options, req.user.userId);
+
+    // get specialist information
+
+    const specialistInfo = await User
+            .findById(filters.createdBy)
+            .select('profileImage name profileId')
+            .populate({
+                path: 'profileId', 
+                select: 'description protocolNames howManyPrograms'
+            });
+
+    sendResponse(res, {
+      code: StatusCodes.OK,
+      data: {
+        result,
+        specialistInfo
+      },
+      message: `All ${this.modelName} with pagination`,
+      success: true,
+    });
+  });
 
   createWithAttachments = catchAsync(async (req: Request, res: Response) => {
     const data:ITrainingProgram = req.body;
@@ -45,6 +80,10 @@ export class TrainingProgramController extends GenericController<
     data.attachments = attachments;
 
     const result = await this.service.create(data);
+
+    // update userProfile's howmanyPrograms count in 
+
+    eventEmitForUpdateSpecialistUserProfile.emit('eventEmitForUpdateSpecialistUserProfile', data.createdBy);
 
     sendResponse(res, {
       code: StatusCodes.OK,

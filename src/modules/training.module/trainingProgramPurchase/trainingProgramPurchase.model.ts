@@ -1,9 +1,9 @@
+//@ts-ignore
 import { model, Schema } from 'mongoose';
 import paginate from '../../../common/plugins/paginate';
 import { ITrainingProgramPurchase, ITrainingProgramPurchaseModel } from './trainingProgramPurchase.interface';
 import { PaymentMethod } from '../../order.module/order/order.constant';
 import { TPaymentStatus } from '../../scheduleAndAppointmentBooking.module/specialistPatientScheduleBooking/specialistPatientScheduleBooking.constant';
-
 
 const TrainingProgramPurchaseSchema = new Schema<ITrainingProgramPurchase>(
   {

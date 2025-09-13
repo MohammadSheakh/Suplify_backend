@@ -1,12 +1,12 @@
-//📈⚙️ -> optimization related
-// ⚠️ -> bad code 
-// 🟢 -> new section
-// 🔵 new feature ..
-// 🚧 under construction .. 
- 
-// TODO -> self explanatory
-// Robust System -> 🧱💪
-// Ok System -> 🆗
+//📈⚙️  ->  optimization related
+// ⚠️    ->  bad code .. Need to optimize
+// 🟢    ->  new section
+// 🔵    ->  new feature ..
+// 🚧    ->  under construction .. 
+// TODO  ->  self explanatory
+// 🧱💪 ->  Robust System -> 
+// 🆗   ->  Ok System 
+// 📝   -> description
 
 -------------------------
 
