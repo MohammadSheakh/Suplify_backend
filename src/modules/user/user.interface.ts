@@ -11,6 +11,7 @@ export type TProfileImage = {
 export interface IUser extends Document {
   _userId: undefined | Types.ObjectId;
   _id:  undefined; // Types.ObjectId |
+  profileId : Types.ObjectId | undefined; 
   // fullName: string;
   name: string;
   email: string;
@@ -45,6 +46,7 @@ export interface IUser extends Document {
 export type TUser = {
   _userId: undefined | Types.ObjectId;
   _id:  undefined; // Types.ObjectId |
+  profileId : Types.ObjectId | undefined;
   // fullName: string;
   name: string;
   email: string;
@@ -55,8 +57,6 @@ export type TUser = {
   hasUsedFreeTrial: boolean;
   // freeTrialStartDate: Date;
   // freeTrialEndDate: Date;
-
-
   profileImage?: TProfileImage;
   fcmToken : string;
   stripe_customer_id: string;

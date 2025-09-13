@@ -64,12 +64,10 @@ export class TrainingProgramController extends GenericController<
     const data:ITrainingProgram = req.body;
 
     data.createdBy = (req.user as IUser).userId;
-
     /**********
-    * We need to check 
+     * // TODO : We need to check Specialist is approved by admin or not
     ********** */
 
-    
     //📈⚙️ Process both file types in parallel
     const [attachments, trailerContents] = await Promise.all([
       processFiles(req.files?.attachments, TFolderName.trainingProgram),
@@ -81,9 +79,8 @@ export class TrainingProgramController extends GenericController<
 
     const result = await this.service.create(data);
 
-    // update userProfile's howmanyPrograms count in 
-
-    eventEmitForUpdateSpecialistUserProfile.emit('eventEmitForUpdateSpecialistUserProfile', data.createdBy);
+    //📈⚙️ update userProfile's howmanyPrograms count in 
+    eventEmitForUpdateSpecialistUserProfile.emit('eventEmitForUpdateSpecialistUserProfile', (req.user as IUser).userId);
 
     sendResponse(res, {
       code: StatusCodes.OK,

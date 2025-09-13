@@ -14,14 +14,25 @@ import { errorLogger } from '../../../shared/logger';
 
 const eventEmitForUpdateSpecialistUserProfile = new EventEmitter(); 
 
-eventEmitForUpdateSpecialistUserProfile.on('eventEmitForUpdateSpecialistUserProfile', (specialistId: string) => {
+eventEmitForUpdateSpecialistUserProfile.on('eventEmitForUpdateSpecialistUserProfile', async (specialistId: any) => {
+  console.log("eventEmitForUpdateSpecialistUserProfile event received for specialistId ::",specialistId )
   try {
-      UserProfile.findByIdAndUpdate(specialistId, {
-        $inc: { howManyPrograms: 1 }
-      });
+
+    const doc = await UserProfile.findOne({ userId: specialistId }).lean();
+    console.log('Found document:', doc); 
+
+
+    const res = await UserProfile.findOneAndUpdate({
+      userId: specialistId
+    }, {
+      $inc: { howManyPrograms: 1 }
+    }, { new: true });
+
+    console.log("👉👉 res :: ", res);
+
   }catch (error) {
-      errorLogger.error("Error occurred 🌋 while updating user profile's howManyPrograms count :: ", error);
-      console.error("Error occurred 🌋 while updating user profile's howManyPrograms count :: ", error);
+    errorLogger.error("Error occurred 🌋 while updating user profile's howManyPrograms count :: ", error);
+    console.error("Error occurred 🌋 while updating user profile's howManyPrograms count :: ", error);
   }
 });
 
