@@ -1,9 +1,9 @@
 import { model, Schema } from 'mongoose';
-import { IspecialistPatient, IspecialistPatientModel } from './specialistPatient.interface';
+import { ISpecialistPatient, ISpecialistPatientModel } from './specialistPatient.interface';
 import paginate from '../../../common/plugins/paginate';
 
 
-const specialistPatientSchema = new Schema<IspecialistPatient>(
+const specialistPatientSchema = new Schema<ISpecialistPatient>(
   {
     patientId: { //🔗
       type: Schema.Types.ObjectId,
@@ -45,6 +45,6 @@ specialistPatientSchema.set('toJSON', {
 });
 
 export const SpecialistPatient = model<
-  IspecialistPatient,
-  IspecialistPatientModel
+  ISpecialistPatient,
+  ISpecialistPatientModel
 >('SpecialistPatient', specialistPatientSchema);

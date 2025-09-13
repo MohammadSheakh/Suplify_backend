@@ -2,23 +2,93 @@ import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
 import { GenericController } from '../../_generic-module/generic.controller';
-import { specialistPatient } from './specialistPatient.model';
-import { IspecialistPatient } from './specialistPatient.interface';
-import { specialistPatientService } from './specialistPatient.service';
+import { SpecialistPatient } from './specialistPatient.model';
+import { ISpecialistPatient } from './specialistPatient.interface';
+import { SpecialistPatientService } from './specialistPatient.service';
+import catchAsync from '../../../shared/catchAsync';
+import omit from '../../../shared/omit';
+import pick from '../../../shared/pick';
+import sendResponse from '../../../shared/sendResponse';
 
 
 // let conversationParticipantsService = new ConversationParticipentsService();
 // let messageService = new MessagerService();
 
-export class specialistPatientController extends GenericController<
-  typeof specialistPatient,
-  IspecialistPatient
+export class SpecialistPatientController extends GenericController<
+  typeof SpecialistPatient,
+  ISpecialistPatient
 > {
-  specialistPatientService = new specialistPatientService();
+  specialistPatientService = new SpecialistPatientService();
 
   constructor() {
-    super(new specialistPatientService(), 'specialistPatient');
+    super(new SpecialistPatientService(), 'specialistPatient');
   }
+
+  /**********
+ * 
+ * Patient | Get all Patients Specialist .. 
+ * 
+ * ******** */
+  getAllWithPagination = catchAsync(async (req: Request, res: Response) => {
+    //const filters = pick(req.query, ['_id', 'title']); // now this comes from middleware in router
+    const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']); ;
+    const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
+
+    const populateOptions: (string | {path: string, select: string}[]) = [
+      {
+        path: 'doctorId',
+        select: 'name profileImage profileId',
+        populate: {
+          path: 'profileId', // deep populate attachments
+          select: 'description howManyPrograms protocolNames' // only pick attachmentName
+        }
+      },
+      // ''
+    ];
+
+   const select = '-isDeleted -createdAt -updatedAt -__v'; 
+
+    const result = await this.service.getAllWithPagination(filters, options, populateOptions, select);
+
+    sendResponse(res, {
+      code: StatusCodes.OK,
+      data: result,
+      message: `All ${this.modelName} with pagination`,
+      success: true,
+    });
+  });
+
+/**********
+ * 
+ * Patient | Get all Unknown Specialist .. 
+ * 
+ * ******** */
+  getUnknownSpecialist = catchAsync(async (req: Request, res: Response) => {
+    //const filters = pick(req.query, ['_id', 'title']); // now this comes from middleware in router
+    const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']); ;
+    const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
+    // const { page, limit } = PaginationHelpers.extractPaginationFromQuery(req.query);
+    
+    const result = await this.specialistPatientService.getUnknownSpecialistsForPatient(req.user.userId,
+      // {
+      //   page: options.page,
+      //   limit: options.limit
+      // }
+      filters,
+      options
+    );
+
+    // data: {
+    //     doctors: result.results,
+    //     pagination: result.pagination
+    //   }
+    sendResponse(res, {
+      code: StatusCodes.OK,
+      data: result,
+      message: `All ${this.modelName} with pagination`,
+      success: true,
+    });
+  });
 
   // add more methods here if needed or override the existing ones 
 }

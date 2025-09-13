@@ -1,18 +1,20 @@
+//@ts-ignore
 import express from 'express';
 import * as validation from './specialistPatient.validation';
-import { specialistPatientController} from './specialistPatient.controller';
-import { IspecialistPatient } from './specialistPatient.interface';
+import { SpecialistPatientController} from './specialistPatient.controller';
+import { ISpecialistPatient } from './specialistPatient.interface';
 import { validateFiltersForQuery } from '../../../middlewares/queryValidation/paginationQueryValidationMiddleware';
 import validateRequest from '../../../shared/validateRequest';
 import auth from '../../../middlewares/auth';
-
+import { TRole } from '../../../middlewares/roles';
+//@ts-ignore
 const multer = require('multer');
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
 const router = express.Router();
 
-export const optionValidationChecking = <T extends keyof IspecialistPatient | 'sortBy' | 'page' | 'limit' | 'populate'>(
+export const optionValidationChecking = <T extends keyof ISpecialistPatient | 'sortBy' | 'page' | 'limit' | 'populate'>(
   filters: T[]
 ) => {
   return filters;
@@ -27,14 +29,31 @@ const paginationOptions: Array<'sortBy' | 'page' | 'limit' | 'populate'> = [
 
 
 // const taskService = new TaskService();
-const controller = new specialistPatientController();
+const controller = new SpecialistPatientController();
 
+/**********
+ * 
+ * Patient | Get all Patients Related Specialist .. 
+ * 
+ * ******** */
 //info : pagination route must be before the route with params
 router.route('/paginate').get(
   //auth('common'),
-  validateFiltersForQuery(optionValidationChecking(['_id'])),
+  validateFiltersForQuery(optionValidationChecking(['_id', ...paginationOptions])),
   controller.getAllWithPagination
 );
+
+/**********
+ * 
+ * Patient | Get all Others Specialist .. 
+ * 
+ * ******** */
+router.route('/paginate/others').get(
+  auth(TRole.patient),
+  validateFiltersForQuery(optionValidationChecking(['_id', ...paginationOptions])),
+  controller.getUnknownSpecialist
+);
+
 
 router.route('/:id').get(
   // auth('common'),

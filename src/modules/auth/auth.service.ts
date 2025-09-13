@@ -9,6 +9,7 @@ import { config } from '../../config';
 import { TokenService } from '../token/token.service';
 import { TokenType } from '../token/token.interface';
 import { OtpType } from '../otp/otp.interface';
+import { UserProfile } from '../user/userProfile/userProfile.model';
 
 const validateUserStatus = (user: TUser) => {
   if (user.isDeleted) {
@@ -18,9 +19,10 @@ const validateUserStatus = (user: TUser) => {
     );
   }
 };
-const createUser = async (userData: TUser) => {
+const createUser = async (userData: TUser, userProfileId:string) => {
   
   const existingUser = await User.findOne({ email: userData.email });
+  
   if (existingUser) {
     if (existingUser.isEmailVerified) {
       throw new ApiError(StatusCodes.BAD_REQUEST, 'Email already taken');
@@ -37,6 +39,9 @@ const createUser = async (userData: TUser) => {
   }
 
   const user = await User.create(userData);
+
+  // 
+  await UserProfile.findByIdAndUpdate(userProfileId, { userId: user._id });
 
   /************
   
@@ -56,12 +61,7 @@ const createUser = async (userData: TUser) => {
 
   *********** */
 
-  // , { otp }
-  // Run token and OTP creation in parallel
-  const [verificationToken] = await Promise.all([
-    TokenService.createVerifyEmailToken(user),
-    // OtpService.createVerificationEmailOtp(user.email)
-  ]);
+  if(userData.role !== 'patient'){
 
   /***********
    * 
@@ -69,9 +69,21 @@ const createUser = async (userData: TUser) => {
    * send otp to them .. 
    * we automatically verify their email from admin panel .. 
    * 
-   * TODO : we will do this .. 
+   * TODO : we will do this .. in admin panel
    * 
    * ********* */
+
+    return { user };
+  }
+
+  // , { otp }
+  // Run token and OTP creation in parallel
+  const [verificationToken] = await Promise.all([
+    TokenService.createVerifyEmailToken(user),
+    // OtpService.createVerificationEmailOtp(user.email)
+  ]);
+
+  
   eventEmitterForOTPCreateAndSendMail.emit('eventEmitterForOTPCreateAndSendMail', { email: user.email });
 
   // , otp

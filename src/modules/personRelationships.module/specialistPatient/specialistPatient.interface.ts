@@ -2,7 +2,7 @@ import { Model, Types } from 'mongoose';
 import { PaginateOptions, PaginateResult } from '../../../types/paginate';
 
 
-export interface IspecialistPatient {
+export interface ISpecialistPatient {
   // _taskId: undefined | Types.ObjectId;
   _id?: Types.ObjectId; // undefined |  Types.ObjectId |
   userId: Types.ObjectId;
@@ -13,9 +13,9 @@ export interface IspecialistPatient {
   updatedAt?: Date;
 }
 
-export interface IspecialistPatientModel extends Model<IspecialistPatient> {
+export interface ISpecialistPatientModel extends Model<ISpecialistPatient> {
   paginate: (
     query: Record<string, any>,
     options: PaginateOptions
-  ) => Promise<PaginateResult<IspecialistPatient>>;
+  ) => Promise<PaginateResult<ISpecialistPatient>>;
 }

@@ -50,7 +50,7 @@ const register = catchAsync(async (req :Request, res:Response) => {
 
   req.body.profileId = userProfile._id;
 
-  const result = await AuthService.createUser(req.body);
+  const result = await AuthService.createUser(req.body, userProfile._id);
 
   if(req.body.role == 'doctor' || req.body.role == 'specialist') {
     sendResponse(res, {

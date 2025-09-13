@@ -30,9 +30,9 @@ export class TrainingProgramController extends GenericController<
 
     data.createdBy = (req.user as IUser).userId;
 
-    /**************** ⚠️
-    * 
-    *************** */
+    /**********
+    * We need to check 
+    ********** */
 
     
     //📈⚙️ Process both file types in parallel
