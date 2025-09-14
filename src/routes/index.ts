@@ -26,6 +26,7 @@ import { UserRoutes } from '../modules/user/user.route';
 import { DoctorPatientScheduleBookingRoute } from '../modules/scheduleAndAppointmentBooking.module/doctorPatientScheduleBooking/doctorPatientScheduleBooking.route';
 import { doctorPatientRoute } from '../modules/personRelationships.module/doctorPatient/doctorPatient.route';
 import { specialistPatientRoute } from '../modules/personRelationships.module/specialistPatient/specialistPatient.route';
+import { TrainingProgramPurchaseRoute } from '../modules/training.module/trainingProgramPurchase/trainingProgramPurchase.route';
 
 // import { ChatRoutes } from '../modules/chat/chat.routes';
 // import { MessageRoutes } from '../modules/message/message.routes';
@@ -63,6 +64,11 @@ const apiRoutes = [
     path: '/training-sessions',
     route: TrainingSessionRoute,
   },
+  { // 🟢
+    path: '/training-programs/purchase',
+    route: TrainingProgramPurchaseRoute,
+  },
+  
   { // 🟢
     path: '/cart-items',
     route: CartItemRoute,

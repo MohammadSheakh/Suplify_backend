@@ -13,11 +13,11 @@ export const createHelpMessageValidationSchema = z.object({
       message: 'message must be at most 500 characters long.',
     }),
   
-     userId: z.string({
-        required_error: 'id is required in params.',
-        invalid_type_error: 'id must be a mongoose object.',
+     patientId: z.string({
+        required_error: 'patientId is required in params.',
+        invalid_type_error: 'patientId must be a mongoose object.',
       }).refine(value => mongoose.Types.ObjectId.isValid(value), {
-        message: 'id must be a valid mongoose ObjectId.',
+        message: 'patientId must be a valid mongoose ObjectId.',
       }),
   }),
 

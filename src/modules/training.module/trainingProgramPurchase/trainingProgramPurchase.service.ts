@@ -9,6 +9,8 @@ import { config } from '../../../config';
 import { IUser } from '../../token/token.interface';
 import stripe from "../../../config/stripe.config";
 //@ts-ignore
+import mongoose from 'mongoose';
+//@ts-ignore
 import Stripe from "stripe";
 import { User } from '../../user/user.model';
 import { PaymentStatus } from '../../order.module/order/order.constant';
@@ -16,6 +18,10 @@ import { TrainingProgram } from '../trainingProgram/trainingProgram.model';
 import { TTransactionFor } from '../../payment.module/paymentTransaction/paymentTransaction.constant';
 import { TSubscription } from '../../../enums/subscription';
 import { SpecialistPatient } from '../../personRelationships.module/specialistPatient/specialistPatient.model';
+import { TPaymentStatus } from '../../scheduleAndAppointmentBooking.module/specialistPatientScheduleBooking/specialistPatientScheduleBooking.constant';
+import { PatientTrainingSession } from '../patientTrainingSession/patientTrainingSession.model';
+import { TrainingSession } from '../trainingSession/trainingSession.model';
+import { ITrainingSession } from '../trainingSession/trainingSession.interface';
 
 export class TrainingProgramPurchaseService extends GenericService<
   typeof TrainingProgramPurchase,
@@ -30,6 +36,7 @@ export class TrainingProgramPurchaseService extends GenericService<
 
   async createV2(trainingProgramId:string, user: IUser) : Promise<ITrainingProgramPurchase | null | { url: any}> {
 
+    console.log("1️2️⃣ user :: ", user)
     /******
      * 📝
      * First We have to check user's subscriptionPlan
@@ -39,7 +46,9 @@ export class TrainingProgramPurchaseService extends GenericService<
      * 4. if "vise" ... no payment required to book appointment
      * ******* */
 
-    if(user.subscriptionPlan === TSubscription.none){
+    const existingUser = await User.findById(user.userId).select('+subscriptionPlan +stripe_customer_id');
+    // TODO : Need to test
+    if(existingUser.subscriptionPlan === TSubscription.none){
       throw new ApiError(StatusCodes.FORBIDDEN, 'You need to subscribe a plan to book appointment with doctor');
     }
 
@@ -58,66 +67,94 @@ export class TrainingProgramPurchaseService extends GenericService<
      */
     
     const specialistPatientRelation = await SpecialistPatient.findOne({
-        doctorId: existingTrainingProgram.createdBy,
+        specialistId: existingTrainingProgram.createdBy,
         patientId: user.userId
     });
 
     if (!specialistPatientRelation) {
       // Create the relationship if it doesn't exist
       const newRelation = new SpecialistPatient({
-          doctorId: existingTrainingProgram.createdBy,
+          specialistId: existingTrainingProgram.createdBy,
           patientId: user.userId
       });
       await newRelation.save();
     }
 
 
-    if(user.subscriptionPlan == TSubscription.vise){
+    if(existingUser.subscriptionPlan == TSubscription.vise){
       // no payment required ..
       /******
-       * 📝
-       * check appointment schedule 
-       * if scheduleStatus[available]
-       * if scheduleDate >= today
-       * if timeLeft > 0 // so, we dont think about startTime .. //TODO :
-       * ++++++ create doctorPatientScheduleBooking
-       * 
+       * 📝  
+       * ++++++ create doctorPatientScheduleBooking 
        * **** */
 
-      existingSchedule.scheduleStatus = TDoctorAppointmentScheduleStatus.booked;
-      existingSchedule.booked_by = user.userId;
 
-      const createdBooking = await this.create({
+      const session = await mongoose.startSession();
+      try {
+        await session.withTransaction(async () => {
+          const purchaseTrainingProgram = await this.create({
           patientId: user.userId,
-          doctorScheduleId: existingSchedule._id,
-          doctorId: existingSchedule.createdBy,// ⚡ this will help us to query easily
-          status:  TAppointmentStatus.scheduled,
-          paymentTransactionId: null,
-          paymentMethod: null,
-          paymentStatus: TPaymentStatus.unpaid,
-
-          scheduleDate: existingSchedule.scheduleDate,
-          startTime: existingSchedule.startTime,
-          endTime: existingSchedule.endTime,
+          trainingProgramId: existingTrainingProgram._id,
+          specialistId: existingTrainingProgram.createdBy,// ⚡ this will help us to query easily
           
-          price: parseInt(existingSchedule.price)
-      });
+          paymentTransactionId: null, // in webhook we will update this
+          paymentMethod: null, // in webhook we will update this
+          paymentStatus: TPaymentStatus.unpaid, // in webhook we will update this
+          
+          price: parseInt(existingTrainingProgram.price)
+        });
+
+        /*****
+         * 📝
+         * for this training program .. as there are multiple training session .. we have to create 
+         * patientTrainingSession for each session and calculate unlock date based on purchase date
+         * **** */
+
+        const purchaseDate = new Date();
+
+        // 2. Get sessions of this program
+        const patientWhoPurchasedThisProgram = await TrainingProgram.find({
+          _id : trainingProgramId 
+          })//.sort("sessionCount");
+
+        const trainingSessions = await TrainingSession.find({
+          trainingProgramId
+        })
+
+        trainingSessions.forEach( async (trainingSession : ITrainingSession) => {
+          // create patientTrainingSession for each purchase
+          await PatientTrainingSession.create({
+            patientId: user.userId,
+            trainingProgramId: trainingProgramId,
+            trainingSessionId: trainingSession._id,
+            unlockDate: new Date( 
+              purchaseTrainingProgram.createdAt.getTime() + 
+              (trainingSession.sessionCount - 1) * 7 * 24 * 60 * 60 * 1000
+            ),
+            isUnlocked: false, //  we will compute this in frontend // TODO : need to think about this 
+          });
+        });
+
+        return  purchaseTrainingProgram;
+
+        });
+      } catch (error) {
+        console.error("Transaction failed:", error);
+        // handle/log/throw depending on your app logic
+      } finally {
+        await session.endSession();
+      }
 
       /***
        * TODO : MUST : send notification to doctor and patient
        * ** */
 
-      await existingSchedule.save();
-
-      return  createdBooking;
+      
     }
 
 
     /*********
      * 📝
-     * 1. We need to check user accessToken's subscription status ..
-     * 2. +++ if vise .. they can book without payment ... 
-     * 3. +++ if not vise .. they need to pay to purchase .. 
      * 4. ++++++ For purchase ..we create TrainingProgramPurchase 
      *                          [PaymentStatus.unpaid] [PaymentTransactionId = null]
      * 
@@ -153,8 +190,6 @@ export class TrainingProgramPurchaseService extends GenericService<
         stripeCustomer = user.stripe_customer_id;
     }
 
-    
-
     const session = await mongoose.startSession();
 
     // session.startTransaction();
@@ -164,19 +199,16 @@ export class TrainingProgramPurchaseService extends GenericService<
        * TODO :  
        * Mongoose er session add korte hobe ..
        * ****** */
-      const trainingProgram = await TrainingProgram.findById(data.trainingProgramId).select('price');
-
-      if(!trainingProgram){
-        throw new ApiError(StatusCodes.BAD_REQUEST, "No Training Program Found !");
-      }
-
-      trainingProgramPurchase = await TrainingProgramPurchase.create({
-        trainingProgramId : data.trainingProgramId,  
-        patientId: user?.userId,
-        paymentTransactionId : null,
-        paymentStatus : PaymentStatus.unpaid,
-        price: trainingProgram.price
-      })
+      
+      trainingProgramPurchase = await TrainingProgramPurchase.create(
+        [{
+          trainingProgramId : existingTrainingProgram._id,  
+          patientId: user?.userId,
+          paymentTransactionId : null,  // in webhook we will update this
+          paymentStatus : PaymentStatus.unpaid, // in webhook we will update this
+          price: existingTrainingProgram.price
+        }], { session }
+      ) 
 
     });
     session.endSession();
@@ -249,16 +281,16 @@ export class TrainingProgramPurchaseService extends GenericService<
         mode: 'payment',
         customer: stripeCustomer.id,
         line_items: [
-                {
-                    price_data: {
-                        currency: TCurrency.usd, // must be small letter
-                        product_data: {
-                            name: 'Amount',
-                        },
-                        unit_amount : trainingProgramPurchase.price! * 100, // Convert to cents
-                    },
-                    quantity: 1,
-                },
+          {
+            price_data: {
+              currency: TCurrency.usd, // must be small letter
+              product_data: {
+                  name: 'Amount',
+              },
+              unit_amount : trainingProgramPurchase.price! * 100, // Convert to cents
+            },
+            quantity: 1,
+          },
         ],
         metadata: {
             /*****

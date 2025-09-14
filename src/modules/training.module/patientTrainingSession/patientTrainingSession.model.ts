@@ -11,10 +11,10 @@ const PatientTrainingSessionSchema = new Schema<IPatientTrainingSession>(
       ref: 'TrainingSession',
       required: [true, `trainingSessionId is required`],
     },
-    userId: { //🔗
+    patientId: { //🔗
       type: Schema.Types.ObjectId,
       ref: 'User',
-      required: [true, `userId is required`],
+      required: [true, `patientId is required`],
     },
     status: {
       type: String,

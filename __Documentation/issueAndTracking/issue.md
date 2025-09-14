@@ -1,5 +1,5 @@
 Markdown Table Prettifier ---- Ctrl K Ctrl F
-Issue 🔥  /  Solved ☑️ 📝
+Issue 🔥  /  Solved ☑️ / Extra Note 📝
 |🔥      | |  |  |  | /8/ | |
 
 | Status | Module             | Feature       | Issue                                               | Description | Date    | Remarks  |
@@ -12,7 +12,12 @@ Issue 🔥  /  Solved ☑️ 📝
 | 📝     |                    |               | give me error                                       |             | /8/     |          |
 | 🔥     | Information Video  |               | must implementget caching information all video     |             | 7/9/    |          |
 | 🔥     | Appointment        |               | Doctor appointment must contain start and end time  |             | 7/9/    |          |
-| 🔥     | Specialist Patient | get All Other | Aproval Status pending can not be shown             |             | /8/     |          |
+| 🔥     | Specialist Patient | get All Other | Aproval Status pending can not be shown             |             | /9/     |          |
 | 📝     |                    | Specialist    |                                                     |             | 13/9/   |          |
+| 🔥     |                    |               | user.subscriptionPlan can not store                 |             | /9/     |          |
+| 📝     |                    |               | subscriptionPlan in AccessToken ..                  |             | 14/9/   |          |
+
+
+
 
 

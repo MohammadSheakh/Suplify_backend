@@ -1,3 +1,4 @@
+//@ts-ignore
 import { Model, Types } from 'mongoose';
 import { PaginateOptions, PaginateResult } from '../../../types/paginate';
 import { PaymentMethod } from '../../order.module/order/order.constant';
@@ -9,7 +10,8 @@ export interface ITrainingProgramPurchase {
   trainingProgramId: Types.ObjectId; //🔗
   patientId: Types.ObjectId; //🔗
   paymentTransactionId: Types.ObjectId | null; //🔗
-  paymentMethod: PaymentMethod.online;
+  paymentMethod: PaymentMethod.online | null;
+  specialistId: Types.ObjectId; //🔗 🔥🔥🔥 for better query
 
   paymentStatus: TPaymentStatus.unpaid |
     TPaymentStatus.paid |

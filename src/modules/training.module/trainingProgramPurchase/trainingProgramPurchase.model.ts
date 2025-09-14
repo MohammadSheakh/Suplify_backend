@@ -22,7 +22,13 @@ const TrainingProgramPurchaseSchema = new Schema<ITrainingProgramPurchase>(
       ref: 'TrainingProgram',
       required: [true, 'trainingProgramId is required'],
     },
-    
+
+    specialistId: {  //🔗🔥🔥🔥 for better query 
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      required: [true, 'specialistId is required'],
+    },
+
     patientId : { //🔗 who purchase this
       type: Schema.Types.ObjectId,
       ref: 'User',

@@ -117,11 +117,7 @@ export class OrderService extends GenericService<typeof Order, IOrder>{
             }
 
             createdOrder = await order.save({ session }); /***** we have to check its return id or not ************ */
-            
-            
-            
-            
-
+        
             // Create order items
             for (const item of cartItems) {
                 if (typeof item.itemId === "object" && "price" in item.itemId) {

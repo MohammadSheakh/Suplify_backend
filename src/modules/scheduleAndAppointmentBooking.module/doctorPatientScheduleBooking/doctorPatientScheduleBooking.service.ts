@@ -46,8 +46,11 @@ export class DoctorPatientScheduleBookingService extends GenericService<
          * 3. if "standard" or "standardPlus" .. they need to pay to book appointment
          * 4. if "vise" ... no payment required to book appointment
          * ******* */
-    
-        if(user.subscriptionPlan === TSubscription.none){
+
+        const existingUser = await User.findById(user.userId).select('+subscriptionPlan +stripe_customer_id');
+        // TODO : Need to test
+        
+        if(existingUser.subscriptionPlan === TSubscription.none){
             throw new ApiError(StatusCodes.FORBIDDEN, 'You need to subscribe a plan to book appointment with doctor');
         }
 
@@ -86,7 +89,7 @@ export class DoctorPatientScheduleBookingService extends GenericService<
         existingSchedule.scheduleStatus = TDoctorAppointmentScheduleStatus.booked;
         // existingSchedule.booked_by = user.userId; // we update this in webhook
 
-        if(user.subscriptionPlan == TSubscription.vise){
+        if(existingUser.subscriptionPlan == TSubscription.vise){
             // no payment required ..
             /******
              * 📝
@@ -172,7 +175,6 @@ export class DoctorPatientScheduleBookingService extends GenericService<
              * 
              * ***** */    
 
-        
             let stripeCustomer;
             if(!user.stripe_customer_id){
                 let _stripeCustomer = await stripe.customers.create({

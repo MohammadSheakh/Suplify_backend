@@ -7,7 +7,7 @@ export interface IPatientTrainingSession {
   // _taskId: undefined | Types.ObjectId;
   _id?: Types.ObjectId; // undefined |  Types.ObjectId |
   trainingSessionId: Types.ObjectId; //🔗
-  userId : Types.ObjectId; //🔗
+  patientId : Types.ObjectId; //🔗
   status :  TPatientTrainingSessionStatus.complete |
           TPatientTrainingSessionStatus.incomplete;
 

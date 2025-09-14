@@ -1,12 +1,12 @@
+//@ts-ignore
 import express from 'express';
-import * as validation from './TrainingProgramPurchase.validation';
-import { TrainingProgramPurchaseController} from './TrainingProgramPurchase.controller';
-import { ITrainingProgramPurchase } from './TrainingProgramPurchase.interface';
-import { validateFiltersForQuery } from '../../middlewares/queryValidation/paginationQueryValidationMiddleware';
-import validateRequest from '../../shared/validateRequest';
-import auth from '../../middlewares/auth';
+import * as validation from './trainingProgramPurchase.validation';
 import { TRole } from '../../../middlewares/roles';
-
+import { ITrainingProgramPurchase } from './trainingProgramPurchase.interface';
+import { TrainingProgramPurchaseController } from './trainingProgramPurchase.controller';
+import { validateFiltersForQuery } from '../../../middlewares/queryValidation/paginationQueryValidationMiddleware';
+import auth from '../../../middlewares/auth';
+//@ts-ignore
 const multer = require('multer');
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
@@ -64,7 +64,7 @@ router.route('/').get(
  * ***** */
 router.route('/:trainingProgramId').post(
   auth(TRole.patient),
-  validateRequest(validation.purchaseTrainingProgramValidationSchema),
+  // validateRequest(validation.purchaseTrainingProgramValidationSchema),
   controller.create
 );
 

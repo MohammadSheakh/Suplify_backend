@@ -69,9 +69,9 @@ export class LabTestBookingService extends GenericService<
         // session.startTransaction();
         await session.withTransaction(async () => {
             /****
-             * 
-             * check labTest exist or not TODO :
-             * 
+             * TODO :
+             * check labTest exist or not 
+             * must add session in all db operation inside transaction
              * *** */
 
             let isLabTestExist:IProduct = await Product.findById(data.labTestId).session(session);

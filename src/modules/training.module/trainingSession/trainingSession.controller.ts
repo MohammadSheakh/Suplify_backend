@@ -37,22 +37,10 @@ export class TrainingSessionController extends GenericController<
       : Promise.resolve([]),
       
     ]);
-
+    
     data.coverPhotos = coverPhotos;
     data.attachments = attachments;
     data.trailerContents = trailerContents;
-
-    /*****
-     * 
-     * lets calculate this session count
-     * *** */
-    let sessionCount = await TrainingSession.countDocuments({
-      trainingProgramId: data.trainingProgramId,
-    });
-
-    console.log('🧪 session count for program:', sessionCount);
-
-    data.sessionCount = ++ sessionCount  ;
 
     const result = await this.service.create(data);
 
