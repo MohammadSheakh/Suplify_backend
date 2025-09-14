@@ -126,24 +126,6 @@ export class DoctorPatientScheduleBookingService extends GenericService<
 
             await existingSchedule.save();
 
-
-            /********** ♻️ WE MOVE THIS TO A FUNCTION  
-             
-            const endTime = new Date(existingSchedule.endTime); 
-            // TODO: adjust with startTime/endTime logic
-
-            const delay = endTime.getTime() - Date.now();
-            if (delay > 0) {
-                await scheduleQueue.add(
-                    "makeDoctorAppointmentScheduleAvailable",
-                    { scheduleId: existingSchedule._id },
-                    { delay }
-                );
-                console.log(`⏰ Job added to free schedule ${existingSchedule._id} in ${delay / 1000}s`);
-            }
-
-            ********* */
-
             addToBullQueueToFreeDoctorAppointmentSchedule(existingSchedule, createdBooking);
 
             return  createdBooking;

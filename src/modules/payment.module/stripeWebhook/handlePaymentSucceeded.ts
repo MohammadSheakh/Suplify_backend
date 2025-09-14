@@ -1,5 +1,5 @@
 import ApiError from "../../../errors/ApiError";
-import { OrderStatus, PaymentStatus } from "../../order.module/order/order.constant";
+import { OrderStatus, PaymentMethod, PaymentStatus } from "../../order.module/order/order.constant";
 import { Order } from "../../order.module/order/order.model";
 import { DoctorAppointmentSchedule } from "../../scheduleAndAppointmentBooking.module/doctorAppointmentSchedule/doctorAppointmentSchedule.model";
 import { TAppointmentStatus } from "../../scheduleAndAppointmentBooking.module/doctorPatientScheduleBooking/doctorPatientScheduleBooking.constant";
@@ -78,7 +78,7 @@ export const handlePaymentSucceeded = async (session: Stripe.Checkout.Session) =
           }else if (referenceFor === TTransactionFor.TrainingProgramPurchase){
                updatedObjectOfReferenceFor =
                updatePurchaseTrainingProgram(
-                    thisCustomer, referenceId, newPayment._id,
+                    _user, referenceId, newPayment._id,
                )
           }
 
@@ -156,44 +156,30 @@ async function updateDoctorPatientScheduleBooking(
           { new: true }
      );
 
-     console.log("result ::::", result)
-
-     // await DoctorAppointmentSchedule.findByIdAndUpdate(
-     //      doctorAppointmentScheduleId, 
-     //      {
-     //           /* update fields */
-     //           booked_by: thisCustomer._id, // this is patientId
-     //      },
-     //      { new: true }
-     // );
-
      return updatedDoctorPatientScheduleBooking;
 }
 
 
 async function updatePurchaseTrainingProgram(
-     thisCustomer: TUser,
+     user: IUser,
      trainingProgramPurchaseId: string,
      paymentTransactionId: string,
 ){
-     console.log(`
-          ☑️HIT☑️ handlePaymentSucceed ->
-          updatePurchaseTrainingProgram >>>
-          trainingProgramPurchaseId" :::: ${trainingProgramPurchaseId}`)
-
-     const purchasedTrainingProgram = await TrainingProgramPurchase.findById(trainingProgramPurchaseId);
-
      const updatedTrainingProgramPurchase = await mongoose.model(TTransactionFor.TrainingProgramPurchase).findByIdAndUpdate(
           trainingProgramPurchaseId, 
           {
                paymentTransactionId: paymentTransactionId,
-               paymentStatus: PaymentStatus.paid
+               paymentStatus: PaymentStatus.paid,
+               PaymentMethod: PaymentMethod.online
           },
           { new: true }
      );
 
+
+     console.log("updatedTrainingProgramPurchase from webhook 🪝 🪝  ", updatedTrainingProgramPurchase)
+
      // here we create all patientTrainingSession for track all session for this patient
-     trainingProgramPurchaseService._handlePersonTrainingSessionCreate(trainingProgramPurchaseId);
+     trainingProgramPurchaseService._handlePersonTrainingSessionCreate(trainingProgramPurchaseId, user);
 
      return updatedTrainingProgramPurchase;
 }

@@ -44,14 +44,16 @@ export class TrainingProgramPurchaseService extends GenericService<
    * 📝
    * we call this function from webhook as well as from createV2 function of this service .. 
    * 
-   * // here we create all patientTrainingSession for track all session for this patient
+   * here we create all patientTrainingSession for track all session for this patient
    * ** */
-  async _handlePersonTrainingSessionCreate(trainingProgramId: string){
+  async _handlePersonTrainingSessionCreate(trainingProgramId: string, user: IUser){
+    console.log("Hit from webhook 🪝_handlePersonTrainingSessionCreate 🪝")
+
     const trainingSessions = await TrainingSession.find({
       trainingProgramId
     })
 
-    console.log("trainingSessions ::expect multiple :: ", trainingSessions)
+    // console.log("trainingSessions ::expect multiple :: ", trainingSessions)
 
     trainingSessions.forEach( async (trainingSession : ITrainingSession) => {
       // create patientTrainingSession for each purchase
@@ -93,7 +95,7 @@ export class TrainingProgramPurchaseService extends GenericService<
 
     // TODO : Need to test
     if(existingUser.subscriptionType === TSubscription.none){
-      throw new ApiError(StatusCodes.FORBIDDEN, 'You need to subscribe a plan to book appointment with doctor');
+      throw new ApiError(StatusCodes.FORBIDDEN, 'You need to subscribe a plan to purchase training program');
     }
 
     const existingTrainingProgram :ITrainingProgram = await TrainingProgram.findOne({
@@ -149,13 +151,14 @@ export class TrainingProgramPurchaseService extends GenericService<
             price: parseInt(existingTrainingProgram.price)
           });
 
+          
           /*****
            * 📝
            * for this training program .. as there are multiple training session .. we have to create 
            * patientTrainingSession for each session and calculate unlock date based on purchase date
            * **** */
 
-          this._handlePersonTrainingSessionCreate(trainingProgramId);
+          this._handlePersonTrainingSessionCreate(trainingProgramId, user);
 
           
         // return  purchaseTrainingProgram;
@@ -218,13 +221,18 @@ export class TrainingProgramPurchaseService extends GenericService<
   
       trainingProgramPurchase = await TrainingProgramPurchase.create(
         [{
-          trainingProgramId : existingTrainingProgram._id,  
           patientId: user?.userId,
+          trainingProgramId : existingTrainingProgram._id,
+          specialistId: existingTrainingProgram.createdBy, // ⚡ this will help us to query easily
+          paymentMethod : null, // in webhook we will update this
           paymentTransactionId : null,  // in webhook we will update this
           paymentStatus : PaymentStatus.unpaid, // in webhook we will update this
-          price: existingTrainingProgram.price
+          price: parseInt(existingTrainingProgram.price)
         }], { session }
       );
+
+      console.log("purchaseTrainingProgram :: 🟢🟢 ", trainingProgramPurchase)
+
 
     });
     session.endSession();
@@ -245,7 +253,7 @@ export class TrainingProgramPurchaseService extends GenericService<
               product_data: {
                   name: 'Amount',
               },
-              unit_amount : trainingProgramPurchase.price! * 100, // Convert to cents
+              unit_amount : trainingProgramPurchase[0].price! * 100, // Convert to cents
             },
             quantity: 1,
           },
@@ -269,10 +277,10 @@ export class TrainingProgramPurchaseService extends GenericService<
              * 5. Training Program Buying .. 
              *  
              * **** */
-            referenceId: trainingProgramPurchase._id.toString(), // in webhook .. in PaymentTransaction Table .. this should be referenceId
+            referenceId: trainingProgramPurchase[0]._id.toString(), // in webhook .. in PaymentTransaction Table .. this should be referenceId
             referenceFor: TTransactionFor.TrainingProgramPurchase, // in webhook .. this should be the referenceFor
             currency: TCurrency.usd,
-            amount: trainingProgramPurchase.price!.toString(), // TODO : FIX :  Must Check
+            amount: trainingProgramPurchase[0].price!.toString(), // TODO : FIX :  Must Check
             user: JSON.stringify(user) // who created this order  // as we have to send notification also may be need to send email
             
             /******
