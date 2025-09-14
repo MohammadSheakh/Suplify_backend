@@ -22,6 +22,12 @@ import { TPaymentStatus } from '../../scheduleAndAppointmentBooking.module/speci
 import { PatientTrainingSession } from '../patientTrainingSession/patientTrainingSession.model';
 import { TrainingSession } from '../trainingSession/trainingSession.model';
 import { ITrainingSession } from '../trainingSession/trainingSession.interface';
+import { TUser } from '../../user/user.interface';
+import { ITrainingProgram } from '../trainingProgram/trainingProgram.interface';
+import { ISpecialistPatient } from '../../personRelationships.module/specialistPatient/specialistPatient.interface';
+import { PatientTrainingSessionService } from '../patientTrainingSession/patientTrainingSession.service';
+
+const patientTrainingSessionService = new PatientTrainingSessionService();
 
 export class TrainingProgramPurchaseService extends GenericService<
   typeof TrainingProgramPurchase,
@@ -34,9 +40,37 @@ export class TrainingProgramPurchaseService extends GenericService<
     this.stripe = stripe;
   }
 
+  /*****
+   * 📝
+   * we call this function from webhook as well as from createV2 function of this service .. 
+   * 
+   * // here we create all patientTrainingSession for track all session for this patient
+   * ** */
+  async _handlePersonTrainingSessionCreate(trainingProgramId: string){
+    const trainingSessions = await TrainingSession.find({
+      trainingProgramId
+    })
+
+    console.log("trainingSessions ::expect multiple :: ", trainingSessions)
+
+    trainingSessions.forEach( async (trainingSession : ITrainingSession) => {
+      // create patientTrainingSession for each purchase
+
+      const res =  await patientTrainingSessionService.create({
+        patientId: user.userId,
+        trainingSessionId: trainingSession._id,
+        unlockDate: new Date( 
+          purchaseTrainingProgram.createdAt.getTime() + 
+          (trainingSession.sessionCount - 1) * 7 * 24 * 60 * 60 * 1000
+        ),
+        isUnlocked: false, //  we will compute this in frontend // TODO : need to think about this 
+      })
+    });
+  }
+
   async createV2(trainingProgramId:string, user: IUser) : Promise<ITrainingProgramPurchase | null | { url: any}> {
 
-    console.log("1️2️⃣ user :: ", user)
+    
     /******
      * 📝
      * First We have to check user's subscriptionPlan
@@ -46,13 +80,23 @@ export class TrainingProgramPurchaseService extends GenericService<
      * 4. if "vise" ... no payment required to book appointment
      * ******* */
 
-    const existingUser = await User.findById(user.userId).select('+subscriptionPlan +stripe_customer_id');
+    const existingUser:TUser = await User.findById(user.userId).select('subscriptionType');
+
+    const checkAlreadyPurchased = await TrainingProgramPurchase.findOne({
+      trainingProgramId,
+      patientId: user.userId
+    });
+
+    if(checkAlreadyPurchased){
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'You have already purchased this training program');
+    }
+
     // TODO : Need to test
-    if(existingUser.subscriptionPlan === TSubscription.none){
+    if(existingUser.subscriptionType === TSubscription.none){
       throw new ApiError(StatusCodes.FORBIDDEN, 'You need to subscribe a plan to book appointment with doctor');
     }
 
-    const existingTrainingProgram = await TrainingProgram.find({
+    const existingTrainingProgram :ITrainingProgram = await TrainingProgram.findOne({
       _id: trainingProgramId,
     })
 
@@ -66,77 +110,55 @@ export class TrainingProgramPurchaseService extends GenericService<
      *  if not then we create the relationship 
      */
     
-    const specialistPatientRelation = await SpecialistPatient.findOne({
+    const specialistPatientRelation:ISpecialistPatient = await SpecialistPatient.findOne({
         specialistId: existingTrainingProgram.createdBy,
         patientId: user.userId
     });
 
-    if (!specialistPatientRelation) {
+    if (specialistPatientRelation === null) {
       // Create the relationship if it doesn't exist
-      const newRelation = new SpecialistPatient({
+      const newRelation:ISpecialistPatient = new SpecialistPatient({
           specialistId: existingTrainingProgram.createdBy,
           patientId: user.userId
       });
-      await newRelation.save();
+
+      const savedRelation = await newRelation.save();
     }
 
-
-    if(existingUser.subscriptionPlan == TSubscription.vise){
+    if(existingUser.subscriptionType == TSubscription.vise){
+      // ⚠️    ->  bad code .. Need to optimize .. need to use insertMany for bulk insert
       // no payment required ..
       /******
        * 📝  
        * ++++++ create doctorPatientScheduleBooking 
        * **** */
-
-
       const session = await mongoose.startSession();
+
+      let purchaseTrainingProgram : ITrainingProgramPurchase | null = null;
       try {
         await session.withTransaction(async () => {
-          const purchaseTrainingProgram = await this.create({
-          patientId: user.userId,
-          trainingProgramId: existingTrainingProgram._id,
-          specialistId: existingTrainingProgram.createdBy,// ⚡ this will help us to query easily
-          
-          paymentTransactionId: null, // in webhook we will update this
-          paymentMethod: null, // in webhook we will update this
-          paymentStatus: TPaymentStatus.unpaid, // in webhook we will update this
-          
-          price: parseInt(existingTrainingProgram.price)
-        });
 
-        /*****
-         * 📝
-         * for this training program .. as there are multiple training session .. we have to create 
-         * patientTrainingSession for each session and calculate unlock date based on purchase date
-         * **** */
-
-        const purchaseDate = new Date();
-
-        // 2. Get sessions of this program
-        const patientWhoPurchasedThisProgram = await TrainingProgram.find({
-          _id : trainingProgramId 
-          })//.sort("sessionCount");
-
-        const trainingSessions = await TrainingSession.find({
-          trainingProgramId
-        })
-
-        trainingSessions.forEach( async (trainingSession : ITrainingSession) => {
-          // create patientTrainingSession for each purchase
-          await PatientTrainingSession.create({
+          purchaseTrainingProgram = await this.create({
             patientId: user.userId,
-            trainingProgramId: trainingProgramId,
-            trainingSessionId: trainingSession._id,
-            unlockDate: new Date( 
-              purchaseTrainingProgram.createdAt.getTime() + 
-              (trainingSession.sessionCount - 1) * 7 * 24 * 60 * 60 * 1000
-            ),
-            isUnlocked: false, //  we will compute this in frontend // TODO : need to think about this 
+            trainingProgramId: existingTrainingProgram._id,
+            specialistId: existingTrainingProgram.createdBy,// ⚡ this will help us to query easily
+            paymentTransactionId: null, // in webhook we will update this
+            paymentMethod: null, // in webhook we will update this
+            paymentStatus: TPaymentStatus.unpaid, // in webhook we will update this
+            
+            price: parseInt(existingTrainingProgram.price)
           });
-        });
 
-        return  purchaseTrainingProgram;
+          /*****
+           * 📝
+           * for this training program .. as there are multiple training session .. we have to create 
+           * patientTrainingSession for each session and calculate unlock date based on purchase date
+           * **** */
 
+          this._handlePersonTrainingSessionCreate(trainingProgramId);
+
+          
+        // return  purchaseTrainingProgram;
         });
       } catch (error) {
         console.error("Transaction failed:", error);
@@ -149,9 +171,8 @@ export class TrainingProgramPurchaseService extends GenericService<
        * TODO : MUST : send notification to doctor and patient
        * ** */
 
-      
+      return purchaseTrainingProgram
     }
-
 
     /*********
      * 📝
@@ -194,12 +215,7 @@ export class TrainingProgramPurchaseService extends GenericService<
 
     // session.startTransaction();
     await session.withTransaction(async () => {
-
-      /*****
-       * TODO :  
-       * Mongoose er session add korte hobe ..
-       * ****** */
-      
+  
       trainingProgramPurchase = await TrainingProgramPurchase.create(
         [{
           trainingProgramId : existingTrainingProgram._id,  
@@ -208,7 +224,7 @@ export class TrainingProgramPurchaseService extends GenericService<
           paymentStatus : PaymentStatus.unpaid, // in webhook we will update this
           price: existingTrainingProgram.price
         }], { session }
-      ) 
+      );
 
     });
     session.endSession();
@@ -217,65 +233,7 @@ export class TrainingProgramPurchaseService extends GenericService<
     if(!trainingProgramPurchase){
       throw new ApiError(StatusCodes.BAD_REQUEST, "No Training Program Purchase Found !");
     }
-    /**********************
-     * 
-     * IN WEBHOOK ... what we have to do .... 
-     * 
-     * 
-     * for every training session .. we have to create
-     * patientTrainingSession.. 
-     * 
-     * also 
-     * 
-     * // 2. Get sessions of this program
-        const sessions = await TrainingSession.find({ training_program_id: programId }).sort("sessionCount");
-
-        // 3. Create PatientTrainingSession with unlock dates
-        const patientSessions = sessions.map((session, index) => {
-          const unlockDate = new Date(purchaseDate.getTime() + index * 7 * 24 * 60 * 60 * 1000);
-          return {
-            trainingSessionId: session._id,
-            userId,
-            status: "incomplete",
-            unlockDate,
-            isUnlocked: purchaseDate >= unlockDate, // first session unlocked immediately
-          };
-        });
-
-
-        await PatientTrainingSession.insertMany(patientSessions);
-      * 
-      * 
-      * 
-      * 
-      * ***************** */
-
-    /***********
-     * 
-     * Not Create Related .. Its for viewing all training session .. for patient .. 
-     * Real time lock unlock checking .. 
-     * 
-     * const getUserSessions = async (userId, programId) => {
-          const today = new Date();
-
-          const sessions = await PatientTrainingSession.find({
-            userId,
-          }).populate("trainingSessionId");
-
-          // Update isUnlocked dynamically
-          return sessions.map((s) => {
-            const unlocked = today >= s.unlockDate;
-            return {
-              ...s.toObject(),
-              isUnlocked: unlocked, // override with real-time check
-            };
-          });
-        };
-      * 
-      * 
-      * 
-      * ***** */    
-
+    
     const stripeSessionData: any = {
         payment_method_types: ['card'],
         mode: 'payment',
@@ -353,7 +311,12 @@ export class TrainingProgramPurchaseService extends GenericService<
         throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Order creation failed');
     }
 
-    //======================================= From Co pilot
+    return  stripeResult; // result ;//session.url;
+  }
+}
+
+
+//======================================= From Co pilot
     // Provide Stripe URL for payment
     // const session = await stripe.checkout.sessions.create({
     //     payment_method_types: ['card'],
@@ -369,7 +332,3 @@ export class TrainingProgramPurchaseService extends GenericService<
     //     success_url: `${process.env.FRONTEND_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
     //     cancel_url: `${process.env.FRONTEND_URL}/cancel`,
     // });
-
-    return  stripeResult; // result ;//session.url;
-  }
-}

@@ -2,6 +2,7 @@ Markdown Table Prettifier ---- Ctrl K Ctrl F
 Issue 🔥  /  Solved ☑️ / Extra Note 📝
 |🔥      | |  |  |  | /8/ | |
 
+
 | Status | Module             | Feature       | Issue                                               | Description | Date    | Remarks  |
 |--------|--------------------|---------------|-----------------------------------------------------|-------------|---------|----------|
 | ☑️     | Auth               | Registration  | not provide any response(specialist works fine btw) |             | 26/8/25 |          |
@@ -16,7 +17,8 @@ Issue 🔥  /  Solved ☑️ / Extra Note 📝
 | 📝     |                    | Specialist    |                                                     |             | 13/9/   |          |
 | 🔥     |                    |               | user.subscriptionPlan can not store                 |             | /9/     |          |
 | 📝     |                    |               | subscriptionPlan in AccessToken ..                  |             | 14/9/   |          |
-
+| 🔥     | /products/id       |               | Cannot read properties of null (reading 'category') |             | 14/9/   |          |
+   
 
 
 

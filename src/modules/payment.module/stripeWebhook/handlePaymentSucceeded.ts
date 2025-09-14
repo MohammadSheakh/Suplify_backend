@@ -7,6 +7,8 @@ import { DoctorPatientScheduleBooking } from "../../scheduleAndAppointmentBookin
 import { TLabTestBookingStatus } from "../../scheduleAndAppointmentBooking.module/labTestBooking/labTestBooking.constant";
 import { LabTestBooking } from "../../scheduleAndAppointmentBooking.module/labTestBooking/labTestBooking.model";
 import { IUser } from "../../token/token.interface";
+import { TrainingProgramPurchase } from "../../training.module/trainingProgramPurchase/trainingProgramPurchase.model";
+import { TrainingProgramPurchaseService } from "../../training.module/trainingProgramPurchase/trainingProgramPurchase.service";
 import { TUser } from "../../user/user.interface";
 import { User } from "../../user/user.model";
 import { TPaymentGateway, TPaymentStatus, TTransactionFor } from "../paymentTransaction/paymentTransaction.constant";
@@ -15,6 +17,8 @@ import { PaymentTransaction } from "../paymentTransaction/paymentTransaction.mod
 import { StatusCodes } from 'http-status-codes';
 //@ts-ignore
 import mongoose from "mongoose";
+
+const trainingProgramPurchaseService = new TrainingProgramPurchaseService();
 
 // Function for handling a successful payment
 export const handlePaymentSucceeded = async (session: Stripe.Checkout.Session) => {
@@ -71,6 +75,11 @@ export const handlePaymentSucceeded = async (session: Stripe.Checkout.Session) =
           }else if (referenceFor === TTransactionFor.DoctorPatientScheduleBooking) {
                updatedObjectOfReferenceFor = 
                updateDoctorPatientScheduleBooking(thisCustomer, referenceId, newPayment._id, referenceId2, referenceFor2);
+          }else if (referenceFor === TTransactionFor.TrainingProgramPurchase){
+               updatedObjectOfReferenceFor =
+               updatePurchaseTrainingProgram(
+                    thisCustomer, referenceId, newPayment._id,
+               )
           }
 
           if (!updatedObjectOfReferenceFor) {
@@ -117,7 +126,6 @@ async function updateLabTestBooking(labTestId: string, paymentTransactionId: str
      return updatedLabTestBooking;
 }
 
-
 /**********
 * 
 *  const refModel = mongoose.model(result.type);
@@ -162,3 +170,30 @@ async function updateDoctorPatientScheduleBooking(
      return updatedDoctorPatientScheduleBooking;
 }
 
+
+async function updatePurchaseTrainingProgram(
+     thisCustomer: TUser,
+     trainingProgramPurchaseId: string,
+     paymentTransactionId: string,
+){
+     console.log(`
+          ☑️HIT☑️ handlePaymentSucceed ->
+          updatePurchaseTrainingProgram >>>
+          trainingProgramPurchaseId" :::: ${trainingProgramPurchaseId}`)
+
+     const purchasedTrainingProgram = await TrainingProgramPurchase.findById(trainingProgramPurchaseId);
+
+     const updatedTrainingProgramPurchase = await mongoose.model(TTransactionFor.TrainingProgramPurchase).findByIdAndUpdate(
+          trainingProgramPurchaseId, 
+          {
+               paymentTransactionId: paymentTransactionId,
+               paymentStatus: PaymentStatus.paid
+          },
+          { new: true }
+     );
+
+     // here we create all patientTrainingSession for track all session for this patient
+     trainingProgramPurchaseService._handlePersonTrainingSessionCreate(trainingProgramPurchaseId);
+
+     return updatedTrainingProgramPurchase;
+}

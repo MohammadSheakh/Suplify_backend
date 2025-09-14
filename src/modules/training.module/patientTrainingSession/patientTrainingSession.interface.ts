@@ -1,3 +1,4 @@
+//@ts-ignore
 import { Model, Types } from 'mongoose';
 import { PaginateOptions, PaginateResult } from '../../../types/paginate';
 import { TPatientTrainingSessionStatus } from './patientTrainingSession.constant';
@@ -8,8 +9,11 @@ export interface IPatientTrainingSession {
   _id?: Types.ObjectId; // undefined |  Types.ObjectId |
   trainingSessionId: Types.ObjectId; //🔗
   patientId : Types.ObjectId; //🔗
-  status :  TPatientTrainingSessionStatus.complete |
+  status ?:  TPatientTrainingSessionStatus.complete |
           TPatientTrainingSessionStatus.incomplete;
+
+  unlockDate : Date;
+  isUnlocked : Boolean; // its just for show boolean value when query ..
 
   isDeleted? : Boolean;  
   createdAt?: Date;
