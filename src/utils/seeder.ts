@@ -8,14 +8,12 @@ import { TSubscription } from '../enums/subscription';
 // Load environment variables
 dotenv.config();
 
-
 // Sample data for default users
 const usersData = [
   {
     name: 'Admin',
     email: 'a@gmail.com',
     password: '$2b$12$cxPF29g99duEaWshhIjW6.TXTEzCccwZaL8jil3gFvhMjogg4HxiW', // Hashed password asdfasdf
-    // '$2b$12$cxPF29g99duEaWshhIjW6.TXTEzCccwZaL8jil3gFvhMjogg4HxiW', // Hashed password asdfasdf
     // profileImage: {
     // imageUrl: "/uploads/users/user.png",
     //   _id: {
@@ -51,7 +49,6 @@ const seedUsers = async () => {
     await User.deleteMany();
     // await User.insertMany(usersData);
 
-
     // Create UserProfiles
     const userProfiles = await UserProfile.insertMany(
       usersData.map((_, index) => ({
@@ -70,9 +67,7 @@ const seedUsers = async () => {
       profileId: userProfiles[index]._id,
     }));
     
-
     await User.insertMany(usersWithProfileIds);
-
 
     console.log('Users seeded successfully!');
   } catch (err) {

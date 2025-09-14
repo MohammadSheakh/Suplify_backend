@@ -42,12 +42,12 @@ export class TrainingProgramController extends GenericController<
     // get specialist information
 
     const specialistInfo = await User
-            .findById(filters.createdBy)
-            .select('profileImage name profileId')
-            .populate({
-                path: 'profileId', 
-                select: 'description protocolNames howManyPrograms'
-            });
+        .findById(filters.createdBy)
+        .select('profileImage name profileId')
+        .populate({
+            path: 'profileId', 
+            select: 'description protocolNames howManyPrograms'
+        });
 
     sendResponse(res, {
       code: StatusCodes.OK,

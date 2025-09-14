@@ -19,8 +19,9 @@ export interface IUser extends Document {
   email: string;
   password: string;
   status: TStatusType.active | TStatusType.inactive;
-  subscriptionType :  TSubscription.standard |
-  TSubscription.standardPlus | TSubscription.vise 
+  subscriptionType : TSubscription;
+  // TSubscription.standard |
+  // TSubscription.standardPlus | TSubscription.vise 
   hasUsedFreeTrial: boolean;
   // freeTrialStartDate: Date;
   // freeTrialEndDate: Date;
@@ -41,6 +42,11 @@ export interface IUser extends Document {
   isResetPassword: boolean;
   failedLoginAttempts: number;
   lockUntil: Date | undefined;
+  stripe_subscription_id : string | null;
+  trialStartDate: Date | undefined;
+  trialEndDate: Date | undefined;
+  trialPlanType: TSubscription | undefined;
+
   createdAt: Date;
   updatedAt: Date;
 }
@@ -54,8 +60,9 @@ export type TUser = {
   email: string;
   password: string;
   status: TStatusType.active | TStatusType.inactive;
-  subscriptionType :  TSubscription.standard |
-  TSubscription.standardPlus | TSubscription.vise 
+  subscriptionType : TSubscription; 
+  // TSubscription.standard |
+  // TSubscription.standardPlus | TSubscription.vise 
   hasUsedFreeTrial: boolean;
   // freeTrialStartDate: Date;
   // freeTrialEndDate: Date;
@@ -65,11 +72,16 @@ export type TUser = {
   stripeConnectedAccount: string; // from kappes backend 
   role: Role;
 
+  trialStartDate: Date | undefined;
+  trialEndDate: Date | undefined;
+  trialPlanType: TSubscription | undefined;
+
   isEmailVerified: boolean;
   isVip  : Boolean,
   isStandard  : Boolean,
   isPremium :  Boolean
 
+  stripe_subscription_id : string | null;
   phoneNumber : string;
   isDeleted: boolean;
   lastPasswordChange: Date;

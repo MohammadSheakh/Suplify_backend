@@ -17,18 +17,13 @@ const eventEmitForUpdateSpecialistUserProfile = new EventEmitter();
 eventEmitForUpdateSpecialistUserProfile.on('eventEmitForUpdateSpecialistUserProfile', async (specialistId: any) => {
   console.log("eventEmitForUpdateSpecialistUserProfile event received for specialistId ::",specialistId )
   try {
-
-    const doc = await UserProfile.findOne({ userId: specialistId }).lean();
-    console.log('Found document:', doc); 
-
+    const trainingProgramCount = await TrainingProgram.countDocuments({ createdBy: specialistId, isDeleted: { $ne: true } });
 
     const res = await UserProfile.findOneAndUpdate({
       userId: specialistId
     }, {
-      $inc: { howManyPrograms: 1 }
+      howManyPrograms: trainingProgramCount 
     }, { new: true });
-
-    console.log("👉👉 res :: ", res);
 
   }catch (error) {
     errorLogger.error("Error occurred 🌋 while updating user profile's howManyPrograms count :: ", error);
@@ -152,7 +147,7 @@ export class TrainingProgramService extends GenericService<
         durationInMonths: 1,
         totalSessionCount: 1,
         price: 1,
-        createdBy: 1,
+        // createdBy: 1, // may be we dont need this 
         isPurchased: 1,
         // Include purchase details if purchased
         'purchaseDetails._id': 1,
@@ -160,11 +155,11 @@ export class TrainingProgramService extends GenericService<
         'purchaseDetails.paymentStatus': 1,
         'purchaseDetails.paymentMethod': 1,
         'purchaseDetails.createdAt': 1,
-        // Specialist details
-        'specialist._id': 1,
-        'specialist.name': 1,
-        'specialist.profileImage': 1,
-        'specialist.avatar': 1,
+        /////////// Specialist details
+        // 'specialist._id': 1,
+        // 'specialist.name': 1,
+        // 'specialist.profileImage': 1,
+        // 'specialist.avatar': 1,
         /***********
          * 
          * $ references fields from the current document

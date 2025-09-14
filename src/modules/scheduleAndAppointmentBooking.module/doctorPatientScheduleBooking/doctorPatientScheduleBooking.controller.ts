@@ -7,6 +7,7 @@ import { IDoctorPatientScheduleBooking } from './doctorPatientScheduleBooking.in
 import { DoctorPatientScheduleBookingService } from './doctorPatientScheduleBooking.service';
 import catchAsync from '../../../shared/catchAsync';
 import sendResponse from '../../../shared/sendResponse';
+import { IUser } from '../../token/token.interface';
 
 
 // let conversationParticipantsService = new ConversationParticipentsService();
@@ -27,7 +28,7 @@ export class DoctorPatientScheduleBookingController extends GenericController<
      * here we also check if relation ship between doctor and patient exist or not
      *  if not then we create the relationship 
      * *** */
-    const result = await this.doctorPatientScheduleBookingService.createV2(req.params.doctorScheduleId, req.user);
+    const result = await this.doctorPatientScheduleBookingService.createV2(req.params.doctorScheduleId, req.user as IUser);
 
     sendResponse(res, {
     code: StatusCodes.OK,

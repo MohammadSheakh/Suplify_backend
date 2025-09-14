@@ -8,7 +8,7 @@ const paginate = <T>(schema: Schema<T>) => {
   schema.statics.paginate = async function (
     filter: FilterQuery<T>,
     options: PaginateOptions,
-    populateOptions?: any,
+    populateOptions?: string[] | PopulateOption[], // any,
     dontWantToInclude?: string | string[]
   ): Promise<PaginateResult<T>> {
     const limit = options.limit ?? 5; // ?? 10 //  Number.MAX_SAFE_INTEGER

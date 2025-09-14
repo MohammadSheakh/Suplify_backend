@@ -58,13 +58,17 @@ router.route('/').get(
  * 
  * Patient |  Purchase Training Program 
  * 
+ * here we also check if relation ship between specialist and patient exist or not
+ * if not then we create the relationship 
+ * 
  * ***** */
-router.route('/').post(
-
+router.route('/:trainingProgramId').post(
   auth(TRole.patient),
   validateRequest(validation.purchaseTrainingProgramValidationSchema),
   controller.create
 );
+
+
 
 router.route('/delete/:id').delete(
   //auth('common'),
