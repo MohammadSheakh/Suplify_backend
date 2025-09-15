@@ -72,6 +72,13 @@ router.route('/').get(
   controller.getAll
 );
 
+
+router.route('/specialist').get(
+  auth(TRole.doctor),
+  controller.showAllSpecialist
+);
+
+
 /**********
  * 
  * Doctor | Protocol Section | Assign Specialist for a patient
@@ -82,6 +89,9 @@ router.route('/').post(
   validateRequest(validation.assignSpecialistForAPatientValidationSchema),
   controller.create
 );
+
+
+
 
 router.route('/delete/:id').delete(
   //auth('common'),

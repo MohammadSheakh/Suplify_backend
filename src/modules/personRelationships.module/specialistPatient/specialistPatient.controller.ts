@@ -9,6 +9,7 @@ import catchAsync from '../../../shared/catchAsync';
 import omit from '../../../shared/omit';
 import pick from '../../../shared/pick';
 import sendResponse from '../../../shared/sendResponse';
+import { User } from '../../user/user.model';
 
 
 // let conversationParticipantsService = new ConversationParticipentsService();
@@ -57,6 +58,30 @@ export class SpecialistPatientController extends GenericController<
     });
   });
 
+
+  /**********
+   * 
+   * Doctor | Protocol Section | Show all Specialist for assign to a patient
+   * 
+   * ********** */
+  showAllSpecialist = catchAsync(async (req: Request, res: Response) => {
+    /********
+     * 
+     * TODO : get all specialist .. who are approved .. and not connected with this patient  
+     * 
+     * ***** */
+
+    // const result = await this.service.create(data);
+
+    sendResponse(res, {
+      code: StatusCodes.OK,
+      data: result,
+      message: `${this.modelName} created successfully`,
+      success: true,
+    });
+  });
+
+  
 
   /**********
  * 
