@@ -1,9 +1,9 @@
 import { model, Schema } from 'mongoose';
-import { IdoctorPatient, IdoctorPatientModel } from './doctorPatient.interface';
+import { IDoctorPatient, IDoctorPatientModel } from './doctorPatient.interface';
 import paginate from '../../../common/plugins/paginate';
 
 
-const doctorPatientSchema = new Schema<IdoctorPatient>(
+const doctorPatientSchema = new Schema<IDoctorPatient>(
   {
     patientId: { //🔗
       type: Schema.Types.ObjectId,
@@ -14,6 +14,11 @@ const doctorPatientSchema = new Schema<IdoctorPatient>(
       type: Schema.Types.ObjectId,
       ref: 'User',
       required: [true, 'doctorId is required'],
+    },
+    extraNote : { // doctor can add note for this patient ... 
+      type: String,
+      required: [false, 'extraNote is not required'],
+      default: ''
     },
     isDeleted: {
       type: Boolean,
@@ -45,6 +50,6 @@ doctorPatientSchema.set('toJSON', {
 });
 
 export const DoctorPatient = model<
-  IdoctorPatient,
-  IdoctorPatientModel
+  IDoctorPatient,
+  IDoctorPatientModel
 >('DoctorPatient', doctorPatientSchema);

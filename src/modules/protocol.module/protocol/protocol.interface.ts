@@ -2,20 +2,22 @@ import { Model, Types } from 'mongoose';
 import { PaginateOptions, PaginateResult } from '../../../types/paginate';
 
 
-export interface Iprotocol {
+export interface IProtocol {
   // _taskId: undefined | Types.ObjectId;
   _id?: Types.ObjectId; // undefined |  Types.ObjectId |
-  userId: Types.ObjectId;
-  message : String;
-
+  createdBy: Types.ObjectId; //🔗 
+  name : String;
+  totalPlan : number;
+  patientId: Types.ObjectId; //🔗 
+  
   isDeleted? : Boolean;  
   createdAt?: Date;
   updatedAt?: Date;
 }
 
-export interface IprotocolModel extends Model<Iprotocol> {
+export interface IProtocolModel extends Model<IProtocol> {
   paginate: (
     query: Record<string, any>,
     options: PaginateOptions
-  ) => Promise<PaginateResult<Iprotocol>>;
+  ) => Promise<PaginateResult<IProtocol>>;
 }

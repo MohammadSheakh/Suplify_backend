@@ -1,3 +1,4 @@
+![alt text](dbSchema.png)
 # express-typescript-generic-boilerplate
 
 -------- Written By :  https://github.com/mohammadsheakh 

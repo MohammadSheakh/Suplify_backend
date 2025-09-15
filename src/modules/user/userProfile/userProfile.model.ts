@@ -30,6 +30,12 @@ const userProfileSchema = new Schema<IUserProfile>({
         required: [false, 'How many programs is not required'],
         default: 0
     },
+    // TODO : need to test .. while create patient .. is this initiate ?
+    howManyProtocol:{ // for patient
+        type: Number,
+        required: [false, 'How many programs is not required'],
+        default: 0
+    },
     userId: { //🔗 for back reference .. 
         type: Schema.Types.ObjectId,
         ref: 'User',

@@ -93,7 +93,6 @@ export class TrainingProgramPurchaseService extends GenericService<
 
   async createV2(trainingProgramId:string, user: IUser) : Promise<ITrainingProgramPurchase | null | { url: any}> {
 
-    
     /******
      * 📝
      * First We have to check user's subscriptionPlan

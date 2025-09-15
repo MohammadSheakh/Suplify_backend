@@ -1,9 +1,10 @@
+//@ts-ignore
 import { model, Schema } from 'mongoose';
-import { Iprotocol, IprotocolModel } from './protocol.interface';
+import { IProtocol, IProtocolModel } from './protocol.interface';
 import paginate from '../../../common/plugins/paginate';
 
 
-const protocolSchema = new Schema<Iprotocol>(
+const protocolSchema = new Schema<IProtocol>(
   {
     createdBy: { //🔗 Doctor Id .. who create this protocol
       type: Schema.Types.ObjectId,
@@ -12,11 +13,11 @@ const protocolSchema = new Schema<Iprotocol>(
     },
     name: { // name of the protocol
       type: String,
-      required: [true, 'name is required'],
+      required: [false, 'name is not required'],
     },
     totalPlan : { // totalPlanCount
       type: Number,
-      required: [true, 'totalPlan is required'],
+      required: [false, 'totalPlan is not required'],
     },
     patientId: { //🔗 Patient Id .. who this protocol is for
       type: Schema.Types.ObjectId,
@@ -52,7 +53,7 @@ protocolSchema.set('toJSON', {
   },
 });
 
-export const protocol = model<
-  Iprotocol,
-  IprotocolModel
->('protocol', protocolSchema);
+export const Protocol = model<
+  IProtocol,
+  IProtocolModel
+>('Protocol', protocolSchema);

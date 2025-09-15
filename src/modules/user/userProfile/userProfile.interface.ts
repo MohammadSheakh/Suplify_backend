@@ -12,7 +12,8 @@ export interface IUserProfile {
               TApprovalStatus.rejected;
 
   protocolNames : [string];
-  howManyPrograms: number;
+  howManyPrograms: number; // for specialist .. 
+  howManyProtocol: number; // for patient .. 
   userId: Types.ObjectId; // for back reference ..
   description: string;
 

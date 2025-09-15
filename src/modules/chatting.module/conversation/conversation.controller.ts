@@ -16,7 +16,9 @@ import { IMessage } from '../message/message.interface';
 import { User } from '../../user/user.model';
 import omit from '../../../shared/omit';
 import pick from '../../../shared/pick';
+//@ts-ignore
 import { populate } from 'dotenv';
+//@ts-ignore
 import mongoose from 'mongoose';
 import { ConversationParticipents } from '../conversationParticipents/conversationParticipents.model';
 

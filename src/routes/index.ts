@@ -12,12 +12,10 @@ import { PaymentTransactionRoute } from '../modules/payment.module/paymentTransa
 import stripeAccountRoutes from '../modules/payment.module/stripeAccount/stripeAccount.route';
 import { ProductRoute } from '../modules/store.module/product/product.route';
 import { CartItemRoute } from '../modules/order.module/cartItem/cartItem.route';
-import { Cart } from '../modules/order.module/cart/cart.model';
 import { CartRoute } from '../modules/order.module/cart/cart.route';
 import { OrderRoute } from '../modules/order.module/order/order.route';
 import { DoctorAppointmentScheduleRoute } from '../modules/scheduleAndAppointmentBooking.module/doctorAppointmentSchedule/doctorAppointmentSchedule.route';
 import { UserSubscriptionRoute } from '../modules/subscription.module/userSubscription/userSubscription.route';
-import { SubscriptionPlan } from '../modules/subscription.module/subscriptionPlan/subscriptionPlan.model';
 import { SubscriptionPlanRoute } from '../modules/subscription.module/subscriptionPlan/subscriptionPlan.route';
 import { TrainingSessionRoute } from '../modules/training.module/trainingSession/trainingSession.route';
 import { SpecialistWorkoutClassScheduleRoute } from '../modules/scheduleAndAppointmentBooking.module/specialistWorkoutClassSchedule/specialistWorkoutClassSchedule.route';
@@ -28,6 +26,7 @@ import { doctorPatientRoute } from '../modules/personRelationships.module/doctor
 import { specialistPatientRoute } from '../modules/personRelationships.module/specialistPatient/specialistPatient.route';
 import { TrainingProgramPurchaseRoute } from '../modules/training.module/trainingProgramPurchase/trainingProgramPurchase.route';
 import { DoctorPlanRoute } from '../modules/protocol.module/doctorPlan/doctorPlan.route';
+import { protocolRoute } from '../modules/protocol.module/protocol/protocol.route';
 
 // import { ChatRoutes } from '../modules/chat/chat.routes';
 // import { MessageRoutes } from '../modules/message/message.routes';
@@ -57,7 +56,7 @@ const apiRoutes = [
     path: '/products',
     route: ProductRoute,
   },
-  /////////////////////////////////////////
+  ///////////////////////////////////////// Training Program
   { // 🟢
     path: '/training-programs',
     route: TrainingProgramRoute,
@@ -70,7 +69,7 @@ const apiRoutes = [
     path: '/training-programs/purchase',
     route: TrainingProgramPurchaseRoute,
   },
-  ////////////////////////////////////////////
+  //////////////////////////////////////////// Cart Order
   { // 🟢
     path: '/cart-items',
     route: CartItemRoute,
@@ -83,7 +82,7 @@ const apiRoutes = [
     path: '/orders',
     route: OrderRoute,
   },
-  /////////////////////////////////////////
+  ///////////////////////////////////////// Chatting 
   { // 🟢
     path: '/conversations',
     route: ConversationRoute,
@@ -92,7 +91,7 @@ const apiRoutes = [
     path: '/information-videos',
     route: informationVideoRoute,
   },
-  ////////////////////////////////////////////
+  ////////////////////////////////////////////  Doctor Appointment
   { // 🟢
     path: '/doctor-appointments',
     route: DoctorAppointmentScheduleRoute,
@@ -102,23 +101,26 @@ const apiRoutes = [
     path: '/doctor-appointments/bookings',
     route: DoctorPatientScheduleBookingRoute,
   },
-  ////////////////////////////////////////////
+  //////////////////////////////////////////// Doctor Plan (protocol)
   { // 🟢
-    path: '/doctor-plan/',
+    path: '/doctor-plans/',
     route: DoctorPlanRoute,
   },
-
-  /////////////////////////////////////////////
   { // 🟢
-    path: '/doctor-patient',
+    path: '/protocols/',
+    route: protocolRoute,
+  },
+
+  ///////////////////////////////////////////// Person Relationships
+  { // 🟢
+    path: '/doctor-patients',
     route: doctorPatientRoute,
   },
-
   { // 🟢
-    path: '/specialist-patient',
+    path: '/specialist-patients',
     route: specialistPatientRoute,
   },
-  /////////////////////////////////////////////
+  ///////////////////////////////////////////// Workout Class
   { // 🟢
     path: '/workout-schedules',
     route: SpecialistWorkoutClassScheduleRoute,
@@ -143,6 +145,7 @@ const apiRoutes = [
     path: '/user-subs',
     route: UserSubscriptionRoute,
   },
+  //////////////////////////////////////// Subscription
   { // 🟢
     path: '/subscription-plans',
     route: SubscriptionPlanRoute,

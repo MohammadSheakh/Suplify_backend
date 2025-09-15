@@ -136,6 +136,7 @@ export class GenericController<ModelType, InterfaceType> {
         `id is required for update ${this.modelName}`
       );
     }
+    
     const id = req.params.id;
 
     const updatedObject = await this.service.updateById(id, req.body);

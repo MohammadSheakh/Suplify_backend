@@ -93,6 +93,40 @@ export class DoctorPatientController extends GenericController<
     });
   });
 
+/**********
+ * 
+ * Doctor | Get all Patients For Provide Protocol 
+ * 
+ * ******** */
+  getAllWithPaginationForDoctorProtocolSection = catchAsync(async (req: Request, res: Response) => {
+    //const filters = pick(req.query, ['_id', 'title']); // now this comes from middleware in router
+    const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']); ;
+    const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
+
+    const populateOptions: (string | {path: string, select: string}[]) = [
+      {
+        path: 'patientId',
+        select: 'name profileImage profileId subscriptionType',
+        populate: {
+          path: 'profileId', // deep populate attachments
+          select: 'howManyProtocol' // only pick howManyProtocol
+        }
+      },
+      // ''
+    ];
+
+   const select = '-isDeleted -createdAt -updatedAt -__v'; 
+
+    const result = await this.service.getAllWithPagination(filters, options, populateOptions, select);
+
+    sendResponse(res, {
+      code: StatusCodes.OK,
+      data: result,
+      message: `All ${this.modelName} with pagination`,
+      success: true,
+    });
+  });
+
 
   // add more methods here if needed or override the existing ones 
 }

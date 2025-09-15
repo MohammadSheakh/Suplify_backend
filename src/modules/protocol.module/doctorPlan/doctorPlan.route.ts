@@ -41,9 +41,14 @@ router.route('/:id').get(
   controller.getById
 );
 
+/*******
+ * 
+ * Doctor | Update Own plan ..
+ * params :: doctorPlanId
+ * ***** */
 router.route('/update/:id').put(
-  //auth('common'),
-  // validateRequest(UserValidation.createUserValidationSchema),
+  auth(TRole.doctor),
+  validateRequest(validation.updateDoctorPlanValidationSchema),
   controller.updateById
 );
 
