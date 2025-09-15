@@ -1,7 +1,7 @@
+//@ts-ignore
 import { model, Schema } from 'mongoose';
 import { ISpecialistPatient, ISpecialistPatientModel } from './specialistPatient.interface';
 import paginate from '../../../common/plugins/paginate';
-
 
 const specialistPatientSchema = new Schema<ISpecialistPatient>(
   {

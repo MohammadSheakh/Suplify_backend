@@ -72,15 +72,14 @@ router.route('/').get(
   controller.getAll
 );
 
-//[🚧][🧑‍💻✅][🧪] // 🆗
-router.route('/create').post(
-  // [
-  //   upload.fields([
-  //     { name: 'attachments', maxCount: 15 }, // Allow up to 5 cover photos
-  //   ]),
-  // ],
-  auth('common'),
-  validateRequest(validation.createHelpMessageValidationSchema),
+/**********
+ * 
+ * Doctor | Protocol Section | Assign Specialist for a patient
+ * 
+ * ********** */
+router.route('/').post(
+  auth(TRole.doctor),
+  validateRequest(validation.assignSpecialistForAPatientValidationSchema),
   controller.create
 );
 

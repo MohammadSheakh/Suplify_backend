@@ -25,6 +25,40 @@ export class SpecialistPatientController extends GenericController<
   }
 
   /**********
+   * 
+   * Doctor | Protocol Section | Assign Specialist for a patient
+   * 
+   * ********** */
+  create = catchAsync(async (req: Request, res: Response) => {
+    const data :ISpecialistPatient = req.body;
+
+    // check if already assigned
+    const existing = await SpecialistPatient.findOne({
+      patientId: data.patientId,
+      specialistId: data.specialistId
+    }).lean();
+
+    if(existing) {
+      sendResponse(res, {
+        code: StatusCodes.OK,
+        data: existing,
+        message: `Specialist already assigned to this patient`,
+        success: true,
+      });
+    }
+
+    const result = await this.service.create(data);
+
+    sendResponse(res, {
+      code: StatusCodes.OK,
+      data: result,
+      message: `${this.modelName} created successfully`,
+      success: true,
+    });
+  });
+
+
+  /**********
  * 
  * Patient | Get all Patients Specialist .. 
  * 
