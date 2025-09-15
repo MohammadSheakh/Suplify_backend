@@ -22,8 +22,9 @@ const trainingProgramPurchaseService = new TrainingProgramPurchaseService();
 
 // Function for handling a successful payment
 export const handlePaymentSucceeded = async (session: Stripe.Checkout.Session) => {
-     // console.log('handlePaymentSucceeded called with session: 🟢🟢', session);
+     
      try {
+
           const { referenceId, user, referenceFor, currency,  amount,  referenceId2, referenceFor2 }: any = session.metadata;
           // userId // for sending notification .. 
 
@@ -78,7 +79,7 @@ export const handlePaymentSucceeded = async (session: Stripe.Checkout.Session) =
           }else if (referenceFor === TTransactionFor.TrainingProgramPurchase){
                updatedObjectOfReferenceFor =
                updatePurchaseTrainingProgram(
-                    _user, referenceId, newPayment._id,
+                    _user, referenceId, newPayment._id, referenceId2
                )
           }
 
@@ -164,6 +165,7 @@ async function updatePurchaseTrainingProgram(
      user: IUser,
      trainingProgramPurchaseId: string,
      paymentTransactionId: string,
+     trainingProgramId: string
 ){
      const updatedTrainingProgramPurchase = await mongoose.model(TTransactionFor.TrainingProgramPurchase).findByIdAndUpdate(
           trainingProgramPurchaseId, 
@@ -176,10 +178,10 @@ async function updatePurchaseTrainingProgram(
      );
 
 
-     console.log("updatedTrainingProgramPurchase from webhook 🪝 🪝  ", updatedTrainingProgramPurchase)
+     console.log("♻️updatedTrainingProgramPurchase from webhook 🪝 🪝  ", updatedTrainingProgramPurchase)
 
      // here we create all patientTrainingSession for track all session for this patient
-     trainingProgramPurchaseService._handlePersonTrainingSessionCreate(trainingProgramPurchaseId, user);
+     trainingProgramPurchaseService._handlePersonTrainingSessionCreate(trainingProgramId, user);
 
      return updatedTrainingProgramPurchase;
 }

@@ -26,6 +26,7 @@ import { TUser } from '../../user/user.interface';
 import { ITrainingProgram } from '../trainingProgram/trainingProgram.interface';
 import { ISpecialistPatient } from '../../personRelationships.module/specialistPatient/specialistPatient.interface';
 import { PatientTrainingSessionService } from '../patientTrainingSession/patientTrainingSession.service';
+import { IPatientTrainingSession } from '../patientTrainingSession/PatientTrainingSession.interface';
 
 const patientTrainingSessionService = new PatientTrainingSessionService();
 
@@ -47,14 +48,15 @@ export class TrainingProgramPurchaseService extends GenericService<
    * here we create all patientTrainingSession for track all session for this patient
    * ** */
   async _handlePersonTrainingSessionCreate(trainingProgramId: string, user: IUser){
-    console.log("Hit from webhook 🪝_handlePersonTrainingSessionCreate 🪝")
+    console.log("♻️Hit from webhook 🪝_handlePersonTrainingSessionCreate 🪝", trainingProgramId, user)
 
     const trainingSessions = await TrainingSession.find({
       trainingProgramId
-    })
+    }).lean();
 
-    // console.log("trainingSessions ::expect multiple :: ", trainingSessions)
+    console.log("trainingSessions ::expect multiple :: ", trainingSessions)
 
+    /******
     trainingSessions.forEach( async (trainingSession : ITrainingSession) => {
       // create patientTrainingSession for each purchase
 
@@ -62,12 +64,36 @@ export class TrainingProgramPurchaseService extends GenericService<
         patientId: user.userId,
         trainingSessionId: trainingSession._id,
         unlockDate: new Date( 
-          purchaseTrainingProgram.createdAt.getTime() + 
+          // purchaseTrainingProgram.createdAt.getTime() 
+          Date.now() + 
           (trainingSession.sessionCount - 1) * 7 * 24 * 60 * 60 * 1000
         ),
         isUnlocked: false, //  we will compute this in frontend // TODO : need to think about this 
       })
     });
+    ******* */
+
+    const patientTrainingSessionsData = trainingSessions.map(
+      (trainingSession:ITrainingSession) => ({
+        patientId: user.userId,
+        trainingSessionId: trainingSession._id,
+        unlockDate: new Date( 
+          // purchaseTrainingProgram.createdAt.getTime()
+          Date.now() + 
+          (trainingSession.sessionCount - 1) * 7 * 24 * 60 * 60 * 1000
+        ),
+        isUnlocked: false, //  we will compute this in frontend // TODO : need to think about this 
+      })
+    )
+
+    console.log("patientTrainingSessionsData ::", patientTrainingSessionsData)
+
+    // Use insertMany for bulk insert - much faster than individual creates
+    if (patientTrainingSessionsData.length > 0) {
+      console.log(" length > 0")
+      await PatientTrainingSession.insertMany(patientTrainingSessionsData) as IPatientTrainingSession[];
+    }
+
   }
 
   async createV2(trainingProgramId:string, user: IUser) : Promise<ITrainingProgramPurchase | null | { url: any}> {
@@ -158,7 +184,7 @@ export class TrainingProgramPurchaseService extends GenericService<
            * patientTrainingSession for each session and calculate unlock date based on purchase date
            * **** */
 
-          this._handlePersonTrainingSessionCreate(trainingProgramId, user);
+          await this._handlePersonTrainingSessionCreate(trainingProgramId, user);
 
           
         // return  purchaseTrainingProgram;
@@ -233,7 +259,6 @@ export class TrainingProgramPurchaseService extends GenericService<
 
       console.log("purchaseTrainingProgram :: 🟢🟢 ", trainingProgramPurchase)
 
-
     });
     session.endSession();
 
@@ -281,7 +306,8 @@ export class TrainingProgramPurchaseService extends GenericService<
             referenceFor: TTransactionFor.TrainingProgramPurchase, // in webhook .. this should be the referenceFor
             currency: TCurrency.usd,
             amount: trainingProgramPurchase[0].price!.toString(), // TODO : FIX :  Must Check
-            user: JSON.stringify(user) // who created this order  // as we have to send notification also may be need to send email
+            user: JSON.stringify(user), // who created this order  // as we have to send notification also may be need to send email
+            referenceId2: existingTrainingProgram._id.toString(), // we need this to create patientTrainingSession
             
             /******
              * 
