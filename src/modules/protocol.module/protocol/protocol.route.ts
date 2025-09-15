@@ -31,20 +31,32 @@ const paginationOptions: Array<'sortBy' | 'page' | 'limit' | 'populate'> = [
 // const taskService = new TaskService();
 const controller = new ProtocolController();
 
+/*********
+ * 
+ * Doctor | Show all protocol for a patient with extraNote from doctorPatient 
+ * TODO : confusion in total plan calculation 
+ * ⚠️    ->  bad code .. Need to optimize
+ * ******** */
 //info : pagination route must be before the route with params
 router.route('/paginate').get(
-  //auth('common'),
-  validateFiltersForQuery(optionValidationChecking(['_id', ...paginationOptions])),
+  auth(TRole.doctor),
+  validateFiltersForQuery(optionValidationChecking(['_id','patientId', ...paginationOptions])),
   controller.getAllWithPagination
 );
+
+
 
 router.route('/:id').get(
   // auth('common'),
   controller.getById
 );
-
+/*********
+ * 
+ * Doctor | Update Protocol Name 
+ * TODO : only specific fields should be updated
+ * ******** */
 router.route('/update/:id').put(
-  //auth('common'),
+  auth(TRole.doctor),
   // validateRequest(UserValidation.createUserValidationSchema),
   controller.updateById
 );
