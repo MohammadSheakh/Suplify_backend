@@ -1,24 +1,42 @@
+//@ts-ignore
 import mongoose from 'mongoose';
+//@ts-ignore
 import { z } from 'zod';
+import { TPlanByDoctor } from '../planByDoctor/planByDoctor.constant';
 
-export const createHelpMessageValidationSchema = z.object({
+export const createDoctorPlanValidationSchema = z.object({
   body: z.object({
-    DoctorPlan: z  
-    .string({
-        required_error: 'message is required, message must be a string.',
-        invalid_type_error: 'dateOfBirth must be a string.',
-      }).min(5, {
-      message: 'message must be at least 5 characters long.',
-    }).max(500, {
-      message: 'message must be at most 500 characters long.',
+    planType: z.enum([
+      TPlanByDoctor.lifeStyleChanges,
+      TPlanByDoctor.mealPlan,
+      TPlanByDoctor.suppliment,
+      TPlanByDoctor.workOut
+    ],{
+      required_error: 'typeOfLink is required.',
+      invalid_type_error: 'typeOfLink must be a valid enum value.',
     }),
-  
-     userId: z.string({
-        required_error: 'id is required in params.',
-        invalid_type_error: 'id must be a mongoose object.',
-      }).refine(value => mongoose.Types.ObjectId.isValid(value), {
-        message: 'id must be a valid mongoose ObjectId.',
-      }),
+
+    title: z.string({
+      required_error: 'title is required.',
+      invalid_type_error: 'title must be a string.',
+    }).min(2, 'title must be at least 2 characters long')
+      .max(100, 'title must be at most 100 characters long'),
+    
+    description: z.string({
+      required_error: 'description is required.',
+      invalid_type_error: 'description must be a string.',
+    }).min(10, 'description must be at least 10 characters long')
+      .max(1000, 'description must be at most 1000 characters long'),
+    
+    keyPoints: z.array(
+      z.string()
+      .min(2)
+      .max(200)
+    ).min(1, 'At least one key point is required').
+    max(20, 'A maximum of 20 key points are allowed'),
+
+    // createdBy will be taken from the auth middleware (logged in user)
+ 
   }),
 
   // params: z.object({

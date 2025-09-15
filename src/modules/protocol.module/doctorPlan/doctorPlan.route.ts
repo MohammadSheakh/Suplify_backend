@@ -1,3 +1,4 @@
+//@ts-ignore
 import express from 'express';
 import * as validation from './doctorPlan.validation';
 import { DoctorPlanController} from './doctorPlan.controller';
@@ -5,11 +6,11 @@ import { IDoctorPlan } from './doctorPlan.interface';
 import { validateFiltersForQuery } from '../../../middlewares/queryValidation/paginationQueryValidationMiddleware';
 import validateRequest from '../../../shared/validateRequest';
 import auth from '../../../middlewares/auth';
-
+//@ts-ignore
 const multer = require('multer');
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
-
+import { TRole } from '../../../middlewares/roles';
 const router = express.Router();
 
 export const optionValidationChecking = <T extends keyof IDoctorPlan | 'sortBy' | 'page' | 'limit' | 'populate'>(
@@ -30,8 +31,8 @@ const controller = new DoctorPlanController();
 
 //info : pagination route must be before the route with params
 router.route('/paginate').get(
-  //auth('common'),
-  validateFiltersForQuery(optionValidationChecking(['_id'])),
+  auth(TRole.doctor),
+  validateFiltersForQuery(optionValidationChecking(['_id','planType', ...paginationOptions])),
   controller.getAllWithPagination
 );
 
@@ -51,16 +52,14 @@ router.route('/').get(
   auth('commonAdmin'),
   controller.getAll
 );
-
-//[🚧][🧑‍💻✅][🧪] // 🆗
-router.route('/create').post(
-  // [
-  //   upload.fields([
-  //     { name: 'attachments', maxCount: 15 }, // Allow up to 5 cover photos
-  //   ]),
-  // ],
-  auth('common'),
-  validateRequest(validation.createHelpMessageValidationSchema),
+/*******
+ * 
+ * Doctor | Create Own plan .. so that later he can assign these plans to any patient
+ * 
+ * ***** */
+router.route('/').post(
+  auth(TRole.doctor),
+  validateRequest(validation.createDoctorPlanValidationSchema),
   controller.create
 );
 

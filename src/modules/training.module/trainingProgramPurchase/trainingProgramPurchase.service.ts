@@ -48,13 +48,10 @@ export class TrainingProgramPurchaseService extends GenericService<
    * here we create all patientTrainingSession for track all session for this patient
    * ** */
   async _handlePersonTrainingSessionCreate(trainingProgramId: string, user: IUser){
-    console.log("♻️Hit from webhook 🪝_handlePersonTrainingSessionCreate 🪝", trainingProgramId, user)
-
+    
     const trainingSessions = await TrainingSession.find({
       trainingProgramId
     }).lean();
-
-    console.log("trainingSessions ::expect multiple :: ", trainingSessions)
 
     /******
     trainingSessions.forEach( async (trainingSession : ITrainingSession) => {
@@ -72,7 +69,7 @@ export class TrainingProgramPurchaseService extends GenericService<
       })
     });
     ******* */
-
+    //📈⚙️
     const patientTrainingSessionsData = trainingSessions.map(
       (trainingSession:ITrainingSession) => ({
         patientId: user.userId,
@@ -86,11 +83,9 @@ export class TrainingProgramPurchaseService extends GenericService<
       })
     )
 
-    console.log("patientTrainingSessionsData ::", patientTrainingSessionsData)
-
-    // Use insertMany for bulk insert - much faster than individual creates
+    //📈⚙️ Use insertMany for bulk insert - much faster than individual creates
     if (patientTrainingSessionsData.length > 0) {
-      console.log(" length > 0")
+      
       await PatientTrainingSession.insertMany(patientTrainingSessionsData) as IPatientTrainingSession[];
     }
 

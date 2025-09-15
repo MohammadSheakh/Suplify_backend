@@ -27,6 +27,7 @@ import { DoctorPatientScheduleBookingRoute } from '../modules/scheduleAndAppoint
 import { doctorPatientRoute } from '../modules/personRelationships.module/doctorPatient/doctorPatient.route';
 import { specialistPatientRoute } from '../modules/personRelationships.module/specialistPatient/specialistPatient.route';
 import { TrainingProgramPurchaseRoute } from '../modules/training.module/trainingProgramPurchase/trainingProgramPurchase.route';
+import { DoctorPlanRoute } from '../modules/protocol.module/doctorPlan/doctorPlan.route';
 
 // import { ChatRoutes } from '../modules/chat/chat.routes';
 // import { MessageRoutes } from '../modules/message/message.routes';
@@ -56,6 +57,7 @@ const apiRoutes = [
     path: '/products',
     route: ProductRoute,
   },
+  /////////////////////////////////////////
   { // 🟢
     path: '/training-programs',
     route: TrainingProgramRoute,
@@ -68,7 +70,7 @@ const apiRoutes = [
     path: '/training-programs/purchase',
     route: TrainingProgramPurchaseRoute,
   },
-  
+  ////////////////////////////////////////////
   { // 🟢
     path: '/cart-items',
     route: CartItemRoute,
@@ -81,6 +83,7 @@ const apiRoutes = [
     path: '/orders',
     route: OrderRoute,
   },
+  /////////////////////////////////////////
   { // 🟢
     path: '/conversations',
     route: ConversationRoute,
@@ -89,7 +92,7 @@ const apiRoutes = [
     path: '/information-videos',
     route: informationVideoRoute,
   },
-
+  ////////////////////////////////////////////
   { // 🟢
     path: '/doctor-appointments',
     route: DoctorAppointmentScheduleRoute,
@@ -99,7 +102,13 @@ const apiRoutes = [
     path: '/doctor-appointments/bookings',
     route: DoctorPatientScheduleBookingRoute,
   },
+  ////////////////////////////////////////////
+  { // 🟢
+    path: '/doctor-plan/',
+    route: DoctorPlanRoute,
+  },
 
+  /////////////////////////////////////////////
   { // 🟢
     path: '/doctor-patient',
     route: doctorPatientRoute,
@@ -109,7 +118,7 @@ const apiRoutes = [
     path: '/specialist-patient',
     route: specialistPatientRoute,
   },
-
+  /////////////////////////////////////////////
   { // 🟢
     path: '/workout-schedules',
     route: SpecialistWorkoutClassScheduleRoute,

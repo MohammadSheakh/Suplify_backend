@@ -89,8 +89,11 @@ export class GenericController<ModelType, InterfaceType> {
       // },
       // 'personId'
       // {
-      //   path: 'siteId',
-      //   select: ''
+      //   path: 'conversationId',
+      //   select: 'lastMessage updatedAt',
+      //   populate: {
+      //     path: 'lastMessage',
+      //   }
       // }
     ];
 

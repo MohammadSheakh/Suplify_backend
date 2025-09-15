@@ -37,7 +37,7 @@ const DoctorPlanSchema = new Schema<IDoctorPlan>(
       type: [String],
       required : [true, 'keyPoints are required']
     },
-    totalKeyPoints : {
+    totalKeyPoints : { // based on keypoints length // auto calculate .. 
       type: Number,
       required: [true, 'totalKeyPoints is required']
     },

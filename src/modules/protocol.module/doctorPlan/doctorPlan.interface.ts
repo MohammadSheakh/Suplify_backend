@@ -1,14 +1,23 @@
+//@ts-ignore
 import { Model, Types } from 'mongoose';
 import { PaginateOptions, PaginateResult } from '../../../types/paginate';
-
+import { TPlanByDoctor } from '../planByDoctor/planByDoctor.constant';
 
 export interface IDoctorPlan {
   // _taskId: undefined | Types.ObjectId;
   _id?: Types.ObjectId; // undefined |  Types.ObjectId |
-  userId: Types.ObjectId;
-  message : String;
+  planType: TPlanByDoctor.lifeStyleChanges |
+      TPlanByDoctor.mealPlan |
+      TPlanByDoctor.suppliment |
+      TPlanByDoctor.workOut;
 
-  isDeleted? : Boolean;  
+  createdBy: Types.ObjectId; //🔗 doctor Id  
+  title: string;
+  description: string;
+  keyPoints: string[];
+  totalKeyPoints: number;
+
+  isDeleted?: Boolean;
   createdAt?: Date;
   updatedAt?: Date;
 }
