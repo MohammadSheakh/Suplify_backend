@@ -72,6 +72,19 @@ router.route('/').post(
   controller.create
 );
 
+/*******
+ * 
+ * Doctor | Assign Own Plan to a patient  
+ * query params :: doctorPlanId
+ * query params :: patientId
+ * query params :: protocolId ( for which protocol this plan is assigned)
+ * ******* */
+router.route('/assign-to-patient').post(
+  auth(TRole.doctor),
+  controller.assignToPatient
+);
+
+
 router.route('/delete/:id').delete(
   //auth('common'),
   controller.deleteById

@@ -11,10 +11,12 @@ import sendResponse from '../../../shared/sendResponse';
 import { IUser } from '../../token/token.interface';
 import omit from '../../../shared/omit';
 import pick from '../../../shared/pick';
+import { PlanByDoctorService } from '../planByDoctor/planByDoctor.service';
+import { IPlanByDoctor } from '../planByDoctor/planByDoctor.interface';
+import { PlanByDoctor } from '../planByDoctor/planByDoctor.model';
 
 
-// let conversationParticipantsService = new ConversationParticipentsService();
-// let messageService = new MessagerService();
+let planByDoctorService = new PlanByDoctorService();
 
 export class DoctorPlanController extends GenericController<
   typeof DoctorPlan,
@@ -87,6 +89,54 @@ export class DoctorPlanController extends GenericController<
       code: StatusCodes.OK,
       data: result,
       message: `All ${this.modelName} with pagination`,
+      success: true,
+    });
+  });
+
+
+  assignToPatient = catchAsync(async (req: Request, res: Response) => {
+    const doctorPlanId = req.query.doctorPlanId as string;
+    const patientId = req.query.patientId as string;
+    const protocolId = req.query.protocolId as string;
+
+    if(!doctorPlanId){
+      throw new Error('doctorPlanId is required in query params');
+    }
+    if(!patientId){
+      throw new Error('patientId is required in query params');
+    }
+    if(!protocolId){
+      throw new Error('protocolId is required in query params');
+    }
+
+    const doctorPlan = await this.service.getById(doctorPlanId);
+
+    if(!doctorPlan){
+      throw new Error('No Doctor Plan found with this id');
+    }
+
+    /*****
+     *  TODO :  check already this plan is assigned or not ...  
+     *  Not Possible .. 
+     * ****** */
+
+    const newPlanData: IPlanByDoctor = {
+      planType : doctorPlan.planType,
+      createdBy : doctorPlan.createdBy, // doctor id
+      protocolId : protocolId, // from query
+      title : doctorPlan.title,
+      description : doctorPlan.description,
+      keyPoints : doctorPlan.keyPoints,
+      totalKeyPoints : doctorPlan.totalKeyPoints,
+      patientId : patientId // from query
+    }
+
+    const result = await planByDoctorService.create(newPlanData);
+
+    sendResponse(res, {
+      code: StatusCodes.OK,
+      data: result,
+      message: `Plan assigned to patient successfully`,
       success: true,
     });
   });
