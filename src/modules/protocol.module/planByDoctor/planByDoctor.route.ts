@@ -37,7 +37,7 @@ const controller = new PlanByDoctorController();
 //info : pagination route must be before the route with params
 router.route('/paginate').get(
   //auth('common'),
-  validateFiltersForQuery(optionValidationChecking(['_id', 'planType','patientId', ...paginationOptions])),
+  validateFiltersForQuery(optionValidationChecking(['_id', 'planType','patientId', 'protocolId', ...paginationOptions])),
   controller.getAllWithPagination
 );
 
