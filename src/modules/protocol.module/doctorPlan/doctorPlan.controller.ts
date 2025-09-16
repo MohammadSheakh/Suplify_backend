@@ -61,7 +61,27 @@ export class DoctorPlanController extends GenericController<
 
     const select = '-description -keyPoints -createdAt -updatedAt -__v -isDeleted'; // fields to exclude
 
-    const result = await this.service.getAllWithPagination(filters, options, populateOptions, select);
+    const query = {};
+
+    // Create a copy of filter without isPreview to handle separately
+    const mainFilter = { ...filters };
+
+    // Loop through each filter field and add conditions if they exist
+    for (const key of Object.keys(mainFilter)) {
+      if (key === 'title' && mainFilter[key] !== '') {
+        query[key] = { $regex: mainFilter[key], $options: 'i' }; // Case-insensitive regex search for name
+      // } else {
+      } else if (mainFilter[key] !== '' && mainFilter[key] !== null && mainFilter[key] !== undefined){
+        /*********
+         * 
+         * In pagination in filters when we pass empty string  it retuns all data
+         * 
+         * ********* */
+        query[key] = mainFilter[key];
+      }
+    }
+
+    const result = await this.service.getAllWithPagination(/*filters,*/query, options, populateOptions, select);
 
     sendResponse(res, {
       code: StatusCodes.OK,
