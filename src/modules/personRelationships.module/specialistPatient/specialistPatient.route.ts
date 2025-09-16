@@ -72,8 +72,12 @@ router.route('/').get(
   controller.getAll
 );
 
-
-router.route('/specialist').get(
+/**********
+ * 
+ * Doctor | Protocol Section | Show all Specialist for assign to a patient
+ * :patientId:
+ * ********** */
+router.route('/specialist/:patientId').get(
   auth(TRole.doctor),
   controller.showAllSpecialist
 );

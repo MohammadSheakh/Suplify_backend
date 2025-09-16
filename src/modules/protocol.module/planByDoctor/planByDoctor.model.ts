@@ -1,10 +1,10 @@
 import { model, Schema } from 'mongoose';
-import { IplanByDoctor, IplanByDoctorModel } from './planByDoctor.interface';
+import { IPlanByDoctor, IPlanByDoctorModel } from './planByDoctor.interface';
 import paginate from '../../../common/plugins/paginate';
 import { TPlanByDoctor } from './planByDoctor.constant';
 
 
-const planByDoctorSchema = new Schema<IplanByDoctor>(
+const planByDoctorSchema = new Schema<IPlanByDoctor>(
   {
     planType :{ 
       type: String,
@@ -15,8 +15,8 @@ const planByDoctorSchema = new Schema<IplanByDoctor>(
         TPlanByDoctor.workOut
       ],
       required: [true, `planType is required .. it can be  ${Object.values(TPlanByDoctor).join(
-              ', '
-            )}`],
+        ', '
+      )}`],
     },
     createdBy: { //🔗 doctor Id 
       type: Schema.Types.ObjectId,
@@ -81,7 +81,7 @@ planByDoctorSchema.set('toJSON', {
   },
 });
 
-export const planByDoctor = model<
-  IplanByDoctor,
-  IplanByDoctorModel
->('planByDoctor', planByDoctorSchema);
+export const PlanByDoctor = model<
+  IPlanByDoctor,
+  IPlanByDoctorModel
+>('PlanByDoctor', planByDoctorSchema);

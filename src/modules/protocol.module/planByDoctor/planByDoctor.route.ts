@@ -1,18 +1,19 @@
+//@ts-ignore
 import express from 'express';
 import * as validation from './planByDoctor.validation';
-import { planByDoctorController} from './planByDoctor.controller';
-import { IplanByDoctor } from './planByDoctor.interface';
+import { PlanByDoctorController} from './planByDoctor.controller';
+import { IPlanByDoctor } from './planByDoctor.interface';
 import { validateFiltersForQuery } from '../../../middlewares/queryValidation/paginationQueryValidationMiddleware';
 import validateRequest from '../../../shared/validateRequest';
 import auth from '../../../middlewares/auth';
-
+//@ts-ignore
 const multer = require('multer');
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
 const router = express.Router();
 
-export const optionValidationChecking = <T extends keyof IplanByDoctor | 'sortBy' | 'page' | 'limit' | 'populate'>(
+export const optionValidationChecking = <T extends keyof IPlanByDoctor | 'sortBy' | 'page' | 'limit' | 'populate'>(
   filters: T[]
 ) => {
   return filters;
@@ -25,14 +26,17 @@ const paginationOptions: Array<'sortBy' | 'page' | 'limit' | 'populate'> = [
   'populate',
 ];
 
+const controller = new PlanByDoctorController();
 
-// const taskService = new TaskService();
-const controller = new planByDoctorController();
-
+/*******
+ * 
+ * Doctor | Get All plan by category For a patient
+ * 
+ * ****** */
 //info : pagination route must be before the route with params
 router.route('/paginate').get(
   //auth('common'),
-  validateFiltersForQuery(optionValidationChecking(['_id'])),
+  validateFiltersForQuery(optionValidationChecking(['_id', 'planType','patientId', ...paginationOptions])),
   controller.getAllWithPagination
 );
 
@@ -79,4 +83,4 @@ router.route('/softDelete/:id').put(
 //[🚧][🧑‍💻✅][🧪] // 🆗
 
 
-export const planByDoctorRoute = router;
+export const PlanByDoctorRoute = router;

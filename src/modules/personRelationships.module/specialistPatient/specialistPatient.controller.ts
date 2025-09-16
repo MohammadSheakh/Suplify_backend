@@ -71,6 +71,12 @@ export class SpecialistPatientController extends GenericController<
      * 
      * ***** */
 
+    const result = await this.specialistPatientService.
+    getUnknownSpecialistsForPatientForAssign(req.params.patientId,
+      [], // filters
+      [] // options
+    )
+
     // const result = await this.service.create(data);
 
     sendResponse(res, {

@@ -27,6 +27,7 @@ import { specialistPatientRoute } from '../modules/personRelationships.module/sp
 import { TrainingProgramPurchaseRoute } from '../modules/training.module/trainingProgramPurchase/trainingProgramPurchase.route';
 import { DoctorPlanRoute } from '../modules/protocol.module/doctorPlan/doctorPlan.route';
 import { protocolRoute } from '../modules/protocol.module/protocol/protocol.route';
+import { PlanByDoctorRoute } from '../modules/protocol.module/planByDoctor/planByDoctor.route';
 
 // import { ChatRoutes } from '../modules/chat/chat.routes';
 // import { MessageRoutes } from '../modules/message/message.routes';
@@ -109,6 +110,10 @@ const apiRoutes = [
   { // 🟢
     path: '/protocols/',
     route: protocolRoute,
+  },
+  { // 🟢
+    path: '/plan-by-doc/',
+    route: PlanByDoctorRoute,
   },
 
   ///////////////////////////////////////////// Person Relationships

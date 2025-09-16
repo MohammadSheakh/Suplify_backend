@@ -1,21 +1,29 @@
+//@ts-ignore
 import { Model, Types } from 'mongoose';
 import { PaginateOptions, PaginateResult } from '../../../types/paginate';
+import { TPlanByDoctor } from './planByDoctor.constant';
 
 
-export interface IplanByDoctor {
+export interface IPlanByDoctor {
   // _taskId: undefined | Types.ObjectId;
   _id?: Types.ObjectId; // undefined |  Types.ObjectId |
-  userId: Types.ObjectId;
-  message : String;
-
-  isDeleted? : Boolean;  
+  planType: TPlanByDoctor;
+  createdBy : Types.ObjectId; //🔗 doctorId
+  protocolId: Types.ObjectId; //🔗 for which protocol
+  title : string;
+  description : string;
+  keyPoints : string[];
+  totalKeyPoints : number;
+  patientId : Types.ObjectId; //🔗 for which patient
+  
+  isDeleted? : boolean;
   createdAt?: Date;
   updatedAt?: Date;
 }
 
-export interface IplanByDoctorModel extends Model<IplanByDoctor> {
+export interface IPlanByDoctorModel extends Model<IPlanByDoctor> {
   paginate: (
     query: Record<string, any>,
     options: PaginateOptions
-  ) => Promise<PaginateResult<IplanByDoctor>>;
+  ) => Promise<PaginateResult<IPlanByDoctor>>;
 }
