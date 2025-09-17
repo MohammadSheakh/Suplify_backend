@@ -27,6 +27,31 @@ export class SpecialistPatientController extends GenericController<
 
   /**********
    * 
+   * Specialist | Members And Protocol | Show all patient and their doctors, subscriptionPlan
+   * 
+   * ********** */
+
+  showAllPatientsAndTheirDoctors = catchAsync(async (req: Request, res: Response) => {
+    const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']); ;
+    const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
+    
+    const result = await this.specialistPatientService.showAllPatientsAndTheirDoctors(req.user.userId,
+        filters,
+        options
+      );
+
+    sendResponse(res, {
+      code: StatusCodes.OK,
+      data: result,
+      message: `All ${this.modelName} with pagination`,
+      success: true,
+    });
+  });
+
+
+
+  /**********
+   * 
    * Doctor | Protocol Section | Assign Specialist for a patient
    * 
    * ********** */

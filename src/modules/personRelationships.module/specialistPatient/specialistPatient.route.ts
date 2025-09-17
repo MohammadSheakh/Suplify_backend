@@ -54,6 +54,16 @@ router.route('/paginate/others').get(
   controller.getUnknownSpecialist
 );
 
+/**********
+ * 
+ * Specialist | Members And Protocol | Show all patient and their doctors, subscriptionPlan
+ * 
+ * ********** */
+router.route('/all-patients').get(
+  auth(TRole.specialist),
+  controller.showAllPatientsAndTheirDoctors
+);
+
 
 router.route('/:id').get(
   // auth('common'),
@@ -83,6 +93,7 @@ router.route('/specialist/:patientId').get(
 );
 
 
+
 /**********
  * 
  * Doctor | Protocol Section | Assign Specialist for a patient
@@ -93,6 +104,7 @@ router.route('/').post(
   validateRequest(validation.assignSpecialistForAPatientValidationSchema),
   controller.create
 );
+
 
 
 
