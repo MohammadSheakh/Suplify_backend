@@ -1,3 +1,4 @@
+//@ts-ignore
 import express from 'express';
 import * as validation from './doctorPatient.validation';
 import { DoctorPatientController} from './doctorPatient.controller';
@@ -6,7 +7,7 @@ import { validateFiltersForQuery } from '../../../middlewares/queryValidation/pa
 import validateRequest from '../../../shared/validateRequest';
 import auth from '../../../middlewares/auth';
 import { TRole } from '../../../middlewares/roles';
-
+//@ts-ignore
 const multer = require('multer');
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
@@ -51,6 +52,20 @@ router.route('/paginate/others').get(
   auth(TRole.patient),
   validateFiltersForQuery(optionValidationChecking(['_id', ...paginationOptions])),
   controller.getUnknownDoctors
+);
+
+
+/**********
+ * 
+ * Specialist | Members and protocol 
+ *  |-> Get all doctor and protocol count for a patient 
+ * 
+ * ******** */
+//info : pagination route must be before the route with params
+router.route('/paginate/doctor-protocol').get(
+  auth(TRole.patient, TRole.doctor, TRole.specialist),
+  validateFiltersForQuery(optionValidationChecking(['_id','patientId', ...paginationOptions])),
+  controller.getAllDoctorAndProtocolCountForPatient
 );
 
 /**********

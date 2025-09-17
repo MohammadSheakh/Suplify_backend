@@ -128,5 +128,30 @@ export class DoctorPatientController extends GenericController<
   });
 
 
+  /**********
+   * 
+   * Specialist | Members and protocol 
+   *  |-> Get all doctor and protocol count for a patient 
+   * 
+   * ******** */
+  getAllDoctorAndProtocolCountForPatient = catchAsync(async (req: Request, res: Response) => {
+    //const filters = pick(req.query, ['_id', 'title']); // now this comes from middleware in router
+    const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']); ;
+    const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
+
+    const result = await this.doctorPatientService.getAllDoctorAndProtocolCountForPatient(
+      filters.patientId, // from query .. must be sent from frontend
+      filters,
+      options
+    );
+
+    sendResponse(res, {
+      code: StatusCodes.OK,
+      data: result,
+      message: `All ${this.modelName} with pagination`,
+      success: true,
+    });
+  });
+
   // add more methods here if needed or override the existing ones 
 }

@@ -105,4 +105,78 @@ export class DoctorPatientService extends GenericService<
       options
     );
   }
+
+  async getAllDoctorAndProtocolCountForPatient(
+    patientId: string,
+    filters: any,
+    options: any,
+  ){
+    // Business logic: Build the aggregation pipeline
+    const pipeline = [
+      {
+        $match: {
+          patientId: new mongoose.Types.ObjectId(patientId),
+          isDeleted: { $ne: true }
+        }
+      },
+      // Join with User collection to get doctor details
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'doctorId',
+          foreignField: '_id',
+          as: 'doctor'
+        }
+      },
+      {
+        $unwind: '$doctor'
+      },
+      // Join with Protocol collection to count protocols per doctor
+      {
+        $lookup: {
+          from: 'protocols',
+          let: { doctorId: '$doctorId' },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ['$createdBy', '$$doctorId'] },
+                    { $eq: ['$isDeleted', false] }
+                  ]
+                }
+              }
+            },
+            {
+              $count: 'protocolCount'
+            }
+          ],
+          as: 'protocols'
+        }
+      },
+      {
+        $addFields: {
+          protocolCount: {
+            $ifNull: [{ $arrayElemAt: ['$protocols.protocolCount', 0] }, 0]
+          }
+        }
+      },
+      // Project only necessary fields
+      {
+        $project: {
+          _id: 1,
+          doctorId: '$doctor._id',
+          doctorName: '$doctor.name',
+          doctorProfileImage: '$doctor.profileImage',
+          protocolCount: 1
+        }
+      } 
+    ];
+
+    // Use pagination service for aggregation
+    return await PaginationService.aggregationPaginate(DoctorPatient, pipeline,
+      
+      options
+    );
+  }
 }
