@@ -32,13 +32,26 @@ const controller = new TrainingProgramController();
 /*******
  * 
  * Patient | Get all Training Program of a Specialist .. 
- * ⚠️ need to add aggregation
+ * //📈⚙️
  * ****** */
 //info : pagination route must be before the route with params
 router.route('/paginate').get(
   auth(TRole.patient),
   validateFiltersForQuery(optionValidationChecking(['_id', 'createdBy', ...paginationOptions])),
   controller.getAllWithAggregation
+);
+
+
+/*******
+ * 
+ * Specialist | Get all Training Program of a Specialist .. 
+ * 
+ * ****** */
+//info : pagination route must be before the route with params
+router.route('/specialist/paginate/').get(
+  auth(TRole.specialist),
+  validateFiltersForQuery(optionValidationChecking(['_id', ...paginationOptions])),
+  controller.getAllWithPagination
 );
 
 router.route('/:id').get(

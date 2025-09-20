@@ -28,6 +28,7 @@ import { TrainingProgramPurchaseRoute } from '../modules/training.module/trainin
 import { DoctorPlanRoute } from '../modules/protocol.module/doctorPlan/doctorPlan.route';
 import { protocolRoute } from '../modules/protocol.module/protocol/protocol.route';
 import { PlanByDoctorRoute } from '../modules/protocol.module/planByDoctor/planByDoctor.route';
+import { SuggestionBySpecialistRoute } from '../modules/protocol.module/suggestionBySpecialist/suggestionBySpecialist.route';
 
 // import { ChatRoutes } from '../modules/chat/chat.routes';
 // import { MessageRoutes } from '../modules/message/message.routes';
@@ -116,6 +117,11 @@ const apiRoutes = [
     route: PlanByDoctorRoute,
   },
 
+  { // 🟢
+    path: '/suggestion-by-specialist/',
+    route: SuggestionBySpecialistRoute,
+  },
+  
   ///////////////////////////////////////////// Person Relationships
   { // 🟢
     path: '/doctor-patients',

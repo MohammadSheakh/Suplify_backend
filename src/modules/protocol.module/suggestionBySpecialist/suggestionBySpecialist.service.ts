@@ -17,26 +17,48 @@ export class SuggestionBySpecialistService extends GenericService<
     super(SuggestionBySpecialist);
   }
 
-  async create(data:Partial<ISuggestionBySpecialist & { planId?: string }>) : Promise<any> {
-    
-    const suggestionBySpecialist = new SuggestionBySpecialist({
-      keyPoint: data.keyPoint,
-      solutionName : data.solutionName,
-      suggestFromStore: data.suggestFromStore,
-      createdBy : data.createdBy, // specialist id
-    })
-    let suggestionBySpecialistSaved = await suggestionBySpecialist.save();
+  async create(
+    data:(Partial<ISuggestionBySpecialist> | undefined)[],
+    specialistId: string,
+    planId :string
+    ) : Promise<any> {
+    //  & { planId?: string }
+
+  
+    // TODO : need to add mongoose transaction here
+
+    const insertedSuggestions = await SuggestionBySpecialist.insertMany(
+      data.map((
+        // item
+        { keyPoint , solutionName, suggestFromStore, ...rest }
+      ) => ({
+        keyPoint,
+        solutionName,
+        suggestFromStore,
+        createdBy: specialistId, // specialist id
+      })) as ISuggestionBySpecialist[]
+    );
+
+  
+    console.log("✅ insertedSuggestions", insertedSuggestions);
+
 
     /*****
      * lets create specialist suggestion for a plan
      * ***** */
-    const specialistSugguestionForAPlanRelation = 
-      await specialistSuggestionForAPlanService.create({
-        suggestionId: suggestionBySpecialistSaved._id,
-        planId: data.planId,
-        createdBy: data.createdBy
-      })
 
+    // 3️⃣ Prepare the relations for each inserted suggestion
+    const relationsToInsert = insertedSuggestions.map((suggestion : ISuggestionBySpecialist, index : number) => ({
+      suggestionId: suggestion._id,
+      planId,
+      createdBy: specialistId,
+    }));
+
+    console.log("✅ relationsToInsert", relationsToInsert);
+
+    await SpecialistSuggestionForAPlan.insertMany(relationsToInsert);
+
+    
     return 
   }
 

@@ -53,7 +53,8 @@ export class TrainingProgramService extends GenericService<
       options: PaginateOptions,
       patientId: string,
     ) {
-      // Business logic: Build the aggregation pipeline
+      
+    //📈⚙️ Business logic: Build the aggregation pipeline
     const pipeline = [
     // Match training programs created by the specialist
     {
@@ -209,6 +210,8 @@ export class TrainingProgramService extends GenericService<
       options
     );
   }
+
+  
 }
 
 //  {

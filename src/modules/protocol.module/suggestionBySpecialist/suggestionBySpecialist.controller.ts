@@ -24,12 +24,14 @@ export class SuggestionBySpecialistController extends GenericController<
 
   create = catchAsync(async (req: Request, res: Response) => {
     
-    const data: Partial<ISuggestionBySpecialist & { planId?: string }> = req.body;
+    const data: (Partial<ISuggestionBySpecialist> | undefined)[] = req.body;
+    //  & { planId?: string }
 
-    data.createdBy = (req.user as any).userId; // specialist id
-    data.planId = req.body.planId; // plan id
-
-    const result = await this.suggestionBySpecialistService.create(data);
+    const result = await this.suggestionBySpecialistService.create(
+      data, 
+      (req.user as any).userId, // specialistId
+      req.query.planByDoctorId // planByDoctorId
+    );
 
     sendResponse(res, {
       code: StatusCodes.OK,

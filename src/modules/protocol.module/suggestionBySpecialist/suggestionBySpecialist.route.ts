@@ -58,6 +58,9 @@ router.route('/').get(
  * 
  * Specialist | Members and protocol | Create a suggestion for a plan .. 
  * 
+ * query :planByDoctorId:
+ * 
+ * we need this to link the suggestion with a plan
  * ********* */
 router.route('/').post(
   auth(TRole.specialist),

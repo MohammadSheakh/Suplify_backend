@@ -77,7 +77,7 @@ export class PlanByDoctorService extends GenericService<
                       keyPoint: 1,
                       solutionName: 1,
                       suggestFromStore: 1,
-                      createdBy: 1
+                      // createdBy: 1
                     }
                   }
                 ],
@@ -88,6 +88,16 @@ export class PlanByDoctorService extends GenericService<
               $unwind: {
                 path: "$suggestionDetails",
                 preserveNullAndEmptyArrays: true
+              }
+            },
+            // 🔥 Clean unwanted fields from specialistSuggestions
+            {
+              $project: {
+                _id: 1,
+                // suggestionId: 1,
+                // planId: 1,
+                // createdBy: 1,
+                suggestionDetails: 1
               }
             }
           ],
@@ -103,8 +113,8 @@ export class PlanByDoctorService extends GenericService<
           description: 1,
           keyPoints: 1,
           totalKeyPoints: 1,
-          patientId: 1,
-          protocolId: 1,
+          // patientId: 1,
+          // protocolId: 1,
           specialistSuggestions: 1
         }
       }

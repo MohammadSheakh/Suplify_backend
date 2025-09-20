@@ -31,7 +31,7 @@ export class TrainingProgramController extends GenericController<
   /***********
    * 
    * Patient | Get all Training Program of a Specialist ..
-   * ⚠️ need to add aggregation  
+   * //📈⚙️
    * ********* */
   getAllWithAggregation = catchAsync(async (req: Request, res: Response) => {
     const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']); ;
@@ -102,6 +102,48 @@ export class TrainingProgramController extends GenericController<
     
   //   return await Promise.all(uploadPromises);
   // }
+
+
+  /*******
+   * 
+   * Specialist | Get all Training Program of a Specialist .. 
+   * 
+   * ****** */
+  getAllWithPagination = catchAsync(async (req: Request, res: Response) => {
+    //const filters = pick(req.query, ['_id', 'title']); // now this comes from middleware in router
+    const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']); ;
+    const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
+
+    // only get logged in specialist's training program
+    filters.createdBy = (req.user as IUser).userId;
+
+    const populateOptions: (string | {path: string, select: string}[]) = [
+      {
+        path: 'trailerContents attachments',
+        select: '-__v -updatedAt -createdAt' 
+      },
+      // 'personId'
+      // {
+      //   path: '', 
+      //   select: '',
+      //   populate: {
+      //     path: '',
+      //   }
+      // }
+    ];
+
+    const select = '-isDeleted -createdAt -updatedAt -__v'; 
+
+    const result = await this.service.getAllWithPagination(filters, options, populateOptions, select);
+
+    sendResponse(res, {
+      code: StatusCodes.OK,
+      data: result,
+      message: `All ${this.modelName} with pagination`,
+      success: true,
+    });
+  });
+
 
   // add more methods here if needed or override the existing ones 
 }
