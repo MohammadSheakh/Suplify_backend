@@ -1,3 +1,4 @@
+//@ts-ignore
 import { model, Schema } from 'mongoose';
 import { ISuggestionBySpecialist, ISuggestionBySpecialistModel } from './suggestionBySpecialist.interface';
 import paginate from '../../../common/plugins/paginate';

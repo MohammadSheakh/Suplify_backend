@@ -153,5 +153,29 @@ export class DoctorPatientController extends GenericController<
     });
   });
 
+  /**********
+   * 
+   * Specialist | Members and protocol 
+   *  |-> get all protocol for a doctor for patient 
+   *  :patientId:
+   *  :doctorId:
+   * ******** */
+  getAllProtocolForADoctorForPatient = catchAsync(async (req: Request, res: Response) => {
+    const { patientId, doctorId } = req.query;
+
+    const result = await this.doctorPatientService.getAllProtocolForADoctorForPatient(
+      patientId as string,
+      doctorId as string
+    );
+
+    sendResponse(res, {
+      code: StatusCodes.OK,
+      data: result,
+      message: `All protocols for a doctor for patient`,
+      success: true,
+    });
+
+  });
+
   // add more methods here if needed or override the existing ones 
 }

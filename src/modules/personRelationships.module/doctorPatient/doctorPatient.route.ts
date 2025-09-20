@@ -59,13 +59,28 @@ router.route('/paginate/others').get(
  * 
  * Specialist | Members and protocol 
  *  |-> Get all doctor and protocol count for a patient 
- * 
+ *  :patientId:
  * ******** */
 //info : pagination route must be before the route with params
 router.route('/paginate/doctor-protocol').get(
   auth(TRole.patient, TRole.doctor, TRole.specialist),
   validateFiltersForQuery(optionValidationChecking(['_id','patientId', ...paginationOptions])),
   controller.getAllDoctorAndProtocolCountForPatient
+);
+
+
+/**********
+ * 
+ * Specialist | Members and protocol 
+ *  |-> get all protocol for a doctor for patient 
+ *  :patientId:
+ *  :doctorId:
+ * ******** */
+router.route('/protocols-for-patient').get(
+  auth(TRole.patient, TRole.doctor, TRole.specialist),
+  validateFiltersForQuery(optionValidationChecking(['_id','patientId', 'doctorId', ...paginationOptions])),
+  validateRequest(validation.getAllProtocolForADoctorFOrPatientValidationSchema),
+  controller.getAllProtocolForADoctorForPatient
 );
 
 /**********

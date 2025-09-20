@@ -1,12 +1,14 @@
+//@ts-ignore
 import { Model, Types } from 'mongoose';
 import { PaginateOptions, PaginateResult } from '../../../types/paginate';
 
 
 export interface ISpecialistSuggestionForAPlan {
   // _taskId: undefined | Types.ObjectId;
-  _id?: Types.ObjectId; // undefined |  Types.ObjectId |
-  userId: Types.ObjectId;
-  message : String;
+  _id?: Types.ObjectId;
+  suggestionId: Types.ObjectId; //🔗
+  planId: Types.ObjectId; //🔗
+  createdBy: Types.ObjectId; //🔗 Specialist Id
 
   isDeleted? : Boolean;  
   createdAt?: Date;

@@ -7,6 +7,7 @@ import PaginationService, { PaginateOptions } from '../../../common/service/pagi
 //@ts-ignore
 import mongoose from 'mongoose';
 import { User } from '../../user/user.model';
+import { Protocol } from '../../protocol.module/protocol/protocol.model';
 
 export class DoctorPatientService extends GenericService<
   typeof DoctorPatient,
@@ -16,7 +17,11 @@ export class DoctorPatientService extends GenericService<
     super(DoctorPatient);
   }
 
-  // 🟢🟢🟢 sheakh
+  /**********
+   * 
+   * Patient | Get all Unknown Doctor .. 
+   * 
+   * ******** */
   async getUnknownDoctorsForPatient(patientId: string, 
     // options: PaginateOptions = {}
     filters : any,
@@ -106,6 +111,12 @@ export class DoctorPatientService extends GenericService<
     );
   }
 
+  /**********
+   * 
+   * Specialist | Members and protocol 
+   *  |-> Get all doctor and protocol count for a patient 
+   * 
+   * ******** */
   async getAllDoctorAndProtocolCountForPatient(
     patientId: string,
     filters: any,
@@ -178,5 +189,65 @@ export class DoctorPatientService extends GenericService<
       
       options
     );
+  }
+
+  /**********
+   * 
+   * Specialist | Members and protocol 
+   *  |-> get all protocol for a doctor for patient 
+   *  :patientId:
+   *  :doctorId:
+   * ******** */
+  async getAllProtocolForADoctorForPatient(patientId: string, doctorId: string){
+    // const protocols = await Protocol.find({
+    //   createdBy: new mongoose.Types.ObjectId(doctorId),
+    //   patientId: new mongoose.Types.ObjectId(patientId),
+    //   isDeleted: { $ne: true }
+    // }).select('-isDeleted -createdAt -updatedAt -__v -createdBy -patientId');
+
+    // 📈⚙️
+    const protocols = await Protocol.aggregate([
+      {
+        $match: {
+          createdBy: new mongoose.Types.ObjectId(doctorId),
+          patientId: new mongoose.Types.ObjectId(patientId),
+          isDeleted: { $ne: true }
+        }
+      },
+      {
+        $lookup: {
+          from: "planbydoctors", // 👈 must match the actual collection name
+          localField: "_id",
+          foreignField: "protocolId",
+          as: "plans"
+        }
+      },
+      {
+        $addFields: {
+          totalPlanCount: {
+            $size: {
+              $filter: {
+                input: "$plans",
+                as: "plan",
+                cond: { $eq: ["$$plan.isDeleted", false] }
+              }
+            }
+          }
+        }
+      },
+      {
+        $project: {
+          isDeleted: 0,
+          createdAt: 0,
+          updatedAt: 0,
+          __v: 0,
+          createdBy: 0,
+          patientId: 0,
+          plans: 0 // 👈 hide raw plans if you only want the count
+        }
+      }
+    ]);
+
+    return protocols;
   }
 }

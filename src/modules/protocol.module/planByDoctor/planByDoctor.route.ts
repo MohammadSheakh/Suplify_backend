@@ -36,9 +36,41 @@ const controller = new PlanByDoctorController();
  * ****** */
 //info : pagination route must be before the route with params
 router.route('/paginate').get(
-  //auth('common'),
+  auth(TRole.doctor, TRole.specialist),
   validateFiltersForQuery(optionValidationChecking(['_id', 'planType','patientId', 'protocolId', ...paginationOptions])),
   controller.getAllWithPagination
+);
+
+/*******
+ * 
+ * Specialist | Members and protocol 
+ *  |-> Get All plan For a protocol
+ * 
+ * ****** */
+router.route('/paginate/for-specialist').get(
+  auth(TRole.doctor, TRole.specialist),
+  validateFiltersForQuery(optionValidationChecking(['_id', 'planType','patientId', 'protocolId', ...paginationOptions])),
+  controller.getAllWithPaginationForSpecialist
+);
+
+/**********
+ * 
+ * Specialist | Members and protocol | Get a plan with suggestions .. 
+ *  
+ * logged in specialist only can see his suggestions
+ * 
+ * TODO : later we need to implement for patient to see all specialist's
+ * suggestions for a plan
+ * 
+ * :planByDoctorId:
+ * 
+ * specialistid will come from logged in user(specialist) 
+ * 
+ * ********* */
+router.route('/with-suggestions').get(
+  auth(TRole.specialist),
+  validateRequest(validation.getPlanWithSuggestionsValidationSchema),
+  controller.getAPlanWithSuggestions
 );
 
 router.route('/:id').get(

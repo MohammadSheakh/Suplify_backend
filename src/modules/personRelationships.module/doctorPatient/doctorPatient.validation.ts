@@ -32,6 +32,24 @@ export const createHelpMessageValidationSchema = z.object({
 
 
 
+export const getAllProtocolForADoctorFOrPatientValidationSchema = z.object({
+  body: z.object({
+    
+  }),
+
+  // params: z.object({
+  //   doctorId: z.string(),
+  //   patientId: z.string(),
+  // }),
+  query: z.object({
+    doctorId: z.string(),
+    patientId: z.string(),
+  }),
+   
+});
+
+
+
 
 
 

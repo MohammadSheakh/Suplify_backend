@@ -6,7 +6,10 @@ export interface ISuggestionBySpecialist {
   // _taskId: undefined | Types.ObjectId;
   _id?: Types.ObjectId; // undefined |  Types.ObjectId |
   userId: Types.ObjectId;
-  message : String;
+  keyPoint : String;
+  solutionName : String;
+  suggestFromStore : String;
+  createdBy : Types.ObjectId;  //🔗 Specialist Id 
 
   isDeleted? : Boolean;  
   createdAt?: Date;

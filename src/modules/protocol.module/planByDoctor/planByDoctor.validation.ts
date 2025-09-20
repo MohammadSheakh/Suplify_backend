@@ -31,7 +31,16 @@ export const createHelpMessageValidationSchema = z.object({
 });
 
 
+export const getPlanWithSuggestionsValidationSchema = z.object({
+  // body: z.object({
+  // }),
 
-
-
+  // params: z.object({
+  //   id: z.string().optional(),
+  // }),
+  query: z.object({
+    planByDoctorId: z.string(),
+  }),
+   
+});
 

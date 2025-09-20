@@ -5,6 +5,7 @@ import { ISuggestionBySpecialist } from './suggestionBySpecialist.interface';
 import { validateFiltersForQuery } from '../../../middlewares/queryValidation/paginationQueryValidationMiddleware';
 import validateRequest from '../../../shared/validateRequest';
 import auth from '../../../middlewares/auth';
+import { TRole } from '../../../middlewares/roles';
 
 const multer = require('multer');
 const storage = multer.memoryStorage();
@@ -32,7 +33,7 @@ const controller = new SuggestionBySpecialistController();
 //info : pagination route must be before the route with params
 router.route('/paginate').get(
   //auth('common'),
-  validateFiltersForQuery(optionValidationChecking(['_id'])),
+  validateFiltersForQuery(optionValidationChecking(['_id', ...paginationOptions])),
   controller.getAllWithPagination
 );
 
@@ -53,15 +54,14 @@ router.route('/').get(
   controller.getAll
 );
 
-//[🚧][🧑‍💻✅][🧪] // 🆗
-router.route('/create').post(
-  // [
-  //   upload.fields([
-  //     { name: 'attachments', maxCount: 15 }, // Allow up to 5 cover photos
-  //   ]),
-  // ],
-  auth('common'),
-  validateRequest(validation.createHelpMessageValidationSchema),
+/********
+ * 
+ * Specialist | Members and protocol | Create a suggestion for a plan .. 
+ * 
+ * ********* */
+router.route('/').post(
+  auth(TRole.specialist),
+  validateRequest(validation.createSuggestionValidationSchema),
   controller.create
 );
 
