@@ -7,7 +7,7 @@ import { validateFiltersForQuery } from '../../../middlewares/queryValidation/pa
 import validateRequest from '../../../shared/validateRequest';
 import auth from '../../../middlewares/auth';
 //@ts-ignore
-const multer = require('multer');
+import multer from "multer";
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 import { TRole } from '../../../middlewares/roles';

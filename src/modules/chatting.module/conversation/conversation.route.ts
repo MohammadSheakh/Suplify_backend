@@ -3,7 +3,7 @@ import { validateFiltersForQuery } from '../../../middlewares/queryValidation/pa
 import { ConversationController } from './conversation.controller';
 import { IConversation } from './conversation.interface';
 import auth from '../../../middlewares/auth';
-const multer = require('multer');
+import multer from "multer";
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 import * as validation from './conversation.validation';

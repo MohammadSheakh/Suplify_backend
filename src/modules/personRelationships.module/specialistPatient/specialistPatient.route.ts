@@ -8,7 +8,7 @@ import validateRequest from '../../../shared/validateRequest';
 import auth from '../../../middlewares/auth';
 import { TRole } from '../../../middlewares/roles';
 //@ts-ignore
-const multer = require('multer');
+import multer from "multer";
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 

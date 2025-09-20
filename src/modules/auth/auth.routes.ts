@@ -4,7 +4,7 @@ import validateRequest from '../../shared/validateRequest';
 import { UserValidation } from '../user/user.validation';
 import { AuthValidation } from './auth.validations';
 import auth from '../../middlewares/auth';
-const multer = require('multer');
+import multer from "multer";
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 

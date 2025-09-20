@@ -9,7 +9,7 @@ import auth from '../../../middlewares/auth';
 import { TRole } from '../../../middlewares/roles';
 //@ts-ignore
 import multer from 'multer';
-// const multer = require('multer');
+// import multer from "multer";
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 

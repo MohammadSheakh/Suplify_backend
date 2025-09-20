@@ -10,6 +10,10 @@ import { TFolderName } from '../../../enums/folderNames';
 import { AttachmentService } from '../../attachments/attachment.service';
 import sendResponse from '../../../shared/sendResponse';
 import { processFiles } from '../../../helpers/processFilesToUpload';
+import omit from '../../../shared/omit';
+import pick from '../../../shared/pick';
+import { User } from '../../user/user.model';
+import { TrainingProgram } from '../trainingProgram/trainingProgram.model';
 
 
 // let conversationParticipantsService = new ConversationParticipentsService();
@@ -64,6 +68,64 @@ export class TrainingSessionController extends GenericController<
     
   //   return await Promise.all(uploadPromises);
   // }
+
+  /********
+   * 
+   * Specialist | Get all training session of a training program ..
+   *              along with specialist information .. 
+   * 
+   * ******* */
+  getAllWithPagination = catchAsync(async (req: Request, res: Response) => {
+    const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']);
+    const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
+
+    const specialistId = filters.specialistId as string;
+    
+    // const specialistInfo = await User.findById(specialistId).select('profileImage name profileId')
+    // .populate(
+    //  {
+    //   path: 'profileId',
+    //   // select: 'name'
+    //  } 
+    // );
+
+    // const trainingProgramInfo = await TrainingProgram.findById(filters.trainingProgramId).select('title');
+
+    const [specialistInfo, trainingProgramInfo] = await Promise.all([
+      User.findById(specialistId)
+        .select('profileImage name profileId')
+        .populate({
+          path: 'profileId',
+          // select: 'name'
+        }),
+
+      TrainingProgram.findById(filters.trainingProgramId)
+        .select('programName totalSessionCount') // ISSUE : totalSessionCount calculation has serious issue .. 
+    ]);
+
+    // now remove it from filters so it won’t be used later
+    delete filters.specialistId;
+
+    const populateOptions: (string | {path: string, select: string}[]) = [
+      {
+        path: 'attachments',
+        select: '-__v -updatedAt -createdAt' 
+      },
+    ];
+
+    const select = '-__v -updatedAt -createdAt -isDeleted'; 
+
+    const result = await this.service.getAllWithPagination(filters, options, populateOptions, select);
+
+    sendResponse(res, {
+      code: StatusCodes.OK,
+      data: {
+        result, specialistInfo, trainingProgramInfo
+      },
+      message: `All ${this.modelName} with pagination`,
+      success: true,
+    });
+  });
 
 
   // add more methods here if needed or override the existing ones 

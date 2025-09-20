@@ -7,7 +7,7 @@ import { TrainingProgramPurchaseController } from './trainingProgramPurchase.con
 import { validateFiltersForQuery } from '../../../middlewares/queryValidation/paginationQueryValidationMiddleware';
 import auth from '../../../middlewares/auth';
 //@ts-ignore
-const multer = require('multer');
+import multer from "multer";
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 

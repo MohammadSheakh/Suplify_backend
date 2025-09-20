@@ -2,7 +2,7 @@ import { Router } from 'express';
 import auth from '../../middlewares/auth';
 import { SettingsController } from './settings.controllers';
 import { TRole } from '../../middlewares/roles';
-const multer = require('multer');
+import multer from "multer";
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 

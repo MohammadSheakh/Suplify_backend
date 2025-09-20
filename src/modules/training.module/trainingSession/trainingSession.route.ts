@@ -7,13 +7,17 @@ import validateRequest from '../../../shared/validateRequest';
 import auth from '../../../middlewares/auth';
 import { TRole } from '../../../middlewares/roles';
 
-const multer = require('multer');
+import multer from "multer";
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
 const router = express.Router();
 
-export const optionValidationChecking = <T extends keyof ITrainingSession | 'sortBy' | 'page' | 'limit' | 'populate'>(
+/******
+ * 📝 
+ * we need specilistId to show specialist's information
+ * ***** */
+export const optionValidationChecking = <T extends keyof ITrainingSession | 'specialistId' |  'sortBy' | 'page' | 'limit' | 'populate'>(
   filters: T[]
 ) => {
   return filters;
@@ -26,14 +30,19 @@ const paginationOptions: Array<'sortBy' | 'page' | 'limit' | 'populate'> = [
   'populate',
 ];
 
-
 // const taskService = new TaskService();
 const controller = new TrainingSessionController();
 
+/**********
+ * Specialist | Get all training session of a training program ..
+ *              along with specialist information .. 
+ * 📝 
+ * we need specilistId to show specialist's information
+ * ******* */
 //info : pagination route must be before the route with params
 router.route('/paginate').get(
-  //auth('common'),
-  validateFiltersForQuery(optionValidationChecking(['_id', ...paginationOptions])),
+  auth(TRole.patient, TRole.specialist),
+  validateFiltersForQuery(optionValidationChecking(['_id', 'trainingProgramId', 'specialistId', ...paginationOptions])),
   controller.getAllWithPagination
 );
 

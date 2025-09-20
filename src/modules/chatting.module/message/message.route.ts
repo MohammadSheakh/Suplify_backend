@@ -4,7 +4,7 @@ import { IMessage } from './message.interface';
 import { MessageController } from './message.controller';
 import auth from '../../../middlewares/auth';
 
-const multer = require('multer');
+import multer from "multer";
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 

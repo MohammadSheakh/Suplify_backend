@@ -9,7 +9,7 @@ import { PaymentTransaction } from './paymentTransaction.model';
 import { IPaymentTransaction } from './paymentTransaction.interface';
 import * as validation from './paymentTransaction.validation';
 
-const multer = require('multer');
+import multer from "multer";
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 

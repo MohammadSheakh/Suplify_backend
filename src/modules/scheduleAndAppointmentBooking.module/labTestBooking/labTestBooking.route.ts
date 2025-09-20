@@ -6,7 +6,7 @@ import auth from '../../../middlewares/auth';
 import { LabTestBookingController } from './labTestBooking.controller';
 import * as validation from './labTestBooking.validation';
 
-const multer = require('multer');
+import multer from "multer";
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 

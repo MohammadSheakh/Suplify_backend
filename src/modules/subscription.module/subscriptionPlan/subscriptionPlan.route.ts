@@ -7,7 +7,7 @@ import validateRequest from '../../../shared/validateRequest';
 import * as validation from './subscriptionPlan.validation';
 import { TRole } from '../../../middlewares/roles';
 
-const multer = require('multer');
+import multer from "multer";
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 

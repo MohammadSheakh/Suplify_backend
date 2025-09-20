@@ -4,7 +4,7 @@ import { validateFiltersForQuery } from '../../../middlewares/queryValidation/pa
 import { OrderItemController } from './orderItem.controller';
 import { IOrderItem } from './orderItem.interface';
 
-const multer = require('multer');
+import multer from "multer";
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 

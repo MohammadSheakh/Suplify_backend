@@ -4,7 +4,7 @@ import { ConversationParticipentsController } from './conversationParticipents.c
 import { IConversationParticipents } from './conversationParticipents.interface';
 import auth from '../../../middlewares/auth';
 
-const multer = require('multer');
+import multer from "multer";
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 

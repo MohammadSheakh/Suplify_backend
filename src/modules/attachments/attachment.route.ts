@@ -3,6 +3,7 @@ import auth from '../../middlewares/auth';
 import validateRequest from '../../shared/validateRequest';
 import { AttachmentController } from './attachment.controller';
 
+const multer = require('multer');
 // import fileUploadHandler from '../../shared/fileUploadHandler';
 // import convertHeicToPngMiddleware from '../../shared/convertHeicToPngMiddleware';
 // const UPLOADS_FOLDER = 'uploads/users';
