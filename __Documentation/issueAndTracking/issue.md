@@ -18,7 +18,9 @@ Issue 🔥  /  Solved ☑️ / Extra Note 📝
 | 🔥     |                    |                      | user.subscriptionPlan can not store                 |             | /9/     |          |
 | 📝     |                    |                      | subscriptionPlan in AccessToken ..                  |             | 14/9/   |          |
 | 🔥     | /products/id       |                      | Cannot read properties of null (reading 'category') |             | 14/9/   |          |
-| 🔥     | TrainingSession    | getAllWithPagination | totalSessionCount calculation has serious issue ..  |             | 20/9/     |          |
+| 🔥     | TrainingSession    | getAllWithPagination | totalSessionCount calculation has serious issue ..  | may be      | 20/9/   | no need  |
+| 🔥     | TrainingProgram    |                      | Total Purchase count need to track                  |             | /8/     | MUST     |
+
 
 
 

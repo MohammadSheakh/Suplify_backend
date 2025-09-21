@@ -1,3 +1,4 @@
+//@ts-ignore
 import { model, Schema } from 'mongoose';
 import { ISpecialistWorkoutClassSchedule, ISpecialistWorkoutClassScheduleModel } from './specialistWorkoutClassSchedule.interface';
 import paginate from '../../../common/plugins/paginate';

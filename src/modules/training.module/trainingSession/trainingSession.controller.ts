@@ -96,7 +96,7 @@ export class TrainingSessionController extends GenericController<
         .select('profileImage name profileId')
         .populate({
           path: 'profileId',
-          // select: 'name'
+           select: '-attachments -__v'
         }),
 
       TrainingProgram.findById(filters.trainingProgramId)

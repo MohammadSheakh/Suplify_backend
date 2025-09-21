@@ -62,7 +62,7 @@ router.route('/').get(
 /********
  * 
  * Specialist | WorkoutClass | Create Workout Class
- * 
+ * must send X-Time-Zone in header
  * ******** */
 router.route('/').post(
   auth(TRole.specialist),

@@ -19,18 +19,20 @@ export class SpecialistWorkoutClassScheduleController extends GenericController<
   typeof SpecialistWorkoutClassSchedule,
   ISpecialistWorkoutClassSchedule
 > {
-  SpecialistWorkoutClassScheduleService = new SpecialistWorkoutClassScheduleService();
+  specialistWorkoutClassScheduleService = new SpecialistWorkoutClassScheduleService();
 
   constructor() {
     super(new SpecialistWorkoutClassScheduleService(), 'SpecialistWorkoutClassSchedule');
   }
 
   create = catchAsync(async (req: Request, res: Response) => {
-    
-    const data:ISpecialistWorkoutClassSchedule = req.body;
-    data.scheduleDate  = new Date(req.body.scheduleDate);
+    const userTimeZone = req.header('X-Time-Zone') || 'Asia/Dhaka'; //TODO: Timezone must from env file
 
-    const result = await this.service.create(data);
+    const data:ISpecialistWorkoutClassSchedule = req.body;
+    
+    data.createdBy = (req.user as IUser)?.userId; // speacialist Id
+
+    const result = await this.specialistWorkoutClassScheduleService.createV2(data, userTimeZone);
 
     sendResponse(res, {
       code: StatusCodes.OK,

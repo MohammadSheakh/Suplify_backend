@@ -1,3 +1,4 @@
+//@ts-ignore
 import { Model, Types } from 'mongoose';
 import { PaginateOptions, PaginateResult } from '../../../types/paginate';
 import { TMeetingLink, TSession, TSpecialistWorkoutClassSchedule } from './specialistWorkoutClassSchedule.constant';
@@ -19,9 +20,8 @@ export interface ISpecialistWorkoutClassSchedule {
   typeOfLink: TMeetingLink.zoom | TMeetingLink.googleMeet | TMeetingLink.others;
   sessionType: TSession.private | TSession.group;
   meetingLink: string;
-  
 
-  isDeleted? : Boolean;  
+  isDeleted? : Boolean;
   createdAt?: Date;
   updatedAt?: Date;
 }
