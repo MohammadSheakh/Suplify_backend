@@ -1,13 +1,13 @@
 //@ts-ignore
 import { StatusCodes } from 'http-status-codes';
 import catchAsync from '../../shared/catchAsync';
-import pick from '../../shared/pick';
 import sendResponse from '../../shared/sendResponse';
-import ApiError from '../../errors/ApiError';
 import {  UserService } from './user.service';
 import { User } from './user.model';
 import { GenericController } from '../_generic-module/generic.controller';
-import { IUser } from './user.interface';
+//@ts-ignore
+import { Request, Response } from 'express';
+import { IUser } from '../token/token.interface';
 
 const userService = new UserService();
 
@@ -33,6 +33,44 @@ export class UserController extends GenericController<
       } created successfully`,
     });
   });
+
+  /***********
+   * 
+   * Specialist | Get Profile Information as logged in user 
+   * 
+   * ********** */
+  getById = catchAsync(async (req: Request, res: Response) => {
+    const id = (req.user as IUser).userId;
+
+    // TODO : ⚠️ need to optimize this populate options ..
+    const populateOptions = [
+      'profileId',
+      {
+        path: 'profileId',
+        select: '-attachments -__v', // TODO MUST : when create profile .. must initiate address and description
+        // populate: {
+        //   path: 'profileId',
+        // }
+      }
+    ];
+    const select = 'name profileImage';
+
+    const result = await this.service.getById(id, populateOptions, select);
+
+    // if (!result) {
+    //   throw new ApiError(
+    //     StatusCodes.NOT_FOUND,
+    //     `Object with ID ${id} not found`
+    //   );
+    // }
+
+    sendResponse(res, {
+      code: StatusCodes.OK,
+      data: result,
+      message: `${this.modelName} retrieved successfully`,
+    });
+  });
+
 
 }
 

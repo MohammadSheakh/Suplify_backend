@@ -41,7 +41,7 @@ const controller = new informationVideoController();
  * ******** */
 //info : pagination route must be before the route with params
 router.route('/paginate').get(
-  auth(TRole.specialist),
+  auth(TRole.specialist), // can not assign other role here .. 
   validateFiltersForQuery(optionValidationChecking(['_id', ...paginationOptions])),
   getLoggedInUserAndSetReferenceToUser('createdBy'), // always filter by createdBy logged in user
   controller.getAllWithPagination

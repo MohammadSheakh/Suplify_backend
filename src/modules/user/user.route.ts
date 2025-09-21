@@ -1,3 +1,4 @@
+//@ts-ignore
 import express from 'express';
 import fileUploadHandler from '../../shared/fileUploadHandler';
 import convertHeicToPngMiddleware from '../../shared/convertHeicToPngMiddleware';
@@ -5,6 +6,7 @@ import { UserController } from './user.controller';
 import { validateFiltersForQuery } from '../../middlewares/queryValidation/paginationQueryValidationMiddleware';
 import auth from '../../middlewares/auth';
 import { IUser } from './user.interface';
+import { TRole } from '../../middlewares/roles';
 const UPLOADS_FOLDER = 'uploads/users';
 const upload = fileUploadHandler(UPLOADS_FOLDER);
 
@@ -33,8 +35,13 @@ router.route('/paginate').get(
   controller.getAllWithPagination
 );
 
-router.route('/:id').get(
-  // auth('common'),
+/***********
+ * 
+ * Specialist | Get Profile Information as logged in user 
+ * 
+ * ********** */
+router.route('/profile').get(
+  auth(TRole.common), // any logged in user can see any user profile ..
   controller.getById
 );
 

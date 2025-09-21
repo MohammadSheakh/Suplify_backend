@@ -42,66 +42,20 @@ export class GenericService<ModelType, InterfaceType> {
     return result;
   }
 
-  async getById(id: string , populateOptions?: (string | any)[]) : Promise<InterfaceType | null>  {
-    /********************
-        const object = await this.model.findById(id).populate(needToPopulate).select('-__v');
-        if (!object) {
-          // throw new ApiError(StatusCodes.BAD_REQUEST, 'No file uploaded');
-          return null;
-        }
-        return object;
-    ******************** */
-
-    // INFO : populateOptions can be an array of strings or objects 
-
-    /*****************
-      
-      populateOptions example : 
-
-      const populateOptions = [
-        {
-            path: 'attachments',
-            select: 'attachment'
-        },
-        //'siteId' // This will populate all fields for siteId
-        {
-          path: 'siteId',
-          select: 'name address'
-        }
-      ];
+  async getById(id: string , populateOptions?: (string | any)[], select?: string) : Promise<InterfaceType | null>  {
     
-     * **************** */
 
-    let query = this.model.findById(id);
+    let query = this.model.findById(id).select(select);
     
     if (populateOptions && populateOptions.length > 0) {
         
-        /**************** 🟢 working perfectly 
-        populateOptions.forEach(option => {
-            if (typeof option === 'string') {
-                query = query.populate(option);
-            } else {
-                query = query.populate(option);
-            }
-        });
-
-
-        ************* */
-
-        /*************
-         * 
-         * // If you want to keep backward compatibility with your old getById method
-         * 
-         * *********** */
-
         // Check if it's the old format (array of strings)
         if (typeof populateOptions[0] === 'string') {
-            // Old format: ['attachments', 'siteId']
+            // query = query.select(populateOptions[0]);
             populateOptions.forEach(field => {
                 query = query.populate(field as string);
             });
         } else {
-            // New format: [{path: 'attachments', select: 'filename'}, ...]
             populateOptions.forEach(option => {
                 query = query.populate(option);
             });
