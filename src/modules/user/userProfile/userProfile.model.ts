@@ -44,6 +44,10 @@ const userProfileSchema = new Schema<IUserProfile>({
     description: {
         type: String,
         required: [false, 'Description is not required'],
+    },
+    address: {
+        type: String,
+        required: [false, 'Address is not required'],
     }
 });
 

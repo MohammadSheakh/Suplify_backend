@@ -11,6 +11,8 @@ import omit from '../../../shared/omit';
 import pick from '../../../shared/pick';
 import { IUser } from '../../token/token.interface';
 import { TRole } from '../../../middlewares/roles';
+import { toLocalTime } from '../../../utils/timezone';
+import { User } from '../../user/user.model';
 
 // let conversationParticipantsService = new ConversationParticipentsService();
 // let messageService = new MessagerService();
@@ -49,35 +51,55 @@ export class SpecialistWorkoutClassScheduleController extends GenericController<
    * Specialist  | WorkoutClass | get all  .. (query -> scheduleStatus[available])
    * ******* */
   getAllWithPagination = catchAsync(async (req: Request, res: Response) => {
-    //const filters = pick(req.query, ['_id', 'title']); // now this comes from middleware in router
+    const userTimeZone = req.header('X-Time-Zone') || 'Asia/Dhaka'; //TODO: Timezone must from env file
+    
     const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']); ;
     const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
 
     /***
      * 
-     * if logged in user role is doctor .. then return for only his schedules... 
+     * if logged in user role is specialist .. then return for only his schedules... 
      * 
      * ***/
-    if(req.user && (req.user as IUser)?.role === TRole.doctor){
+    if(req.user && (req.user as IUser)?.role === TRole.specialist){
       filters.createdBy = (req.user as IUser)?.userId; 
     }
-    // console.log("user from token 🧪", req.user.userId);
-    // console.log("filters 🧪", filters);
 
     const populateOptions: (string | {path: string, select: string}[]) = [
-      // {
-      //   path: 'personId',
-      //   select: 'name ' 
-      // },
+
     ];
 
-    // const select = ''; 
+    const select = '-createdAt -updatedAt -__v'; 
 
-    const result = await this.service.getAllWithPagination(filters, options, populateOptions/*, select*/);
+    // const result : IPaginateResult = await this.service.getAllWithPagination(filters, options, populateOptions, select);
+
+    const [specialistInfo, result ] : [Partial<IUser>, IPaginateResult] = await Promise.all([
+      User.findById((req.user as IUser)?.userId)
+        .select('profileImage name profileId')
+        .populate({
+          path: 'profileId',
+            select: '-attachments -__v'
+        }),
+
+      this.service.getAllWithPagination(filters, options, populateOptions, select)
+    ]);
+
+    //---  Convert startTime/endTime for each item in results
+    const convertedResults = result.results.map(item => ({
+      ...item.toObject(), // must add .toObject() if this is mongoose document
+      startTime: toLocalTime(item.startTime, userTimeZone),
+      endTime: toLocalTime(item.endTime, userTimeZone),
+    }));
+
+    //@ts-ignore
+    result.results = convertedResults;
 
     sendResponse(res, {
       code: StatusCodes.OK,
-      data: result,
+      data: {
+        specialistInfo, 
+        ...result
+      },
       message: `All ${this.modelName} with pagination`,
       success: true,
     });
@@ -85,4 +107,13 @@ export class SpecialistWorkoutClassScheduleController extends GenericController<
 
 
   // add more methods here if needed or override the existing ones 
+}
+
+
+interface IPaginateResult {
+  results: ISpecialistWorkoutClassSchedule[];
+  page: number;
+  limit: number;
+  totalPages: number;
+  totalResults: number;
 }

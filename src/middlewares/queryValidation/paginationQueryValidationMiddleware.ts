@@ -1,6 +1,8 @@
 
+//@ts-ignore
 import { StatusCodes } from 'http-status-codes';
 import sendResponse from '../../shared/sendResponse';
+//@ts-ignore
 import { Request, Response, NextFunction } from 'express';
 
 // validationMiddleware.js or a separate file for validation middleware

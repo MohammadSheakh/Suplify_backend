@@ -81,16 +81,6 @@ export class TrainingSessionController extends GenericController<
 
     const specialistId = filters.specialistId as string;
     
-    // const specialistInfo = await User.findById(specialistId).select('profileImage name profileId')
-    // .populate(
-    //  {
-    //   path: 'profileId',
-    //   // select: 'name'
-    //  } 
-    // );
-
-    // const trainingProgramInfo = await TrainingProgram.findById(filters.trainingProgramId).select('title');
-
     const [specialistInfo, trainingProgramInfo] = await Promise.all([
       User.findById(specialistId)
         .select('profileImage name profileId')

@@ -37,11 +37,11 @@ export class informationVideoController extends GenericController<
     const [thumbnail, video ] = await Promise.all([
       
       (!data.videoLink) 
-      ? processFiles(req.files?.thumbnail , TFolderName.trainingProgram)
+      ? processFiles(req.files?.thumbnail , TFolderName.informationVideo)
       : Promise.resolve([]),
 
       (!data.videoLink) 
-      ? processFiles(req.files?.video , TFolderName.trainingProgram)
+      ? processFiles(req.files?.video , TFolderName.informationVideo)
       : Promise.resolve([]),
     ]);
 

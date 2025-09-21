@@ -123,7 +123,7 @@ export class DoctorAppointmentScheduleController extends GenericController<
 
     //--- Convert startTime/endTime for each item in results
     const convertedResults = result.results.map(item => ({
-      ...item,//.toObject(), // or spread if already plain object
+      ...item,//.toObject(), // or spread if already plain object // TODO : MUST check this response .. 
       startTime: toLocalTime(item.startTime, userTimeZone),
       endTime: toLocalTime(item.endTime, userTimeZone),
     }));

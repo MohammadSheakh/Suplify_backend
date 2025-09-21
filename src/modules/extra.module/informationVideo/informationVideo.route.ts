@@ -10,6 +10,7 @@ import auth from '../../../middlewares/auth';
 import validateRequest from '../../../shared/validateRequest';
 //@ts-ignore
 import multer from "multer";
+import { getLoggedInUserAndSetReferenceToUser } from '../../../middlewares/getLoggedInUserAndSetReferenceToUser';
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
@@ -41,10 +42,10 @@ const controller = new informationVideoController();
 //info : pagination route must be before the route with params
 router.route('/paginate').get(
   auth(TRole.specialist),
-  validateFiltersForQuery(optionValidationChecking(['_id','createdBy', ...paginationOptions])),
+  validateFiltersForQuery(optionValidationChecking(['_id', ...paginationOptions])),
+  getLoggedInUserAndSetReferenceToUser('createdBy'), // always filter by createdBy logged in user
   controller.getAllWithPagination
 );
-
 
 /*******
  * 

@@ -16,6 +16,7 @@ export interface IUserProfile {
   howManyProtocol: number; // for patient .. 
   userId: Types.ObjectId; // for back reference ..
   description: string;
+  address: string;
 
   isDeleted? : boolean;  
   createdAt?: Date;
