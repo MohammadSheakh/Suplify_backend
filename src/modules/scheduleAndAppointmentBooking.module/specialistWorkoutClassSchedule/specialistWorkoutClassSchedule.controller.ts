@@ -14,8 +14,6 @@ import { TRole } from '../../../middlewares/roles';
 import { toLocalTime } from '../../../utils/timezone';
 import { User } from '../../user/user.model';
 
-// let conversationParticipantsService = new ConversationParticipentsService();
-// let messageService = new MessagerService();
 
 export class SpecialistWorkoutClassScheduleController extends GenericController<
   typeof SpecialistWorkoutClassSchedule,
@@ -40,6 +38,39 @@ export class SpecialistWorkoutClassScheduleController extends GenericController<
       code: StatusCodes.OK,
       data: result,
       message: `${this.modelName} created successfully`,
+      success: true,
+    });
+  });
+
+
+  /***********
+   * 
+   * Patient | Get all workout class of a specialist with isBooked boolean field
+   * //📈⚙️
+   * ********* */
+  getAllWithAggregation = catchAsync(async (req: Request, res: Response) => {
+    const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']); ;
+    const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
+
+    const result = await this.specialistWorkoutClassScheduleService.getAllWithAggregation(filters, options, req.user.userId);
+
+    // get specialist information
+
+    const specialistInfo = await User
+        .findById(filters.createdBy)
+        .select('profileImage name profileId')
+        .populate({
+            path: 'profileId', 
+            select: 'description protocolNames howManyPrograms'
+        });
+
+    sendResponse(res, {
+      code: StatusCodes.OK,
+      data: {
+        result,
+        specialistInfo
+      },
+      message: `All ${this.modelName} with pagination`,
       success: true,
     });
   });

@@ -1,3 +1,4 @@
+//@ts-ignore
 import { Model, Types } from 'mongoose';
 import { PaginateOptions, PaginateResult } from '../../../types/paginate';
 import { TPaymentStatus, TScheduleBookingStatus } from './specialistPatientScheduleBooking.constant';
@@ -15,11 +16,17 @@ export interface ISpecialistPatientScheduleBooking {
 
   // Status and deletion
   isDeleted?: boolean; // default: false
-  status: TScheduleBookingStatus; // required, no default initially
+
+  /*******
+   * 
+   * not sure 
+   * 
+   * ****** */
+  status?: TScheduleBookingStatus; // required, no default initially
   
   // Payment related fields
   paymentTransactionId?: Types.ObjectId | null; // ref: 'PaymentTransaction', default: null
-  paymentMethod?: PaymentMethod;
+  paymentMethod?: PaymentMethod | null;
   price: number; // required
   paymentStatus: TPaymentStatus; // required, initially should be unpaid
   

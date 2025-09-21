@@ -15,9 +15,6 @@ import pick from '../../../shared/pick';
 import { PaginationHelpers } from '../../../common/service/paginationHelpers';
 
 
-// let conversationParticipantsService = new ConversationParticipentsService();
-// let messageService = new MessagerService();
-
 export class DoctorPatientController extends GenericController<
   typeof DoctorPatient,
   IDoctorPatient

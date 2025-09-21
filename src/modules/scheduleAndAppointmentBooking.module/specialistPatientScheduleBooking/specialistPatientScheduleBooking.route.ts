@@ -7,6 +7,7 @@ import validateRequest from '../../../shared/validateRequest';
 import auth from '../../../middlewares/auth';
 
 import multer from "multer";
+import { TRole } from '../../../middlewares/roles';
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
@@ -31,7 +32,7 @@ const controller = new SpecialistPatientScheduleBookingController();
 //info : pagination route must be before the route with params
 router.route('/paginate').get(
   //auth('common'),
-  validateFiltersForQuery(optionValidationChecking(['_id'])),
+  validateFiltersForQuery(optionValidationChecking(['_id', ...paginationOptions])),
   controller.getAllWithPagination
 );
 
@@ -52,15 +53,17 @@ router.route('/').get(
   controller.getAll
 );
 
-//[🚧][🧑‍💻✅][🧪] // 🆗
+/***********
+ * 
+ *  Patient | Book Workout Class From Specialist's Workout Class
+ * 
+ *  here we also check if relation ship between specialist and patient exist or not
+ *  if not then we create the relationship 
+ *  // TODO : test this relationship creation
+ * *********** */
 router.route('/create').post(
-  // [
-  //   upload.fields([
-  //     { name: 'attachments', maxCount: 15 }, // Allow up to 5 cover photos
-  //   ]),
-  // ],
-  auth('common'),
-  validateRequest(validation.createHelpMessageValidationSchema),
+  auth(TRole.patient),
+  validateRequest(validation.specialistPatientScheduleBookingValidationSchema),
   controller.create
 );
 

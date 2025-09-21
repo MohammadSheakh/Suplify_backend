@@ -7,9 +7,6 @@ import { IAdherenceAndConsistency } from './adherenceAndConsistency.interface';
 import { AdherenceAndConsistencyService } from './adherenceAndConsistency.service';
 
 
-// let conversationParticipantsService = new ConversationParticipentsService();
-// let messageService = new MessagerService();
-
 export class AdherenceAndConsistencyController extends GenericController<
   typeof AdherenceAndConsistency,
   IAdherenceAndConsistency

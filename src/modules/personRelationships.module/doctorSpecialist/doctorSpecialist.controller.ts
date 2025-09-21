@@ -7,10 +7,6 @@ import { IdoctorSpecialist } from './doctorSpecialist.interface';
 import { doctorSpecialistService } from './doctorSpecialist.service';
 
 
-
-// let conversationParticipantsService = new ConversationParticipentsService();
-// let messageService = new MessagerService();
-
 export class doctorSpecialistController extends GenericController<
   typeof doctorSpecialist,
   IdoctorSpecialist

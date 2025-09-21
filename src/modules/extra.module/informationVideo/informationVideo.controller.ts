@@ -16,9 +16,6 @@ import { IUser } from '../../token/token.interface';
 import { TSubscription } from '../../../enums/subscription';
 
 
-// let conversationParticipantsService = new ConversationParticipentsService();
-// let messageService = new MessagerService();
-
 export class informationVideoController extends GenericController<
   typeof informationVideo,
   IinformationVideo

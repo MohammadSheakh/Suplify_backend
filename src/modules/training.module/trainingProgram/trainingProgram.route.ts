@@ -31,7 +31,8 @@ const paginationOptions: Array<'sortBy' | 'page' | 'limit' | 'populate'> = [
 const controller = new TrainingProgramController();
 /*******
  * 
- * Patient | Get all Training Program of a Specialist .. 
+ * Patient | Get all Training Program of a Specialist ..
+ *  |-> with isPurchased boolean field 
  * //📈⚙️
  * ****** */
 //info : pagination route must be before the route with params

@@ -7,10 +7,8 @@ import { ISpecialistPatientScheduleBooking } from './specialistPatientScheduleBo
 import { SpecialistPatientScheduleBookingService } from './specialistPatientScheduleBooking.service';
 import catchAsync from '../../../shared/catchAsync';
 import sendResponse from '../../../shared/sendResponse';
+import { IUser } from '../../token/token.interface';
 
-
-// let conversationParticipantsService = new ConversationParticipentsService();
-// let messageService = new MessagerService();
 
 export class SpecialistPatientScheduleBookingController extends GenericController<
   typeof SpecialistPatientScheduleBooking,
@@ -22,10 +20,10 @@ export class SpecialistPatientScheduleBookingController extends GenericControlle
     super(new SpecialistPatientScheduleBookingService(), 'SpecialistPatientScheduleBooking');
   }
 
+
   create = catchAsync(async (req: Request, res: Response) => {
 
-    const data = req.body as Partial<IBookLabTest>;
-    const result = await labTestBookingService.createV2(data, req.user);
+    const result = await this.SpecialistPatientScheduleBookingService.createV2(req.params.workoutClassId, req.user as IUser);
 
     sendResponse(res, {
     code: StatusCodes.OK,

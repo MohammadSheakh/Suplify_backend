@@ -7,9 +7,6 @@ import { IHealthAndPerformance } from './healthAndPerformance.interface';
 import { HealthAndPerformanceService } from './healthAndPerformance.service';
 
 
-// let conversationParticipantsService = new ConversationParticipentsService();
-// let messageService = new MessagerService();
-
 export class HealthAndPerformanceController extends GenericController<
   typeof HealthAndPerformance,
   IHealthAndPerformance

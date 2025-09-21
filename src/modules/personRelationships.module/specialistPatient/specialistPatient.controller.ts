@@ -9,11 +9,7 @@ import catchAsync from '../../../shared/catchAsync';
 import omit from '../../../shared/omit';
 import pick from '../../../shared/pick';
 import sendResponse from '../../../shared/sendResponse';
-import { User } from '../../user/user.model';
 
-
-// let conversationParticipantsService = new ConversationParticipentsService();
-// let messageService = new MessagerService();
 
 export class SpecialistPatientController extends GenericController<
   typeof SpecialistPatient,
@@ -115,10 +111,10 @@ export class SpecialistPatientController extends GenericController<
   
 
   /**********
- * 
- * Patient | Get all Patients Specialist .. 
- * 
- * ******** */
+   * 
+   * Patient | Get all Patients Specialist .. 
+   * 
+   * ******** */
   getAllWithPagination = catchAsync(async (req: Request, res: Response) => {
     //const filters = pick(req.query, ['_id', 'title']); // now this comes from middleware in router
     const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']); ;
@@ -126,7 +122,7 @@ export class SpecialistPatientController extends GenericController<
 
     const populateOptions: (string | {path: string, select: string}[]) = [
       {
-        path: 'doctorId',
+        path: 'specialistId',
         select: 'name profileImage profileId',
         populate: {
           path: 'profileId', // deep populate attachments

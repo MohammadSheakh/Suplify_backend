@@ -128,10 +128,11 @@ export class TrainingProgramPurchaseService extends GenericService<
 
     /********
      * 📝
-     * here we also check if relation ship between doctor and patient exist or not
+     * here we also check if relation ship between specialist and patient exist or not
      *  if not then we create the relationship 
      */
     
+    // TODO : Need Test this code .. if already relation exist .. it should not create duplicate relation
     const specialistPatientRelation:ISpecialistPatient = await SpecialistPatient.findOne({
         specialistId: existingTrainingProgram.createdBy,
         patientId: user.userId
@@ -139,6 +140,7 @@ export class TrainingProgramPurchaseService extends GenericService<
 
     if (specialistPatientRelation === null) {
       // Create the relationship if it doesn't exist
+      // TODO : Need Test this code .. if already relation exist .. it should not create duplicate relation 
       const newRelation:ISpecialistPatient = new SpecialistPatient({
           specialistId: existingTrainingProgram.createdBy,
           patientId: user.userId
@@ -211,7 +213,7 @@ export class TrainingProgramPurchaseService extends GenericService<
      * ******* */
 
     let stripeResult ;
-    let trainingProgramPurchase : ITrainingProgramPurchase;
+    let trainingProgramPurchase : ITrainingProgramPurchase | null;
     
     try {
     /*****
@@ -258,7 +260,7 @@ export class TrainingProgramPurchaseService extends GenericService<
 
     //TODO : 
     if(!trainingProgramPurchase){
-      throw new ApiError(StatusCodes.BAD_REQUEST, "No Training Program Purchase Found !");
+      throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, "Training Program Purchasing Failed !");
     }
     
     const stripeSessionData: any = {

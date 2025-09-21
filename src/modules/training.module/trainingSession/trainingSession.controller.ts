@@ -7,7 +7,6 @@ import { ITrainingSession } from './trainingSession.interface';
 import { TrainingSessionService } from './trainingSession.service';
 import catchAsync from '../../../shared/catchAsync';
 import { TFolderName } from '../../../enums/folderNames';
-import { AttachmentService } from '../../attachments/attachment.service';
 import sendResponse from '../../../shared/sendResponse';
 import { processFiles } from '../../../helpers/processFilesToUpload';
 import omit from '../../../shared/omit';
@@ -15,9 +14,6 @@ import pick from '../../../shared/pick';
 import { User } from '../../user/user.model';
 import { TrainingProgram } from '../trainingProgram/trainingProgram.model';
 
-
-// let conversationParticipantsService = new ConversationParticipentsService();
-// let messageService = new MessagerService();
 
 export class TrainingSessionController extends GenericController<
   typeof TrainingSession,

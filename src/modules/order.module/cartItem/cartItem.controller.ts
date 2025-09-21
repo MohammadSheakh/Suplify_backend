@@ -11,9 +11,6 @@ import { Cart } from '../cart/cart.model';
 import { ICart } from '../cart/cart.interface';
 
 
-// let conversationParticipantsService = new ConversationParticipentsService();
-// let messageService = new MessagerService();
-
 export class CartItemController extends GenericController<
   typeof CartItem,
   ICartItem

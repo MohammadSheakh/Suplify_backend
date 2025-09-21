@@ -6,10 +6,6 @@ import { Demo } from './demo.model';
 import { IDemo } from './demo.interface';
 import { DemoService } from './demo.service';
 
-
-// let conversationParticipantsService = new ConversationParticipentsService();
-// let messageService = new MessagerService();
-
 export class DemoController extends GenericController<
   typeof Demo,
   IDemo

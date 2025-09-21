@@ -11,8 +11,6 @@ import ApiError from '../../../errors/ApiError';
 import Stripe from 'stripe';
 import stripe from '../../../config/stripe.config';
 
-// let conversationParticipantsService = new ConversationParticipentsService();
-// let messageService = new MessagerService();
 
 export class PaymentTransactionController extends GenericController<
   typeof PaymentTransaction,

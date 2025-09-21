@@ -7,16 +7,12 @@ import { IProduct } from './product.interface';
 import { ProductService } from './product.service';
 import catchAsync from '../../../shared/catchAsync';
 import sendResponse from '../../../shared/sendResponse';
-import { TFolderName } from '../../attachments/attachment.constant';
 import { AttachmentService } from '../../attachments/attachment.service';
 import { getOrSetRedisCache } from '../../../helpers/getOrSetRedisCache';
 import { redisClient } from '../../../helpers/redis';
 import omit from '../../../shared/omit';
 import pick from '../../../shared/pick';
-
-
-// let conversationParticipantsService = new ConversationParticipentsService();
-// let messageService = new MessagerService();
+import { TFolderName } from '../../../enums/folderNames';
 
 export class ProductController extends GenericController<
   typeof Product,

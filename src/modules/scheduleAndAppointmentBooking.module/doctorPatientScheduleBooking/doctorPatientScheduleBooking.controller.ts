@@ -10,9 +10,6 @@ import sendResponse from '../../../shared/sendResponse';
 import { IUser } from '../../token/token.interface';
 
 
-// let conversationParticipantsService = new ConversationParticipentsService();
-// let messageService = new MessagerService();
-
 export class DoctorPatientScheduleBookingController extends GenericController<
   typeof DoctorPatientScheduleBooking,
   IDoctorPatientScheduleBooking

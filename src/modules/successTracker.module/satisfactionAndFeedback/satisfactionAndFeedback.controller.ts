@@ -7,9 +7,6 @@ import { ISatisfactionAndFeedback } from './satisfactionAndFeedback.interface';
 import { SatisfactionAndFeedbackService } from './satisfactionAndFeedback.service';
 
 
-// let conversationParticipantsService = new ConversationParticipentsService();
-// let messageService = new MessagerService();
-
 export class SatisfactionAndFeedbackController extends GenericController<
   typeof SatisfactionAndFeedback,
   ISatisfactionAndFeedback

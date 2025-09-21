@@ -16,9 +16,6 @@ import { TRole } from '../../../middlewares/roles';
 import { toLocalTime } from '../../../utils/timezone';
 
 
-// let conversationParticipantsService = new ConversationParticipentsService();
-// let messageService = new MessagerService();
-
 export class DoctorAppointmentScheduleController extends GenericController<
   typeof DoctorAppointmentSchedule,
   IDoctorAppointmentSchedule

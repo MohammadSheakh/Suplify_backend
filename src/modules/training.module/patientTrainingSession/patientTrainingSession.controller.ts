@@ -7,9 +7,6 @@ import { IPatientTrainingSession } from './PatientTrainingSession.interface';
 import { PatientTrainingSessionService } from './patientTrainingSession.service';
 
 
-// let conversationParticipantsService = new ConversationParticipentsService();
-// let messageService = new MessagerService();
-
 export class PatientTrainingSessionController extends GenericController<
   typeof PatientTrainingSession,
   IPatientTrainingSession

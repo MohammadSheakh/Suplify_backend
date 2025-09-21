@@ -9,9 +9,6 @@ import sendResponse from '../../../shared/sendResponse';
 import catchAsync from '../../../shared/catchAsync';
 
 
-// let conversationParticipantsService = new ConversationParticipentsService();
-// let messageService = new MessagerService();
-
 export class SuggestionBySpecialistController extends GenericController<
   typeof SuggestionBySpecialist,
   ISuggestionBySpecialist

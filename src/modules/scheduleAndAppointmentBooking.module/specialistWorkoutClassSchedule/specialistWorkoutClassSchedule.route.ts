@@ -1,3 +1,4 @@
+//@ts-ignore
 import express from 'express';
 import * as validation from './specialistWorkoutClassSchedule.validation';
 import { SpecialistWorkoutClassScheduleController} from './specialistWorkoutClassSchedule.controller';
@@ -6,7 +7,7 @@ import { validateFiltersForQuery } from '../../../middlewares/queryValidation/pa
 import validateRequest from '../../../shared/validateRequest';
 import auth from '../../../middlewares/auth';
 import { TRole } from '../../../middlewares/roles';
-
+//@ts-ignore
 import multer from "multer";
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
@@ -34,14 +35,28 @@ const controller = new SpecialistWorkoutClassScheduleController();
 /********
  * 
  * Specialist | WorkoutClass | Get all Workout Class of a specialist
+ * TODO : INCOMPLETE : need to show booking count also 
  * 
  * ******** */
 //info : pagination route must be before the route with params
 router.route('/paginate').get(
   auth(TRole.specialist),
-  validateFiltersForQuery(optionValidationChecking(['_id', ...paginationOptions])),
+  validateFiltersForQuery(optionValidationChecking(['_id', 'createdBy', ...paginationOptions])),
   controller.getAllWithPagination
 );
+
+/*******
+ * 
+ * Patient | Get all Workout Class of a Specialist ..
+ *  |-> with isBooked boolean field 
+ * //📈⚙️
+ * ****** */
+router.route('/paginate/for-patient').get(
+  auth(TRole.patient),
+  validateFiltersForQuery(optionValidationChecking(['_id', 'createdBy', ...paginationOptions])),
+  controller.getAllWithAggregation
+);
+
 
 router.route('/:id').get(
   // auth('common'),

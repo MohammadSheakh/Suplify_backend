@@ -13,9 +13,6 @@ import omit from '../../../shared/omit';
 import pick from '../../../shared/pick';
 
 
-// let conversationParticipantsService = new ConversationParticipentsService();
-// let messageService = new MessagerService();
-
 export class PlanByDoctorController extends GenericController<
   typeof PlanByDoctor,
   IPlanByDoctor

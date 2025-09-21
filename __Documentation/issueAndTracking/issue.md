@@ -1,6 +1,6 @@
 Markdown Table Prettifier ---- Ctrl K Ctrl F
 Issue 🔥  /  Solved ☑️ / Extra Note 📝
-|🔥      | |  |  |  | /8/ | |
+|🔥      | |  |  |  | /9/ | |
 
 
 | Status | Module             | Feature              | Issue                                               | Description | Date    | Remarks  |
@@ -20,7 +20,8 @@ Issue 🔥  /  Solved ☑️ / Extra Note 📝
 | 🔥     | /products/id       |                      | Cannot read properties of null (reading 'category') |             | 14/9/   |          |
 | 🔥     | TrainingSession    | getAllWithPagination | totalSessionCount calculation has serious issue ..  | may be      | 20/9/   | no need  |
 | 🔥     | TrainingProgram    |                      | Total Purchase count need to track                  |             | /8/     | MUST     |
+| 🔥     | Specialist Patient |                      | Create multiple relation .. but it                  |             | 21/9/     |          |
+| 📝     |                    |                      | should create only one relation                     |             | /8/     |          |
 
-
-
+ 
 

@@ -7,9 +7,6 @@ import { ISpecialistSuggestionForAPlan } from './specialistSuggestionForAPlan.in
 import { SpecialistSuggestionForAPlanService } from './specialistSuggestionForAPlan.service';
 
 
-// let conversationParticipantsService = new ConversationParticipentsService();
-// let messageService = new MessagerService();
-
 export class SpecialistSuggestionForAPlanController extends GenericController<
   typeof SpecialistSuggestionForAPlan,
   ISpecialistSuggestionForAPlan

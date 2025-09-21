@@ -15,8 +15,6 @@ import omit from '../../../shared/omit';
 import pick from '../../../shared/pick';
 import { User } from '../../user/user.model';
 
-// let conversationParticipantsService = new ConversationParticipentsService();
-// let messageService = new MessagerService();
 
 export class TrainingProgramController extends GenericController<
   typeof TrainingProgram,

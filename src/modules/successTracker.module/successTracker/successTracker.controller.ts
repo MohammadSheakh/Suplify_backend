@@ -7,9 +7,6 @@ import { ISuccessTracker } from './successTracker.interface';
 import { SuccessTrackerService } from './successTracker.service';
 
 
-// let conversationParticipantsService = new ConversationParticipentsService();
-// let messageService = new MessagerService();
-
 export class SuccessTrackerController extends GenericController<
   typeof SuccessTracker,
   ISuccessTracker
