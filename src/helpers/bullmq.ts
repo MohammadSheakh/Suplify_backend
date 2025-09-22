@@ -93,7 +93,7 @@ const worker = new Worker(
 
       await SpecialistWorkoutClassSchedule.findByIdAndUpdate(scheduleId, {
         $set: { 
-            scheduleStatus: TSpecialistWorkoutClassSchedule.available,
+            status: TSpecialistWorkoutClassSchedule.available,
             scheduleDate: tomorrow
         }
       });
