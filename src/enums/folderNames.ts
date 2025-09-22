@@ -1,7 +1,8 @@
 export enum TFolderName {
-    informationVideo = "suplify/informationVideo",
-    product = "suplify/product",
-    user = "suplify/user",
-    trainingProgram = "suplify/trainingProgram",
-    shop = "suplify/shop" 
+    // suplify // testing
+    informationVideo = "testing/informationVideo",
+    product = "testing/product",
+    user = "testing/user",
+    trainingProgram = "testing/trainingProgram",
+    shop = "testing/shop" 
 };

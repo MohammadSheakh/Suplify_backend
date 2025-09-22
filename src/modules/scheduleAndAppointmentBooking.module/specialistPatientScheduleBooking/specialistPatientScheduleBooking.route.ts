@@ -61,7 +61,7 @@ router.route('/').get(
  *  if not then we create the relationship 
  *  // TODO : test this relationship creation
  * *********** */
-router.route('/create').post(
+router.route('/:workoutClassId').post(
   auth(TRole.patient),
   validateRequest(validation.specialistPatientScheduleBookingValidationSchema),
   controller.create

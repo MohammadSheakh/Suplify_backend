@@ -84,7 +84,7 @@ export class SpecialistWorkoutClassScheduleController extends GenericController<
   getAllWithPagination = catchAsync(async (req: Request, res: Response) => {
     const userTimeZone = req.header('X-Time-Zone') || 'Asia/Dhaka'; //TODO: Timezone must from env file
     
-    const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']); ;
+    const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']); 
     const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
 
     /***

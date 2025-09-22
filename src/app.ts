@@ -29,11 +29,11 @@ app.use(Morgan.errorHandler);
 // body parser
 app.use(
   cors({
-    origin: [
-      'http://localhost:8084',
-      'http://localhost:3000',
-      'https://rakib7002.sobhoy.com/',
-    ],
+    origin:
+         "*",
+    // [
+    //   'http://localhost:8084',
+    // ],
     credentials: true,
   })
 );

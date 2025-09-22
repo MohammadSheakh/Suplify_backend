@@ -1,13 +1,12 @@
 import ApiError from "../../../errors/ApiError";
 import { OrderStatus, PaymentMethod, PaymentStatus } from "../../order.module/order/order.constant";
 import { Order } from "../../order.module/order/order.model";
-import { DoctorAppointmentSchedule } from "../../scheduleAndAppointmentBooking.module/doctorAppointmentSchedule/doctorAppointmentSchedule.model";
 import { TAppointmentStatus } from "../../scheduleAndAppointmentBooking.module/doctorPatientScheduleBooking/doctorPatientScheduleBooking.constant";
 import { DoctorPatientScheduleBooking } from "../../scheduleAndAppointmentBooking.module/doctorPatientScheduleBooking/doctorPatientScheduleBooking.model";
 import { TLabTestBookingStatus } from "../../scheduleAndAppointmentBooking.module/labTestBooking/labTestBooking.constant";
 import { LabTestBooking } from "../../scheduleAndAppointmentBooking.module/labTestBooking/labTestBooking.model";
+import { SpecialistPatientScheduleBooking } from "../../scheduleAndAppointmentBooking.module/specialistPatientScheduleBooking/specialistPatientScheduleBooking.model";
 import { IUser } from "../../token/token.interface";
-import { TrainingProgramPurchase } from "../../training.module/trainingProgramPurchase/trainingProgramPurchase.model";
 import { TrainingProgramPurchaseService } from "../../training.module/trainingProgramPurchase/trainingProgramPurchase.service";
 import { TUser } from "../../user/user.interface";
 import { User } from "../../user/user.model";
@@ -80,6 +79,11 @@ export const handlePaymentSucceeded = async (session: Stripe.Checkout.Session) =
                updatedObjectOfReferenceFor =
                updatePurchaseTrainingProgram(
                     _user, referenceId, newPayment._id, referenceId2
+               )
+          }else if (referenceFor === TTransactionFor.SpecialistPatientScheduleBooking){
+               updatedObjectOfReferenceFor =
+               updateSpecialistPatientScheduleBooking(
+                referenceId, newPayment._id
                )
           }
 
@@ -185,3 +189,22 @@ async function updatePurchaseTrainingProgram(
 
      return updatedTrainingProgramPurchase;
 }
+
+
+async function updateSpecialistPatientScheduleBooking(
+     specialistPatientScheduleBookingId: string,
+     paymentTransactionId: string
+){
+     console.log("☑️HIT☑️ handlePaymentSucceed -> updateSpecialistPatientScheduleBooking >>> specialistPatientScheduleBookingId", specialistPatientScheduleBookingId)
+
+     const updatedSpecialsitPatientWorkoutClassBooking = await SpecialistPatientScheduleBooking.findByIdAndUpdate(specialistPatientScheduleBookingId, { 
+          /* update fields */ 
+          paymentTransactionId : paymentTransactionId,
+          paymentStatus: PaymentStatus.paid,
+          status : TAppointmentStatus.scheduled,
+          paymentMethod: PaymentMethod.online
+     }, { new: true });
+  
+     return updatedSpecialsitPatientWorkoutClassBooking;
+}
+

@@ -17,12 +17,8 @@ export interface ISpecialistPatientScheduleBooking {
   // Status and deletion
   isDeleted?: boolean; // default: false
 
-  /*******
-   * 
-   * not sure 
-   * 
-   * ****** */
-  status?: TScheduleBookingStatus; // required, no default initially
+  
+  status: TScheduleBookingStatus; 
   
   // Payment related fields
   paymentTransactionId?: Types.ObjectId | null; // ref: 'PaymentTransaction', default: null

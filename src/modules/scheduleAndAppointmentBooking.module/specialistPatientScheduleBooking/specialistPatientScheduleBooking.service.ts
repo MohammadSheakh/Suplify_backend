@@ -12,11 +12,12 @@ import { SpecialistPatient } from '../../personRelationships.module/specialistPa
 import { SpecialistWorkoutClassSchedule } from '../specialistWorkoutClassSchedule/specialistWorkoutClassSchedule.model';
 //@ts-ignore
 import mongoose from 'mongoose';
-import { TPaymentStatus } from './specialistPatientScheduleBooking.constant';
+import { TPaymentStatus, TScheduleBookingStatus } from './specialistPatientScheduleBooking.constant';
 //@ts-ignore
 import Stripe from "stripe";
 import stripe from "../../../config/stripe.config";
-
+import { TTransactionFor } from '../../payment.module/paymentTransaction/paymentTransaction.constant';
+import { config } from '../../../config';
 
 export class SpecialistPatientScheduleBookingService extends GenericService<
   typeof SpecialistPatientScheduleBooking,
@@ -104,10 +105,10 @@ export class SpecialistPatientScheduleBookingService extends GenericService<
                 patientId: user.userId,
                 workoutClassScheduleId : existingWorkoutClass._id,
                 specialistId: existingWorkoutClass.createdBy,// ⚡ this will help us to query easily
-                paymentTransactionId: null, // in webhook we will update this
-                paymentMethod: null, // in webhook we will update this
-                paymentStatus: TPaymentStatus.unpaid, // in webhook we will update this
-
+                paymentTransactionId: null, 
+                paymentMethod: null, 
+                paymentStatus: TPaymentStatus.unpaid, 
+                status : TScheduleBookingStatus.scheduled, 
                 endTime : existingWorkoutClass.endTime,
                 startTime: existingWorkoutClass.startTime,
                 scheduleDate: existingWorkoutClass.scheduleDate,
@@ -117,7 +118,8 @@ export class SpecialistPatientScheduleBookingService extends GenericService<
 
         });
         } catch (error) {
-        console.error("Transaction failed:", error);
+            console.error("Transaction failed:", error);
+            throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Workout class Booking failed');
         // handle/log/throw depending on your app logic
         } finally {
         await session.endSession();
@@ -130,9 +132,8 @@ export class SpecialistPatientScheduleBookingService extends GenericService<
         return bookWorkoutClass
     }
 
-
     /*********
-     * 📝
+     * 📝 if patient's subscription is standard
      * 4. ++++++ For Booking we create SpecialistPatientScheduleBooking  
      *                              [PaymentStatus.unpaid] [PaymentTransactionId = null]
      * 5. ++ we Provide Stripe URL to payment .. 
@@ -169,10 +170,6 @@ export class SpecialistPatientScheduleBookingService extends GenericService<
 
     const session = await mongoose.startSession();
 
-    let finalAmount = 0;
-    let createdOrder = null;
-    
-
     // session.startTransaction();
     await session.withTransaction(async () => {
        
@@ -183,7 +180,7 @@ export class SpecialistPatientScheduleBookingService extends GenericService<
             paymentTransactionId: null, // in webhook we will update this
             paymentMethod: null, // in webhook we will update this
             paymentStatus: TPaymentStatus.unpaid, // in webhook we will update this
-
+            status : TScheduleBookingStatus.pending, // in webhook we will update this
             endTime : existingWorkoutClass.endTime,
             startTime: existingWorkoutClass.startTime,
             scheduleDate: existingWorkoutClass.scheduleDate,
@@ -212,7 +209,7 @@ export class SpecialistPatientScheduleBookingService extends GenericService<
                         product_data: {
                             name: 'Amount',
                         },
-                        unit_amount: finalAmount! * 100, // Convert to cents
+                        unit_amount: parseInt(existingWorkoutClass.price)! * 100, // Convert to cents
                     },
                     quantity: 1,
                 },
@@ -236,11 +233,11 @@ export class SpecialistPatientScheduleBookingService extends GenericService<
              * 5. Training Program Buying .. 
              *  
              * **** */
-            referenceId: createdOrder._id.toString(), // in webhook .. in PaymentTransaction Table .. this should be referenceId
-            referenceFor: "Order", // in webhook .. this should be the referenceFor
+            referenceId: bookWorkoutClass._id.toString(), // in webhook .. in PaymentTransaction Table .. this should be referenceId
+            referenceFor: TTransactionFor.SpecialistPatientScheduleBooking, // in webhook .. this should be the referenceFor
             currency: "usd",
-            amount: finalAmount.toString(),
-            user: JSON.stringify(user) // who created this order  // as we have to send notification also may be need to send email
+            amount: existingWorkoutClass.price.toString(),
+            user: JSON.stringify(user) // who created this booking  // as we have to send notification also may be need to send email
             
             /******
              * 
@@ -250,18 +247,16 @@ export class SpecialistPatientScheduleBookingService extends GenericService<
              * ++++++++++++++++++++++ paymentIntent :: coming from stripe .. or we generate this 
              * ++++++++++++++++++++++ gatewayResponse :: whatever coming from stripe .. we save those for further log
              * 
-             * We also UPDATE Order Infomation .. 
+             * We also UPDATE Booking Infomation .. 
              * 
-             * status [ ]
-             * paymentTransactionId [🆔]
-             * paymentStatus [paid]
+             * ++++ We update SpecialistPatientScheduleBooking [status.scheduled]
+             *      [PaymentStatus.paid] [PaymentTransactionId = <transaction_id🆔>]
              * 
              * ******* */
         },
         success_url: config.stripe.success_url,
         cancel_url: config.stripe.cancel_url,
     };
-
 
     try {
         const session = await stripe.checkout.sessions.create(stripeSessionData);
