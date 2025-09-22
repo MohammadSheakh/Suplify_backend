@@ -102,7 +102,7 @@ async function main() {
     global.io = io;
 
     // 🔥 Start BullMQ Worker (listens for schedule jobs)
-    startScheduleWorker; // just reference
+    startScheduleWorker(); // just reference
 
   } catch (error) {
     errorLogger.error(colors.red('🤢 Issue from server.ts => ', error));

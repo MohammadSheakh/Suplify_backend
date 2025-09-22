@@ -323,9 +323,9 @@ async function addToBullQueueToFreeSpecialistPatientSchedule(
     const delay = endTime.getTime() - now;
     
     // Original logging
-    // console.log('👉 schedule booking time : ', now) 
+    console.log('👉 schedule booking time : ', now) 
     // console.log("👉 Scheduling job to free up schedule at : ", endTime , " ⚡ ",  endTime.getTime()); 
-    // console.log("👉 delay :", delay); 
+    console.log("👉 delay :", delay); 
 
     if (delay > 0) {
         await scheduleQueue.add(
