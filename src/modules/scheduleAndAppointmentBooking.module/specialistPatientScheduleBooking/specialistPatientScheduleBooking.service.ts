@@ -18,6 +18,14 @@ import Stripe from "stripe";
 import stripe from "../../../config/stripe.config";
 import { TTransactionFor } from '../../payment.module/paymentTransaction/paymentTransaction.constant';
 import { config } from '../../../config';
+import { ISpecialistWorkoutClassSchedule } from '../specialistWorkoutClassSchedule/specialistWorkoutClassSchedule.interface';
+import { TSession, TSpecialistWorkoutClassSchedule } from '../specialistWorkoutClassSchedule/specialistWorkoutClassSchedule.constant';
+import { scheduleQueue } from '../../../helpers/bullmq';
+import { logger } from '../../../shared/logger';
+//@ts-ignore
+import colors from 'colors';
+import { formatDelay } from '../../../utils/formatDelay';
+
 
 export class SpecialistPatientScheduleBookingService extends GenericService<
   typeof SpecialistPatientScheduleBooking,
@@ -60,9 +68,13 @@ export class SpecialistPatientScheduleBookingService extends GenericService<
     }
 
     //check workout class exist or not
-    const existingWorkoutClass = await SpecialistWorkoutClassSchedule.findById(workoutClassId);
+    const existingWorkoutClass : ISpecialistWorkoutClassSchedule = await SpecialistWorkoutClassSchedule.findById(workoutClassId);
     if(!existingWorkoutClass){
         throw new ApiError(StatusCodes.NOT_FOUND, 'Workout Class not found');
+    }
+
+    if(existingWorkoutClass.status !== TSpecialistWorkoutClassSchedule.available){
+        throw new ApiError(StatusCodes.BAD_REQUEST, `This workout class is not available for booking. Current status is ${existingWorkoutClass.status}`);
     }
 
     /********
@@ -99,30 +111,50 @@ export class SpecialistPatientScheduleBookingService extends GenericService<
 
         let bookWorkoutClass : ISpecialistPatientScheduleBooking | null = null;
         try {
-        await session.withTransaction(async () => {
+            await session.withTransaction(async () => {
 
-            bookWorkoutClass = await this.create({
-                patientId: user.userId,
-                workoutClassScheduleId : existingWorkoutClass._id,
-                specialistId: existingWorkoutClass.createdBy,// ⚡ this will help us to query easily
-                paymentTransactionId: null, 
-                paymentMethod: null, 
-                paymentStatus: TPaymentStatus.unpaid, 
-                status : TScheduleBookingStatus.scheduled, 
-                endTime : existingWorkoutClass.endTime,
-                startTime: existingWorkoutClass.startTime,
-                scheduleDate: existingWorkoutClass.scheduleDate,
+                bookWorkoutClass = await this.create({
+                    patientId: user.userId,
+                    workoutClassScheduleId : existingWorkoutClass._id,
+                    specialistId: existingWorkoutClass.createdBy,// ⚡ this will help us to query easily
+                    paymentTransactionId: null, 
+                    paymentMethod: null, 
+                    paymentStatus: TPaymentStatus.unpaid, 
+                    status : TScheduleBookingStatus.scheduled, 
+                    endTime : existingWorkoutClass.endTime,
+                    startTime: existingWorkoutClass.startTime,
+                    scheduleDate: existingWorkoutClass.scheduleDate,
 
-                price: parseInt(existingWorkoutClass.price)
+                    price: parseInt(existingWorkoutClass.price)
+                });
+
+                if(existingWorkoutClass.sessionType == TSession.private){
+                    existingWorkoutClass.status = TSpecialistWorkoutClassSchedule.booked; 
+                }
+
+                await existingWorkoutClass.save();
+
+                /********
+                 * 
+                 * 📝 
+                 * after endTime .. 
+                 * 
+                 * status of SpecialistWorkoutClassSchedule should be changed to available via bullmq
+                 * 
+                 * and all specialistPatientScheduleBooking for this workoutClassSchedule
+                 * status will be completed
+                 * 
+                 * ****** */
+
+                addToBullQueueToFreeSpecialistPatientSchedule(existingWorkoutClass)
+
             });
-
-        });
         } catch (error) {
             console.error("Transaction failed:", error);
             throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Workout class Booking failed');
         // handle/log/throw depending on your app logic
         } finally {
-        await session.endSession();
+            await session.endSession();
         }
 
         /***
@@ -203,16 +235,16 @@ export class SpecialistPatientScheduleBookingService extends GenericService<
         mode: 'payment',
         customer: stripeCustomer.id,
         line_items: [
-                {
-                    price_data: {
-                        currency: 'usd', // must be small letter
-                        product_data: {
-                            name: 'Amount',
-                        },
-                        unit_amount: parseInt(existingWorkoutClass.price)! * 100, // Convert to cents
+            {
+                price_data: {
+                    currency: 'usd', // must be small letter
+                    product_data: {
+                        name: 'Amount',
                     },
-                    quantity: 1,
+                    unit_amount: parseInt(existingWorkoutClass.price)! * 100, // Convert to cents
                 },
+                quantity: 1,
+            },
         ],
         metadata: {
             /*****
@@ -276,4 +308,41 @@ export class SpecialistPatientScheduleBookingService extends GenericService<
     return  stripeResult; // result ;//session.url;
  }
 
+}
+
+
+async function addToBullQueueToFreeSpecialistPatientSchedule(
+    existingWorkoutClass : ISpecialistWorkoutClassSchedule,
+    createdBooking?: ISpecialistPatientScheduleBooking
+    ){
+
+    const endTime = new Date(existingWorkoutClass.endTime);
+
+    const now = Date.now();
+    
+    const delay = endTime.getTime() - now;
+    
+    // Original logging
+    // console.log('👉 schedule booking time : ', now) 
+    // console.log("👉 Scheduling job to free up schedule at : ", endTime , " ⚡ ",  endTime.getTime()); 
+    // console.log("👉 delay :", delay); 
+
+    if (delay > 0) {
+        await scheduleQueue.add(
+            "makeSpecialistWorkoutClassScheduleAvailable",
+            {
+                scheduleId: existingWorkoutClass._id,
+                // workoutClassBookingId: createdBooking._id,
+                /***
+                 * we dont need booking id here as multiple patient can book a workout class
+                 * we will update all the booking status to completed where workoutClassScheduleId = scheduleId
+                 *
+                 ** */
+            },
+            { delay }
+        );
+        // ${delay / 1000}s -> 
+        console.log(`⏰ Job added to free schedule ${existingWorkoutClass._id} in ${formatDelay(delay)} min`);
+        logger.info(colors.green(`⏰ Job added to free schedule ${existingWorkoutClass._id} in ${formatDelay(delay)} min`));
+    }
 }

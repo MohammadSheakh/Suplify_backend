@@ -37,8 +37,8 @@ const SpecialistPatientScheduleBookingSchema = new Schema<ISpecialistPatientSche
       ],
       // default: TScheduleBookingStatus.scheduled,
       required: [true, `status is required .. it can be  ${Object.values(TScheduleBookingStatus).join(
-              ', '
-            )}`],
+        ', '
+      )}`],
        /**************
        * Initially status should be pending ..
        * In webhook .. update the status based on the payment status

@@ -49,7 +49,7 @@ const SpecialistWorkoutClassScheduleSchema = new Schema<ISpecialistWorkoutClassS
     typeOfLink: {
       type: String,
       enum: [
-      TMeetingLink.zoom,
+        TMeetingLink.zoom,
         TMeetingLink.googleMeet,
         TMeetingLink.others
       ],

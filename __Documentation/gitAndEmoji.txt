@@ -28,3 +28,8 @@
 
 Ask AI :: 
 this is my coding structure .. is my coding standard ? rate my way of coding out of 10 ..
+
+git status
+git diff --stat
+git diff --shortstat
+git diff --numstat | awk '{inserted+=$1} END {print inserted}'

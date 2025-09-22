@@ -7,6 +7,7 @@ import { ISpecialistWorkoutClassSchedule } from './specialistWorkoutClassSchedul
 import { GenericService } from '../../_generic-module/generic.services';
 import { toLocalTime, toUTCTime } from '../../../utils/timezone';
 import { PaginateOptions } from '../../../types/paginate';
+import PaginationService from '../../../common/service/paginationService';
 
 export class SpecialistWorkoutClassScheduleService extends GenericService<
   typeof SpecialistWorkoutClassSchedule,
@@ -76,13 +77,13 @@ export class SpecialistWorkoutClassScheduleService extends GenericService<
   }
 
 
-/********
- * 
- * Patient | Get all workout class of a specialist .. 
- * if patient already buy a workout class also 
- * show that ... 
- * 
- * ******* */
+  /********
+   * 
+   * Patient | Get all workout class of a specialist .. 
+   * if patient already buy a workout class also 
+   * show that ... 
+   * 
+   * ******* */
   async getAllWithAggregation(
       filters: any, // Partial<INotification> // FixMe : fix type
       options: PaginateOptions,
@@ -245,5 +246,91 @@ export class SpecialistWorkoutClassScheduleService extends GenericService<
       options
     );
   }
+
+
+  
+  /********
+   * 
+   * Specialist | Get all workout class with booking count 
+   * 
+   * ******* */
+  async getAllWithAggregationForSpecialist(
+      filters: any, // Partial<INotification> // FixMe : fix type
+      options: PaginateOptions,
+    ) {
+      
+      //📈⚙️ Business logic: Build the aggregation pipeline
+      const pipeline = [
+      // Match schedules created by this specialist
+      {
+        $match: {
+          createdBy: new mongoose.Types.ObjectId(filters.createdBy),
+          isDeleted: { $ne: true },
+        },
+      },
+
+      // Lookup only scheduled bookings for this schedule
+      {
+        $lookup: {
+          from: 'specialistpatientschedulebookings',
+          let: { scheduleId: '$_id' },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ['$workoutClassScheduleId', '$$scheduleId'] },
+                    { $eq: ['$status', 'scheduled'] }, // ✅ only scheduled
+                    { $ne: ['$isDeleted', true] },
+                  ],
+                },
+              },
+            },
+          ],
+          as: 'bookings',
+        },
+      },
+
+      // Add booking count
+      {
+        $addFields: {
+          bookingCount: { $size: '$bookings' },
+        },
+      },
+
+      // Project fields you want to return
+      {
+        $project: {
+          _id: 1,
+          scheduleName: 1,
+          scheduleDate: 1,
+          startTime: 1,
+          endTime: 1,
+          description: 1,
+          status: 1,
+          price: 1,
+          sessionType: 1,
+          typeOfLink: 1,
+          meetingLink: 1,
+          bookingCount: 1, // 🆕 count of scheduled bookings
+        },
+      },
+
+      // Sort by newest
+      {
+        $sort: { createdAt: -1 },
+      },
+    ];
+
+    // Use pagination service for aggregation
+    return await PaginationService.aggregationPaginate(
+      SpecialistWorkoutClassSchedule, 
+      pipeline,
+      options
+    );
+  }
+
+
+
 
 }

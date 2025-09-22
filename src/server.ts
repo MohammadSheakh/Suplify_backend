@@ -1,13 +1,19 @@
-import colors from 'colors';// test from ubuntu
+//@ts-ignore
+import colors from 'colors';
+//@ts-ignore
 import mongoose from 'mongoose';
+//@ts-ignore
 import { Server } from 'socket.io';
 import app from './app';
 import { errorLogger, logger } from './shared/logger';
 import { config } from './config';
+//@ts-ignore
 import os from 'os';
+//@ts-ignore
 import cluster from 'cluster';
+//@ts-ignore
 import { createAdapter } from '@socket.io/redis-adapter';
-import { createClient } from 'redis';
+
 import { initializeRedis, redisPubClient, redisSubClient } from './helpers/redis';
 import { socketHelper } from './helpers/socketForChat';
 import { startMessageConsumer } from './helpers/kafka';

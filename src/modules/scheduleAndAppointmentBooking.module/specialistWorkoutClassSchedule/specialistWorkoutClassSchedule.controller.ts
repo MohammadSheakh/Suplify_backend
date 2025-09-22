@@ -1,6 +1,7 @@
+//@ts-ignore
 import { Request, Response } from 'express';
+//@ts-ignore
 import { StatusCodes } from 'http-status-codes';
-
 import { GenericController } from '../../_generic-module/generic.controller';
 import { SpecialistWorkoutClassSchedule } from './specialistWorkoutClassSchedule.model';
 import { ISpecialistWorkoutClassSchedule } from './specialistWorkoutClassSchedule.interface';
@@ -13,7 +14,6 @@ import { IUser } from '../../token/token.interface';
 import { TRole } from '../../../middlewares/roles';
 import { toLocalTime } from '../../../utils/timezone';
 import { User } from '../../user/user.model';
-
 
 export class SpecialistWorkoutClassScheduleController extends GenericController<
   typeof SpecialistWorkoutClassSchedule,
@@ -112,12 +112,13 @@ export class SpecialistWorkoutClassScheduleController extends GenericController<
             select: '-attachments -__v'
         }),
 
-      this.service.getAllWithPagination(filters, options, populateOptions, select)
+        this.specialistWorkoutClassScheduleService.getAllWithAggregationForSpecialist(filters, options)
+      // this.service.getAllWithPagination(filters, options, populateOptions, select)
     ]);
 
     //---  Convert startTime/endTime for each item in results
     const convertedResults = result.results.map(item => ({
-      ...item.toObject(), // must add .toObject() if this is mongoose document
+      ...item, // .toObject()  must add .toObject() if this is mongoose document
       startTime: toLocalTime(item.startTime, userTimeZone),
       endTime: toLocalTime(item.endTime, userTimeZone),
     }));

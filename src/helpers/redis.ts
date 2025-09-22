@@ -58,7 +58,7 @@ redisSubClient.on('error', (err) => {
 export async function initializeRedis() {
 
   // Add this to your main server file or Redis config file
-console.log('😄😄😄😄😄😄😄😄😄😄😄😄😄😄😄😄😄😄😄😄😄 process.env.redis_host', process.env.REDIS_HOST, process.env.REDIS_PORT);
+  console.log('😄😄😄😄😄😄😄😄😄😄😄😄😄😄😄😄😄😄😄😄😄 process.env.redis_host', process.env.REDIS_HOST, process.env.REDIS_PORT);
 
   try {
     await Promise.all([
