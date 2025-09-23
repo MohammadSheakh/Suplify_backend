@@ -6,7 +6,7 @@ Issue 🔥  /  Solved ☑️ / Extra Note 📝
 | Status | Module             | Feature              | Issue                                               | Description | Date    | Remarks  |
 |--------|--------------------|----------------------|-----------------------------------------------------|-------------|---------|----------|
 | ☑️     | Auth               | Registration         | not provide any response(specialist works fine btw) |             | 26/8/25 |          |
-| ☑️     | Auth               | Registration         | password is not hashed in database                  |             | 26/8/   |          |
+| ☑️🔥   | Auth               | Registration         | password is not hashed in database .. still issue   |             | 26/8/   |          |
 | 🔥     | Socket             | Conversation         | If A user send a message .. his                     |             | /8/     | based on |
 | 📝     |                    |                      | conversation list should be updated                 |             | /8/     | sikring  |
 | 🔥     | Conversation       |                      | isOnline: global.socketUtils.isUserOnline(userId)   |             | /8/     |          |

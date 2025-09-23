@@ -82,176 +82,211 @@ export class SpecialistWorkoutClassScheduleService extends GenericService<
    * Patient | Get all workout class of a specialist .. 
    * if patient already buy a workout class also 
    * show that ... 
-   * 
+   *
+   * GUIDE FOR FRONTEND : 🎨
+   * if "latestBookingStatus" not null .. then show that
+   * if "latestBookingStatus" null then print "status"
+   *
    * ******* */
   async getAllWithAggregation(
       filters: any, // Partial<INotification> // FixMe : fix type
       options: PaginateOptions,
       patientId: string,
     ) {
-      
-    //📈⚙️ Business logic: Build the aggregation pipeline
-    const pipeline = [
-    // Match training programs created by the specialist
+     const pipelineV3 = [
+    // 1. Match schedules for the specialist
     {
-      $match: {
-        createdBy: new mongoose.Types.ObjectId(filters.createdBy),
-        isDeleted: { $ne: true }
-      }
+        $match: {
+            createdBy: new mongoose.Types.ObjectId(filters.createdBy), // specialist ID
+            isDeleted: { $ne: true } // exclude deleted schedules
+        }
     },
-    
-    // Left join with trainingprogrampurchases to check if patient has purchased
+
+    // 2. Lookup recent bookings by this patient (max 4, sorted by latest first)
     {
-      $lookup: {
-        from: 'trainingprogrampurchases', // TrainingProgramPurchase collection
-        let: { trainingProgramId: '$_id' },
-        pipeline: [
-          {
-            $match: {
-              $expr: {
-                $and: [
-                  { $eq: ['$trainingProgramId', '$$trainingProgramId'] },
-                  { $eq: ['$patientId', new mongoose.Types.ObjectId(patientId)] },
-                  { $ne: ['$isDeleted', true] }
-                ]
-              }
+        $lookup: {
+            from: "specialistpatientschedulebookings", // your booking collection name
+            let: { scheduleId: "$_id" },
+            pipeline: [
+                {
+                    $match: {
+                        $expr: { $eq: ["$workoutClassScheduleId", "$$scheduleId"] },
+                        patientId: new mongoose.Types.ObjectId(patientId),
+                        isDeleted: { $ne: true }
+                    }
+                },
+                {
+                    $sort: { createdAt: -1 } // Latest bookings first
+                },
+                {
+                    $limit: 4 // Only get the latest 4 bookings for this schedule
+                },
+                {
+                    $project: {
+                        _id: 1,
+                        status: 1,
+                        paymentStatus: 1,
+                        paymentMethod: 1,
+                        price: 1,
+                        scheduleDate: 1,
+                        startTime: 1,
+                        endTime: 1,
+                        createdAt: 1,
+                        updatedAt: 1
+                    }
+                }
+            ],
+            as: "patientBookings"
+        }
+    },
+
+    // 3. Add computed fields to determine if patient has active booking
+    {
+        $addFields: {
+            // Check if patient has any valid booking for this schedule
+            hasPatientBooking: {
+                $gt: [{ $size: "$patientBookings" }, 0]
+            },
+            
+            // Get the latest booking status
+            latestBookingStatus: {
+                $cond: {
+                    if: { $gt: [{ $size: "$patientBookings" }, 0] },
+                    then: { $arrayElemAt: ["$patientBookings.status", 0] },
+                    else: null
+                }
+            },
+
+            // Get the latest payment status
+            latestPaymentStatus: {
+                $cond: {
+                    if: { $gt: [{ $size: "$patientBookings" }, 0] },
+                    then: { $arrayElemAt: ["$patientBookings.paymentStatus", 0] },
+                    else: null
+                }
             }
-          }
-        ],
-        as: 'purchases'
-      }
+        }
     },
-    
-    // Left join with attachments for main content
+
+    // 4. Project final shape with conditional fields
     {
-      $lookup: {
-        from: 'attachments',
-        localField: 'attachments',
-        foreignField: '_id',
-        as: 'attachmentDetails'
-      }
-    },
-    
-    // Left join with trailer content attachments
-    {
-      $lookup: {
-        from: 'attachments',
-        localField: 'trailerContents',
-        foreignField: '_id',
-        as: 'trailerContentDetails'
-      }
-    },
-    
-    // Left join with specialist (creator) details
-    // {
-    //   $lookup: {
-    //     from: 'users',
-    //     localField: 'createdBy',
-    //     foreignField: '_id',
-    //     as: 'specialistDetails'
-    //   }
-    // },
-    
-    // Add computed fields
-    {
-      $addFields: {
-        isPurchased: {
-          $cond: {
-            if: { $gt: [{ $size: '$purchases' }, 0] },
-            then: true,
-            else: false
-          }
-        },
-        purchaseDetails: {
-          $cond: {
-            if: { $gt: [{ $size: '$purchases' }, 0] },
-            then: { $arrayElemAt: ['$purchases', 0] },
-            else: null
-          }
-        },
-        // specialist: {
-        //   $arrayElemAt: ['$specialistDetails', 0]
-        // }
-      }
-    },
-    
-    // Project final output
-    {
-      $project: {
-        _id: 1,
-        programName: 1,
-        // description: 1,
-        durationInMonths: 1,
-        totalSessionCount: 1,
-        price: 1,
-        // createdBy: 1, // may be we dont need this 
-        isPurchased: 1,
-        // Include purchase details if purchased
-        'purchaseDetails._id': 1,
-        'purchaseDetails.price': 1,
-        'purchaseDetails.paymentStatus': 1,
-        'purchaseDetails.paymentMethod': 1,
-        'purchaseDetails.createdAt': 1,
-        /////////// Specialist details
-        // 'specialist._id': 1,
-        // 'specialist.name': 1,
-        // 'specialist.profileImage': 1,
-        // 'specialist.avatar': 1,
-        /***********
-         * 
-         * $ references fields from the current document
-          $$ references variables defined in the aggregation expression 
-          (like the as variable in $map)
-         * 
-         * **** */
-        // Attachment details
-        attachmentDetails: {
-          $map: {
-            input: '$attachmentDetails',
-            as: 'attachment',
-            in: {
-              _id: '$$attachment._id',
-              attachment: '$$attachment.attachment',
-              attachmentType: '$$attachment.attachmentType'
+        $project: {
+            _id: 1,
+            scheduleName: 1,
+            scheduleDate: 1,
+            startTime: 1,
+            endTime: 1,
+            description: 1,
+            status: 1,
+            price: 1,
+            sessionType: 1,
+            createdBy: 1,
+            createdAt: 1,
+            updatedAt: 1,
+            
+            // Conditional fields - only show if patient has valid booking
+            typeOfLink: {
+                $cond: {
+                    if: {
+                        $and: [
+                            { $gt: [{ $size: "$patientBookings" }, 0] },
+                            {
+                                $in: [
+                                    "$latestBookingStatus",
+                                    ["scheduled", "completed"] // only for valid bookings
+                                ]
+                            }
+                        ]
+                    },
+                    then: "$typeOfLink",
+                    else: null
+                }
+            },
+            
+            meetingLink: {
+                $cond: {
+                    if: {
+                        $and: [
+                            { $gt: [{ $size: "$patientBookings" }, 0] },
+                            {
+                                $in: [
+                                    "$latestBookingStatus",
+                                    ["scheduled", "completed"]
+                                ]
+                            }
+                        ]
+                    },
+                    then: "$meetingLink",
+                    else: null
+                }
+            },
+
+            // Patient booking information
+            hasPatientBooking: 1,
+            latestBookingStatus: 1,
+            latestPaymentStatus: 1,
+            patientBookings: 1, // Full array of latest 4 bookings
+
+            // Additional helpful flags
+            isBookedByPatient: {
+                $cond: {
+                    if: {
+                        $and: [
+                            { $gt: [{ $size: "$patientBookings" }, 0] },
+                            {
+                                $in: [
+                                    "$latestBookingStatus",
+                                    ["pending", "scheduled", "completed"]
+                                ]
+                            }
+                        ]
+                    },
+                    then: true,
+                    else: false
+                }
+            },
+
+            isPaidByPatient: {
+                $cond: {
+                    if: {
+                        $and: [
+                            { $gt: [{ $size: "$patientBookings" }, 0] },
+                            { $eq: ["$latestPaymentStatus", "paid"] }
+                        ]
+                    },
+                    then: true,
+                    else: false
+                }
             }
-          }
-        },
-        // Trailer content details
-        trailerContentDetails: {
-          $map: {
-            input: '$trailerContentDetails',
-            as: 'trailer',
-            in: {
-              _id: '$$trailer._id',
-              attachment: '$$trailer.attachment',
-              attachmentType: '$$trailer.attachmentType'
-            }
-          }
-        },
-      }
+        }
     },
-    
-    // Sort by creation date (newest first)
+
+    // 5. Sort schedules (upcoming first, then by start time)
     {
-      $sort: {
-        createdAt: -1
-      }
+        $sort: { 
+            scheduleDate: 1, 
+            startTime: 1 
+        }
     }
-  ];
+]; 
+    
 
     // Use pagination service for aggregation
     return await PaginationService.aggregationPaginate(
-      TrainingProgram, 
-      pipeline,
+      SpecialistWorkoutClassSchedule, 
+      pipelineV3,
       options
     );
   }
 
-
-  
   /********
    * 
    * Specialist | Get all workout class with booking count 
+   * 
+   * from SpecialistPatientScheduleBookingSchema
+   * reponse also contains count of scheduled bookings for each booking..
+   * not for [status.pending] [status.cancelled] [status.completed]
+   * only for [status.scheduled]
    * 
    * ******* */
   async getAllWithAggregationForSpecialist(

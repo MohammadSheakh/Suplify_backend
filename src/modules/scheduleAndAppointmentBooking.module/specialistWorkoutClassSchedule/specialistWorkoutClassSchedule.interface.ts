@@ -15,7 +15,8 @@ export interface ISpecialistWorkoutClassSchedule {
   description: string;
   status:  TSpecialistWorkoutClassSchedule.available |
         TSpecialistWorkoutClassSchedule.booked |
-        TSpecialistWorkoutClassSchedule.cancelled;
+        TSpecialistWorkoutClassSchedule.cancelled
+        | TSpecialistWorkoutClassSchedule.expired;
   price: number;
   typeOfLink: TMeetingLink.zoom | TMeetingLink.googleMeet | TMeetingLink.others;
   sessionType: TSession.private | TSession.group;

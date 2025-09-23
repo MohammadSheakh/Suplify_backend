@@ -36,6 +36,7 @@ const SpecialistWorkoutClassScheduleSchema = new Schema<ISpecialistWorkoutClassS
         TSpecialistWorkoutClassSchedule.available,
         TSpecialistWorkoutClassSchedule.booked,
         TSpecialistWorkoutClassSchedule.cancelled,
+        TSpecialistWorkoutClassSchedule.expired,
       ],
       default: TSpecialistWorkoutClassSchedule.available,
       required: [true, `status is required .. it can be  ${Object.values(TSpecialistWorkoutClassSchedule).join(

@@ -26,6 +26,7 @@ import { DoctorPatient } from '../../personRelationships.module/doctorPatient/do
 import { scheduleQueue } from '../../../helpers/bullmq';
 import { logger } from '../../../shared/logger';
 import { formatDelay } from '../../../utils/formatDelay';
+import { TUser } from '../../user/user.interface';
 
 export class DoctorPatientScheduleBookingService extends GenericService<
   typeof DoctorPatientScheduleBooking,
@@ -48,10 +49,10 @@ export class DoctorPatientScheduleBookingService extends GenericService<
          * 4. if "vise" ... no payment required to book appointment
          * ******* */
 
-        const existingUser = await User.findById(user.userId).select('+subscriptionPlan +stripe_customer_id');
+        const existingUser:TUser = await User.findById(user.userId).select('+subscriptionPlan +stripe_customer_id');
         // TODO : Need to test
         
-        if(existingUser.subscriptionPlan === TSubscription.none){
+        if(existingUser.subscriptionType === TSubscription.none){
             throw new ApiError(StatusCodes.FORBIDDEN, 'You need to subscribe a plan to book appointment with doctor');
         }
 
@@ -90,7 +91,8 @@ export class DoctorPatientScheduleBookingService extends GenericService<
         existingSchedule.scheduleStatus = TDoctorAppointmentScheduleStatus.booked;
         // existingSchedule.booked_by = user.userId; // we update this in webhook
 
-        if(existingUser.subscriptionPlan == TSubscription.vise){
+        if(existingUser.subscriptionType == TSubscription.vise){
+
             // no payment required ..
             /******
              * 📝
@@ -131,6 +133,7 @@ export class DoctorPatientScheduleBookingService extends GenericService<
 
             return  createdBooking;
         }
+
 
         /*********
          * 📝
@@ -176,7 +179,6 @@ export class DoctorPatientScheduleBookingService extends GenericService<
 
             
             let createdDoctorPatientScheduleBooking : IDoctorPatientScheduleBooking | null = null; // we pass this in metadata as referenceId
-            
 
             // session.startTransaction();
             await session.withTransaction(async () => {

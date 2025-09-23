@@ -53,9 +53,9 @@ const DoctorPatientScheduleBookingSchema = new Schema<IDoctorPatientScheduleBook
     paymentMethod: {
       type: String,
       enum: PaymentMethod,
-      required: [true, `paymentMethod is required .. it can be  ${Object.values(PaymentMethod).join(
-              ', '
-            )}`],
+      required: [false, `paymentMethod is required .. it can be  ${Object.values(PaymentMethod).join(
+        ', '
+      )}`],
       // default: PaymentMethod.online,
     },
     paymentStatus : {

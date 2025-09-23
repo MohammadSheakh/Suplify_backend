@@ -10,6 +10,7 @@ import { SpecialistWorkoutClassSchedule } from "../modules/scheduleAndAppointmen
 import { TSpecialistWorkoutClassSchedule } from "../modules/scheduleAndAppointmentBooking.module/specialistWorkoutClassSchedule/specialistWorkoutClassSchedule.constant";
 import { SpecialistPatientScheduleBooking } from "../modules/scheduleAndAppointmentBooking.module/specialistPatientScheduleBooking/specialistPatientScheduleBooking.model";
 import { TScheduleBookingStatus } from "../modules/scheduleAndAppointmentBooking.module/specialistPatientScheduleBooking/specialistPatientScheduleBooking.constant";
+import { IDoctorAppointmentSchedule } from "../modules/scheduleAndAppointmentBooking.module/doctorAppointmentSchedule/doctorAppointmentSchedule.interface";
 
 // Create Queue
 export const scheduleQueue = new Queue("scheduleQueue", {
@@ -45,15 +46,54 @@ const worker = new Worker(
       const { scheduleId, appointmentBookingId } = job.data;
 
       const tomorrow = new Date();
+      const timeForTomorrow = new Date()
       tomorrow.setDate(tomorrow.getDate() + 1);
       tomorrow.setHours(0, 0, 0, 0); // reset to midnight
 
-      await DoctorAppointmentSchedule.findByIdAndUpdate(scheduleId, {
+      timeForTomorrow.setUTCDate(timeForTomorrow.getUTCDate() + 1); 
+      /*****
+       * 📝
+       * For start Time and endTime .. we only manupulate date thing .. not time .. 
+       * 
+       * its not possible to update the same schedule with new time .. because its create 
+       * complexity in further booking for same person 
+       * 
+       * so .. solution is to create a new schedule with new date and time
+       * and update the old one as expired 
+       * 
+       * TODO: 
+       * later we can create a cron job to delete all expired schedule after 7 days or so
+       * 
+       * *** */
+       
+      const updatedSchedule:IDoctorAppointmentSchedule = await DoctorAppointmentSchedule.findByIdAndUpdate(scheduleId, {
         $set: { 
-            scheduleStatus: TDoctorAppointmentScheduleStatus.available,
-            booked_by: null,
-            scheduleDate: tomorrow
+          scheduleStatus: 
+          // TDoctorAppointmentScheduleStatus.available,
+          TDoctorAppointmentScheduleStatus.expired,
+          booked_by: null,
+          // scheduleDate: tomorrow,
+          // startTime: timeForTomorrow,
+          // endTime: timeForTomorrow,
         }
+      });
+
+      /****
+       * lets create another 
+       * ** */
+
+      updatedSchedule && await DoctorAppointmentSchedule.create({
+        createdBy: updatedSchedule.createdBy,
+        scheduleName: updatedSchedule.scheduleName,
+        scheduleDate: tomorrow,
+        startTime: timeForTomorrow,
+        endTime: timeForTomorrow,
+
+        description: updatedSchedule.description,
+        price: updatedSchedule.price,
+        typeOfLink: updatedSchedule.typeOfLink,
+        meetingLink: updatedSchedule.meetingLink,
+        scheduleStatus: TDoctorAppointmentScheduleStatus.available,
       });
 
       await DoctorPatientScheduleBooking.findByIdAndUpdate(appointmentBookingId, {
@@ -88,15 +128,33 @@ const worker = new Worker(
       }
 
       const tomorrow = new Date();
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      tomorrow.setHours(0, 0, 0, 0); // reset to midnight
+      const timeForTomorrow = new Date()
+      
+      // TODO : need to think about timezone⏳⌛ here
+      // tomorrow.setDate(tomorrow.getDate() + 1);
+      // tomorrow.setHours(0, 0, 0, 0); // reset to midnight
+
+
+      tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
+      timeForTomorrow.setUTCDate(timeForTomorrow.getUTCDate() + 1);
+
+      tomorrow.setUTCHours(0, 0, 0, 0);
+
+
 
       await SpecialistWorkoutClassSchedule.findByIdAndUpdate(scheduleId, {
         $set: { 
-            status: TSpecialistWorkoutClassSchedule.available,
-            scheduleDate: tomorrow
+            status:  TSpecialistWorkoutClassSchedule.expired,
+            // TSpecialistWorkoutClassSchedule.available,
+            // scheduleDate: tomorrow,
+            // startTime: timeForTomorrow,
+            // endTime: timeForTomorrow,
         }
       });
+
+      /******
+       * need to think about this part .. do we need to create a new schedule for next day ?
+       * *** */
 
       /*****
        * 

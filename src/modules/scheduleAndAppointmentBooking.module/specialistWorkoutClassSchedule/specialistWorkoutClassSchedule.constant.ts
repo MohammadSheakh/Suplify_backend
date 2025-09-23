@@ -2,6 +2,7 @@ export enum TSpecialistWorkoutClassSchedule {
   available = 'available',
   booked = 'booked',
   cancelled = 'cancelled',
+  expired = 'expired',
 }
 
 export enum TMeetingLink {

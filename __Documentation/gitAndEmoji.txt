@@ -8,6 +8,8 @@
 // 🆗   ->  Ok System 
 // 📝   -> description
 // 🥇   -> base codebase
+// ⏳⌛ -> time related
+// 🎨   -> GUIDE FOR FRONTEND 
 -------------------------
 
 (Module) fix : Commit Message
