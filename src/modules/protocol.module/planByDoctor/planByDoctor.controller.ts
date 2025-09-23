@@ -98,5 +98,32 @@ export class PlanByDoctorController extends GenericController<
     });
   });
 
+
+  /**********
+   * 
+   * Specialist | Members and protocol | Get a plan with suggestions .. 
+   * 
+   * logged in specialist only can see his suggestions
+   * 
+   * TODO : later we need to implement for patient to see all specialist's
+   * suggestions for a plan 
+   * 
+   * :planId:
+   * ********* */
+  getAPlanWithSuggestionsByOnlyPlanId = catchAsync(async (req: Request, res: Response) => {
+    const { planByDoctorId } = req.query;
+
+    // const specialistId = (req.user as IUser).userId;
+
+    const result = await this.planByDoctorService.getAPlanWithSuggestionsByOnlyPlanId(planByDoctorId /*, specialistId as string */);
+
+    sendResponse(res, {
+      code: StatusCodes.OK,
+      data: result,
+      message: `Suggestions for ${this.modelName} with id ${planByDoctorId}`,
+      success: true,
+    });
+  });
+
   // add more methods here if needed or override the existing ones 
 }

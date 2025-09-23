@@ -9,6 +9,7 @@ import auth from '../../../middlewares/auth';
 import { TRole } from '../../../middlewares/roles';
 //@ts-ignore
 import multer from "multer";
+import { getLoggedInUserAndSetReferenceToUser } from '../../../middlewares/getLoggedInUserAndSetReferenceToUser';
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
@@ -60,6 +61,8 @@ router.route('/paginate/others').get(
  * Specialist | Members and protocol 
  *  |-> Get all doctor and protocol count for a patient 
  *  :patientId:
+ * 
+ * Patient | protocol  
  * ******** */
 //info : pagination route must be before the route with params
 router.route('/paginate/doctor-protocol').get(
@@ -67,6 +70,20 @@ router.route('/paginate/doctor-protocol').get(
   validateFiltersForQuery(optionValidationChecking(['_id','patientId', ...paginationOptions])),
   controller.getAllDoctorAndProtocolCountForPatient
 );
+
+/**********
+ * 
+ * Patient | protocol  
+ *  |-> Get all doctor and protocol count for a patient 
+ *  
+ * ******** */
+router.route('/paginate/doctor-protocol/forPatient').get(
+  auth(TRole.patient, TRole.doctor, TRole.specialist),
+  validateFiltersForQuery(optionValidationChecking(['_id', ...paginationOptions])),
+  getLoggedInUserAndSetReferenceToUser('patientId'), // always filter by patientId logged in user
+  controller.getAllDoctorAndProtocolCountForPatient
+);
+
 
 
 /**********

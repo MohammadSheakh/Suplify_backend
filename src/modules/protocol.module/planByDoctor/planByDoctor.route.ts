@@ -9,6 +9,7 @@ import auth from '../../../middlewares/auth';
 import { TRole } from '../../../middlewares/roles';
 //@ts-ignore
 import multer from "multer";
+import { getLoggedInUserAndSetReferenceToUser } from '../../../middlewares/getLoggedInUserAndSetReferenceToUser';
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
@@ -53,6 +54,19 @@ router.route('/paginate/for-specialist').get(
   controller.getAllWithPaginationForSpecialist
 );
 
+/*******
+ * 
+ * Patient |  protocol 
+ *  |-> Get All plan For a protocol
+ * 
+ * ****** */
+router.route('/paginate/for-patient').get(
+  auth(TRole.patient),
+  validateFiltersForQuery(optionValidationChecking(['_id', 'planType','patientId', 'protocolId', ...paginationOptions])),
+  getLoggedInUserAndSetReferenceToUser('patientId'),
+  controller.getAllWithPaginationForSpecialist
+);
+
 /**********
  * 
  * Specialist | Members and protocol | Get a plan with suggestions .. 
@@ -68,9 +82,25 @@ router.route('/paginate/for-specialist').get(
  * 
  * ********* */
 router.route('/with-suggestions').get(
-  auth(TRole.specialist),
+  auth(TRole.specialist, TRole.patient),
   validateRequest(validation.getPlanWithSuggestionsValidationSchema),
   controller.getAPlanWithSuggestions
+);
+
+/**********
+ * 
+ * Patient |  protocol | Get a plan with suggestions .. 
+ *  
+ * TODO : later we need to implement for patient to see all specialist's
+ * suggestions for a plan
+ * 
+ * :planByDoctorId:
+ * 
+ * ********* */
+router.route('/with-suggestions/for-patient').get(
+  auth(TRole.patient),
+  validateRequest(validation.getPlanWithSuggestionsValidationSchema),
+  controller.getAPlanWithSuggestionsByOnlyPlanId
 );
 
 router.route('/:id').get(
