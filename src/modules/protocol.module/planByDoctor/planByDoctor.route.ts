@@ -57,15 +57,16 @@ router.route('/paginate/for-specialist').get(
 /*******
  * 
  * Patient |  protocol 
- *  |-> Get All plan For a protocol
+ *  |-> Get All plan For a protocol and planType for a patient 
  * 
  * ****** */
 router.route('/paginate/for-patient').get(
   auth(TRole.patient),
-  validateFiltersForQuery(optionValidationChecking(['_id', 'planType','patientId', 'protocolId', ...paginationOptions])),
+  validateFiltersForQuery(optionValidationChecking(['_id', 'planType', 'protocolId', ...paginationOptions])),
   getLoggedInUserAndSetReferenceToUser('patientId'),
-  controller.getAllWithPaginationForSpecialist
+  controller.getAllWithPaginationForPatient
 );
+
 
 /**********
  * 
@@ -90,6 +91,7 @@ router.route('/with-suggestions').get(
 /**********
  * 
  * Patient |  protocol | Get a plan with suggestions .. 
+ * Specialist | Members and protocol | Get a plan with suggestions ..
  *  
  * TODO : later we need to implement for patient to see all specialist's
  * suggestions for a plan
@@ -101,6 +103,20 @@ router.route('/with-suggestions/for-patient').get(
   auth(TRole.patient),
   validateRequest(validation.getPlanWithSuggestionsValidationSchema),
   controller.getAPlanWithSuggestionsByOnlyPlanId
+);
+
+/**********
+ * 
+ * Patient | Specialist Suggestion fig03 
+ * | -> get All Plan With Suggestions For Patient
+ * 
+ *  we have protocolId, planType .. 
+ * 
+ * ********* */
+router.route('/with-suggestions/get-all').get(
+  auth(TRole.patient),
+  // validateRequest(validation.getPlanWithSuggestionsValidationSchema), // TODO: validation add korte hobe
+  controller.getAllPlanWithSuggestionsForPatient
 );
 
 router.route('/:id').get(
@@ -124,9 +140,9 @@ router.route('/').get(
  * 
  * Doctor | Create plan for patient
  * ******** */
-router.route('/create').post(
+router.route('/').post(
   auth(TRole.doctor),
-  validateRequest(validation.createHelpMessageValidationSchema),
+  // validateRequest(validation.createHelpMessageValidationSchema), // TODO: validation add korte hobe 
   controller.create
 );
 

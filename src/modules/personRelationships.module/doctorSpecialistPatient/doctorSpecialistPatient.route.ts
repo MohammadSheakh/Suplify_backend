@@ -1,18 +1,21 @@
+//@ts-ignore
 import express from 'express';
-import * as validation from './doctorSpecialist.validation';
-import { doctorSpecialistController} from './doctorSpecialist.controller';
-import { IdoctorSpecialist } from './doctorSpecialist.interface';
+import * as validation from './doctorSpecialistPatient.validation';
+import { DoctorSpecialistPatientController} from './doctorSpecialistPatient.controller';
+import { IDoctorSpecialistPatient } from './doctorSpecialistPatient.interface';
 import { validateFiltersForQuery } from '../../../middlewares/queryValidation/paginationQueryValidationMiddleware';
 import validateRequest from '../../../shared/validateRequest';
 import auth from '../../../middlewares/auth';
-
+//@ts-ignore
 import multer from "multer";
+import { TRole } from '../../../middlewares/roles';
+import { getLoggedInUserAndSetReferenceToUser } from '../../../middlewares/getLoggedInUserAndSetReferenceToUser';
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
 const router = express.Router();
 
-export const optionValidationChecking = <T extends keyof IdoctorSpecialist | 'sortBy' | 'page' | 'limit' | 'populate'>(
+export const optionValidationChecking = <T extends keyof IDoctorSpecialistPatient | 'sortBy' | 'page' | 'limit' | 'populate'>(
   filters: T[]
 ) => {
   return filters;
@@ -26,13 +29,22 @@ const paginationOptions: Array<'sortBy' | 'page' | 'limit' | 'populate'> = [
 ];
 
 // const taskService = new TaskService();
-const controller = new doctorSpecialistController();
+const controller = new DoctorSpecialistPatientController();
 
+/********
+ * 
+ * Patient | Specialist Suggestion
+ * | -> For A Patient ..
+ *  get all doctorSpefcialistPatient
+ *   .. from those documents for every doctorId 
+ *   get total plan count by createdBy(doctorId) from planByDoctor collection .. 
+ * 
+ * ********** */
 //info : pagination route must be before the route with params
 router.route('/paginate').get(
-  //auth('common'),
-  validateFiltersForQuery(optionValidationChecking(['_id'])),
-  controller.getAllWithPagination
+  auth(TRole.patient),
+  validateFiltersForQuery(optionValidationChecking(['_id', ...paginationOptions])),
+  controller.getAllWithSpecilistWhoGiveSuggestionToDoctorsPlan
 );
 
 router.route('/:id').get(
@@ -78,4 +90,4 @@ router.route('/softDelete/:id').put(
 //[🚧][🧑‍💻✅][🧪] // 🆗
 
 
-export const doctorSpecialistRoute = router;
+export const DoctorSpecialistPatientRoute = router;

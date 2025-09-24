@@ -24,7 +24,7 @@ export class SuggestionBySpecialistController extends GenericController<
     const data: (Partial<ISuggestionBySpecialist> | undefined)[] = req.body;
     //  & { planId?: string }
 
-    const result = await this.suggestionBySpecialistService.create(
+    const result = await this.suggestionBySpecialistService.createV2(
       data, 
       (req.user as any).userId, // specialistId
       req.query.planByDoctorId // planByDoctorId

@@ -1,21 +1,23 @@
+//@ts-ignore
 import { Model, Types } from 'mongoose';
 import { PaginateOptions, PaginateResult } from '../../../types/paginate';
 
-
-export interface IdoctorSpecialist {
+export interface IDoctorSpecialistPatient {
   // _taskId: undefined | Types.ObjectId;
   _id?: Types.ObjectId; // undefined |  Types.ObjectId |
-  userId: Types.ObjectId;
-  message : String;
+  
+  patientId: Types.ObjectId;
+  specialistId : Types.ObjectId;
+  doctorId : Types.ObjectId;
 
-  isDeleted? : Boolean;  
+  isDeleted? : boolean;  
   createdAt?: Date;
   updatedAt?: Date;
 }
 
-export interface IdoctorSpecialistModel extends Model<IdoctorSpecialist> {
+export interface IDoctorSpecialistPatientModel extends Model<IDoctorSpecialistPatient> {
   paginate: (
     query: Record<string, any>,
     options: PaginateOptions
-  ) => Promise<PaginateResult<IdoctorSpecialist>>;
+  ) => Promise<PaginateResult<IDoctorSpecialistPatient>>;
 }

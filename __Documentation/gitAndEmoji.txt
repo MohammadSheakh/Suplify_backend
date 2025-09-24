@@ -10,6 +10,7 @@
 // 🥇   -> base codebase
 // ⏳⌛ -> time related
 // 🎨   -> GUIDE FOR FRONTEND 
+// 📝   -> flow
 -------------------------
 
 (Module) fix : Commit Message

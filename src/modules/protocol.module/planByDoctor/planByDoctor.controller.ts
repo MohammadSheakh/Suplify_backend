@@ -73,6 +73,32 @@ export class PlanByDoctorController extends GenericController<
     });
   });
 
+
+  /*******
+   * 
+   * Patient | protocol 
+   *  |-> Get All plan For a protocol and planType for a patient 
+   * 
+   * ****** */
+  getAllWithPaginationForPatient = catchAsync(async (req: Request, res: Response) => {
+    const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']); ;
+    const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
+
+    const populateOptions: (string | {path: string, select: string}[]) = [];
+
+    const select = '-__v -updatedAt -createdAt -isDeleted';
+
+    const result = await this.service.getAllWithPagination(filters, options, populateOptions, select);
+
+    sendResponse(res, {
+      code: StatusCodes.OK,
+      data: result,
+      message: `All ${this.modelName} with pagination`,
+      success: true,
+    });
+  });
+
+
   /**********
    * 
    * Specialist | Members and protocol | Get a plan with suggestions .. 
@@ -121,6 +147,30 @@ export class PlanByDoctorController extends GenericController<
       code: StatusCodes.OK,
       data: result,
       message: `Suggestions for ${this.modelName} with id ${planByDoctorId}`,
+      success: true,
+    });
+  });
+
+
+  /**********
+   * 
+   * Patient | Specialist Suggestion fig03 
+   * | -> get All Plan With Suggestions For Patient
+   * 
+   *  we have protocolId, planType .. 
+   * 
+   * ********* */
+  getAllPlanWithSuggestionsForPatient = catchAsync(async (req: Request, res: Response) => {
+    const { protocolId, planType } = req.query;
+
+    // const specialistId = (req.user as IUser).userId;
+
+    const result = await this.planByDoctorService.getAllPlanWithSuggestionsForPatient(protocolId, planType );
+
+    sendResponse(res, {
+      code: StatusCodes.OK,
+      data: result,
+      message: `Suggestions for ${this.modelName} with id ${protocolId} and planType ${planType}`,
       success: true,
     });
   });

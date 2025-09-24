@@ -30,6 +30,7 @@ import { protocolRoute } from '../modules/protocol.module/protocol/protocol.rout
 import { PlanByDoctorRoute } from '../modules/protocol.module/planByDoctor/planByDoctor.route';
 import { SuggestionBySpecialistRoute } from '../modules/protocol.module/suggestionBySpecialist/suggestionBySpecialist.route';
 import { SpecialistPatientScheduleBookingRoute } from '../modules/scheduleAndAppointmentBooking.module/specialistPatientScheduleBooking/specialistPatientScheduleBooking.route';
+import { DoctorSpecialistPatientRoute } from '../modules/personRelationships.module/doctorSpecialistPatient/doctorSpecialistPatient.route';
 
 // import { ChatRoutes } from '../modules/chat/chat.routes';
 // import { MessageRoutes } from '../modules/message/message.routes';
@@ -122,7 +123,12 @@ const apiRoutes = [
     path: '/suggestion-by-specialist/',
     route: SuggestionBySpecialistRoute,
   },
-  
+
+  { // 🟢
+    path: '/doctor-specialist-patient-relation/',
+    route: DoctorSpecialistPatientRoute,
+  },
+
   ///////////////////////////////////////////// Person Relationships
   { // 🟢
     path: '/doctor-patients',
