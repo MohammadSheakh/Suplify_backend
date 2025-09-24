@@ -1,5 +1,5 @@
+//@ts-ignore
 import { model, Schema } from 'mongoose';
-
 import paginate from '../../../common/plugins/paginate';
 import { IOrderItem, IOrderItemModel } from './orderItem.interface';
 

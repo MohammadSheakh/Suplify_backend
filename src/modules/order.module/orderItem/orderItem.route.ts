@@ -1,9 +1,9 @@
+//@ts-ignore
 import express from 'express';
-
 import { validateFiltersForQuery } from '../../../middlewares/queryValidation/paginationQueryValidationMiddleware';
 import { OrderItemController } from './orderItem.controller';
 import { IOrderItem } from './orderItem.interface';
-
+//@ts-ignore
 import multer from "multer";
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
@@ -27,10 +27,15 @@ const paginationOptions: Array<'sortBy' | 'page' | 'limit' | 'populate'> = [
 // const taskService = new TaskService();
 const controller = new OrderItemController();
 
+/*********
+ * 
+ * Admin | Get all order item for a order
+ * 
+ * ******** */
 //info : pagination route must be before the route with params
 router.route('/paginate').get(
   //auth('common'),
-  validateFiltersForQuery(optionValidationChecking(['_id'])),
+  validateFiltersForQuery(optionValidationChecking(['_id', ...paginationOptions])),
   controller.getAllWithPagination 
 );
 
@@ -73,4 +78,4 @@ router
   //auth('common'),
   controller.softDeleteById);
 
-export const SubscriptionRoute = router;
+export const OrderItemRoute = router;

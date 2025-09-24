@@ -36,10 +36,43 @@ router.route('/').get((req, res) => {
   console.log("🟢 test page");
 });
 
+/***********
+ * 
+ * Admin | get all payment transaction with pagination
+ * 
+ * ******** */
 router.route('/paginate').get(
   //auth('common'),
-  validateFiltersForQuery(optionValidationChecking(['_id'])),
+  validateFiltersForQuery(optionValidationChecking([
+    '_id',
+    'userId', // who made the transaction
+    'referenceFor', // UserSubscription-Order-DoctorPatientScheduleBooking-SpecialistPatientScheduleBooking-TrainingProgramPurchase-LabTestBooking
+    'referenceId',
+    'paymentGateway', //stripe-none
+    'transactionId',
+    'paymentIntent',
+    'amount',
+    'currency',
+    'paymentStatus'// pending-processing-completed-failed-cancelled
+  ])),
   controller.getAllWithPagination
+);
+
+router.route('/paginate/dev').get(
+  //auth('common'),
+  validateFiltersForQuery(optionValidationChecking([
+    '_id',
+    'userId', // who made the transaction
+    'referenceFor', // UserSubscription-Order-DoctorPatientScheduleBooking-SpecialistPatientScheduleBooking-TrainingProgramPurchase-LabTestBooking
+    'referenceId',
+    'paymentGateway', //stripe-none
+    'transactionId',
+    'paymentIntent',
+    'amount',
+    'currency',
+    'paymentStatus'// pending-processing-completed-failed-cancelled
+  ])),
+  controller.getAllWithPaginationForDev
 );
 
 //[🚧][🧑‍💻✅][🧪] // 🆗

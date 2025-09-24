@@ -31,6 +31,7 @@ import { PlanByDoctorRoute } from '../modules/protocol.module/planByDoctor/planB
 import { SuggestionBySpecialistRoute } from '../modules/protocol.module/suggestionBySpecialist/suggestionBySpecialist.route';
 import { SpecialistPatientScheduleBookingRoute } from '../modules/scheduleAndAppointmentBooking.module/specialistPatientScheduleBooking/specialistPatientScheduleBooking.route';
 import { DoctorSpecialistPatientRoute } from '../modules/personRelationships.module/doctorSpecialistPatient/doctorSpecialistPatient.route';
+import { OrderItemRoute } from '../modules/order.module/orderItem/orderItem.route';
 
 // import { ChatRoutes } from '../modules/chat/chat.routes';
 // import { MessageRoutes } from '../modules/message/message.routes';
@@ -86,6 +87,18 @@ const apiRoutes = [
     path: '/orders',
     route: OrderRoute,
   },
+
+  { // 🟢
+    path: '/order-items',
+    route: OrderItemRoute,
+  },
+
+  ///////////////////////////////////////// Payment Transaction
+  { // 🟢
+    path: '/payment-transactions',
+    route: PaymentTransactionRoute,
+  },
+
   ///////////////////////////////////////// Chatting 
   { // 🟢
     path: '/conversations',

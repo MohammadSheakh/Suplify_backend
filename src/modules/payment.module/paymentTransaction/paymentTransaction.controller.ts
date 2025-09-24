@@ -10,6 +10,9 @@ import { config } from '../../../config';
 import ApiError from '../../../errors/ApiError';
 import Stripe from 'stripe';
 import stripe from '../../../config/stripe.config';
+import omit from '../../../shared/omit';
+import pick from '../../../shared/pick';
+import sendResponse from '../../../shared/sendResponse';
 
 
 export class PaymentTransactionController extends GenericController<
@@ -67,6 +70,73 @@ export class PaymentTransactionController extends GenericController<
   cancelPage = catchAsync(async (req: Request, res: Response) => {
     res.render('cancel.ejs', { frontEndHomePageUrl: config.client.url });
   });
+
+
+  getAllWithPagination = catchAsync(async (req: Request, res: Response) => {
+    //const filters = pick(req.query, ['_id', 'title']); // now this comes from middleware in router
+    const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']); ;
+    const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
+
+    const populateOptions: (string | {path: string, select: string}[]) = [
+      // {
+      //   path: 'personId',
+      //   select: 'name ' 
+      // },
+      // 'personId'
+      // {
+      //   path: 'conversationId',
+      //   select: 'lastMessage updatedAt',
+      //   populate: {
+      //     path: 'lastMessage',
+      //   }
+      // }
+    ];
+
+    const select = '-isDeleted -createdAt -updatedAt -__v -gatewayResponse'; 
+
+    const result = await this.service.getAllWithPagination(filters, options, populateOptions , select );
+
+    sendResponse(res, {
+      code: StatusCodes.OK,
+      data: result,
+      message: `All ${this.modelName} with pagination`,
+      success: true,
+    });
+  });
+
+
+  getAllWithPaginationForDev = catchAsync(async (req: Request, res: Response) => {
+    //const filters = pick(req.query, ['_id', 'title']); // now this comes from middleware in router
+    const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']); ;
+    const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
+
+    const populateOptions: (string | {path: string, select: string}[]) = [
+      // {
+      //   path: 'personId',
+      //   select: 'name ' 
+      // },
+      // 'personId'
+      // {
+      //   path: 'conversationId',
+      //   select: 'lastMessage updatedAt',
+      //   populate: {
+      //     path: 'lastMessage',
+      //   }
+      // }
+    ];
+
+    const select = '-isDeleted -createdAt -updatedAt -__v'; 
+
+    const result = await this.service.getAllWithPagination(filters, options, populateOptions , select );
+
+    sendResponse(res, {
+      code: StatusCodes.OK,
+      data: result,
+      message: `All ${this.modelName} with pagination`,
+      success: true,
+    });
+  });
+
 
   // add more methods here if needed or override the existing ones 
 }

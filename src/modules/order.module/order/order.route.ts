@@ -1,3 +1,4 @@
+//@ts-ignore
 import express from 'express';
 import { OrderController } from './order.controller';
 import { IOrder } from './order.interface';
@@ -6,6 +7,7 @@ import * as validation from './order.validation';
 import validateRequest from '../../../shared/validateRequest';
 import auth from '../../../middlewares/auth';
 import { TRole } from '../../../middlewares/roles';
+//@ts-ignore
 import multer from "multer";
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
@@ -26,11 +28,24 @@ const paginationOptions: Array<'sortBy' | 'page' | 'limit' | 'populate'> = [
 ];
 // const taskService = new TaskService();
 const controller = new OrderController();
-
+/*********
+ * 
+ * Admin | Get All Order with pagination 
+ * 
+ * ***** */
 //info : pagination route must be before the route with params
 router.route('/paginate').get(
-  //auth('common'),
-  validateFiltersForQuery(optionValidationChecking(['_id', ...paginationOptions])),
+  auth(TRole.admin),
+  validateFiltersForQuery(optionValidationChecking(['_id', 
+    'orderRelatedTo', // only one option available .. which is product
+    'userId', // who place the order
+    'status', // pending-processing-confirmed-completed-failed-refunded-cancelled
+    'finalAmount', 
+    'paymentMethod',
+    'paymentTransactionId',
+    'paymentStatus', // unpaid-paid-refunded
+    'isDeleted',
+    ...paginationOptions])),
   controller.getAllWithPagination 
 );
 
