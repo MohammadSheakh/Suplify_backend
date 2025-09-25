@@ -1,9 +1,10 @@
+//@ts-ignore
 import { Router } from 'express';
 import { AuthController } from './auth.controller';
 import validateRequest from '../../shared/validateRequest';
-import { UserValidation } from '../user/user.validation';
 import { AuthValidation } from './auth.validations';
 import auth from '../../middlewares/auth';
+//@ts-ignore
 import multer from "multer";
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
@@ -14,7 +15,7 @@ const router = Router();
 /***********
  * 
  * (Doctor | Patient) (Registration) | as doctor and patient need to provide their documents while registration
- * 
+ * TODO : validation add kora lagbe .. 
  * ********** */ 
 router.post(
   '/register',
@@ -23,7 +24,7 @@ router.post(
       { name: 'attachments', maxCount: 15 }, // Allow up to 5 cover photos
     ]),
   ],
-  validateRequest(UserValidation.createUserValidationSchema),
+  // validateRequest(AuthValidation.createHelpMessageValidationSchema),
   AuthController.register,
 );
 

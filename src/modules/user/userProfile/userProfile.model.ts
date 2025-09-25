@@ -1,3 +1,4 @@
+//@ts-ignore
 import { model, Schema } from 'mongoose';
 import { TApprovalStatus } from './userProfile.constant';
 import { IUserProfile, IUserProfileModel } from './userProfile.interface';

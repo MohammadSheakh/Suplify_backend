@@ -11,7 +11,7 @@ const paginate = <T>(schema: Schema<T>) => {
     populateOptions?: string[] | PopulateOption[], // any,
     dontWantToInclude?: string | string[]
   ): Promise<PaginateResult<T>> {
-    const limit = options.limit ?? 5; // ?? 10 //  Number.MAX_SAFE_INTEGER
+    const limit = options.limit ?? 10; // ?? 10 //  Number.MAX_SAFE_INTEGER
     const page = options.page ?? 1;
     const skip = (page - 1) * limit;
     const sort = options.sortBy ?? 'createdAt';

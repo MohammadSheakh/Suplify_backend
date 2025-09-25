@@ -57,7 +57,6 @@ const userSchema = new Schema<TUser, UserModal>(
 
     /*********
      * 
-     * 
      * TODO: Add once gula kivabe manage korbo chinta korte hobe .. 
      * 
      * ******** */

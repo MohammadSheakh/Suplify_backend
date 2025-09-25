@@ -25,11 +25,44 @@ export class DoctorPatientController extends GenericController<
     super(new DoctorPatientService(), 'doctorPatient');
   }
 
-/**********
- * 
- * Patient | Get all Patients Doctor .. 
- * 
- * ******** */
+  /**********
+   * 
+   * Admin | User Management | Assign Doctor for a patient
+   * 
+   * ********** */
+  create = catchAsync(async (req: Request, res: Response) => {
+    const data :IDoctorPatient = req.body;
+
+    // check if already assigned
+    const existing = await DoctorPatient.findOne({
+      patientId: data.patientId,
+      doctorId: data.doctorId
+    }).lean();
+
+    if(existing) {
+      sendResponse(res, {
+        code: StatusCodes.OK,
+        data: existing,
+        message: `Doctor already assigned to this patient`,
+        success: true,
+      });
+    }
+
+    const result = await this.service.create(data);
+
+    sendResponse(res, {
+      code: StatusCodes.OK,
+      data: result,
+      message: `${this.modelName} created successfully`,
+      success: true,
+    });
+  });
+
+  /**********
+   * 
+   * Patient | Get all Patients Doctor .. 
+   * 
+   * ******** */
   getAllWithPagination = catchAsync(async (req: Request, res: Response) => {
     //const filters = pick(req.query, ['_id', 'title']); // now this comes from middleware in router
     const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']); ;
@@ -59,11 +92,11 @@ export class DoctorPatientController extends GenericController<
     });
   });
 
-/**********
- * 
- * Patient | Get all Unknown Doctor .. 
- * 
- * ******** */
+  /**********
+   * 
+   * Patient | Get all Unknown Doctor .. 
+   * 
+   * ******** */
   getUnknownDoctors = catchAsync(async (req: Request, res: Response) => {
     const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']); ;
     const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
@@ -90,11 +123,11 @@ export class DoctorPatientController extends GenericController<
     });
   });
 
-/**********
- * 
- * Doctor | Get all Patients For Provide Protocol 
- * 
- * ******** */
+  /**********
+   * 
+   * Doctor | Get all Patients For Provide Protocol 
+   * 
+   * ******** */
   getAllWithPaginationForDoctorProtocolSection = catchAsync(async (req: Request, res: Response) => {
     //const filters = pick(req.query, ['_id', 'title']); // now this comes from middleware in router
     const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']); ;

@@ -7,8 +7,10 @@ import { validateFiltersForQuery } from '../../middlewares/queryValidation/pagin
 import auth from '../../middlewares/auth';
 import { IUser } from './user.interface';
 import { TRole } from '../../middlewares/roles';
+import validateRequest from '../../shared/validateRequest';
 const UPLOADS_FOLDER = 'uploads/users';
 const upload = fileUploadHandler(UPLOADS_FOLDER);
+import * as validation from './user.validation';
 
 export const optionValidationChecking = <T extends keyof IUser | 'sortBy' | 'page' | 'limit' | 'populate'>(
   filters: T[]
@@ -28,11 +30,22 @@ const router = express.Router();
 // const taskService = new TaskService();
 const controller = new UserController();
 
+/*********
+* 
+* Admin : User Management With Statistics
+* 
+* ****** */
 //info : pagination route must be before the route with params
 router.route('/paginate').get(
-  //auth('common'),
-  validateFiltersForQuery(optionValidationChecking(['_id', ...paginationOptions])),
-  controller.getAllWithPagination
+  auth(TRole.admin),
+  validateFiltersForQuery(optionValidationChecking(['_id',
+    'name',
+    'email',
+    'role',
+    'subscriptionType',
+    'approvalStatus',
+    ...paginationOptions])),
+  controller.getAllWithPaginationV2
 );
 
 /***********
@@ -45,9 +58,33 @@ router.route('/profile').get(
   controller.getById
 );
 
+
+/***********
+ * 
+ * Admin | Get Profile Information by Id  to approve doctor / specialist 
+ * 
+ * ********** */
+router.route('/profile/for-admin').get(
+ auth(TRole.admin),
+  validateFiltersForQuery(optionValidationChecking(['_id',
+    ...paginationOptions])),
+  controller.getAllWithPagination
+);
+
+/**********
+ * 
+ * Admin | change approvalStatus of a doctor / specialist profile
+ * 
+ * ******** */
+router.route('/change-approval-status').put(
+  auth(TRole.admin),
+  validateRequest(validation.changeApprovalStatusValidationSchema),
+  controller.changeApprovalStatusByUserId
+)
+
 router.route('/update/:id').put(
   //auth('common'),
-  // validateRequest(UserValidation.createUserValidationSchema),
+  // validateRequest(validation.createHelpMessageValidationSchema),
   controller.updateById
 );
 

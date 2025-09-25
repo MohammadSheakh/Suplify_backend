@@ -1,7 +1,12 @@
 //@ts-ignore
 import { Request, Response, NextFunction } from 'express';
 
-// validationMiddleware.js or a separate file for validation middleware
+/**********
+ * 
+ * this middleware will set the req.query.<referenceToUser> = req.user.userId ||||
+ * so that we can use it in the router to filter the data based on logged in user 
+ * 
+ * ******** */
 export const getLoggedInUserAndSetReferenceToUser = <T> (referenceToUser: string) => {
   return (req: Request, res:Response, next:NextFunction) => {
     

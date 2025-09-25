@@ -11,6 +11,7 @@
 // ⏳⌛ -> time related
 // 🎨   -> GUIDE FOR FRONTEND 
 // 📝   -> flow
+// 💎✨🔍 -> V2 Found
 -------------------------
 
 (Module) fix : Commit Message

@@ -93,7 +93,7 @@ export class SpecialistPatientScheduleBookingService extends GenericService<
         // Create the relationship if it doesn't exist
         // TODO : Need Test this code .. if already relation exist .. it should not create duplicate relation 
         const newRelation:ISpecialistPatient = new SpecialistPatient({
-            specialistId: existingTrainingProgram.createdBy,
+            specialistId: existingWorkoutClass.createdBy,
             patientId: user.userId
         });
 

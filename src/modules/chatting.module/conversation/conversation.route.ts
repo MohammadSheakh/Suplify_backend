@@ -70,7 +70,7 @@ router.route('/create').post(
 
 router.route('/update/:id').put(
   //auth('common'), // FIXME: Change to admin
-  // validateRequest(UserValidation.createUserValidationSchema),
+  // validateRequest(validation.createHelpMessageValidationSchema),
   controller.updateById
 );
 
@@ -94,14 +94,14 @@ router.route('/participants/add').post(
   //   ]),
   // ],
   auth('user'),
-  // validateRequest(UserValidation.createUserValidationSchema),
+  // validateRequest(validation.createHelpMessageValidationSchema),
   controller.addParticipantsToExistingConversation
 );
 
 //[🚧][🧑‍💻✅][🧪] // 🆗
 router.route('/participants/remove').delete(
   auth('user'),
-  // validateRequest(UserValidation.createUserValidationSchema),
+  // validateRequest(validation.createHelpMessageValidationSchema),
   controller.removeParticipantFromAConversation
 );
 

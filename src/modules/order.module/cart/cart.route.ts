@@ -54,7 +54,7 @@ router.route('/view').get(
 
 router.route('/update/:id').put(
   //auth('common'),
-  // validateRequest(UserValidation.createUserValidationSchema),
+  // validateRequest(validation.createHelpMessageValidationSchema),
   controller.updateById
 );
 

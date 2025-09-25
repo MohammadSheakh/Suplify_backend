@@ -1,39 +1,32 @@
-import { z } from "zod";
-import { Role, Roles } from '../../middlewares/roles';
+//@ts-ignore
+import mongoose from 'mongoose';
+//@ts-ignore
+import { z } from 'zod';
+import { TApprovalStatus } from './userProfile/userProfile.constant';
 
-const createUserValidationSchema = z.object({
-  body: z.object({
-    name: z
-      .string({
-        required_error: 'Name is required.',
-        invalid_type_error: 'Name must be a string.',
-      })
-      .min(1, 'Name cannot be empty.'),
+export const changeApprovalStatusValidationSchema = z.object({
+  // body: z.object({
     
-    email: z
-      .string({
-        required_error: 'Email is required.',
-        invalid_type_error: 'Email must be a string.',
-      })
-      .email('Invalid email address.'),
-    password: z
-      .string({
-        required_error: 'Password is required.',
-        invalid_type_error: 'Password must be a string.',
-      })
-      .min(8, 'Password must be at least 8 characters long.'),
-    role: z
-      .string({
-        required_error: 'Role is required.',
-        invalid_type_error: 'Role must be a string.',
-      })
-      .refine(role => Roles.includes(role as Role), {
-        message: `Role must be one of the following: ${Roles.join(', ')}`,
-      }),
+  // }),
+
+  // params: z.object({
+  //   id: z.string().optional(),
+  // }),
+  query: z.object({
+    userId: z.string({
+      required_error: 'userId is required, userId must be a string.',
+      invalid_type_error: 'userId must be a string.',
+    }).refine((val) => mongoose.Types.ObjectId.isValid(val), {
+      message: 'Invalid userId format. Must be a valid MongoDB ObjectId.',
+    }),
+    approvalStatus: z.enum([
+      TApprovalStatus.approved,
+      TApprovalStatus.rejected,
+      // 'approved',
+      // 'rejected'
+    ])
+    // .optional()
+    ,
   }),
+   
 });
-
-
-export const UserValidation = {
-  createUserValidationSchema,
-};

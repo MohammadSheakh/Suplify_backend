@@ -9,6 +9,7 @@ import auth from '../../../middlewares/auth';
 import { TRole } from '../../../middlewares/roles';
 //@ts-ignore
 import multer from "multer";
+import { getLoggedInUserAndSetReferenceToUser } from '../../../middlewares/getLoggedInUserAndSetReferenceToUser';
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
@@ -38,8 +39,21 @@ const controller = new SpecialistPatientController();
  * ******** */
 //info : pagination route must be before the route with params
 router.route('/paginate').get(
-  //auth('common'),
+  auth(TRole.patient),
   validateFiltersForQuery(optionValidationChecking(['_id', ...paginationOptions])),
+  getLoggedInUserAndSetReferenceToUser('patientId'),
+  controller.getAllWithPagination
+);
+
+/**********
+ * 
+ * Admin | Get all Patients Related Specialist .. 
+ * 
+ * ******** */
+//info : pagination route must be before the route with params
+router.route('/paginate/for-admin').get(
+  auth(TRole.admin),
+  validateFiltersForQuery(optionValidationChecking(['_id', 'patientId', ...paginationOptions])),
   controller.getAllWithPagination
 );
 
@@ -72,7 +86,7 @@ router.route('/:id').get(
 
 router.route('/update/:id').put(
   //auth('common'),
-  // validateRequest(UserValidation.createUserValidationSchema),
+  // validateRequest(validation.createHelpMessageValidationSchema),
   controller.updateById
 );
 
@@ -85,27 +99,28 @@ router.route('/').get(
 /**********
  * 
  * Doctor | Protocol Section | Show all Specialist for assign to a patient
+ * 
+ * Admin | User Management | Show all specialist for assign to a patient
+ * 
  * :patientId:
  * ********** */
 router.route('/specialist/:patientId').get(
-  auth(TRole.doctor),
+  auth(TRole.doctor, TRole.admin),
   controller.showAllSpecialist
 );
-
 
 
 /**********
  * 
  * Doctor | Protocol Section | Assign Specialist for a patient
+ * Admin | User Management | Assign Specialist for a patient
  * 
  * ********** */
 router.route('/').post(
-  auth(TRole.doctor),
+  auth(TRole.doctor, TRole.admin),
   validateRequest(validation.assignSpecialistForAPatientValidationSchema),
   controller.create
 );
-
-
 
 
 

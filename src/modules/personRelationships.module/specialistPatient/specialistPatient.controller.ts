@@ -49,7 +49,7 @@ export class SpecialistPatientController extends GenericController<
   /**********
    * 
    * Doctor | Protocol Section | Assign Specialist for a patient
-   * 
+   * Admin | User Management | Assign Specialist for a patient
    * ********** */
   create = catchAsync(async (req: Request, res: Response) => {
     const data :ISpecialistPatient = req.body;
@@ -155,6 +155,7 @@ export class SpecialistPatientController extends GenericController<
     const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
     // const { page, limit } = PaginationHelpers.extractPaginationFromQuery(req.query);
     
+    // 📈⚙️
     const result = await this.specialistPatientService.getUnknownSpecialistsForPatient(req.user.userId,
       // {
       //   page: options.page,

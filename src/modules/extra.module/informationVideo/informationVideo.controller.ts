@@ -90,5 +90,7 @@ export class informationVideoController extends GenericController<
     });
   });
 
+
+  
   // add more methods here if needed or override the existing ones 
 }

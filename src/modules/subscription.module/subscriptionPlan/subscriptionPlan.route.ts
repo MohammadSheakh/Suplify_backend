@@ -67,7 +67,7 @@ router.route('/:id').get(
 
 router.route('/update/:id').put(
   //auth('common'), // FIXME: Change to admin
-  // validateRequest(UserValidation.createUserValidationSchema),
+  // validateRequest(validation.createHelpMessageValidationSchema),
   controller.updateById
 );
 

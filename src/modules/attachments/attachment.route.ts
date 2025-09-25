@@ -24,13 +24,13 @@ router.route('/:attachmentId').get(
 
 router.route('/update/:attachmentId').put(
   auth('common'),
-  // validateRequest(UserValidation.createUserValidationSchema),
+  // validateRequest(validation.createHelpMessageValidationSchema),
   AttachmentController.updateById
 );
 
 router.route('/addOrRemoveReact/:attachmentId').put(
   auth('common'),
-  // validateRequest(UserValidation.createUserValidationSchema),
+  // validateRequest(validation.createHelpMessageValidationSchema),
   AttachmentController.addOrRemoveReact
 );
 
@@ -41,7 +41,7 @@ router.route('/').get(
 
 // router.route('/create').post(
 //   auth('projectManager'),
-//   // validateRequest(UserValidation.createUserValidationSchema),
+//   // validateRequest(validation.createHelpMessageValidationSchema),
 //   AttachmentController.createAttachment
 // );
 

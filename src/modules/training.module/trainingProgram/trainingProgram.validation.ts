@@ -1,4 +1,6 @@
+//@ts-ignore
 import mongoose from 'mongoose';
+//@ts-ignore
 import { z } from 'zod';
 
 export const createTrainingProgramValidationSchema = z.object({

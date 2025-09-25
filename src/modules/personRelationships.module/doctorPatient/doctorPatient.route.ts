@@ -39,8 +39,20 @@ const controller = new DoctorPatientController();
  * ******** */
 //info : pagination route must be before the route with params
 router.route('/paginate').get(
-  auth(TRole.patient, TRole.doctor),
+  auth(TRole.patient),// , TRole.doctor
   validateFiltersForQuery(optionValidationChecking(['_id', ...paginationOptions])),
+  getLoggedInUserAndSetReferenceToUser('patientId'),
+  controller.getAllWithPagination
+);
+
+/*********
+ * 
+ * Admin | Get all patient related doctor for admin section
+ * 
+ * ******** */
+router.route('/paginate/for-admin').get(
+  auth(TRole.admin),
+  validateFiltersForQuery(optionValidationChecking(['_id', 'patientId', ...paginationOptions])),
   controller.getAllWithPagination
 );
 
@@ -119,7 +131,7 @@ router.route('/:id').get(
 
 router.route('/update/:id').put(
   //auth('common'),
-  // validateRequest(UserValidation.createUserValidationSchema),
+  // validateRequest(validation.createHelpMessageValidationSchema),
   controller.updateById
 );
 
@@ -129,17 +141,32 @@ router.route('/').get(
   controller.getAll
 );
 
-//[🚧][🧑‍💻✅][🧪] // 🆗
-router.route('/create').post(
-  // [
-  //   upload.fields([
-  //     { name: 'attachments', maxCount: 15 }, // Allow up to 5 cover photos
-  //   ]),
-  // ],
-  auth('common'),
-  validateRequest(validation.createHelpMessageValidationSchema),
+
+/**********
+ * 
+ * 
+ * Admin | User Management | Show all doctor for assign to a patient
+ * 
+ * :patientId:
+ * ********** */
+router.route('/doctor/:patientId').get(
+  auth(TRole.doctor, TRole.admin),
+  controller.showAllDoctor
+);
+
+
+
+/**********
+ * 
+ * Admin | User Management | Assign Doctor for a patient  🧪 need testing 🧪 
+ * 
+ * ********** */
+router.route('/').post(
+  auth(TRole.doctor, TRole.admin),
+  validateRequest(validation.assignDoctorForAPatientValidationSchema),
   controller.create
 );
+
 
 router.route('/delete/:id').delete(
   //auth('common'),

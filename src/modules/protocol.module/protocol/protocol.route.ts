@@ -57,7 +57,7 @@ router.route('/:id').get(
  * ******** */
 router.route('/update/:id').put(
   auth(TRole.doctor),
-  // validateRequest(UserValidation.createUserValidationSchema),
+  // validateRequest(validation.createHelpMessageValidationSchema),
   controller.updateById
 );
 
