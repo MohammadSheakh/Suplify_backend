@@ -1,11 +1,18 @@
+//@ts-ignore
 import { model, Schema } from 'mongoose';
 import { ISatisfactionAndFeedback, ISatisfactionAndFeedbackModel } from './satisfactionAndFeedback.interface';
 import paginate from '../../../common/plugins/paginate';
 
-
 const SatisfactionAndFeedbackSchema = new Schema<ISatisfactionAndFeedback>(
   {
-    
+
+    successTrackerId: {
+      type: Schema.Types.ObjectId,
+      ref: 'SuccessTracker',
+      required: true
+    },
+
+
     areYouHappyWithCurrentProgress: {
       type: Boolean,
       required: [true, 'areYouHappyWithCurrentProgress is required'],
@@ -16,10 +23,12 @@ const SatisfactionAndFeedbackSchema = new Schema<ISatisfactionAndFeedback>(
     },
     oneThingYouNeedHelpWith: {
       type: String,
+      maxLength: 500,
       required: [true, 'oneThingYouNeedHelpWith is required'],
     },
     oneHabitYouImprovedOrBuiltThisWeek: {
       type: String,
+      maxLength: 500,
       required: [true, 'oneHabitYouImprovedOrBuiltThisWeek is required'],
     },
     wouldYouRecommendUs: {

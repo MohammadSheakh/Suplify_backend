@@ -4,6 +4,9 @@
 // 🔵    ->  new feature ..
 // 🚧    ->  under construction .. 
 // TODO  ->  self explanatory
+// TODO : MUST ->  self explanatory
+// TODO: 
+// INFO :  self explanatory
 // 🧱💪 ->  Robust System -> 
 // 🆗   ->  Ok System 
 // 📝   -> description

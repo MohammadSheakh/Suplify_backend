@@ -1,28 +1,43 @@
+//@ts-ignore
 import { model, Schema } from 'mongoose';
-import { IMindsetAndMomentum, IMindsetAndMomentumModel } from './MindsetAndMomentum.interface';
-import paginate from '../../common/plugins/paginate';
+import { IMindsetAndMomentum, IMindsetAndMomentumModel } from './mindsetAndMomentum.interface';
+import paginate from '../../../common/plugins/paginate';
 
 
 const MindsetAndMomentumSchema = new Schema<IMindsetAndMomentum>(
   {
+
+    successTrackerId: {
+      type: Schema.Types.ObjectId,
+      ref: 'SuccessTracker',
+      required: true
+    },
+
     howMotivatedDoYouFeel: {
       type: Number,
+      min: 1,
+    max: 10,
       required: [true, 'howMotivatedDoYouFeel is required'],
     },
     oneWinFromPastWeekThatYourProudOf: {
       type: String,
+      maxLength: 500,
       required: [true, 'oneWinFromPastWeekThatYourProudOf is required'],
     },
     biggestChallengeofThisWeek: {
       type: String,
+      maxLength: 500,
       required: [true, 'biggestChallengeofThisWeek is required'],
     },
     oneHabitYouImprovedOrBuiltThisWeek: {
       type: String,
+      maxLength: 500,
       required: [true, 'oneHabitYouImprovedOrBuiltThisWeek is required'],
     },
     howConfidentAreYou: {
       type: Number,
+      min: 1,
+      max: 10,
       required: [true, 'howConfidentAreYou is required'],
     },
     isDeleted: {

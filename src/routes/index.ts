@@ -32,6 +32,7 @@ import { SuggestionBySpecialistRoute } from '../modules/protocol.module/suggesti
 import { SpecialistPatientScheduleBookingRoute } from '../modules/scheduleAndAppointmentBooking.module/specialistPatientScheduleBooking/specialistPatientScheduleBooking.route';
 import { DoctorSpecialistPatientRoute } from '../modules/personRelationships.module/doctorSpecialistPatient/doctorSpecialistPatient.route';
 import { OrderItemRoute } from '../modules/order.module/orderItem/orderItem.route';
+import { SuccessTrackerRoute } from '../modules/successTracker.module/successTracker/successTracker.route';
 
 // import { ChatRoutes } from '../modules/chat/chat.routes';
 // import { MessageRoutes } from '../modules/message/message.routes';
@@ -61,6 +62,12 @@ const apiRoutes = [
     path: '/products',
     route: ProductRoute,
   },
+  ///////////////////////////////////////// Success Tracker
+  {
+    path: '/success-tracker',
+    route: SuccessTrackerRoute,
+  },
+  
   ///////////////////////////////////////// Training Program
   { // 🟢
     path: '/training-programs',

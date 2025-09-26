@@ -9,22 +9,40 @@ const SuccessTrackerSchema = new Schema<ISuccessTracker>(
       type: Schema.Types.ObjectId,
       ref: 'User',
     },
-    mindsetAndMomentumId: {//🔗
-      type: Schema.Types.ObjectId,
-      ref: 'MindsetAndMomentum',
+
+    weekStartDate: {
+      type: Date,
+      required: true
     },
-    satisfactionAndFeedbackId: {//🔗
-      type: Schema.Types.ObjectId,
-      ref: 'SatisfactionAndFeedback',
+
+    weekEndDate: {
+      type: Date,
+      required: true
     },
-    adherenceAndConsistencyId: {//🔗
-      type: Schema.Types.ObjectId,
-      ref: 'AdherenceAndConsistency',
-    },
-    healthAndPerformanceId: {//🔗
-      type: Schema.Types.ObjectId,
-      ref: 'HealthAndPerformance',
-    },
+
+    // successTrackerId: {
+    //   type: Schema.Types.ObjectId,
+    //   ref: 'SuccessTracker',
+    //   required: true
+    // },
+
+    // mindsetAndMomentumId: {//🔗
+    //   type: Schema.Types.ObjectId,
+    //   ref: 'MindsetAndMomentum',
+    // },
+    // satisfactionAndFeedbackId: {//🔗
+    //   type: Schema.Types.ObjectId,
+    //   ref: 'SatisfactionAndFeedback',
+    // },
+    // adherenceAndConsistencyId: {//🔗
+    //   type: Schema.Types.ObjectId,
+    //   ref: 'AdherenceAndConsistency',
+    // },
+    // healthAndPerformanceId: {//🔗
+    //   type: Schema.Types.ObjectId,
+    //   ref: 'HealthAndPerformance',
+    // },
+
     isDeleted: {
       type: Boolean,
       required: [false, 'isDeleted is not required'],

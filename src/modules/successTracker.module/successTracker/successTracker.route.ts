@@ -1,3 +1,4 @@
+//@ts-ignore
 import express from 'express';
 import * as validation from './successTracker.validation';
 import { SuccessTrackerController} from './successTracker.controller';
@@ -5,8 +6,9 @@ import { ISuccessTracker } from './successTracker.interface';
 import { validateFiltersForQuery } from '../../../middlewares/queryValidation/paginationQueryValidationMiddleware';
 import validateRequest from '../../../shared/validateRequest';
 import auth from '../../../middlewares/auth';
-
+//@ts-ignore
 import multer from "multer";
+import { TRole } from '../../../middlewares/roles';
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
@@ -25,14 +27,36 @@ const paginationOptions: Array<'sortBy' | 'page' | 'limit' | 'populate'> = [
   'populate',
 ];
 
-
 // const taskService = new TaskService();
 const controller = new SuccessTrackerController();
+
+// ========================
+// ROUTE ADDITIONS
+// ========================
+
+// Add these routes to your existing success tracker routes
+
+// GET /success-tracker/overview - Get last 2 weeks comparison overview
+router.get('/overview', auth, successTrackerController.getOverview.bind(successTrackerController));
+
+// GET /success-tracker/available-weeks - Get available weeks for user
+router.get('/available-weeks', auth, successTrackerController.getAvailableWeeks.bind(successTrackerController));
+
+// GET /success-tracker/custom-comparison - Compare any two weeks
+router.get('/custom-comparison', auth, successTrackerController.getCustomWeekComparison.bind(successTrackerController));
+
+
+
+router.post('/create', 
+  auth(TRole.patient),
+  validateRequest(validation.createSuccessTrackerValidationSchema),
+  controller.createSuccessTracker
+);
 
 //info : pagination route must be before the route with params
 router.route('/paginate').get(
   //auth('common'),
-  validateFiltersForQuery(optionValidationChecking(['_id'])),
+  validateFiltersForQuery(optionValidationChecking(['_id', ...paginationOptions])),
   controller.getAllWithPagination
 );
 
@@ -53,17 +77,6 @@ router.route('/').get(
   controller.getAll
 );
 
-//[🚧][🧑‍💻✅][🧪] // 🆗
-router.route('/create').post(
-  // [
-  //   upload.fields([
-  //     { name: 'attachments', maxCount: 15 }, // Allow up to 5 cover photos
-  //   ]),
-  // ],
-  auth('common'),
-  validateRequest(validation.createHelpMessageValidationSchema),
-  controller.create
-);
 
 router.route('/delete/:id').delete(
   //auth('common'),

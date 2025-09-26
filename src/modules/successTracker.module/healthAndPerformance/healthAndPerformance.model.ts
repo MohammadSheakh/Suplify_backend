@@ -6,6 +6,13 @@ import paginate from '../../../common/plugins/paginate';
 const HealthAndPerformanceSchema = new Schema<IHealthAndPerformance>(
   {
     
+    successTrackerId: {
+      type: Schema.Types.ObjectId,
+      ref: 'SuccessTracker',
+      required: true
+    },
+
+
     currentWeight : {
       type: Number,
       required: [true, 'currentWeight is required'],
@@ -20,14 +27,20 @@ const HealthAndPerformanceSchema = new Schema<IHealthAndPerformance>(
     },
     energyLevel : {
       type: Number,
+      min: 1,
+      max: 10,
       required: [true, 'energyLevel is required'],
     },
     sleepQuality : {
       type: Number,
+      min: 1,
+      max: 10,
       required: [true, 'sleepQuality is required'],
     },
     workoutRecoveryRating : {
       type: Number,
+      min: 1,
+      max: 10,
       required: [true, 'workoutRecoveryRating is required'],
     },
     isDeleted: {

@@ -146,13 +146,13 @@ router.route('/').get(
  * 
  * 
  * Admin | User Management | Show all doctor for assign to a patient
- * 
+ *  /////// TODO : MUST :  need to fix this 
  * :patientId:
  * ********** */
-router.route('/doctor/:patientId').get(
-  auth(TRole.doctor, TRole.admin),
-  controller.showAllDoctor
-);
+// router.route('/doctor/:patientId').get(
+//   auth(TRole.doctor, TRole.admin),
+//   controller.showAllDoctor
+// );
 
 
 

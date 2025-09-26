@@ -5,20 +5,34 @@ import { IAdherenceAndConsistency, IAdherenceAndConsistencyModel } from './adher
 
 const AdherenceAndConsistencySchema = new Schema<IAdherenceAndConsistency>(
   {
+
+    successTrackerId: {
+      type: Schema.Types.ObjectId,
+      ref: 'SuccessTracker',
+      required: true
+    },
+
     didYouTakeSupplimentsAsRecommended: {
       type: Number,
+      min: 0,
+      max: 100,
       required: [true, 'didYouTakeSupplimentsAsRecommended is required'],
     },
     howManyMealsDidYouFollow: {
       type: Number,
+       min: 0,
       required: [true, 'howManyMealsDidYouFollow is required'],
     },
     workoutDidYouCompleteThisWeek: {
       type: Number,
+      min: 0,
       required: [true, 'workoutDidYouCompleteThisWeek is required'],
     },
     howConsistentWithHydration: {
       type: Number,
+      min: 1,
+      max: 10,
+
       required: [true, 'howConsistentWithHydration is required'],
     },
     checkInWithCoachThisWeek: {
