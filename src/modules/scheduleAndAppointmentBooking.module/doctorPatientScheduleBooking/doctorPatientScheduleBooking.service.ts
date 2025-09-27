@@ -329,6 +329,20 @@ async function addToBullQueueToFreeDoctorAppointmentSchedule(existingSchedule : 
             },
             { delay }
         );
+        /*************
+            Retries & Backoff
+
+            Currently if a job fails, it just logs.
+
+            You should configure retries (e.g. 3–5 retries with exponential backoff).
+            {
+                attempts: 5, // retry 5 times
+                backoff: { type: "exponential", delay: 5000 }, // 5s, 10s, 20s...
+                removeOnComplete: true,
+                removeOnFail: false, // keep failed jobs for inspection
+            }
+        ********** */
+
         // ${delay / 1000}s -> 
         console.log(`⏰ Job added to free schedule ${existingSchedule._id} in ${formatDelay(delay)} min`);
         logger.info(colors.green(`⏰ Job added to free schedule ${existingSchedule._id} in ${formatDelay(delay)} min`));

@@ -27,6 +27,7 @@ import { ITrainingProgram } from '../trainingProgram/trainingProgram.interface';
 import { ISpecialistPatient } from '../../personRelationships.module/specialistPatient/specialistPatient.interface';
 import { PatientTrainingSessionService } from '../patientTrainingSession/patientTrainingSession.service';
 import { IPatientTrainingSession } from '../patientTrainingSession/PatientTrainingSession.interface';
+import { notificationQueue } from '../../../helpers/bullmq';
 
 const patientTrainingSessionService = new PatientTrainingSessionService();
 
@@ -181,6 +182,14 @@ export class TrainingProgramPurchaseService extends GenericService<
            * **** */
 
           await this._handlePersonTrainingSessionCreate(trainingProgramId, user);
+
+          /********
+           * 
+           * Lets send notification to specialist that patient has purchased training program
+           * 
+           * ***** */
+
+          sendInWebNotification();
 
           
         // return  purchaseTrainingProgram;
@@ -343,6 +352,31 @@ export class TrainingProgramPurchaseService extends GenericService<
 
     return  stripeResult; // result ;//session.url;
   }
+}
+
+async function sendInWebNotification(existingTrainingProgram, user: any) {
+  await notificationQueue.add(
+  'send-notification',
+  {
+    type: 'TRAINING',
+    receiverId: existingTrainingProgram.createdBy, // specialist
+    receiverRole: 'specialist',
+    title: 'New Training Program Purchase',
+    subTitle: `${user.name} has purchased your training program.`,
+    referenceFor: 'TrainingProgram',
+    referenceId: existingTrainingProgram._id,
+    senderId: user.userId,
+  },
+  {
+    attempts: 3,
+    backoff: {
+      type: 'exponential',
+      delay: 2000, // 2s, 4s, 8s
+    },
+    removeOnComplete: true,
+    removeOnFail: 1000, // keep failed jobs for debugging
+  }
+);
 }
 
 

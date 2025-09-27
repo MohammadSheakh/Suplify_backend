@@ -1,5 +1,5 @@
 //@ts-ignore
-import { Queue, Worker, QueueScheduler } from "bullmq";
+import { Queue, Worker, QueueScheduler, Job } from "bullmq";
 import { redisPubClient } from "./redis"; 
 import { DoctorAppointmentSchedule } from "../modules/scheduleAndAppointmentBooking.module/doctorAppointmentSchedule/doctorAppointmentSchedule.model";
 import { TDoctorAppointmentScheduleStatus } from "../modules/scheduleAndAppointmentBooking.module/doctorAppointmentSchedule/doctorAppointmentSchedule.constant";
@@ -11,11 +11,20 @@ import { TSpecialistWorkoutClassSchedule } from "../modules/scheduleAndAppointme
 import { SpecialistPatientScheduleBooking } from "../modules/scheduleAndAppointmentBooking.module/specialistPatientScheduleBooking/specialistPatientScheduleBooking.model";
 import { TScheduleBookingStatus } from "../modules/scheduleAndAppointmentBooking.module/specialistPatientScheduleBooking/specialistPatientScheduleBooking.constant";
 import { IDoctorAppointmentSchedule } from "../modules/scheduleAndAppointmentBooking.module/doctorAppointmentSchedule/doctorAppointmentSchedule.interface";
+import { Notification } from "../modules/notification/notification.model";
 
 // Create Queue
 export const scheduleQueue = new Queue("scheduleQueue", {
   connection: redisPubClient.options, // reuse your redis config
 });
+
+/***********
+ * 
+ * Enable QueueScheduler
+ * You commented it out. But QueueScheduler is important — it handles stalled jobs, delayed jobs, repeatable jobs, etc.
+ * Without it, if your worker crashes mid-job → the job may hang forever.
+ * 
+ * **** */
 
 // new QueueScheduler("scheduleQueue", {
 //   connection: redisPubClient.options,
@@ -30,7 +39,7 @@ interface IScheduleJob {
   id: string
 }
 
-// Create Worker
+// Create Worker for scheduleQueue
 export const startScheduleWorker = () => {
 const worker = new Worker(
   "scheduleQueue",
@@ -191,4 +200,80 @@ worker.on("failed", (job:IScheduleJob, err:any) => {
   console.error(`❌ Job.id ${job?.id} :: ${job.name} {job.} failed`, err);
   errorLogger.error(`❌ Job.id ${job?.id} :: ${job.name} {job.} failed`, err);
 });
+/********
+  // Handle Graceful shutdown
+  process.on("SIGINT", async () => {
+    logger.info("Shutting down worker...");
+    await worker.close();
+    await scheduleQueue.close();
+    process.exit(0);
+  });
+********** */
+
 }
+
+/**************************************************************
+ * *********************************************************** */
+
+// Notification Queue
+export const notificationQueue = new Queue("notificationQueue", {
+  connection: redisPubClient.options,
+});
+new QueueScheduler("notificationQueue", { connection: redisPubClient.options });
+
+
+interface INotificationJobData {
+  type: string;          // TRAINING, BOOKING, etc.
+  title: string;
+  subTitle?: string;
+  senderId?: string;
+  receiverId?: string;
+  receiverRole: string;
+  referenceFor?: string;
+  referenceId?: string;
+}
+
+type NotificationJobName = "sendNotification";
+
+
+export const startNotificationWorker = () => {
+  const worker = new Worker(
+    "notificationQueue",
+    async (
+      //job: any
+      job : Job<INotificationJobData, any, NotificationJobName>
+    ) => {
+      const { id, name, data } = job;
+      logger.info(`Processing notification job ${id} ⚡ ${name}`, data);
+
+      try {
+        await Notification.create({
+          title: data.title,
+          subTitle: data.subTitle,
+          senderId: data.senderId,
+          receiverId: data.receiverId,
+          receiverRole: data.receiverRole,
+          type: data.type,
+          referenceFor: data.referenceFor,
+          referenceId: data.referenceId,
+        });
+
+        logger.info(`✅ Notification created for ${data.receiverRole}`);
+      } catch (err: any) {
+        errorLogger.error(
+          `❌ Notification job ${id} failed: ${err.message}`
+        );
+        throw err; // ensures retry/backoff
+      }
+    },
+    { connection: redisPubClient.options }
+  );
+
+  worker.on("completed", (job) =>
+    logger.info(`✅ Notification job ${job.id} (${job.name}) completed`)
+  );
+
+  worker.on("failed", (job, err) =>
+    errorLogger.error(`❌ Notification job ${job?.id} (${job?.name}) failed`, err)
+  );
+};
