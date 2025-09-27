@@ -1,5 +1,5 @@
-export enum WalletType {
-  document = 'document',
-  image = 'image',
-  unknown = 'unknown',
+export enum TWalletStatus {
+  active = 'active',
+  frozen = 'frozen',
+  suspended = 'suspended',
 }

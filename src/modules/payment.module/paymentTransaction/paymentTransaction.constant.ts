@@ -1,5 +1,10 @@
+/********
+ *
+ * // TODO : This is part of global constant  .. in next project we will move it to global constant file in sha Allah
+ * 
+ * ****** */
+
 export enum TTransactionFor {
-    // SubscriptionPlan = 'SubscriptionPlan',
     UserSubscription = 'UserSubscription',
     Order = 'Order',
     DoctorPatientScheduleBooking = 'DoctorPatientScheduleBooking',

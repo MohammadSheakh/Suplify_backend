@@ -12,7 +12,15 @@ const paymentTransactionSchema = new Schema<IPaymentTransaction>(
       ref: 'User',
       required: true
     },
-    
+
+    /********
+     * 📝 INFO 
+     * referenceFor and referenceId are also use in
+     * WalletTransactionHistory model
+     * 
+     * If you update here please update there also
+     * 
+     * ******** */
     referenceFor: {
       type: String,
       enum: [
@@ -30,7 +38,7 @@ const paymentTransactionSchema = new Schema<IPaymentTransaction>(
 
     referenceId: { type: Schema.Types.ObjectId, refPath: 'referenceFor',
        required: [true, 'referenceId is required']
-       },
+    },
 
     /**********
      * 

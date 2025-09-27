@@ -1,18 +1,103 @@
+//@ts-ignore
 import { model, Schema } from 'mongoose';
-import { IWalletTransactionHistory, IWalletTransactionHistoryModel } from './WalletTransactionHistory.interface';
-import paginate from '../../common/plugins/paginate';
+import { IWalletTransactionHistory, IWalletTransactionHistoryModel } from './walletTransactionHistory.interface';
+import paginate from '../../../common/plugins/paginate';
+import { TWalletTransactionHistory, TWalletTransactionStatus } from './walletTransactionHistory.constant';
+import { TCurrency } from '../../../enums/payment';
+import { TTransactionFor } from '../../payment.module/paymentTransaction/paymentTransaction.constant';
 
 
 const WalletTransactionHistorySchema = new Schema<IWalletTransactionHistory>(
   {
-    userId: { //🔗
+    walletId: { //🔗
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: 'Wallet',
     },
-    message: {
+    paymentTransactionId: { //🔗
+      type: Schema.Types.ObjectId,
+      ref: 'PaymentTransaction',
+    },
+    withdrawalRequestId : { //🔗
+      type: Schema.Types.ObjectId,
+      ref: 'WithdrawalRequst',
+    },
+
+    type : {
       type: String,
-      required: [true, 'dateOfBirth is required'],
+      required: [true, 'type is required'],
+      enum: [
+        TWalletTransactionHistory.debit,
+        TWalletTransactionHistory.credit,
+        TWalletTransactionHistory.withdrawal,
+      ]
     },
+
+    amount: {
+      type: Number,
+      required: [true, 'amount is required'],
+    },
+
+    currency: {
+      type: String,
+      enum: [TCurrency.usd, TCurrency.token],
+      required: [true, 'currency is required'],
+    },
+
+    balanceBefore: {
+      type: Number,
+      required: [true, 'balanceBefore is required'],
+    },
+
+    balanceAfter: {
+      type: Number,
+      required: [true, 'balanceAfter is required'],
+    },
+
+    description : {
+      type: String,
+      required: [false, 'description is not required'],
+      trim: true,
+      minlength: 2,
+      maxlength: 500,
+    },
+
+    status : {
+      type: String,
+      required: [true, 'status is required'],
+      enum: [
+        TWalletTransactionStatus.pending,
+        TWalletTransactionStatus.completed,
+        TWalletTransactionStatus.failed,
+      ]
+    },
+
+    /********
+     * 📝 INFO 
+     * referenceFor and referenceId are also use in
+     * PaymentTransaction model
+     * 
+     * If you update here please update there also
+     * 
+     * ******** */
+    referenceFor: {
+      type: String,
+      enum: [
+        TTransactionFor.UserSubscription, // previously it was SubscriptionPlan
+        TTransactionFor.Order,
+        TTransactionFor.DoctorPatientScheduleBooking,
+        TTransactionFor.SpecialistPatientScheduleBooking,
+        TTransactionFor.TrainingProgramPurchase,
+        TTransactionFor.LabTestBooking
+      ],
+      required: [true, `referenceFor is required .. it can be  ${Object.values(TTransactionFor).join(
+        ', '
+      )}`],
+    },
+
+    referenceId: { type: Schema.Types.ObjectId, refPath: 'referenceFor',
+        required: [true, 'referenceId is required']
+    },
+
     isDeleted: {
       type: Boolean,
       required: [false, 'isDeleted is not required'],

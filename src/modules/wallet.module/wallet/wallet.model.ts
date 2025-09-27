@@ -1,6 +1,10 @@
+//@ts-ignore
 import { model, Schema } from 'mongoose';
-import { IWallet, IWalletModel } from './Wallet.interface';
-import paginate from '../../common/plugins/paginate';
+import { IWallet, IWalletModel } from './wallet.interface';
+import paginate from '../../../common/plugins/paginate';
+import { TCurrency } from '../../../enums/payment';
+import { TWalletStatus } from './wallet.constant';
+import { Roles } from '../../../middlewares/roles';
 
 
 const WalletSchema = new Schema<IWallet>(
@@ -9,10 +13,32 @@ const WalletSchema = new Schema<IWallet>(
       type: Schema.Types.ObjectId,
       ref: 'User',
     },
-    message: {
-      type: String,
-      required: [true, 'dateOfBirth is required'],
+    amount: {
+      type: Number,
+      required: [true, 'amount is required'],
     },
+    currency:{
+      type: String,
+      enum:[
+        TCurrency.usd,
+      ],
+    },
+    status:{
+      type: String,
+      enum:[
+        TWalletStatus.active,
+        TWalletStatus.frozen,
+        TWalletStatus.suspended,
+      ],
+    },
+    // userRole: {  /// do we need this field ???
+    //   type: String,
+    //   enum: {
+    //     values: Roles,
+    //     message: '{VALUE} is not a valid role',
+    //   },
+    //   required: [true, 'Role is required'],
+    // },
     isDeleted: {
       type: Boolean,
       required: [false, 'isDeleted is not required'],

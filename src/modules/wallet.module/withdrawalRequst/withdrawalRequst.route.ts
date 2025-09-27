@@ -1,11 +1,12 @@
+//@ts-ignore
 import express from 'express';
-import * as validation from './WithdrawalRequst.validation';
-import { WithdrawalRequstController} from './WithdrawalRequst.controller';
-import { IWithdrawalRequst } from './WithdrawalRequst.interface';
-import { validateFiltersForQuery } from '../../middlewares/queryValidation/paginationQueryValidationMiddleware';
-import validateRequest from '../../shared/validateRequest';
-import auth from '../../middlewares/auth';
-
+import * as validation from './withdrawalRequst.validation';
+import { WithdrawalRequstController} from './withdrawalRequst.controller';
+import { IWithdrawalRequst } from './withdrawalRequst.interface';
+import { validateFiltersForQuery } from '../../../middlewares/queryValidation/paginationQueryValidationMiddleware';
+import validateRequest from '../../../shared/validateRequest';
+import auth from '../../../middlewares/auth';
+//@ts-ignore
 import multer from "multer";
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });

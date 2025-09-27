@@ -1,5 +1,6 @@
-export enum WithdrawalRequstType {
-  document = 'document',
-  image = 'image',
-  unknown = 'unknown',
+export enum TWithdrawalRequst {
+  requested = 'requested',
+  processing = 'processing',
+  completed = 'completed',
+  failed = 'failed',
 }

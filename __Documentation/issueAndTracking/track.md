@@ -4,12 +4,19 @@ cm -> can't measure
 🧪 -> test pass
 ⚠️ need to optimize
 | /8/ |    |  |  |       |          |
-| /8/ |    |  |  |       |          |
-
 
 | Date    | Role    | Modules              | Feature                     | Fix | Progress |
 |---------|---------|----------------------|-----------------------------|-----|----------|
-| 26/8/25 | Patient | Cart CartItem        | add to cart                 |     | cm       |
-| 31/8/   | Patient | LabTestBooking       | Book A Lab Test             |     |          |
 | 31/8/   | Admin   | Settings             | ℹ️ Information video upload |     |          |
 | 31/8/   | Doctor  | Appointment Schedule | 🟡 Create schedule          |     |          |
+
+
+Remaining
+
+| Sl. | Role    | Feature          |
+|-----|---------|------------------|
+| 1   | Patient | Success Tracker  |
+| 2   | All     | Conversation     |
+| 1   | All     | Notification     |
+| 1   | All     | Payment          |
+| 1   | Admin   | Order Management |

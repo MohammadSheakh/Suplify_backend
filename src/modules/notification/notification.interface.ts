@@ -1,16 +1,34 @@
+//@ts-ignore
 import { Model, Types } from 'mongoose';
 import { PaginateOptions, PaginateResult } from '../../types/paginate';
-import { UploaderRole } from '../attachments/attachment.constant';
+import { TTransactionFor } from '../payment.module/paymentTransaction/paymentTransaction.constant';
+import { TNotificationType } from './notification.constants';
+import { TRole } from '../../middlewares/roles';
 
 export interface INotification {
   _id?: Types.ObjectId;
-  receiverId?: Types.ObjectId | string;
   title: string;
-  // message?: string;
-  // image?: string; // age object chilo .. 
-  linkId?: Types.ObjectId | string;
-  role: UploaderRole.projectManager | UploaderRole.projectSupervisor;
+  subTitle?: string;
+
+  senderId?: Types.ObjectId;   // who triggered the notification
+  receiverId?: Types.ObjectId; // specific user
+
+  /*******
+   * 
+   * fallback role-based delivery
+   * so that we can send notification to admin 
+   * 
+   * **** */
+  receiverRole: TRole;  //🧩         
+
+  type : TNotificationType; //🧩 
+  referenceFor : TTransactionFor; //🧩 
+  referenceId?: Types.ObjectId; // refPath to referenceFor
+
   viewStatus?: boolean;
+  readAt?: Date;
+
+  isDeleted?: boolean;
   createdAt?: Date;
   updatedAt?: Date;
 }

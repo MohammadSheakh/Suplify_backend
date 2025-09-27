@@ -1,3 +1,4 @@
+//@ts-ignore
 import { Model, Types, Schema } from 'mongoose';
 import { PaginateOptions, PaginateResult } from '../../../types/paginate';
 import { TPaymentGateway, TPaymentStatus, TTransactionFor } from './paymentTransaction.constant';
@@ -7,12 +8,7 @@ export interface IPaymentTransaction {
   // _taskId: undefined | Types.ObjectId;
   _id?: Types.ObjectId; // undefined |  Types.ObjectId |
   userId: Types.ObjectId; //🔗
-  referenceFor :  TTransactionFor.DoctorPatientScheduleBooking |
-          TTransactionFor.Order |
-          TTransactionFor.LabTestBooking |
-          TTransactionFor.UserSubscription | // previously it was SubscriptionPlan
-          TTransactionFor.TrainingProgramPurchase |
-          TTransactionFor.SpecialistPatientScheduleBooking;
+  referenceFor :  TTransactionFor; //🧩 
   referenceId: Types.ObjectId; //🔗
   /**********
      * 
@@ -27,14 +23,16 @@ export interface IPaymentTransaction {
 
   amount: number;
   currency : TCurrency.eur | TCurrency.usd
-  paymentStatus : TPaymentStatus.pending | 
+  paymentStatus :  
+  
+  TPaymentStatus.pending | 
     TPaymentStatus.processing |
     TPaymentStatus.completed |
     TPaymentStatus.failed |
     TPaymentStatus.refunded |
     TPaymentStatus.cancelled |
     TPaymentStatus.partially_refunded |
-    TPaymentStatus.disputed;
+    TPaymentStatus.disputed; //🚦
 
     gatewayResponse: {
       type: Schema.Types.Mixed,

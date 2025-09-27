@@ -1,10 +1,12 @@
+//@ts-ignore
 import { Request, Response } from 'express';
+//@ts-ignore
 import { StatusCodes } from 'http-status-codes';
 
-import { GenericController } from '../_generic-module/generic.controller';
-import { WalletTransactionHistory } from './WalletTransactionHistory.model';
+import { GenericController } from '../../_generic-module/generic.controller';
+import { WalletTransactionHistory } from './walletTransactionHistory.model';
 import { IWalletTransactionHistory } from './WalletTransactionHistory.interface';
-import { WalletTransactionHistoryService } from './WalletTransactionHistory.service';
+import { WalletTransactionHistoryService } from './walletTransactionHistory.service';
 
 export class WalletTransactionHistoryController extends GenericController<
   typeof WalletTransactionHistory,

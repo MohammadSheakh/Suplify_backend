@@ -1,3 +1,4 @@
+//@ts-ignore
 import { model, Schema } from 'mongoose';
 import { INotification, INotificationModal } from './notification.interface';
 import paginate from '../../common/plugins/paginate';
@@ -7,29 +8,74 @@ const notificationModel = new Schema<INotification>(
   {
     title: {
       type: String,
-      required: [true, 'Title is required'],
+      required: [true, "Title is required"],
+      trim: true,
     },
-    // message: {
-    //   type: String,
-    //   required: [true, 'Message is required'],
-    // },
-    receiverId: {//🔗
+
+    subTitle: {
+      type: String,
+      trim: true,
+    },
+
+    senderId: { // who triggered the notification
       type: Schema.Types.ObjectId,
-      ref: 'User',
-      required: [false, 'User is required'],
+      ref: "User",
     },
-    role: {
+
+    receiverId: { // specific user (doctor, specialist, patient)
+      type: Schema.Types.ObjectId,
+      ref: "User",
+    },
+
+    receiverRole: { // fallback for role-based (admin, doctor, specialist, patient)
       type: String,
       enum: Roles,
       required: true,
     },
-    // image: {
-    //   type: String,
-    // },
-    linkId: {
+
+    type: {
       type: String,
+      enum: [
+        "BOOKING",       // patient booked doctor schedule
+        "TRAINING",      // patient booked specialist training
+        "WORKOUT",       // patient booked workout class
+        "WITHDRAWAL",    // doctor/specialist requested withdrawal
+        "PAYMENT",       // payment credited/debited
+        "SYSTEM",        // admin/system announcement
+      ],
+      required: true,
     },
-    viewStatus: { type: Boolean, default: false },
+
+    referenceFor: {
+      type: String,
+      enum: [
+        "Schedule",
+        "TrainingProgram",
+        "WorkoutClass",
+        "WithdrawalRequest",
+        "PaymentTransaction",
+        "Order",
+      ],
+    },
+
+    referenceId: {
+      type: Schema.Types.ObjectId,
+      refPath: "referenceFor",
+    },
+
+    viewStatus: {
+      type: Boolean,
+      default: false,
+    },
+
+    readAt: {
+      type: Date,
+    },
+
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );

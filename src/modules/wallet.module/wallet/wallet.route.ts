@@ -1,11 +1,12 @@
+//@ts-ignore
 import express from 'express';
-import * as validation from './Wallet.validation';
-import { WalletController} from './Wallet.controller';
-import { IWallet } from './Wallet.interface';
-import { validateFiltersForQuery } from '../../middlewares/queryValidation/paginationQueryValidationMiddleware';
-import validateRequest from '../../shared/validateRequest';
-import auth from '../../middlewares/auth';
-
+import * as validation from './wallet.validation';
+import { WalletController} from './wallet.controller';
+import { IWallet } from './wallet.interface';
+import { validateFiltersForQuery } from '../../../middlewares/queryValidation/paginationQueryValidationMiddleware';
+import validateRequest from '../../../shared/validateRequest';
+import auth from '../../../middlewares/auth';
+//@ts-ignore
 import multer from "multer";
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });

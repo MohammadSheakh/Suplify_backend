@@ -1,10 +1,12 @@
+//@ts-ignore
 import { Request, Response } from 'express';
+//@ts-ignore
 import { StatusCodes } from 'http-status-codes';
 
-import { GenericController } from '../_generic-module/generic.controller';
-import { WithdrawalRequst } from './WithdrawalRequst.model';
+import { GenericController } from '../../_generic-module/generic.controller';
+import { WithdrawalRequst } from './withdrawalRequst.model';
 import { IWithdrawalRequst } from './WithdrawalRequst.interface';
-import { WithdrawalRequstService } from './WithdrawalRequst.service';
+import { WithdrawalRequstService } from './withdrawalRequst.service';
 
 export class WithdrawalRequstController extends GenericController<
   typeof WithdrawalRequst,

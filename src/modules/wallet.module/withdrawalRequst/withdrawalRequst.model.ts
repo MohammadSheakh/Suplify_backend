@@ -1,18 +1,72 @@
+//@ts-ignore
 import { model, Schema } from 'mongoose';
-import { IWithdrawalRequst, IWithdrawalRequstModel } from './WithdrawalRequst.interface';
-import paginate from '../../common/plugins/paginate';
+import { IWithdrawalRequst, IWithdrawalRequstModel } from './withdrawalRequst.interface';
+import paginate from '../../../common/plugins/paginate';
+import { TWithdrawalRequst } from './withdrawalRequst.constant';
 
 
 const WithdrawalRequstSchema = new Schema<IWithdrawalRequst>(
   {
-    userId: { //🔗
+    walletId: { //🔗 for which wallet this withdraw request
+      type: Schema.Types.ObjectId,
+      ref: 'Wallet',
+    },
+    userId: { //🔗 for which user this withdraw request
       type: Schema.Types.ObjectId,
       ref: 'User',
     },
-    message: {
+    bankAccountNumber: {
       type: String,
-      required: [true, 'dateOfBirth is required'],
+      required: [true, 'bankAccountNumber is required'],
     },
+
+    bankRoutingNumber: {
+      type: String,
+      required: [true, 'bankRoutingNumber is required'],
+    },
+
+    bankAccountHolder: {
+      type: String,
+      required: [true, 'bankAccountHolder is required'],
+    },
+
+    bankAccountType: {
+      type: String,
+      required: [true, 'bankAccountType is required'],
+    },
+
+    bankBranch: {
+      type: String,
+      required: [true, 'bankBranch is required'],
+    },
+
+    bankName: {
+      type: String,
+      required: [true, 'bankName is required'],
+    },
+
+    status:{
+      type: String,
+      enum:[
+        TWithdrawalRequst.completed,
+        TWithdrawalRequst.failed,
+        TWithdrawalRequst.processing,
+        TWithdrawalRequst.requested,
+      ],
+    },
+
+    requestedAt: {
+      type: Date,
+      required: [true, 'requestedAt is required'],
+      default: Date.now,
+    },
+    
+    processedAt: {
+      type: Date,
+      required: [false, 'processedAt is not required'],
+      default: null,
+    },
+
     isDeleted: {
       type: Boolean,
       required: [false, 'isDeleted is not required'],
