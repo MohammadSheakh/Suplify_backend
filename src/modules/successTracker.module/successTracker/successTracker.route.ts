@@ -37,13 +37,11 @@ const controller = new SuccessTrackerController();
 // Add these routes to your existing success tracker routes
 
 // GET /success-tracker/overview - Get last 2 weeks comparison overview
-router.get('/overview', auth, successTrackerController.getOverview.bind(successTrackerController));
+router.get('/overview', 
+  auth(TRole.patient),
+  controller.getSuccessTrackerOverview);
+  // getSuccessTrackerDetails
 
-// GET /success-tracker/available-weeks - Get available weeks for user
-router.get('/available-weeks', auth, successTrackerController.getAvailableWeeks.bind(successTrackerController));
-
-// GET /success-tracker/custom-comparison - Compare any two weeks
-router.get('/custom-comparison', auth, successTrackerController.getCustomWeekComparison.bind(successTrackerController));
 
 
 
@@ -60,9 +58,9 @@ router.route('/paginate').get(
   controller.getAllWithPagination
 );
 
-router.route('/:id').get(
-  // auth('common'),
-  controller.getById
+router.route('/:userId/:weekOffset').get(
+   auth(TRole.patient),
+  controller.getSuccessTrackerOverview
 );
 
 router.route('/update/:id').put(

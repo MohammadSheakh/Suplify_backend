@@ -10,7 +10,7 @@ import { MindsetAndMomentum } from '../mindsetAndMomentum/mindsetAndMomentum.mod
 import { SatisfactionAndFeedback } from '../satisfactionAndFeedback/satisfactionAndFeedback.model';
 import { AdherenceAndConsistency } from '../adherenceAndConsistency/adherenceAndConsistency.model';
 
-export class SuccessTrackerService extends GenericService<
+export class SuccessTrackerServiceV2 extends GenericService<
   typeof SuccessTracker,
   ISuccessTracker
 > {
@@ -18,89 +18,7 @@ export class SuccessTrackerService extends GenericService<
     super(SuccessTracker);
   }
 
-  async createSuccessTracker(userId, data) {
-    try {
-      // Get current week start and end dates
-      const weekStart = moment().startOf('week').toDate();
-      const weekEnd = moment().endOf('week').toDate();
-      
-      // Check if entry already exists for current week
-      const existingTracker = await SuccessTracker.findOne({
-        createdBy: userId,
-        weekStartDate: { $gte: weekStart, $lte: weekEnd },
-        isDeleted: false
-      });
-      
-      if (existingTracker) {
-        throw new Error('Success tracker already exists for this week');
-      }
-      
-      // Create main tracker entry
-      const successTracker = new SuccessTracker({
-        createdBy: userId,
-        weekStartDate: weekStart,
-        weekEndDate: weekEnd
-      });
-      
-      await successTracker.save();
-      
-      // Create all category entries
-      const promises = [];
-      
-      // Health and Performance
-      if (data.healthAndPerformance) {
-        const healthEntry = new HealthAndPerformance({
-          successTrackerId: successTracker._id,
-          ...data.healthAndPerformance
-        });
-        promises.push(healthEntry.save());
-      }
-      
-      // Mindset and Momentum
-      if (data.mindsetAndMomentum) {
-        const mindsetEntry = new MindsetAndMomentum({
-          successTrackerId: successTracker._id,
-          ...data.mindsetAndMomentum
-        });
-        promises.push(mindsetEntry.save());
-      }
-      
-      // Satisfaction and Feedback
-      if (data.satisfactionAndFeedback) {
-        const satisfactionEntry = new SatisfactionAndFeedback({
-          successTrackerId: successTracker._id,
-          ...data.satisfactionAndFeedback
-        });
-        promises.push(satisfactionEntry.save());
-      }
-      
-      // Adherence and Consistency
-      if (data.adherenceAndConsistency) {
-        const adherenceEntry = new AdherenceAndConsistency({
-          successTrackerId: successTracker._id,
-          ...data.adherenceAndConsistency
-        });
-        promises.push(adherenceEntry.save());
-      }
-      
-      await Promise.all(promises);
-      
-      return await this.getSuccessTrackerComparison(userId);
-      
-    } catch (error) {
-      throw error;
-    }
-  }
-
- 
-
-/*******************
- * 
- * Claude
- * 
- * ************ */
-
-async getSuccessTrackerOverview(userId) {
+  async getSuccessTrackerOverview(userId) {
     try {
       // Get current week and previous week data
       const currentWeekData = await this.getSuccessTrackerDetails(userId, 0);
@@ -565,7 +483,6 @@ async getSuccessTrackerOverview(userId) {
     return comparisonData;
   }
 
-  
 
 
 }
