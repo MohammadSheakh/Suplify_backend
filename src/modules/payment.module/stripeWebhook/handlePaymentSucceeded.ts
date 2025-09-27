@@ -187,6 +187,13 @@ async function updatePurchaseTrainingProgram(
      // here we create all patientTrainingSession for track all session for this patient
      trainingProgramPurchaseService._handlePersonTrainingSessionCreate(trainingProgramId, user);
 
+     /******
+      * 
+      * Lets create wallet transaction history for this payment .. 
+      * and update wallet balance
+      * ****** */
+
+
      return updatedTrainingProgramPurchase;
 }
 

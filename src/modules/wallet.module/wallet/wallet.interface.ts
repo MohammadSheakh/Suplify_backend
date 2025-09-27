@@ -11,7 +11,7 @@ export interface IWallet {
   amount: number;
 
   currency: TCurrency; //🧩 
-  status: TWalletStatus; //🧩 
+  status?: TWalletStatus; //🧩 
 
   // userRole?: Roles; // uncomment if you decide to use userRole field
 

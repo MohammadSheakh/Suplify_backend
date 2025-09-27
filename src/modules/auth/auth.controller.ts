@@ -7,6 +7,8 @@ import { AttachmentService } from '../attachments/attachment.service';
 import { UserProfile } from '../user/userProfile/userProfile.model';
 import { Roles, TRole } from '../../middlewares/roles';
 import { TFolderName } from '../../enums/folderNames';
+import { WalletService } from '../wallet.module/wallet/wallet.service';
+
 
 //[🚧][🧑‍💻✅][🧪] // 🆗 
 const register = catchAsync(async (req :Request, res:Response) => {
@@ -50,9 +52,24 @@ const register = catchAsync(async (req :Request, res:Response) => {
 
   req.body.profileId = userProfile._id;
 
+
+   /*********
+   * 
+   * lets create wallet for  doctor and specialist but we do this in AuthService.createUser function 
+   * 
+   * ****** */
+
+
   const result = await AuthService.createUser(req.body, userProfile._id);
 
   if(req.body.role == 'doctor' || req.body.role == 'specialist') {
+
+    /*****
+     * 
+     * we already created wallet for doctor and specialist in AuthService.createUser function
+     * 
+     * *** */
+
     sendResponse(res, {
       code: StatusCodes.CREATED,
       message: `Account create successfully. After checking your documents, you will be notified by email.`,

@@ -188,6 +188,18 @@ const userSchema = new Schema<TUser, UserModal>(
       type: String,
       default: '',
     },
+
+    /********
+     * 
+     * Wallet Related Info
+     * 
+     * **** */
+    walletId : {
+      type: Types.ObjectId,
+      ref: 'Wallet',
+      required: false, // patient dont need any wallet .. only doctor and specialist need wallet 
+      default: null,
+    }
   },
   {
     timestamps: true,

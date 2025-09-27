@@ -1,8 +1,11 @@
+//@ts-ignore
 import moment from 'moment';
 import ApiError from '../../errors/ApiError';
+//@ts-ignore
 import { StatusCodes } from 'http-status-codes';
 import eventEmitterForOTPCreateAndSendMail, { OtpService } from '../otp/otp.service';
 import { User } from '../user/user.model';
+//@ts-ignore
 import bcryptjs from 'bcryptjs';
 import { TUser } from '../user/user.interface';
 import { config } from '../../config';
@@ -10,6 +13,25 @@ import { TokenService } from '../token/token.service';
 import { TokenType } from '../token/token.interface';
 import { OtpType } from '../otp/otp.interface';
 import { UserProfile } from '../user/userProfile/userProfile.model';
+import { WalletService } from '../wallet.module/wallet/wallet.service';
+import { TCurrency } from '../../enums/payment';
+
+let walletService = new WalletService();
+//@ts-ignore
+import EventEmitter from 'events';
+const eventEmitterForUpdateUserProfile = new EventEmitter(); // functional way
+
+eventEmitterForUpdateUserProfile.on('eventEmitterForUpdateUserProfile', async (valueFromRequest: any) => {
+  try {
+      const { userProfileId, userId } = valueFromRequest;
+      await UserProfile.findByIdAndUpdate(userProfileId, { userId });
+    }catch (error) {
+      console.error('Error occurred while handling token creation and deletion:', error);
+    }
+});
+
+export default eventEmitterForUpdateUserProfile;
+
 
 const validateUserStatus = (user: TUser) => {
   if (user.isDeleted) {
@@ -40,8 +62,14 @@ const createUser = async (userData: TUser, userProfileId:string) => {
 
   const user = await User.create(userData);
 
-  // TODO : ⚠️ need to optimize this 
-  await UserProfile.findByIdAndUpdate(userProfileId, { userId: user._id });
+  // ⚠️ bad code .. 
+  // await UserProfile.findByIdAndUpdate(userProfileId, { userId: user._id });
+
+  // 📈⚙️ optimize with event emmiter 
+  eventEmitterForUpdateUserProfile.emit('eventEmitterForUpdateUserProfile', { 
+    userProfileId,
+    userId : user._id
+   });
 
   /************
   
@@ -72,6 +100,15 @@ const createUser = async (userData: TUser, userProfileId:string) => {
    * TODO : we will do this .. in admin panel
    * 
    * ********* */
+
+    const wallet =  await walletService.create({
+      userId: user._id,
+      amount: 0, // default 0
+      currency: TCurrency.usd,
+    });
+
+    user.walletId = wallet._id;
+    
 
     return { user };
   }

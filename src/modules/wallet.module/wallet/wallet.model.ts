@@ -15,13 +15,16 @@ const WalletSchema = new Schema<IWallet>(
     },
     amount: {
       type: Number,
-      required: [true, 'amount is required'],
+      default: 0,
+      required: [false, 'amount is not required'],
     },
     currency:{
       type: String,
       enum:[
         TCurrency.usd,
       ],
+      default: TCurrency.usd,
+      required: [false, 'currency is not required'],
     },
     status:{
       type: String,
@@ -30,6 +33,8 @@ const WalletSchema = new Schema<IWallet>(
         TWalletStatus.frozen,
         TWalletStatus.suspended,
       ],
+      default: TWalletStatus.active,
+      required: [false, 'status is not required'],
     },
     // userRole: {  /// do we need this field ???
     //   type: String,
