@@ -20,9 +20,8 @@ export const scheduleQueue = new Queue("scheduleQueue", {
 
 /***********
  * 
- * Enable QueueScheduler
- * You commented it out. But QueueScheduler is important — it handles stalled jobs, delayed jobs, repeatable jobs, etc.
- * Without it, if your worker crashes mid-job → the job may hang forever.
+ * If you’re on v5.x or later, QueueScheduler was removed. The functionality is built into Worker now, 
+ * so you don’t need to use QueueScheduler.
  * 
  * **** */
 
@@ -219,7 +218,7 @@ worker.on("failed", (job:IScheduleJob, err:any) => {
 export const notificationQueue = new Queue("notificationQueue", {
   connection: redisPubClient.options,
 });
-new QueueScheduler("notificationQueue", { connection: redisPubClient.options });
+// new QueueScheduler("notificationQueue", { connection: redisPubClient.options });
 
 
 interface INotificationJobData {

@@ -11,10 +11,15 @@ Check if Redis is listening on its default port:
 Stop Redis ( we also can use systemctl )
 > sudo service redis-server stop
 
+Check Redis: redis-server -v
+
+
 For Restart 
 > sudo service redis restart
 
 For Start
+> sudo service redis-server start
+
 > sudo systemctl start redis
 > sudo systemctl start redis-server
 
