@@ -3,7 +3,7 @@ import { Product } from './product.model';
 import { IProduct } from './product.interface';
 import { GenericService } from '../../_generic-module/generic.services';
 import { TProductCategory } from './product.constant';
-import { getOrSetRedisCache } from '../../../helpers/getOrSetRedisCache';
+import { getOrSetRedisCache } from '../../../helpers/redis/getOrSetRedisCache';
 
 
 export class ProductService extends GenericService<

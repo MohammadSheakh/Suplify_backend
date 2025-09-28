@@ -1,8 +1,8 @@
 // redis.ts
 import { createClient } from 'redis';
 import colors from 'colors';
-import { errorLogger, logger } from '../shared/logger';
-import { config } from '../config';
+import { errorLogger, logger } from '../../shared/logger';
+import { config } from '../../config';
 
 // Create Redis clients
 /***********

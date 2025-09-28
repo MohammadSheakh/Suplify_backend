@@ -1,6 +1,5 @@
 //@ts-ignore
-import { Queue, Worker, QueueScheduler, Job } from "bullmq";
-import { redisPubClient } from "../redis"; 
+import { Queue, Worker, QueueScheduler, Job } from "bullmq"; 
 import { DoctorAppointmentSchedule } from "../../modules/scheduleAndAppointmentBooking.module/doctorAppointmentSchedule/doctorAppointmentSchedule.model";
 import { TDoctorAppointmentScheduleStatus } from "../../modules/scheduleAndAppointmentBooking.module/doctorAppointmentSchedule/doctorAppointmentSchedule.constant";
 import { errorLogger, logger } from "../../shared/logger";
@@ -15,6 +14,7 @@ import { Notification } from "../../modules/notification/notification.model";
 import { TTransactionFor } from "../../modules/payment.module/paymentTransaction/paymentTransaction.constant";
 import { TNotificationType } from "../../modules/notification/notification.constants";
 import { INotification } from "../../modules/notification/notification.interface";
+import { redisPubClient } from "../redis/redis";
 
 // Create Queue
 export const scheduleQueue = new Queue("scheduleQueue", {

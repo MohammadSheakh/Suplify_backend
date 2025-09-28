@@ -1,8 +1,6 @@
 //@ts-ignore
 import colors from 'colors';
 //@ts-ignore
-import mongoose from 'mongoose';
-//@ts-ignore
 import { Server } from 'socket.io';
 import app from './app';
 import { errorLogger, logger } from './shared/logger';
@@ -16,8 +14,9 @@ import { createAdapter } from '@socket.io/redis-adapter';
 
 import { startNotificationWorker, startScheduleWorker } from './helpers/bullmq/bullmq'; // ⬅️ ADD THIS
 import connectToDb from './config/mongoDbConfig';
-import { initializeRedis, redisPubClient, redisSubClient } from './helpers/redis/redis';
+import { initializeRedis, redisClient, redisPubClient, redisSubClient } from './helpers/redis/redis';
 import { socketHelperForKafka } from './helpers/socket/socketForChatV1WithKafka';
+import { socketService } from './helpers/socket/socketForChatV3';
 
 // in production, use all cores, but in development, limit to 2-4 cores
 const numCPUs = config.environment === 'production' ? os.cpus().length : Math.max(0, Math.min(1, os.cpus().length));
@@ -81,23 +80,30 @@ async function main() {
     await initializeRedis();
 
     //socket
-    const io = new Server(server, {
-      pingTimeout: 60000,
-      cors: {
-        origin: '*',
-      },
-    });
+    // const io = new Server(server, {
+    //   pingTimeout: 60000,
+    //   cors: {
+    //     origin: '*',
+    //   },
+    // });
+
+
+    // const redisStateClient = createRedisClient(); // New Redis client for state management
+
+    // Initialize Socket.IO with Redis state management
+    await socketService.initialize(server, redisPubClient, redisSubClient, redisPubClient);
+
 
 
     // 🔥 CRITICAL: Use Redis adapter for cross-worker communication
-    io.adapter(createAdapter(redisPubClient, redisSubClient));
+    // io.adapter(createAdapter(redisPubClient, redisSubClient));
 
     // Setup socket helper
     // socketHelper.socketForChat_V2_Claude(io);
-    socketHelperForKafka.socketForChat_With_Kafka(io);
+    // socketHelperForKafka.socketForChat_With_Kafka(io);
 
     // @ts-ignore
-    global.io = io;
+    // global.io = io;
 
     // 🔥 Start BullMQ Worker (listens for schedule jobs)
     startScheduleWorker(); 
