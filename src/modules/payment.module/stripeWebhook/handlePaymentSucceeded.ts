@@ -133,6 +133,26 @@ async function updateOrderInformation(orderId: string, paymentTransactionId: str
           status : OrderStatus.confirmed
      }, { new: true });
 
+     /********
+     * TODO : MUST
+     * Lets send notification to admin that a lab test is booked
+     * 
+     * ***** */
+    await sendInWebNotification(
+      `A ${userData.role} registered successfully . verify document to activate account`,
+      null, // senderId
+      null, // receiverId 
+      TRole.admin, // receiverRole
+      TNotificationType.newUser, // type
+      /**********
+       * In UI there is no details page for specialist's schedule
+       * **** */
+      // '', // linkFor
+      // existingWorkoutClass._id // linkId
+      // TTransactionFor.TrainingProgramPurchase, // referenceFor
+      // purchaseTrainingProgram._id // referenceId
+    );
+
      return updatedOrder;
 }
 
@@ -146,6 +166,27 @@ async function updateLabTestBooking(labTestId: string, paymentTransactionId: str
           paymentStatus: PaymentStatus.paid,
           status : TLabTestBookingStatus.confirmed
      }, { new: true });
+
+
+     /********
+     * TODO : MUST
+     * Lets send notification to admin that a lab test is booked
+     * 
+     * ***** */
+    await sendInWebNotification(
+      `A ${userData.role} registered successfully . verify document to activate account`,
+      null, // senderId
+      null, // receiverId 
+      TRole.admin, // receiverRole
+      TNotificationType.newUser, // type
+      /**********
+       * In UI there is no details page for specialist's schedule
+       * **** */
+      // '', // linkFor
+      // existingWorkoutClass._id // linkId
+      // TTransactionFor.TrainingProgramPurchase, // referenceFor
+      // purchaseTrainingProgram._id // referenceId
+    );
 
      return updatedLabTestBooking;
 }

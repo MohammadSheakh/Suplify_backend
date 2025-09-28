@@ -157,18 +157,18 @@ export class SpecialistPatientScheduleBookingService extends GenericService<
                  * 
                  * ***** */
                 await sendInWebNotification(
-                `${existingWorkoutClass.scheduleName} purchased by a ${existingUser.subscriptionType} user ${existingUser.name}`,
-                existingUser._id, // senderId
-                existingWorkoutClass.createdBy, // receiverId
-                TRole.specialist, // receiverRole
-                TNotificationType.workoutClassPurchase, // type
-                /**********
-                 * In UI there is no details page for specialist's schedule
-                 * **** */
-                // '', // linkFor
-                // existingWorkoutClass._id // linkId
-                // TTransactionFor.TrainingProgramPurchase, // referenceFor
-                // purchaseTrainingProgram._id // referenceId
+                    `${existingWorkoutClass.scheduleName} purchased by a ${existingUser.subscriptionType} user ${existingUser.name}`,
+                    existingUser._id, // senderId
+                    existingWorkoutClass.createdBy, // receiverId
+                    TRole.specialist, // receiverRole
+                    TNotificationType.workoutClassPurchase, // type
+                    /**********
+                     * In UI there is no details page for specialist's schedule
+                     * **** */
+                    // '', // linkFor
+                    // existingWorkoutClass._id // linkId
+                    // TTransactionFor.TrainingProgramPurchase, // referenceFor
+                    // purchaseTrainingProgram._id // referenceId
                 );
 
 

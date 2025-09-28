@@ -1,8 +1,8 @@
 import {CompressionTypes, Kafka, logLevel, Producer} from 'kafkajs'
 import fs from 'fs';
 import path from 'path';
-import { Message } from '../modules/chatting.module/message/message.model';
-import { Conversation } from '../modules/chatting.module/conversation/conversation.model';
+import { Message } from '../../modules/chatting.module/message/message.model';
+import { Conversation } from '../../modules/chatting.module/conversation/conversation.model';
 
 const kafka = new Kafka({
     // brokers: ['host:port']

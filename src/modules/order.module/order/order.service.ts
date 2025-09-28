@@ -27,7 +27,7 @@ export class OrderService extends GenericService<typeof Order, IOrder>{
     async createV2(data:Partial<ICreateOrder>, user: IUser) : Promise<IOrder> {
 
         /*********
-         * 
+         * 📝
          * 1. We need to find out Cart is Exist or not ..
          * 2. ++ if not we return Error
          * 3. ++ if Yes We check Cart has at least 1 cartItem..
@@ -170,7 +170,7 @@ export class OrderService extends GenericService<typeof Order, IOrder>{
             ],
             metadata: {
                 /*****
-                 *
+                 * 📝
                  * we receive these data in webhook ..
                  * based on this data .. we have to update our database in webhook ..
                  * also give user a response ..
@@ -194,7 +194,7 @@ export class OrderService extends GenericService<typeof Order, IOrder>{
                 user: JSON.stringify(user) // who created this order  // as we have to send notification also may be need to send email
                 
                 /******
-                 * 
+                 * 📝
                  * With this information .. first we create a 
                  * PaymentTransaction ..  where paymentStatus[Complete]
                  *  +++++++++++++++++++++ transactionId :: coming from Stripe
@@ -248,5 +248,4 @@ export class OrderService extends GenericService<typeof Order, IOrder>{
 
         return  stripeResult; // result ;//session.url;
     }
-
 }

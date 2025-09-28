@@ -16,7 +16,7 @@ import { createAdapter } from '@socket.io/redis-adapter';
 
 import { initializeRedis, redisPubClient, redisSubClient } from './helpers/redis';
 import { socketHelper } from './helpers/socketForChat';
-import { startMessageConsumer } from './helpers/kafka';
+import { startMessageConsumer } from './helpers/kafka/kafka';
 import { socketHelperForKafka } from './helpers/socketForChatWithKafka';
 import { startNotificationWorker, startScheduleWorker } from './helpers/bullmq/bullmq'; // ⬅️ ADD THIS
 import connectToDb from './config/mongoDbConfig';

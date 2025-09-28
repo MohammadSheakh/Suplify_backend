@@ -42,6 +42,7 @@ interface IScheduleJob {
 }
 
 
+// 🔎 search for  addToBullQueueToFreeDoctorAppointmentSchedule to see details 
 
 // Create Worker for scheduleQueue
 export const startScheduleWorker = () => {
@@ -231,6 +232,9 @@ interface IScheduleJobForNotification {
   data : INotification,
   id: string
 }
+
+// sendInWebNotification() this function is called when we need to send notification
+// 🔎 search for sendInWebNotification to see details   
 
 export const startNotificationWorker = () => {
   const worker = new Worker(

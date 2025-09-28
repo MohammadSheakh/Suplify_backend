@@ -18,4 +18,5 @@ export enum TNotificationType {
     withdrawal = 'withdrawal',
     payment = 'payment',
     system = 'system',
+    newUser = 'newUser'
 }

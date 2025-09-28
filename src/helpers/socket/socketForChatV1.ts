@@ -7,15 +7,15 @@
 import colors from 'colors';
 //@ts-ignore
 import { Server, Socket } from 'socket.io';
-import { logger } from '../shared/logger';
-import getUserDetailsFromToken from './getUesrDetailsFromToken';
-import { Message } from '../modules/chatting.module/message/message.model';
-import { Conversation } from '../modules/chatting.module/conversation/conversation.model';
-import { User } from '../modules/user/user.model';
-import { ConversationParticipents } from '../modules/chatting.module/conversationParticipents/conversationParticipents.model';
+import { logger } from '../../shared/logger';
+import getUserDetailsFromToken from '../getUesrDetailsFromToken';
+import { Message } from '../../modules/chatting.module/message/message.model';
+import { Conversation } from '../../modules/chatting.module/conversation/conversation.model';
+import { User } from '../../modules/user/user.model';
+import { ConversationParticipents } from '../../modules/chatting.module/conversationParticipents/conversationParticipents.model';
 
-import { ConversationParticipentsService } from '../modules/chatting.module/conversationParticipents/conversationParticipents.service';
-import { MessagerService } from '../modules/chatting.module/message/message.service';
+import { ConversationParticipentsService } from '../../modules/chatting.module/conversationParticipents/conversationParticipents.service';
+import { MessagerService } from '../../modules/chatting.module/message/message.service';
 
 declare module 'socket.io' {
   interface Socket {

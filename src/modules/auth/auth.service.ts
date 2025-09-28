@@ -19,6 +19,9 @@ import { TCurrency } from '../../enums/payment';
 let walletService = new WalletService();
 //@ts-ignore
 import EventEmitter from 'events';
+import { sendInWebNotification } from '../../services/notification.service';
+import { TRole } from '../../middlewares/roles';
+import { TNotificationType } from '../notification/notification.constants';
 const eventEmitterForUpdateUserProfile = new EventEmitter(); // functional way
 
 eventEmitterForUpdateUserProfile.on('eventEmitterForUpdateUserProfile', async (valueFromRequest: any) => {
@@ -108,8 +111,27 @@ const createUser = async (userData: TUser, userProfileId:string) => {
     });
 
     user.walletId = wallet._id;
-    
 
+    /********
+     * 
+     * Lets send notification to admin that new doctor or specialist registered
+     * 
+     * ***** */
+    await sendInWebNotification(
+      `A ${userData.role} registered successfully . verify document to activate account`,
+      null, // senderId
+      null, // receiverId 
+      TRole.admin, // receiverRole
+      TNotificationType.newUser, // type
+      /**********
+       * In UI there is no details page for specialist's schedule
+       * **** */
+      // '', // linkFor
+      // existingWorkoutClass._id // linkId
+      // TTransactionFor.TrainingProgramPurchase, // referenceFor
+      // purchaseTrainingProgram._id // referenceId
+    );
+    
     return { user };
   }
 

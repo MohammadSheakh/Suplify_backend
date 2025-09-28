@@ -19,7 +19,6 @@ const register = catchAsync(async (req :Request, res:Response) => {
    * korte hobe .. 
    * 
    * ********** */
-
   let attachments = [];
   
   if (req.files && req.files.attachments) {
@@ -44,7 +43,6 @@ const register = catchAsync(async (req :Request, res:Response) => {
    * to save that into User model ... 
    * 
    * *** */
-
   const userProfile = await UserProfile.create({
     attachments: req.body.attachments,
     approvalStatus : req.body.role == TRole.patient ? 'approved' : 'pending'
@@ -58,8 +56,6 @@ const register = catchAsync(async (req :Request, res:Response) => {
    * lets create wallet for  doctor and specialist but we do this in AuthService.createUser function 
    * 
    * ****** */
-
-
   const result = await AuthService.createUser(req.body, userProfile._id);
 
   if(req.body.role == 'doctor' || req.body.role == 'specialist') {
@@ -69,7 +65,6 @@ const register = catchAsync(async (req :Request, res:Response) => {
      * we already created wallet for doctor and specialist in AuthService.createUser function
      * 
      * *** */
-
     sendResponse(res, {
       code: StatusCodes.CREATED,
       message: `Account create successfully. After checking your documents, you will be notified by email.`,
