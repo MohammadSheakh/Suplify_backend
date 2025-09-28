@@ -20,11 +20,14 @@ import { TTransactionFor } from '../../payment.module/paymentTransaction/payment
 import { config } from '../../../config';
 import { ISpecialistWorkoutClassSchedule } from '../specialistWorkoutClassSchedule/specialistWorkoutClassSchedule.interface';
 import { TSession, TSpecialistWorkoutClassSchedule } from '../specialistWorkoutClassSchedule/specialistWorkoutClassSchedule.constant';
-import { scheduleQueue } from '../../../helpers/bullmq';
+import { scheduleQueue } from '../../../helpers/bullmq/bullmq';
 import { logger } from '../../../shared/logger';
 //@ts-ignore
 import colors from 'colors';
 import { formatDelay } from '../../../utils/formatDelay';
+import { sendInWebNotification } from '../../../services/notification.service';
+import { TRole } from '../../../middlewares/roles';
+import { TNotificationType } from '../../notification/notification.constants';
 
 
 export class SpecialistPatientScheduleBookingService extends GenericService<
@@ -148,6 +151,27 @@ export class SpecialistPatientScheduleBookingService extends GenericService<
 
                 addToBullQueueToFreeSpecialistPatientSchedule(existingWorkoutClass)
 
+                /********
+                 * 
+                 * Lets send notification to specialist that patient has booked workout class
+                 * 
+                 * ***** */
+                await sendInWebNotification(
+                `${existingWorkoutClass.scheduleName} purchased by a ${existingUser.subscriptionType} user ${existingUser.name}`,
+                existingUser._id, // senderId
+                existingWorkoutClass.createdBy, // receiverId
+                TRole.specialist, // receiverRole
+                TNotificationType.workoutClassPurchase, // type
+                /**********
+                 * In UI there is no details page for specialist's schedule
+                 * **** */
+                // '', // linkFor
+                // existingWorkoutClass._id // linkId
+                // TTransactionFor.TrainingProgramPurchase, // referenceFor
+                // purchaseTrainingProgram._id // referenceId
+                );
+
+
             });
         } catch (error) {
             console.error("Transaction failed:", error);
@@ -269,7 +293,15 @@ export class SpecialistPatientScheduleBookingService extends GenericService<
             referenceFor: TTransactionFor.SpecialistPatientScheduleBooking, // in webhook .. this should be the referenceFor
             currency: "usd",
             amount: existingWorkoutClass.price.toString(),
-            user: JSON.stringify(user) // who created this booking  // as we have to send notification also may be need to send email
+            user: JSON.stringify(user), // who created this booking  // as we have to send notification also may be need to send email
+            referenceId2: existingWorkoutClass._id.toString(),
+            referenceFor2: "SpecialistWorkoutClassSchedule"  
+            /*******
+             *
+             * so that in webhook in handlePaymentSucceeded we can use this collection
+             * await mongoose.model(doctorAppointmentScheduleIdReferenceFor)
+             * 
+             * **** */
             
             /******
              * 

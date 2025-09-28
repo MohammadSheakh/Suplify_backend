@@ -13,12 +13,10 @@ const notificationModel = new Schema<INotification>(
       required: [true, "Title is required"],
       trim: true,
     },
-
     subTitle: {
       type: String,
       trim: true,
     },
-
     senderId: { // who triggered the notification
       type: Schema.Types.ObjectId,
       ref: "User",
@@ -43,6 +41,12 @@ const notificationModel = new Schema<INotification>(
       required: true,
     },
 
+    linkFor: {
+      type: String,
+    },
+    linkId: {
+      type: String,
+    },
     referenceFor: {
       type: String,
       enum: [

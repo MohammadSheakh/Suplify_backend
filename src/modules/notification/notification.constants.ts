@@ -12,9 +12,9 @@ export const notificationFilters: string[] = ['receiverId'];
  * ***** */
 export enum TNotificationType {
     // SubscriptionPlan = 'SubscriptionPlan',
-    booking = 'booking',
-    training = 'training',
-    workout = 'workout',
+    appointmentBooking = 'appointmentBooking',
+    trainingProgramPurchase = 'trainingProgramPurchase',
+    workoutClassPurchase = 'workoutClassPurchase',
     withdrawal = 'withdrawal',
     payment = 'payment',
     system = 'system',

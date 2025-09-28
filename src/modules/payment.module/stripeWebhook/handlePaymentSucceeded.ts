@@ -1,12 +1,20 @@
 import ApiError from "../../../errors/ApiError";
+import { TRole } from "../../../middlewares/roles";
+import { sendInWebNotification } from "../../../services/notification.service";
+import { TNotificationType } from "../../notification/notification.constants";
 import { OrderStatus, PaymentMethod, PaymentStatus } from "../../order.module/order/order.constant";
 import { Order } from "../../order.module/order/order.model";
+import { IDoctorAppointmentSchedule } from "../../scheduleAndAppointmentBooking.module/doctorAppointmentSchedule/doctorAppointmentSchedule.interface";
 import { TAppointmentStatus } from "../../scheduleAndAppointmentBooking.module/doctorPatientScheduleBooking/doctorPatientScheduleBooking.constant";
+import { IDoctorPatientScheduleBooking } from "../../scheduleAndAppointmentBooking.module/doctorPatientScheduleBooking/doctorPatientScheduleBooking.interface";
 import { DoctorPatientScheduleBooking } from "../../scheduleAndAppointmentBooking.module/doctorPatientScheduleBooking/doctorPatientScheduleBooking.model";
 import { TLabTestBookingStatus } from "../../scheduleAndAppointmentBooking.module/labTestBooking/labTestBooking.constant";
 import { LabTestBooking } from "../../scheduleAndAppointmentBooking.module/labTestBooking/labTestBooking.model";
+import { ISpecialistPatientScheduleBooking } from "../../scheduleAndAppointmentBooking.module/specialistPatientScheduleBooking/specialistPatientScheduleBooking.interface";
 import { SpecialistPatientScheduleBooking } from "../../scheduleAndAppointmentBooking.module/specialistPatientScheduleBooking/specialistPatientScheduleBooking.model";
+import { ISpecialistWorkoutClassSchedule } from "../../scheduleAndAppointmentBooking.module/specialistWorkoutClassSchedule/specialistWorkoutClassSchedule.interface";
 import { IUser } from "../../token/token.interface";
+import { ITrainingProgramPurchase } from "../../training.module/trainingProgramPurchase/trainingProgramPurchase.interface";
 import { TrainingProgramPurchaseService } from "../../training.module/trainingProgramPurchase/trainingProgramPurchase.service";
 import { TUser } from "../../user/user.interface";
 import { User } from "../../user/user.model";
@@ -23,8 +31,15 @@ const trainingProgramPurchaseService = new TrainingProgramPurchaseService();
 export const handlePaymentSucceeded = async (session: Stripe.Checkout.Session) => {
      
      try {
-
-          const { referenceId, user, referenceFor, currency,  amount,  referenceId2, referenceFor2 }: any = session.metadata;
+          const { 
+               referenceId,
+               user,
+               referenceFor,
+               currency,
+               amount,
+               referenceId2,
+               referenceFor2
+          }: any = session.metadata;
           // userId // for sending notification .. 
 
           let _user:IUser = JSON.parse(user);
@@ -83,7 +98,11 @@ export const handlePaymentSucceeded = async (session: Stripe.Checkout.Session) =
           }else if (referenceFor === TTransactionFor.SpecialistPatientScheduleBooking){
                updatedObjectOfReferenceFor =
                updateSpecialistPatientScheduleBooking(
-                referenceId, newPayment._id
+                    thisCustomer,
+                    referenceId, 
+                    newPayment._id,
+                    referenceId2,
+                    referenceFor2
                )
           }
 
@@ -145,20 +164,38 @@ async function updateDoctorPatientScheduleBooking(
 ){
      console.log("☑️HIT☑️ handlePaymentSucceed -> updateDoctorPatientScheduleBooking >>> doctorAppointmentScheduleId", doctorAppointmentScheduleId)
 
-     const updatedDoctorPatientScheduleBooking = await DoctorPatientScheduleBooking.findByIdAndUpdate(doctorPatientScheduleBookingId, { 
+     const updatedDoctorPatientScheduleBooking:IDoctorPatientScheduleBooking = await DoctorPatientScheduleBooking.findByIdAndUpdate(doctorPatientScheduleBookingId, { 
           /* update fields */ 
           paymentTransactionId : paymentTransactionId,
           paymentStatus: PaymentStatus.paid,
           status : TAppointmentStatus.scheduled
      }, { new: true });
 
-     const result = await mongoose.model(doctorAppointmentScheduleIdReferenceFor).findByIdAndUpdate(
+     const result:IDoctorAppointmentSchedule = await mongoose.model(doctorAppointmentScheduleIdReferenceFor).findByIdAndUpdate(
           doctorAppointmentScheduleId, 
           {
                /* update fields */
                booked_by: thisCustomer._id, // this is patientId
           },
           { new: true }
+     );
+
+     /********
+      * 
+      * Lets send notification to specialist that patient has booked workout class
+      * 🎨 GUIDE FOR FRONTEND 
+      *  |-> if doctor click on this notification .. redirect him to upcoming schedule... 
+      * ***** */
+     await sendInWebNotification(
+          `${result.scheduleName} purchased by a ${thisCustomer.subscriptionType} user ${thisCustomer.name}`,
+          thisCustomer._id, // senderId
+          result.createdBy, // receiverId
+          TRole.doctor, // receiverRole
+          TNotificationType.appointmentBooking, // type
+          // '', // linkFor
+          // existingTrainingProgram._id // linkId
+          // TTransactionFor.TrainingProgramPurchase, // referenceFor
+          // purchaseTrainingProgram._id // referenceId
      );
 
      return updatedDoctorPatientScheduleBooking;
@@ -171,7 +208,7 @@ async function updatePurchaseTrainingProgram(
      paymentTransactionId: string,
      trainingProgramId: string
 ){
-     const updatedTrainingProgramPurchase = await mongoose.model(TTransactionFor.TrainingProgramPurchase).findByIdAndUpdate(
+     const updatedTrainingProgramPurchase: ITrainingProgramPurchase = await mongoose.model(TTransactionFor.TrainingProgramPurchase).findByIdAndUpdate(
           trainingProgramPurchaseId, 
           {
                paymentTransactionId: paymentTransactionId,
@@ -187,6 +224,23 @@ async function updatePurchaseTrainingProgram(
      // here we create all patientTrainingSession for track all session for this patient
      trainingProgramPurchaseService._handlePersonTrainingSessionCreate(trainingProgramId, user);
 
+
+     /********
+      * 
+      * Lets send notification to specialist that patient has purchased training program
+      * 
+      * ***** */
+     await sendInWebNotification(
+          `TrainingProgram ${trainingProgramId} purchased by a patient ${user.userName}`,
+          user.userId, // senderId
+          updatedTrainingProgramPurchase.specialistId, // receiverId
+          TRole.specialist, // receiverRole
+          TNotificationType.trainingProgramPurchase, // type
+          'trainingProgramId', // linkFor
+          trainingProgramId // linkId
+     );
+
+
      /******
       * 
       * Lets create wallet transaction history for this payment .. 
@@ -199,18 +253,47 @@ async function updatePurchaseTrainingProgram(
 
 
 async function updateSpecialistPatientScheduleBooking(
+     user: TUser,
      specialistPatientScheduleBookingId: string,
-     paymentTransactionId: string
+     paymentTransactionId: string,
+     specialistWorkoutClassScheduleId : string,
+     specialistWorkoutClassScheduleIdReferenceFor: string
 ){
      console.log("☑️HIT☑️ handlePaymentSucceed -> updateSpecialistPatientScheduleBooking >>> specialistPatientScheduleBookingId", specialistPatientScheduleBookingId)
 
-     const updatedSpecialsitPatientWorkoutClassBooking = await SpecialistPatientScheduleBooking.findByIdAndUpdate(specialistPatientScheduleBookingId, { 
+     const updatedSpecialsitPatientWorkoutClassBooking:ISpecialistPatientScheduleBooking = await SpecialistPatientScheduleBooking.findByIdAndUpdate(specialistPatientScheduleBookingId, { 
           /* update fields */ 
           paymentTransactionId : paymentTransactionId,
           paymentStatus: PaymentStatus.paid,
           status : TAppointmentStatus.scheduled,
           paymentMethod: PaymentMethod.online
      }, { new: true });
+
+
+     const specialistWorkoutClassSchedule: ISpecialistWorkoutClassSchedule = await mongoose.model(specialistWorkoutClassScheduleIdReferenceFor).findById(
+          specialistWorkoutClassScheduleId
+     );
+
+
+     /********
+      * 
+      * Lets send notification to specialist that patient has booked workout class
+      * 
+      * ***** */
+     await sendInWebNotification(
+          `${specialistWorkoutClassSchedule.scheduleName} purchased by a ${user.subscriptionType} user ${user.name}`,
+          user._id, // senderId
+          updatedSpecialsitPatientWorkoutClassBooking.specialistId, // receiverId
+          TRole.specialist, // receiverRole
+          TNotificationType.workoutClassPurchase, // type
+          /**********
+           * In UI there is no details page for specialist's schedule
+           * **** */
+          // '', // linkFor
+          // existingWorkoutClass._id // linkId
+          // TTransactionFor.TrainingProgramPurchase, // referenceFor
+          // purchaseTrainingProgram._id // referenceId
+     );
   
      return updatedSpecialsitPatientWorkoutClassBooking;
 }

@@ -1,20 +1,20 @@
 //@ts-ignore
 import { Queue, Worker, QueueScheduler, Job } from "bullmq";
-import { redisPubClient } from "./redis"; 
-import { DoctorAppointmentSchedule } from "../modules/scheduleAndAppointmentBooking.module/doctorAppointmentSchedule/doctorAppointmentSchedule.model";
-import { TDoctorAppointmentScheduleStatus } from "../modules/scheduleAndAppointmentBooking.module/doctorAppointmentSchedule/doctorAppointmentSchedule.constant";
-import { errorLogger, logger } from "../shared/logger";
-import { DoctorPatientScheduleBooking } from "../modules/scheduleAndAppointmentBooking.module/doctorPatientScheduleBooking/doctorPatientScheduleBooking.model";
-import { TAppointmentStatus } from "../modules/scheduleAndAppointmentBooking.module/doctorPatientScheduleBooking/doctorPatientScheduleBooking.constant";
-import { SpecialistWorkoutClassSchedule } from "../modules/scheduleAndAppointmentBooking.module/specialistWorkoutClassSchedule/specialistWorkoutClassSchedule.model";
-import { TSpecialistWorkoutClassSchedule } from "../modules/scheduleAndAppointmentBooking.module/specialistWorkoutClassSchedule/specialistWorkoutClassSchedule.constant";
-import { SpecialistPatientScheduleBooking } from "../modules/scheduleAndAppointmentBooking.module/specialistPatientScheduleBooking/specialistPatientScheduleBooking.model";
-import { TScheduleBookingStatus } from "../modules/scheduleAndAppointmentBooking.module/specialistPatientScheduleBooking/specialistPatientScheduleBooking.constant";
-import { IDoctorAppointmentSchedule } from "../modules/scheduleAndAppointmentBooking.module/doctorAppointmentSchedule/doctorAppointmentSchedule.interface";
-import { Notification } from "../modules/notification/notification.model";
-import { TTransactionFor } from "../modules/payment.module/paymentTransaction/paymentTransaction.constant";
-import { TNotificationType } from "../modules/notification/notification.constants";
-import { INotification } from "../modules/notification/notification.interface";
+import { redisPubClient } from "../redis"; 
+import { DoctorAppointmentSchedule } from "../../modules/scheduleAndAppointmentBooking.module/doctorAppointmentSchedule/doctorAppointmentSchedule.model";
+import { TDoctorAppointmentScheduleStatus } from "../../modules/scheduleAndAppointmentBooking.module/doctorAppointmentSchedule/doctorAppointmentSchedule.constant";
+import { errorLogger, logger } from "../../shared/logger";
+import { DoctorPatientScheduleBooking } from "../../modules/scheduleAndAppointmentBooking.module/doctorPatientScheduleBooking/doctorPatientScheduleBooking.model";
+import { TAppointmentStatus } from "../../modules/scheduleAndAppointmentBooking.module/doctorPatientScheduleBooking/doctorPatientScheduleBooking.constant";
+import { SpecialistWorkoutClassSchedule } from "../../modules/scheduleAndAppointmentBooking.module/specialistWorkoutClassSchedule/specialistWorkoutClassSchedule.model";
+import { TSpecialistWorkoutClassSchedule } from "../../modules/scheduleAndAppointmentBooking.module/specialistWorkoutClassSchedule/specialistWorkoutClassSchedule.constant";
+import { SpecialistPatientScheduleBooking } from "../../modules/scheduleAndAppointmentBooking.module/specialistPatientScheduleBooking/specialistPatientScheduleBooking.model";
+import { TScheduleBookingStatus } from "../../modules/scheduleAndAppointmentBooking.module/specialistPatientScheduleBooking/specialistPatientScheduleBooking.constant";
+import { IDoctorAppointmentSchedule } from "../../modules/scheduleAndAppointmentBooking.module/doctorAppointmentSchedule/doctorAppointmentSchedule.interface";
+import { Notification } from "../../modules/notification/notification.model";
+import { TTransactionFor } from "../../modules/payment.module/paymentTransaction/paymentTransaction.constant";
+import { TNotificationType } from "../../modules/notification/notification.constants";
+import { INotification } from "../../modules/notification/notification.interface";
 
 // Create Queue
 export const scheduleQueue = new Queue("scheduleQueue", {
@@ -228,15 +228,7 @@ type NotificationJobName = "sendNotification";
 
 interface IScheduleJobForNotification {
   name: string;
-  data :{
-    title: string,
-    senderId: string,
-    receiverId: string,
-    receiverRole: string,
-    type: TNotificationType,
-    referenceFor?: TTransactionFor,
-    referenceId?: string
-  },
+  data : INotification,
   id: string
 }
 
@@ -247,23 +239,26 @@ export const startNotificationWorker = () => {
       job: IScheduleJobForNotification
       // job : Job<INotification, any, NotificationJobName>
     ) => {
-      console.log("job testing startNotificationWorker::", job)
+      console.log("job.data testing startNotificationWorker::", job.data)
       const { id, name, data } = job;
       logger.info(`Processing notification job ${id} ⚡ ${name}`, data);
 
       try {
-        await Notification.create({
+        const notif = await Notification.create({
           title: data.title,
           // subTitle: data.subTitle,
           senderId: data.senderId,
           receiverId: data.receiverId,
           receiverRole: data.receiverRole,
           type: data.type,
+          linkFor: data.linkFor,
+          linkId: data.linkId,
           referenceFor: data.referenceFor,
           referenceId: data.referenceId,
         });
 
-        logger.info(`✅ Notification created for ${data.receiverRole} `);
+        logger.info(`✅ Notification created for ${data.receiverRole} :: `, notif);
+        
       } catch (err: any) {
         console.log("⭕ error block hit ")
         errorLogger.error(

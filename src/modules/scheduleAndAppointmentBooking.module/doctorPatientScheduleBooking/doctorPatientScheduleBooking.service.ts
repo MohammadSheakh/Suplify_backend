@@ -23,10 +23,13 @@ import { PaymentMethod } from '../../order.module/order/order.constant';
 import { TTransactionFor } from '../../payment.module/paymentTransaction/paymentTransaction.constant';
 import { DoctorAppointmentSchedule } from '../doctorAppointmentSchedule/doctorAppointmentSchedule.model';
 import { DoctorPatient } from '../../personRelationships.module/doctorPatient/doctorPatient.model';
-import { scheduleQueue } from '../../../helpers/bullmq';
+import { scheduleQueue } from '../../../helpers/bullmq/bullmq';
 import { logger } from '../../../shared/logger';
 import { formatDelay } from '../../../utils/formatDelay';
 import { TUser } from '../../user/user.interface';
+import { sendInWebNotification } from '../../../services/notification.service';
+import { TRole } from '../../../middlewares/roles';
+import { TNotificationType } from '../../notification/notification.constants';
 
 export class DoctorPatientScheduleBookingService extends GenericService<
   typeof DoctorPatientScheduleBooking,
@@ -130,6 +133,27 @@ export class DoctorPatientScheduleBookingService extends GenericService<
             await existingSchedule.save();
 
             addToBullQueueToFreeDoctorAppointmentSchedule(existingSchedule, createdBooking);
+
+
+            /********
+             * 
+             * Lets send notification to specialist that patient has booked workout class
+             * 
+             * 🎨 GUIDE FOR FRONTEND 
+             *  |-> if doctor click on this notification .. redirect him to upcoming schedule... 
+             * ***** */
+            await sendInWebNotification(
+                `${existingSchedule.scheduleName} purchased by a ${existingUser.subscriptionType} user ${existingUser.name}`,
+                existingUser._id, // senderId
+                existingSchedule.createdBy, // receiverId
+                TRole.doctor, // receiverRole
+                TNotificationType.appointmentBooking, // type
+                // '', // linkFor
+                // existingTrainingProgram._id // linkId
+                // TTransactionFor.TrainingProgramPurchase, // referenceFor
+                // purchaseTrainingProgram._id // referenceId
+            );
+
 
             return  createdBooking;
         }

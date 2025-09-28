@@ -27,9 +27,10 @@ import { ITrainingProgram } from '../trainingProgram/trainingProgram.interface';
 import { ISpecialistPatient } from '../../personRelationships.module/specialistPatient/specialistPatient.interface';
 import { PatientTrainingSessionService } from '../patientTrainingSession/patientTrainingSession.service';
 import { IPatientTrainingSession } from '../patientTrainingSession/PatientTrainingSession.interface';
-import { notificationQueue } from '../../../helpers/bullmq';
+import { notificationQueue } from '../../../helpers/bullmq/bullmq';
 import { TRole } from '../../../middlewares/roles';
 import { TNotificationType } from '../../notification/notification.constants';
+import { sendInWebNotification } from '../../../services/notification.service';
 
 const patientTrainingSessionService = new PatientTrainingSessionService();
 
@@ -105,7 +106,7 @@ export class TrainingProgramPurchaseService extends GenericService<
      * 4. if "vise" ... no payment required to book appointment
      * ******* */
 
-    const existingUser:TUser = await User.findById(user.userId).select('subscriptionType');
+    const existingUser:TUser = await User.findById(user.userId).select('subscriptionType name');
 
     const checkAlreadyPurchased = await TrainingProgramPurchase.findOne({
       trainingProgramId,
@@ -191,14 +192,15 @@ export class TrainingProgramPurchaseService extends GenericService<
            * 
            * ***** */
           await sendInWebNotification(
-            `${existingTrainingProgram.programName} purchased by a 
-            ${existingUser.subscriptionType} user ${existingUser._id}`,
+            `${existingTrainingProgram.programName} purchased by a ${existingUser.subscriptionType} user ${existingUser.name}`,
             existingUser._id, // senderId
             existingTrainingProgram.createdBy, // receiverId
             TRole.specialist, // receiverRole
-            TNotificationType.training, // type
-            TTransactionFor.TrainingProgramPurchase, // referenceFor
-            purchaseTrainingProgram._id // referenceId
+            TNotificationType.trainingProgramPurchase, // type
+            'trainingProgramId', // linkFor
+            existingTrainingProgram._id // linkId
+            // TTransactionFor.TrainingProgramPurchase, // referenceFor
+            // purchaseTrainingProgram._id // referenceId
           );
           
         // return  purchaseTrainingProgram;
@@ -362,46 +364,54 @@ export class TrainingProgramPurchaseService extends GenericService<
   }
 }
  
-/********
- *  global method to send notification through bull queue
- * ******** */
-async function sendInWebNotification(
-  // existingTrainingProgram, user: any
-  title: string,
-  senderId: string,
-  receiverId: string,
-  receiverRole: string,
-  type: TNotificationType,
-  referenceFor?: TTransactionFor,
-  referenceId?: string
-) {
 
-  
+// /********
+//  *  global method to send notification through bull queue
+//  * ******** */
+// async function sendInWebNotification(
+//   // existingTrainingProgram, user: any
+//   title: string,
+//   senderId: string,
+//   receiverId: string,
+//   receiverRole: string,
+//   type: TNotificationType,
+//   /****
+//    * this linkFor is for navigation in front-end 
+//    * so that in query we can pass linkFor=linkId
+//    * **** */
+//   linkFor: string,
+//   /******
+//    * value for linkFor query
+//    * ***** */ 
+//   linkId: string,
+//   referenceFor?: TTransactionFor,
+//   referenceId?: string
+// ) {
 
-  const notifAdded = await notificationQueue.add(
-    'send-notification',
-    {
-      title,
-      senderId,
-      receiverId,
-      receiverRole,
-      type,
-      referenceFor, // what if referenceFor is null
-      referenceId // what if referenceId is null
-    },
-    {
-      attempts: 3,
-      backoff: {
-        type: 'exponential',
-        delay: 2000, // 2s, 4s, 8s
-      },
-      removeOnComplete: true,
-      removeOnFail: 1000, // keep failed jobs for debugging
-    }
-  );
+//   const notifAdded = await notificationQueue.add(
+//     'send-notification',
+//     {
+//       title,
+//       senderId,
+//       receiverId,
+//       receiverRole,
+//       type,
+//       referenceFor, // what if referenceFor is null
+//       referenceId // what if referenceId is null
+//     },
+//     {
+//       attempts: 3,
+//       backoff: {
+//         type: 'exponential',
+//         delay: 2000, // 2s, 4s, 8s
+//       },
+//       removeOnComplete: true,
+//       removeOnFail: 1000, // keep failed jobs for debugging
+//     }
+//   );
 
-  console.log("🔔 sendInWebNotification hit :: notifAdded -> ", notifAdded)
-}
+//   console.log("🔔 sendInWebNotification hit :: notifAdded -> ", notifAdded)
+// }
 
 
 //======================================= From Co pilot

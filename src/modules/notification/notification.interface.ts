@@ -22,8 +22,11 @@ export interface INotification {
   receiverRole: TRole;  //🧩         
 
   type : TNotificationType; //🧩 
-  referenceFor : TTransactionFor; //🧩 
-  referenceId?: Types.ObjectId; // refPath to referenceFor
+  linkFor : string;
+  linkId : string;
+
+  referenceFor : TTransactionFor; //🧩  // no need 
+  referenceId?: Types.ObjectId; // refPath to referenceFor // // no need 
 
   viewStatus?: boolean;
   readAt?: Date;
