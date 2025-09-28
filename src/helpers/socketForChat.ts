@@ -3,7 +3,9 @@
  * This code is updated ... working perfectly
  * 
  * ********** */
+//@ts-ignore
 import colors from 'colors';
+//@ts-ignore
 import { Server, Socket } from 'socket.io';
 import { logger } from '../shared/logger';
 import getUserDetailsFromToken from './getUesrDetailsFromToken';
@@ -14,7 +16,6 @@ import { ConversationParticipents } from '../modules/chatting.module/conversatio
 
 import { ConversationParticipentsService } from '../modules/chatting.module/conversationParticipents/conversationParticipents.service';
 import { MessagerService } from '../modules/chatting.module/message/message.service';
-import { populate } from 'dotenv';
 
 declare module 'socket.io' {
   interface Socket {
@@ -185,7 +186,6 @@ const socketForChat_V2_Claude = (io: Server) => {
     const userId = user._id;
 
     logger.info(colors.blue(`🔌🟢 User connected: :userId🔌: ${userId} :userName🔌: ${user.name} :socketId⚡💡: ${socket.id}`));
-
 
     try {
       // Get user profile once at connection

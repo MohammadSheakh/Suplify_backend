@@ -28,6 +28,8 @@ import { ISpecialistPatient } from '../../personRelationships.module/specialistP
 import { PatientTrainingSessionService } from '../patientTrainingSession/patientTrainingSession.service';
 import { IPatientTrainingSession } from '../patientTrainingSession/PatientTrainingSession.interface';
 import { notificationQueue } from '../../../helpers/bullmq';
+import { TRole } from '../../../middlewares/roles';
+import { TNotificationType } from '../../notification/notification.constants';
 
 const patientTrainingSessionService = new PatientTrainingSessionService();
 
@@ -188,9 +190,16 @@ export class TrainingProgramPurchaseService extends GenericService<
            * Lets send notification to specialist that patient has purchased training program
            * 
            * ***** */
-
-          sendInWebNotification();
-
+          await sendInWebNotification(
+            `${existingTrainingProgram.programName} purchased by a 
+            ${existingUser.subscriptionType} user ${existingUser._id}`,
+            existingUser._id, // senderId
+            existingTrainingProgram.createdBy, // receiverId
+            TRole.specialist, // receiverRole
+            TNotificationType.training, // type
+            TTransactionFor.TrainingProgramPurchase, // referenceFor
+            purchaseTrainingProgram._id // referenceId
+          );
           
         // return  purchaseTrainingProgram;
         });
@@ -334,16 +343,15 @@ export class TrainingProgramPurchaseService extends GenericService<
         cancel_url: config.stripe.cancel_url,
     };
 
-
-    try {
-        const session = await stripe.checkout.sessions.create(stripeSessionData);
-        console.log({
-                url: session.url,
-        });
-        stripeResult = { url: session.url };
-    } catch (error) {
-        console.log({ error });
-    }
+      try {
+          const session = await stripe.checkout.sessions.create(stripeSessionData);
+          console.log({
+                  url: session.url,
+          });
+          stripeResult = { url: session.url };
+      } catch (error) {
+          console.log({ error });
+      }
 
     } catch (err) {
         console.error("🛑 Error While creating Order", err);
@@ -353,30 +361,46 @@ export class TrainingProgramPurchaseService extends GenericService<
     return  stripeResult; // result ;//session.url;
   }
 }
+ 
+/********
+ *  global method to send notification through bull queue
+ * ******** */
+async function sendInWebNotification(
+  // existingTrainingProgram, user: any
+  title: string,
+  senderId: string,
+  receiverId: string,
+  receiverRole: string,
+  type: TNotificationType,
+  referenceFor?: TTransactionFor,
+  referenceId?: string
+) {
 
-async function sendInWebNotification(existingTrainingProgram, user: any) {
-  await notificationQueue.add(
-  'send-notification',
-  {
-    type: 'TRAINING',
-    receiverId: existingTrainingProgram.createdBy, // specialist
-    receiverRole: 'specialist',
-    title: 'New Training Program Purchase',
-    subTitle: `${user.name} has purchased your training program.`,
-    referenceFor: 'TrainingProgram',
-    referenceId: existingTrainingProgram._id,
-    senderId: user.userId,
-  },
-  {
-    attempts: 3,
-    backoff: {
-      type: 'exponential',
-      delay: 2000, // 2s, 4s, 8s
+  
+
+  const notifAdded = await notificationQueue.add(
+    'send-notification',
+    {
+      title,
+      senderId,
+      receiverId,
+      receiverRole,
+      type,
+      referenceFor, // what if referenceFor is null
+      referenceId // what if referenceId is null
     },
-    removeOnComplete: true,
-    removeOnFail: 1000, // keep failed jobs for debugging
-  }
-);
+    {
+      attempts: 3,
+      backoff: {
+        type: 'exponential',
+        delay: 2000, // 2s, 4s, 8s
+      },
+      removeOnComplete: true,
+      removeOnFail: 1000, // keep failed jobs for debugging
+    }
+  );
+
+  console.log("🔔 sendInWebNotification hit :: notifAdded -> ", notifAdded)
 }
 
 

@@ -3,6 +3,8 @@ import { model, Schema } from 'mongoose';
 import { INotification, INotificationModal } from './notification.interface';
 import paginate from '../../common/plugins/paginate';
 import { Roles } from '../../middlewares/roles';
+import { TNotificationType } from './notification.constants';
+import { TTransactionFor } from '../payment.module/paymentTransaction/paymentTransaction.constant';
 
 const notificationModel = new Schema<INotification>(
   {
@@ -36,12 +38,7 @@ const notificationModel = new Schema<INotification>(
     type: {
       type: String,
       enum: [
-        "BOOKING",       // patient booked doctor schedule
-        "TRAINING",      // patient booked specialist training
-        "WORKOUT",       // patient booked workout class
-        "WITHDRAWAL",    // doctor/specialist requested withdrawal
-        "PAYMENT",       // payment credited/debited
-        "SYSTEM",        // admin/system announcement
+        TNotificationType      
       ],
       required: true,
     },
@@ -49,12 +46,7 @@ const notificationModel = new Schema<INotification>(
     referenceFor: {
       type: String,
       enum: [
-        "Schedule",
-        "TrainingProgram",
-        "WorkoutClass",
-        "WithdrawalRequest",
-        "PaymentTransaction",
-        "Order",
+        TTransactionFor
       ],
     },
 

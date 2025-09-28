@@ -12,6 +12,9 @@ import { SpecialistPatientScheduleBooking } from "../modules/scheduleAndAppointm
 import { TScheduleBookingStatus } from "../modules/scheduleAndAppointmentBooking.module/specialistPatientScheduleBooking/specialistPatientScheduleBooking.constant";
 import { IDoctorAppointmentSchedule } from "../modules/scheduleAndAppointmentBooking.module/doctorAppointmentSchedule/doctorAppointmentSchedule.interface";
 import { Notification } from "../modules/notification/notification.model";
+import { TTransactionFor } from "../modules/payment.module/paymentTransaction/paymentTransaction.constant";
+import { TNotificationType } from "../modules/notification/notification.constants";
+import { INotification } from "../modules/notification/notification.interface";
 
 // Create Queue
 export const scheduleQueue = new Queue("scheduleQueue", {
@@ -38,177 +41,177 @@ interface IScheduleJob {
   id: string
 }
 
+
+
 // Create Worker for scheduleQueue
 export const startScheduleWorker = () => {
-const worker = new Worker(
-  "scheduleQueue",
-  async (job:IScheduleJob) => {
-    // TODO : add try catch 
+  const worker = new Worker(
+    "scheduleQueue",
+    async (job:IScheduleJob) => {
+      // TODO : add try catch 
 
-    console.log(`Processing job ${job.id} of type ${job.name}⚡${job.data}`);
-    logger.info('Processing job', job.name, " ⚡ ", job.data);
+      console.log(`Processing job ${job.id} of type ${job.name}⚡${job.data}`);
+      logger.info('Processing job', job.name, " ⚡ ", job.data);
 
-    if (job.name === "makeDoctorAppointmentScheduleAvailable") {
+      if (job.name === "makeDoctorAppointmentScheduleAvailable") {
 
-      console.log("🔎🔎🔎🔎 makeDoctorAppointmentScheduleAvailable ")
-      const { scheduleId, appointmentBookingId } = job.data;
+        console.log("🔎🔎🔎🔎 makeDoctorAppointmentScheduleAvailable ")
+        const { scheduleId, appointmentBookingId } = job.data;
 
-      const tomorrow = new Date();
-      const timeForTomorrow = new Date()
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      tomorrow.setHours(0, 0, 0, 0); // reset to midnight
+        const tomorrow = new Date();
+        const timeForTomorrow = new Date()
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        tomorrow.setHours(0, 0, 0, 0); // reset to midnight
 
-      timeForTomorrow.setUTCDate(timeForTomorrow.getUTCDate() + 1); 
-      /*****
-       * 📝
-       * For start Time and endTime .. we only manupulate date thing .. not time .. 
-       * 
-       * its not possible to update the same schedule with new time .. because its create 
-       * complexity in further booking for same person 
-       * 
-       * so .. solution is to create a new schedule with new date and time
-       * and update the old one as expired 
-       * 
-       * TODO: 
-       * later we can create a cron job to delete all expired schedule after 7 days or so
-       * 
-       * *** */
-       
-      const updatedSchedule:IDoctorAppointmentSchedule = await DoctorAppointmentSchedule.findByIdAndUpdate(scheduleId, {
-        $set: { 
-          scheduleStatus: 
-          // TDoctorAppointmentScheduleStatus.available,
-          TDoctorAppointmentScheduleStatus.expired,
-          booked_by: null,
-          // scheduleDate: tomorrow,
-          // startTime: timeForTomorrow,
-          // endTime: timeForTomorrow,
-        }
-      });
-
-      /****
-       * lets create another 
-       * ** */
-
-      updatedSchedule && await DoctorAppointmentSchedule.create({
-        createdBy: updatedSchedule.createdBy,
-        scheduleName: updatedSchedule.scheduleName,
-        scheduleDate: tomorrow,
-        startTime: timeForTomorrow,
-        endTime: timeForTomorrow,
-
-        description: updatedSchedule.description,
-        price: updatedSchedule.price,
-        typeOfLink: updatedSchedule.typeOfLink,
-        meetingLink: updatedSchedule.meetingLink,
-        scheduleStatus: TDoctorAppointmentScheduleStatus.available,
-      });
-
-      await DoctorPatientScheduleBooking.findByIdAndUpdate(appointmentBookingId, {
-        $set: {
-          status: TAppointmentStatus.completed,
-        }
-      });
-
-      console.log(`✅ Schedule ${scheduleId} automatically freed.`);
-    }else if (job.name === "makeSpecialistWorkoutClassScheduleAvailable") {
-      console.log("🔎🔎🔎🔎 makeSpecialistWorkoutClassScheduleAvailable ")
-      const { scheduleId } = job.data; 
-      /***
-       * we dont need booking id here as multiple patient can book a workout class
-       * we will update all the booking status to completed where workoutClassScheduleId = scheduleId
-       *
-       ** */
-
-
-      // Fetch schedule first
-      const schedule = await SpecialistWorkoutClassSchedule.findById(scheduleId);
-
-      // ✅ If schedule is already available, exit early
-      if (!schedule) {
-        console.log(`⚠️ Schedule ${scheduleId} not found.`);
-        return;
-      }
-
-      if (schedule.status === TSpecialistWorkoutClassSchedule.available) {
-        console.log(`⏩ Schedule ${scheduleId} is already available. Skipping job.`);
-        return;
-      }
-
-      const tomorrow = new Date();
-      const timeForTomorrow = new Date()
-      
-      // TODO : need to think about timezone⏳⌛ here
-      // tomorrow.setDate(tomorrow.getDate() + 1);
-      // tomorrow.setHours(0, 0, 0, 0); // reset to midnight
-
-
-      tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
-      timeForTomorrow.setUTCDate(timeForTomorrow.getUTCDate() + 1);
-
-      tomorrow.setUTCHours(0, 0, 0, 0);
-
-
-
-      await SpecialistWorkoutClassSchedule.findByIdAndUpdate(scheduleId, {
-        $set: { 
-            status:  TSpecialistWorkoutClassSchedule.expired,
-            // TSpecialistWorkoutClassSchedule.available,
+        timeForTomorrow.setUTCDate(timeForTomorrow.getUTCDate() + 1); 
+        /*****
+         * 📝
+         * For start Time and endTime .. we only manupulate date thing .. not time .. 
+         * 
+         * its not possible to update the same schedule with new time .. because its create 
+         * complexity in further booking for same person 
+         * 
+         * so .. solution is to create a new schedule with new date and time
+         * and update the old one as expired 
+         * 
+         * TODO: 
+         * later we can create a cron job to delete all expired schedule after 7 days or so
+         * 
+         * *** */
+        
+        const updatedSchedule:IDoctorAppointmentSchedule = await DoctorAppointmentSchedule.findByIdAndUpdate(scheduleId, {
+          $set: { 
+            scheduleStatus: 
+            // TDoctorAppointmentScheduleStatus.available,
+            TDoctorAppointmentScheduleStatus.expired,
+            booked_by: null,
             // scheduleDate: tomorrow,
             // startTime: timeForTomorrow,
             // endTime: timeForTomorrow,
+          }
+        });
+
+        /****
+         * lets create another 
+         * ** */
+
+        updatedSchedule && await DoctorAppointmentSchedule.create({
+          createdBy: updatedSchedule.createdBy,
+          scheduleName: updatedSchedule.scheduleName,
+          scheduleDate: tomorrow,
+          startTime: timeForTomorrow,
+          endTime: timeForTomorrow,
+
+          description: updatedSchedule.description,
+          price: updatedSchedule.price,
+          typeOfLink: updatedSchedule.typeOfLink,
+          meetingLink: updatedSchedule.meetingLink,
+          scheduleStatus: TDoctorAppointmentScheduleStatus.available,
+        });
+
+        await DoctorPatientScheduleBooking.findByIdAndUpdate(appointmentBookingId, {
+          $set: {
+            status: TAppointmentStatus.completed,
+          }
+        });
+
+        console.log(`✅ Schedule ${scheduleId} automatically freed.`);
+      }else if (job.name === "makeSpecialistWorkoutClassScheduleAvailable") {
+        console.log("🔎🔎🔎🔎 makeSpecialistWorkoutClassScheduleAvailable ")
+        const { scheduleId } = job.data; 
+        /***
+         * we dont need booking id here as multiple patient can book a workout class
+         * we will update all the booking status to completed where workoutClassScheduleId = scheduleId
+         *
+         ** */
+
+
+        // Fetch schedule first
+        const schedule = await SpecialistWorkoutClassSchedule.findById(scheduleId);
+
+        // ✅ If schedule is already available, exit early
+        if (!schedule) {
+          console.log(`⚠️ Schedule ${scheduleId} not found.`);
+          return;
         }
-      });
 
-      /******
-       * need to think about this part .. do we need to create a new schedule for next day ?
-       * *** */
+        if (schedule.status === TSpecialistWorkoutClassSchedule.available) {
+          console.log(`⏩ Schedule ${scheduleId} is already available. Skipping job.`);
+          return;
+        }
 
-      /*****
-       * 
-       * we need batch update here .. as multiple patient can book a workout class
-       *
-       ****** */
-      await SpecialistPatientScheduleBooking.updateMany(
-        { workoutClassScheduleId: scheduleId },
-        { $set: { status: TScheduleBookingStatus.completed } }
-      );
+        const tomorrow = new Date();
+        const timeForTomorrow = new Date()
+        
+        // TODO : need to think about timezone⏳⌛ here
+        // tomorrow.setDate(tomorrow.getDate() + 1);
+        // tomorrow.setHours(0, 0, 0, 0); // reset to midnight
 
-      // await SpecialistPatientScheduleBooking.findByIdAndUpdate(workoutClassBookingId, {
-      //   $set: {
-      //     status: TScheduleBookingStatus.completed,
-      //   }
-      // });
 
-      console.log(`✅ Schedule ${scheduleId} automatically freed.`);
-    }else{
-      console.log(`❓ Unknown job type: ${job.name}`);
+        tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
+        timeForTomorrow.setUTCDate(timeForTomorrow.getUTCDate() + 1);
+
+        tomorrow.setUTCHours(0, 0, 0, 0);
+
+
+
+        await SpecialistWorkoutClassSchedule.findByIdAndUpdate(scheduleId, {
+          $set: { 
+              status:  TSpecialistWorkoutClassSchedule.expired,
+              // TSpecialistWorkoutClassSchedule.available,
+              // scheduleDate: tomorrow,
+              // startTime: timeForTomorrow,
+              // endTime: timeForTomorrow,
+          }
+        });
+
+        /******
+         * need to think about this part .. do we need to create a new schedule for next day ?
+         * *** */
+
+        /*****
+         * 
+         * we need batch update here .. as multiple patient can book a workout class
+         *
+         ****** */
+        await SpecialistPatientScheduleBooking.updateMany(
+          { workoutClassScheduleId: scheduleId },
+          { $set: { status: TScheduleBookingStatus.completed } }
+        );
+
+        // await SpecialistPatientScheduleBooking.findByIdAndUpdate(workoutClassBookingId, {
+        //   $set: {
+        //     status: TScheduleBookingStatus.completed,
+        //   }
+        // });
+
+        console.log(`✅ Schedule ${scheduleId} automatically freed.`);
+      }else{
+        console.log(`❓ Unknown job type: ${job.name}`);
+      }
+    },
+    {
+      connection: redisPubClient.options,
     }
-  },
-  {
-    connection: redisPubClient.options,
-  }
-);
+  );
 
-
-worker.on("completed", (job) => {
-  console.log(`✅ Job ${job.id} (${job.name}) completed`);
-});
-
-worker.on("failed", (job:IScheduleJob, err:any) => {
-  console.error(`❌ Job.id ${job?.id} :: ${job.name} {job.} failed`, err);
-  errorLogger.error(`❌ Job.id ${job?.id} :: ${job.name} {job.} failed`, err);
-});
-/********
-  // Handle Graceful shutdown
-  process.on("SIGINT", async () => {
-    logger.info("Shutting down worker...");
-    await worker.close();
-    await scheduleQueue.close();
-    process.exit(0);
+  worker.on("completed", (job) => {
+    console.log(`✅ Job ${job.id} (${job.name}) completed`);
   });
-********** */
 
+  worker.on("failed", (job:IScheduleJob, err:any) => {
+    console.error(`❌ Job.id ${job?.id} :: ${job.name} {job.} failed`, err);
+    errorLogger.error(`❌ Job.id ${job?.id} :: ${job.name} {job.} failed`, err);
+  });
+  /********
+    // Handle Graceful shutdown
+    process.on("SIGINT", async () => {
+      logger.info("Shutting down worker...");
+      await worker.close();
+      await scheduleQueue.close();
+      process.exit(0);
+    });
+  ********** */
 }
 
 /**************************************************************
@@ -220,35 +223,38 @@ export const notificationQueue = new Queue("notificationQueue", {
 });
 // new QueueScheduler("notificationQueue", { connection: redisPubClient.options });
 
-
-interface INotificationJobData {
-  type: string;          // TRAINING, BOOKING, etc.
-  title: string;
-  subTitle?: string;
-  senderId?: string;
-  receiverId?: string;
-  receiverRole: string;
-  referenceFor?: string;
-  referenceId?: string;
-}
-
 type NotificationJobName = "sendNotification";
 
+
+interface IScheduleJobForNotification {
+  name: string;
+  data :{
+    title: string,
+    senderId: string,
+    receiverId: string,
+    receiverRole: string,
+    type: TNotificationType,
+    referenceFor?: TTransactionFor,
+    referenceId?: string
+  },
+  id: string
+}
 
 export const startNotificationWorker = () => {
   const worker = new Worker(
     "notificationQueue",
     async (
-      //job: any
-      job : Job<INotificationJobData, any, NotificationJobName>
+      job: IScheduleJobForNotification
+      // job : Job<INotification, any, NotificationJobName>
     ) => {
+      console.log("job testing startNotificationWorker::", job)
       const { id, name, data } = job;
       logger.info(`Processing notification job ${id} ⚡ ${name}`, data);
 
       try {
         await Notification.create({
           title: data.title,
-          subTitle: data.subTitle,
+          // subTitle: data.subTitle,
           senderId: data.senderId,
           receiverId: data.receiverId,
           receiverRole: data.receiverRole,
@@ -257,8 +263,9 @@ export const startNotificationWorker = () => {
           referenceId: data.referenceId,
         });
 
-        logger.info(`✅ Notification created for ${data.receiverRole}`);
+        logger.info(`✅ Notification created for ${data.receiverRole} `);
       } catch (err: any) {
+        console.log("⭕ error block hit ")
         errorLogger.error(
           `❌ Notification job ${id} failed: ${err.message}`
         );

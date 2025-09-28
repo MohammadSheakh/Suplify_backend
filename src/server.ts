@@ -18,7 +18,7 @@ import { initializeRedis, redisPubClient, redisSubClient } from './helpers/redis
 import { socketHelper } from './helpers/socketForChat';
 import { startMessageConsumer } from './helpers/kafka';
 import { socketHelperForKafka } from './helpers/socketForChatWithKafka';
-import { startScheduleWorker } from './helpers/bullmq'; // ⬅️ ADD THIS
+import { startNotificationWorker, startScheduleWorker } from './helpers/bullmq'; // ⬅️ ADD THIS
 import connectToDb from './config/mongoDbConfig';
 
 // in production, use all cores, but in development, limit to 2-4 cores
@@ -102,7 +102,8 @@ async function main() {
     global.io = io;
 
     // 🔥 Start BullMQ Worker (listens for schedule jobs)
-    startScheduleWorker(); // just reference
+    startScheduleWorker(); 
+    startNotificationWorker();
 
   } catch (error) {
     errorLogger.error(colors.red('🤢 Issue from server.ts => ', error));
