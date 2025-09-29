@@ -5,6 +5,8 @@ import { OrderItemController } from './orderItem.controller';
 import { IOrderItem } from './orderItem.interface';
 //@ts-ignore
 import multer from "multer";
+import auth from '../../../middlewares/auth';
+import { TRole } from '../../../middlewares/roles';
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
@@ -35,9 +37,22 @@ const controller = new OrderItemController();
 //info : pagination route must be before the route with params
 router.route('/paginate').get(
   //auth('common'),
-  validateFiltersForQuery(optionValidationChecking(['_id', ...paginationOptions])),
+  validateFiltersForQuery(optionValidationChecking(['_id', 'orderId', ...paginationOptions])),
   controller.getAllWithPagination 
 );
+
+/*********
+ * 
+ * Patient | Get all order item for a order
+ * with order information
+ * 
+ * ******** */
+router.route('/paginate/for-patient').get(
+  auth(TRole.patient),
+  validateFiltersForQuery(optionValidationChecking(['_id', 'orderId', ...paginationOptions])),
+  controller.getAllWithPaginationForPatient 
+);
+
 
 router.route('/:id').get(
   // auth('common'),

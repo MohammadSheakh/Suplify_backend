@@ -20,7 +20,7 @@ export class CartController extends GenericController<
   }
 
   viewCart = catchAsync(async (req: Request, res: Response) => {
-    const cart = await this.CartService.viewCart(req.query.cartId); // we need to pass cartId
+    const cart = await this.CartService.viewCart(req.query.cartId, req.user.userId); // we need to pass cartId
     sendResponse(res, {
       code: StatusCodes.OK,
       data: cart,

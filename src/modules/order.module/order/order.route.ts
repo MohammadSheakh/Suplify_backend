@@ -35,7 +35,7 @@ const controller = new OrderController();
  * ***** */
 //info : pagination route must be before the route with params
 router.route('/paginate').get(
-  auth(TRole.admin),
+  auth(TRole.admin, TRole.patient),
   validateFiltersForQuery(optionValidationChecking(['_id', 
     'orderRelatedTo', // only one option available .. which is product
     'userId', // who place the order

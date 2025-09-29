@@ -7,6 +7,7 @@ import validateRequest from '../../../shared/validateRequest';
 import auth from '../../../middlewares/auth';
 
 import multer from "multer";
+import { TRole } from '../../../middlewares/roles';
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
@@ -25,16 +26,25 @@ const paginationOptions: Array<'sortBy' | 'page' | 'limit' | 'populate'> = [
   'populate',
 ];
 
-
 // const taskService = new TaskService();
 const controller = new CartItemController();
 
 //info : pagination route must be before the route with params
 router.route('/paginate').get(
   //auth('common'),
-  validateFiltersForQuery(optionValidationChecking(['_id'])),
+  validateFiltersForQuery(optionValidationChecking(['_id', ...paginationOptions])),
   controller.getAllWithPagination
 );
+
+/**********
+ * 
+ * Patient | Increment or decrement count by type
+ * :type: it can be inc or dec
+ * ****** */
+router.route('/count-update/:id').put(
+  auth(TRole.patient),
+  controller.updateCountWithType
+)
 
 router.route('/:id').get(
   // auth('common'),
@@ -46,6 +56,7 @@ router.route('/update/:id').put(
   // validateRequest(validation.createHelpMessageValidationSchema),
   controller.updateById
 );
+
 
 //[🚧][🧑‍💻✅][🧪] // 🆗
 router.route('/').get(
@@ -60,7 +71,7 @@ router.route('/').get(
  * 
  * ******* */
 router.route('/create').post(
-  auth('common'),
+  auth(TRole.patient),
   validateRequest(validation.addToCartValidationSchema),
   controller.create
 );
@@ -70,6 +81,12 @@ router.route('/delete/:id').delete(
   controller.deleteById
 ); // FIXME : change to admin
 
+/*********
+ * 
+ * Patient | Remove an cartItem by cartItemId 
+ * also decrease itemCount in cart 
+ * 
+ * ******** */
 router.route('/softDelete/:id').put(
   //auth('common'),
   controller.softDeleteById

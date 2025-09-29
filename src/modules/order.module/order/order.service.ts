@@ -18,6 +18,7 @@ import mongoose from "mongoose";
 import { config } from "../../../config";
 import { TTransactionFor } from "../../payment.module/paymentTransaction/paymentTransaction.constant";
 import { TCurrency } from "../../../enums/payment";
+import { ICart } from "../cart/cart.interface";
 
 export class OrderService extends GenericService<typeof Order, IOrder>{
     private stripe: Stripe;
@@ -73,12 +74,15 @@ export class OrderService extends GenericService<typeof Order, IOrder>{
 
         let finalAmount = 0;
         let createdOrder = null;
-        
+        let cart : ICart;
 
         // session.startTransaction();
         await session.withTransaction(async () => {
             // Check if cart exists
-            const cart = await Cart.findOne({ _id: data.cartId }).session(session);;
+            cart = await Cart.findOne({ 
+                _id: data.cartId,
+                isDeleted: false
+             }).session(session);
             
             if (!cart) {
                 throw new ApiError(StatusCodes.NOT_FOUND, 'Cart not found');
@@ -108,7 +112,7 @@ export class OrderService extends GenericService<typeof Order, IOrder>{
              * 
              * ******* */
 
-            const cartItems:ICartItem[] = await CartItem.find({ cartId: cart._id })
+            const cartItems:ICartItem[] = await CartItem.find({ cartId: cart._id, isDeleted: false })
             .populate({
                 path:"itemId",
                 select:"price"
@@ -146,12 +150,13 @@ export class OrderService extends GenericService<typeof Order, IOrder>{
             // order.finalAmount = finalAmount;
 
             await Order.findByIdAndUpdate(
-            createdOrder._id,
+                createdOrder._id,
                 { $set: { finalAmount } },
                 { new: true, session }
             );
 
-            console.log("🟢🟢 created Order :: ", createdOrder)
+            
+            // console.log("🟢🟢 created Order :: ", createdOrder)
         });
         session.endSession();
         
@@ -160,16 +165,16 @@ export class OrderService extends GenericService<typeof Order, IOrder>{
             mode: 'payment',
             customer: stripeCustomer.id,
             line_items: [
-                    {
-                        price_data: {
-                            currency: TCurrency.usd, // must be small letter
-                            product_data: {
-                                name: 'Amount',
-                            },
-                            unit_amount: finalAmount! * 100, // Convert to cents
+                {
+                    price_data: {
+                        currency: TCurrency.usd, // must be small letter
+                        product_data: {
+                            name: 'Amount',
                         },
-                        quantity: 1,
+                        unit_amount: finalAmount! * 100, // Convert to cents
                     },
+                    quantity: 1,
+                },
             ],
             metadata: {
                 /*****
@@ -194,8 +199,9 @@ export class OrderService extends GenericService<typeof Order, IOrder>{
                 referenceFor: TTransactionFor.Order, // in webhook .. this should be the referenceFor
                 currency: TCurrency.usd,
                 amount: finalAmount.toString(),
-                user: JSON.stringify(user) // who created this order  // as we have to send notification also may be need to send email
-                
+                user: JSON.stringify(user), // who created this order  // as we have to send notification also may be need to send email
+                referenceId2: cart._id.toString(),
+                referenceFor2: "Cart",
                 /******
                  * 📝
                  * With this information .. first we create a 

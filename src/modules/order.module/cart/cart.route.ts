@@ -7,6 +7,7 @@ import validateRequest from '../../../shared/validateRequest';
 import auth from '../../../middlewares/auth';
 
 import  multer from 'multer';
+import { TRole } from '../../../middlewares/roles';
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
@@ -38,11 +39,11 @@ router.route('/paginate').get(
 /******
  * 
  *  Patient | Dashboard | View All cartItem And Details
- *  :cartId:
+ *  :cartId: // INFO : we try to get cart without cartId .. by logged in userId
  * 
  * ***** */
 router.route('/view').get(
-  auth('common'),
+  auth(TRole.patient),
   validateRequest(validation.viewCartItemsOfACartValidationSchema),
   controller.viewCart
 );

@@ -21,7 +21,7 @@ export const viewCartItemsOfACartValidationSchema = z.object({
         invalid_type_error: 'cartId must be a mongoose object.',
       }).refine(value => mongoose.Types.ObjectId.isValid(value), {
         message: 'cartId must be a valid mongoose ObjectId.',
-      }),
+      }).optional(),
   }),
    
 });

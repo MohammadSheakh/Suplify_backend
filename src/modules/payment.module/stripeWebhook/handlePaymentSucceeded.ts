@@ -2,6 +2,7 @@ import ApiError from "../../../errors/ApiError";
 import { TRole } from "../../../middlewares/roles";
 import { sendInWebNotification } from "../../../services/notification.service";
 import { TNotificationType } from "../../notification/notification.constants";
+import { Cart } from "../../order.module/cart/cart.model";
 import { OrderStatus, PaymentMethod, PaymentStatus } from "../../order.module/order/order.constant";
 import { IOrder } from "../../order.module/order/order.interface";
 import { Order } from "../../order.module/order/order.model";
@@ -81,7 +82,14 @@ export const handlePaymentSucceeded = async (session: Stripe.Checkout.Session) =
 
           let updatedObjectOfReferenceFor: any;
           if (referenceFor === TTransactionFor.Order) {
-               updatedObjectOfReferenceFor = updateOrderInformation(_user, referenceId, newPayment._id);
+               updatedObjectOfReferenceFor = 
+               updateOrderInformation(
+                    _user,
+                    referenceId,
+                    newPayment._id,
+                    referenceId2,
+                    referenceFor2
+               );
           } 
           // else if (referenceFor === TTransactionFor.SubscriptionPlan) {
           //       updatedObjectOfReferenceFor = updateUserSubscription(referenceId, newPayment._id);
@@ -124,7 +132,12 @@ export const handlePaymentSucceeded = async (session: Stripe.Checkout.Session) =
      }
 };
 
-async function updateOrderInformation(user: IUser,orderId: string, paymentTransactionId: string){
+async function updateOrderInformation(user: IUser,
+     orderId: string,
+     paymentTransactionId: string,
+     cartId: string,
+     cartIdReferenceFor: string
+){
 
      // isBookingExists = await Order.findOne({ _id: orderId });
 
@@ -135,24 +148,34 @@ async function updateOrderInformation(user: IUser,orderId: string, paymentTransa
           status : OrderStatus.confirmed
      }, { new: true });
 
+     /******
+      * Lets Delete Cart after order creation
+      * ***** */
+     await Cart.findByIdAndUpdate(cartId, 
+          {
+               $set: { isDeleted: true } 
+          }, 
+          { new: true }
+     );
+
      /********
      * TODO : MUST
      * Lets send notification to admin that a order is placed
      * ***** */
-    await sendInWebNotification(
-      `A Patient ${user.userId} ${user.userName} placed new order, OrderId : ${orderId}, TxnId : ${paymentTransactionId} , amount : ${updatedOrder.finalAmount}`,
-      user.userId, // senderId
-      null, // receiverId 
-      TRole.admin, // receiverRole
-      TNotificationType.productOrder, // type
-      /**********
-       * In UI there is a details page for order in admin end 
-       * **** */
-      '', // linkFor // TODO : MUST add the query params 
-      orderId, // linkId
-      // TTransactionFor.TrainingProgramPurchase, // referenceFor
-      // purchaseTrainingProgram._id // referenceId
-    );
+     await sendInWebNotification(
+          `A Patient ${user.userId} ${user.userName} placed new order, OrderId : ${orderId}, TxnId : ${paymentTransactionId} , amount : ${updatedOrder.finalAmount}`,
+          user.userId, // senderId
+          null, // receiverId 
+          TRole.admin, // receiverRole
+          TNotificationType.productOrder, // type
+          /**********
+           * In UI there is a details page for order in admin end 
+           * **** */
+          '', // linkFor // TODO : MUST add the query params 
+          orderId, // linkId
+          // TTransactionFor.TrainingProgramPurchase, // referenceFor
+          // purchaseTrainingProgram._id // referenceId
+     );
 
      return updatedOrder;
 }

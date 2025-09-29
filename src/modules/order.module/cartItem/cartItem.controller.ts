@@ -1,4 +1,6 @@
+//@ts-ignore
 import { Request, Response } from 'express';
+//@ts-ignore
 import { StatusCodes } from 'http-status-codes';
 
 import { GenericController } from '../../_generic-module/generic.controller';
@@ -9,6 +11,7 @@ import catchAsync from '../../../shared/catchAsync';
 import sendResponse from '../../../shared/sendResponse';
 import { Cart } from '../cart/cart.model';
 import { ICart } from '../cart/cart.interface';
+import ApiError from '../../../errors/ApiError';
 
 
 export class CartItemController extends GenericController<
@@ -36,7 +39,8 @@ export class CartItemController extends GenericController<
      * ***** */
 
     const existedCart =  await Cart.findOne({
-      userId: req.user.userId
+      userId: req.user.userId,
+      isDeleted: false
     })
 
     let cartId;
@@ -114,6 +118,97 @@ export class CartItemController extends GenericController<
       data: isCartItemExist ? isCartItemExist : newCartItem,
       message: `${this.modelName} created successfully`,
       success: true,
+    });
+  });
+
+  /*********
+   * 
+   * Patient | Remove an cartItem by cartItemId 
+   * also decrease itemCount in cart 
+   * 
+   * ******** */
+  softDeleteById = catchAsync(async (req: Request, res: Response) => {
+    if (!req.params.id) {
+      throw new ApiError(
+        StatusCodes.BAD_REQUEST,
+        `id is required for delete ${this.modelName}`
+      );
+    }
+
+    const id = req.params.id;
+    const deletedObject:ICartItem = await this.service.softDeleteById(id);
+    if (!deletedObject) {
+      throw new ApiError(
+        StatusCodes.NOT_FOUND,
+        `Object with ID ${id} not found`
+      );
+    }
+
+    await Cart.findByIdAndUpdate(deletedObject.cartId, {
+      $inc: { itemCount: -1 }
+    }, {
+      new: true
+    });
+    
+    // deletedObject.cartId
+
+    //   return res.status(StatusCodes.NO_CONTENT).json({});
+    sendResponse(res, {
+      code: StatusCodes.OK,
+      data: deletedObject,
+      message: `${this.modelName} soft deleted successfully`,
+    });
+  });
+
+
+  updateCountWithType = catchAsync(async (req: Request, res: Response) => {
+    
+    const id = req.params.id;
+    const type = req.query.type;
+    
+    const cartItem:ICartItem = await CartItem.findById(id).populate('itemId');
+    if (!cartItem) {
+      throw new ApiError(
+        StatusCodes.NOT_FOUND,
+        `Object with ID ${id} not found`
+      );
+    }
+
+    // console.log("cartItem ::: ", cartItem.itemId.stockQuantity," ", cartItem.quantity)
+    // console.log(typeof cartItem.itemId.stockQuantity," ", typeof cartItem.quantity)
+    let updatedCartItem : ICartItem;
+
+    if(cartItem.itemId.stockQuantity > cartItem.quantity){
+      if(type == 'inc'){
+      updatedCartItem = await CartItem.findByIdAndUpdate(id, {
+        $inc: { quantity: 1 }
+      }, {
+        new: true
+      });
+    }else{
+      if(cartItem.quantity == 1){
+        throw new ApiError(
+          StatusCodes.NOT_FOUND,
+          `Can not below 1`
+        );
+      }
+      updatedCartItem = await CartItem.findByIdAndUpdate(id, {
+        $inc: { quantity: -1 }
+      }, {
+        new: true
+      });
+    }
+    }else{
+      throw new ApiError(
+        StatusCodes.NOT_FOUND,
+        `Item is out of stock`
+      );
+    }
+
+    sendResponse(res, {
+      code: StatusCodes.OK,
+      data: updatedCartItem,
+      message: `${this.modelName} count updated successfully`,
     });
   });
 

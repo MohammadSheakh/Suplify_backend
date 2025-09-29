@@ -1,3 +1,4 @@
+//@ts-ignore
 import { model, Schema } from 'mongoose';
 import { IProduct, IProductModel } from './product.interface';
 import paginate from '../../../common/plugins/paginate';
