@@ -15,6 +15,8 @@ export enum TNotificationType {
     appointmentBooking = 'appointmentBooking',
     trainingProgramPurchase = 'trainingProgramPurchase',
     workoutClassPurchase = 'workoutClassPurchase',
+    productOrder = 'productOrder',
+    labTestBooking = 'labTestBooking',
     withdrawal = 'withdrawal',
     payment = 'payment',
     system = 'system',

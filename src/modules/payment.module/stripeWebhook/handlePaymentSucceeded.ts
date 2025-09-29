@@ -3,12 +3,14 @@ import { TRole } from "../../../middlewares/roles";
 import { sendInWebNotification } from "../../../services/notification.service";
 import { TNotificationType } from "../../notification/notification.constants";
 import { OrderStatus, PaymentMethod, PaymentStatus } from "../../order.module/order/order.constant";
+import { IOrder } from "../../order.module/order/order.interface";
 import { Order } from "../../order.module/order/order.model";
 import { IDoctorAppointmentSchedule } from "../../scheduleAndAppointmentBooking.module/doctorAppointmentSchedule/doctorAppointmentSchedule.interface";
 import { TAppointmentStatus } from "../../scheduleAndAppointmentBooking.module/doctorPatientScheduleBooking/doctorPatientScheduleBooking.constant";
 import { IDoctorPatientScheduleBooking } from "../../scheduleAndAppointmentBooking.module/doctorPatientScheduleBooking/doctorPatientScheduleBooking.interface";
 import { DoctorPatientScheduleBooking } from "../../scheduleAndAppointmentBooking.module/doctorPatientScheduleBooking/doctorPatientScheduleBooking.model";
 import { TLabTestBookingStatus } from "../../scheduleAndAppointmentBooking.module/labTestBooking/labTestBooking.constant";
+import { ILabTestBooking } from "../../scheduleAndAppointmentBooking.module/labTestBooking/labTestBooking.interface";
 import { LabTestBooking } from "../../scheduleAndAppointmentBooking.module/labTestBooking/labTestBooking.model";
 import { ISpecialistPatientScheduleBooking } from "../../scheduleAndAppointmentBooking.module/specialistPatientScheduleBooking/specialistPatientScheduleBooking.interface";
 import { SpecialistPatientScheduleBooking } from "../../scheduleAndAppointmentBooking.module/specialistPatientScheduleBooking/specialistPatientScheduleBooking.model";
@@ -79,13 +81,13 @@ export const handlePaymentSucceeded = async (session: Stripe.Checkout.Session) =
 
           let updatedObjectOfReferenceFor: any;
           if (referenceFor === TTransactionFor.Order) {
-               updatedObjectOfReferenceFor = updateOrderInformation(referenceId, newPayment._id);
+               updatedObjectOfReferenceFor = updateOrderInformation(_user, referenceId, newPayment._id);
           } 
           // else if (referenceFor === TTransactionFor.SubscriptionPlan) {
           //       updatedObjectOfReferenceFor = updateUserSubscription(referenceId, newPayment._id);
           // }
           else if (referenceFor === TTransactionFor.LabTestBooking) {
-               updatedObjectOfReferenceFor = updateLabTestBooking(referenceId, newPayment._id);
+               updatedObjectOfReferenceFor = updateLabTestBooking(_user, referenceId, newPayment._id);
           
           }else if (referenceFor === TTransactionFor.DoctorPatientScheduleBooking) {
                updatedObjectOfReferenceFor = 
@@ -122,11 +124,11 @@ export const handlePaymentSucceeded = async (session: Stripe.Checkout.Session) =
      }
 };
 
-async function updateOrderInformation(orderId: string, paymentTransactionId: string){
+async function updateOrderInformation(user: IUser,orderId: string, paymentTransactionId: string){
 
      // isBookingExists = await Order.findOne({ _id: orderId });
 
-     const updatedOrder = await Order.findByIdAndUpdate(orderId, { 
+     const updatedOrder:IOrder = await Order.findByIdAndUpdate(orderId, { 
           /* update fields */ 
           paymentTransactionId : paymentTransactionId,
           paymentStatus: PaymentStatus.paid,
@@ -135,20 +137,19 @@ async function updateOrderInformation(orderId: string, paymentTransactionId: str
 
      /********
      * TODO : MUST
-     * Lets send notification to admin that a lab test is booked
-     * 
+     * Lets send notification to admin that a order is placed
      * ***** */
     await sendInWebNotification(
-      `A ${userData.role} registered successfully . verify document to activate account`,
-      null, // senderId
+      `A Patient ${user.userId} ${user.userName} placed new order, OrderId : ${orderId}, TxnId : ${paymentTransactionId} , amount : ${updatedOrder.finalAmount}`,
+      user.userId, // senderId
       null, // receiverId 
       TRole.admin, // receiverRole
-      TNotificationType.newUser, // type
+      TNotificationType.productOrder, // type
       /**********
-       * In UI there is no details page for specialist's schedule
+       * In UI there is a details page for order in admin end 
        * **** */
-      // '', // linkFor
-      // existingWorkoutClass._id // linkId
+      '', // linkFor // TODO : MUST add the query params 
+      orderId, // linkId
       // TTransactionFor.TrainingProgramPurchase, // referenceFor
       // purchaseTrainingProgram._id // referenceId
     );
@@ -156,11 +157,14 @@ async function updateOrderInformation(orderId: string, paymentTransactionId: str
      return updatedOrder;
 }
 
-async function updateLabTestBooking(labTestId: string, paymentTransactionId: string){
+async function updateLabTestBooking(
+     user: IUser,
+     labTestId: string,
+     paymentTransactionId: string){
 
      // isBookingExists = await LabTestBooking.findOne({ _id: labTestId });
 
-     const updatedLabTestBooking = await LabTestBooking.findByIdAndUpdate(labTestId, { 
+     const updatedLabTestBooking:ILabTestBooking = await LabTestBooking.findByIdAndUpdate(labTestId, { 
           /* update fields */ 
           paymentTransactionId : paymentTransactionId,
           paymentStatus: PaymentStatus.paid,
@@ -171,28 +175,22 @@ async function updateLabTestBooking(labTestId: string, paymentTransactionId: str
      /********
      * TODO : MUST
      * Lets send notification to admin that a lab test is booked
-     * 
      * ***** */
-    await sendInWebNotification(
-      `A ${userData.role} registered successfully . verify document to activate account`,
-      null, // senderId
-      null, // receiverId 
-      TRole.admin, // receiverRole
-      TNotificationType.newUser, // type
-      /**********
-       * In UI there is no details page for specialist's schedule
-       * **** */
-      // '', // linkFor
-      // existingWorkoutClass._id // linkId
-      // TTransactionFor.TrainingProgramPurchase, // referenceFor
-      // purchaseTrainingProgram._id // referenceId
-    );
+     await sendInWebNotification(
+          `Lab Test ${updatedLabTestBooking.labTestId} booked by ${user.userName} . bookingId is ${updatedLabTestBooking._id}`,
+          user.userId, // senderId
+          null, // receiverId 
+          TRole.admin, // receiverRole
+          TNotificationType.labTestBooking, // type
+          /**********
+           * In UI there is no details page for specialist's schedule
+           * **** */
+     );
 
      return updatedLabTestBooking;
 }
 
 /**********
-* 
 *  const refModel = mongoose.model(result.type);
 *  const isExistRefference = await refModel.findById(result.refferenceId).session(session);
 * ********** */
@@ -222,13 +220,12 @@ async function updateDoctorPatientScheduleBooking(
      );
 
      /********
-      * 
       * Lets send notification to specialist that patient has booked workout class
       * 🎨 GUIDE FOR FRONTEND 
       *  |-> if doctor click on this notification .. redirect him to upcoming schedule... 
       * ***** */
      await sendInWebNotification(
-          `${result.scheduleName} purchased by a ${thisCustomer.subscriptionType} user ${thisCustomer.name}`,
+          `${result.scheduleName} purchased by a ${thisCustomer.subscriptionType} user ${thisCustomer.name} . appointmentBookingId ${updatedDoctorPatientScheduleBooking._id}`,
           thisCustomer._id, // senderId
           result.createdBy, // receiverId
           TRole.doctor, // receiverRole
@@ -237,6 +234,19 @@ async function updateDoctorPatientScheduleBooking(
           // existingTrainingProgram._id // linkId
           // TTransactionFor.TrainingProgramPurchase, // referenceFor
           // purchaseTrainingProgram._id // referenceId
+     );
+
+     /**********
+      * Now send notification to admin that patient has purchase and booked a workout class schedule
+      * ******* */
+     await sendInWebNotification(
+          `${result.scheduleName} Appointment Schedule of doctor ${updatedDoctorPatientScheduleBooking.doctorId} purchased by user ${thisCustomer.name}. appointmentBookingId ${updatedDoctorPatientScheduleBooking._id}`,
+          user._id, // senderId
+          null, // receiverId
+          TRole.admin, // receiverRole
+          TNotificationType.workoutClassPurchase, // type
+          null, // linkFor
+          null // linkId
      );
 
      return updatedDoctorPatientScheduleBooking;
@@ -267,9 +277,7 @@ async function updatePurchaseTrainingProgram(
 
 
      /********
-      * 
       * Lets send notification to specialist that patient has purchased training program
-      * 
       * ***** */
      await sendInWebNotification(
           `TrainingProgram ${trainingProgramId} purchased by a patient ${user.userName}`,
@@ -279,6 +287,20 @@ async function updatePurchaseTrainingProgram(
           TNotificationType.trainingProgramPurchase, // type
           'trainingProgramId', // linkFor
           trainingProgramId // linkId
+     );
+
+
+     /**********
+      * Now send notification to admin that patient has purchased training program
+      * ******* */
+     await sendInWebNotification(
+          `${updatedTrainingProgramPurchase.trainingProgramId} Training Program of specialist ${updatedTrainingProgramPurchase.specialistId} purchased by user ${user.userName}. purchaseTrainingProgramId ${updatedTrainingProgramPurchase._id}`,
+          user.userId, // senderId
+          null, // receiverId
+          TRole.admin, // receiverRole
+          TNotificationType.trainingProgramPurchase, // type
+          null, // linkFor
+          null // linkId
      );
 
 
@@ -317,9 +339,7 @@ async function updateSpecialistPatientScheduleBooking(
 
 
      /********
-      * 
       * Lets send notification to specialist that patient has booked workout class
-      * 
       * ***** */
      await sendInWebNotification(
           `${specialistWorkoutClassSchedule.scheduleName} purchased by a ${user.subscriptionType} user ${user.name}`,
@@ -332,8 +352,19 @@ async function updateSpecialistPatientScheduleBooking(
            * **** */
           // '', // linkFor
           // existingWorkoutClass._id // linkId
-          // TTransactionFor.TrainingProgramPurchase, // referenceFor
-          // purchaseTrainingProgram._id // referenceId
+     );
+
+     /**********
+      * Now send notification to admin that patient has purchase and booked a workout class schedule
+      * ******* */
+     await sendInWebNotification(
+          `${specialistWorkoutClassSchedule.scheduleName} Workout Class of specialist ${specialistWorkoutClassSchedule.createdBy} purchased by user ${user.name}. purchaseSpecialistWorkoutClassId ${updatedSpecialsitPatientWorkoutClassBooking._id}`,
+          user._id, // senderId
+          null, // receiverId
+          TRole.admin, // receiverRole
+          TNotificationType.workoutClassPurchase, // type
+          null, // linkFor
+          null // linkId
      );
   
      return updatedSpecialsitPatientWorkoutClassBooking;

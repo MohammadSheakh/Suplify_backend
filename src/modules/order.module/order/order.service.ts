@@ -1,3 +1,4 @@
+//@ts-ignore
 import Stripe from "stripe";
 import ApiError from "../../../errors/ApiError";
 import { GenericService } from "../../_generic-module/generic.services";
@@ -9,8 +10,10 @@ import { OrderItem } from "../orderItem/orderItem.model";
 import { OrderStatus, PaymentStatus, TOrderRelatedTo } from "./order.constant";
 import { ICartItem, ICreateOrder, IOrder } from "./order.interface";
 import { Order } from "./order.model";
+//@ts-ignore
 import {StatusCodes} from 'http-status' 
 import stripe from "../../../config/stripe.config";
+//@ts-ignore
 import mongoose from "mongoose";
 import { config } from "../../../config";
 import { TTransactionFor } from "../../payment.module/paymentTransaction/paymentTransaction.constant";

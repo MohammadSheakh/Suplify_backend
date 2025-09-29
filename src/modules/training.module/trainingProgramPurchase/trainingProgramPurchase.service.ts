@@ -313,7 +313,7 @@ export class TrainingProgramPurchaseService extends GenericService<
         ],
         metadata: {
             /*****
-             *
+             * 📝
              * we receive these data in webhook ..
              * based on this data .. we have to update our database in webhook ..
              * also give user a response ..
@@ -338,7 +338,7 @@ export class TrainingProgramPurchaseService extends GenericService<
             referenceId2: existingTrainingProgram._id.toString(), // we need this to create patientTrainingSession
             
             /******
-             * 
+             * 📝
              * With this information .. first we create a 
              * PaymentTransaction ..  where paymentStatus[Complete]
              *  +++++++++++++++++++++ transactionId :: coming from Stripe
