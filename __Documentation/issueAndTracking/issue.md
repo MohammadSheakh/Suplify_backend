@@ -23,5 +23,9 @@ Issue 🔥  /  Solved ☑️ / Extra Note 📝
 | 🔥     | Specialist Patient |                      | Create multiple relation .. but it                  |             | 21/9/     |          |
 | 📝     |                    |                      | should create only one relation                     |             | /8/     |          |
 
+
+dependencies: ------ remove these dependencies
++ @types/ioredis 5.0.0
++ ioredis 5.8.0
  
 

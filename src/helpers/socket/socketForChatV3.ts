@@ -7,6 +7,7 @@ import { logger } from '../../shared/logger';
 import colors from 'colors';
 import getUserDetailsFromToken from '../getUesrDetailsFromToken';
 import { User } from '../../modules/user/user.model';
+import { TRole } from '../../middlewares/roles';
 
 class SocketService {
 
@@ -140,7 +141,7 @@ class SocketService {
 
   private async setupMiddleware() {
     if (!this.io) return;
-    console.log("1")
+    
     this.io.use(async (socket, next) => {
       try {
         const token = socket.handshake.auth.token || 
@@ -154,7 +155,7 @@ class SocketService {
 
         const user = await this.getUserDetailsFromToken(token);
 
-        console.log("user", user)
+        // console.log("user", user)
         // 🔥 CRITICAL: Convert ObjectId to string
 
         if (!user) {
@@ -162,11 +163,11 @@ class SocketService {
         }
 
         const modifiedUser= {
-          ...user,
+          ...user,  // 🟡 issue  MUST BE RESOLVED
           _id: user._id.toString(), // 🔥 CRITICAL: Convert ObjectId to string
         };
         //💡 Rule: Always convert Mongoose ObjectId to .toString() before using in Redis, Socket.IO rooms, or logs. 
-        socket.data.user = modifiedUser;
+        socket.data.user = modifiedUser; // 🟡 issue  MUST BE RESOLVED
         next();
       } catch (error) {
         console.error('Socket authentication error:', error);
@@ -181,12 +182,15 @@ class SocketService {
 
     // console.log("111111111111111")
 
+    /*********
+     * 🟢🟢 
+     * ***** */
     this.io.on('connection', async (socket: Socket) => {
-      const user = socket.data.user;
+      const user = socket.data.user; // 🟡 issue  MUST BE RESOLVED
+
+      
       const userId = user._id;
       const workerId = process.pid.toString();
-
-       console.log("111111111111111")
 
       logger.info(colors.blue(
         `🔌🟢 User connected: ${userId} on Worker ${workerId} Socket ${socket.id}`
@@ -195,7 +199,11 @@ class SocketService {
       try {
         // Get user profile
         const userProfile = await this.getUserProfile(userId);
+
+        console.log("userProfile in connection 🔌🔌", userProfile)
         socket.data.userProfile = userProfile;
+
+        console.log("🔌2🔌")
 
         // Handle connection in Redis
         const oldSocketId = await this.redisStateManager.handleUserReconnection(
@@ -215,6 +223,14 @@ class SocketService {
 
         // Join user to their personal room
         socket.join(userId);
+
+        // 🆕 Join role-based rooms
+        if (userProfile.role == TRole.admin) {
+
+          console.log("🔌3🔌")
+          socket.join(`role::${userProfile.role}`); // e.g., "role::admin", "role::user"
+          logger.info(`👤🛡️ User ${userId} joined role room: role::${userProfile.role}`);
+        }
 
         // Notify related users about online status
         await this.notifyRelatedUsersOnlineStatus(userId, userProfile, true);
@@ -339,7 +355,13 @@ class SocketService {
   // =============================================
   // Public API Methods
   // =============================================
-
+  
+  /*******
+   * 🟢🟢 
+   * This method helps us to send notification to any user based on his/her userId
+   * we call this method into bullmq.ts -> startNotificationWorker
+   * 
+   * ********* */
   public async emitToUser(userId: string, event: string, data: any): Promise<boolean> {
     if (!this.io) return false;
     
@@ -349,6 +371,19 @@ class SocketService {
       return true;
     }
     return false;
+  }
+
+  /********
+   * 🟢🟢 
+   * This method helps us to send notification to admin
+   * 
+   * ******* */
+// Add new method for role-based emission
+  public emitToRole(role: string, event: string, data: any): boolean {
+    if (!this.io) return false;
+    this.io.to(`role::${role}`).emit(event, data);
+    logger.info(`📢 Emitted to role: ${role}`);
+    return true
   }
 
   public async emitToConversation(conversationId: string, event: string, data: any) {
@@ -377,15 +412,14 @@ class SocketService {
     return await this.redisStateManager.getSystemStats();
   }
 
-  // Helper methods (same as before)
+  // 🟢🟢 Helper methods (same as before)
   private async getUserDetailsFromToken(token: string) {
-
     return await getUserDetailsFromToken(token);
   }
 
+  // 🟢🟢
   private async getUserProfile(userId: string) {
-    
-    return await User.findById(userId, 'id name profileImage');
+    return await User.findById(userId, 'id name profileImage role');
   }
 
   private emitError(socket: Socket, message: string, disconnect = false) {

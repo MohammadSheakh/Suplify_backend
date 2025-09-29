@@ -11,10 +11,10 @@ import { SpecialistPatientScheduleBooking } from "../../modules/scheduleAndAppoi
 import { TScheduleBookingStatus } from "../../modules/scheduleAndAppointmentBooking.module/specialistPatientScheduleBooking/specialistPatientScheduleBooking.constant";
 import { IDoctorAppointmentSchedule } from "../../modules/scheduleAndAppointmentBooking.module/doctorAppointmentSchedule/doctorAppointmentSchedule.interface";
 import { Notification } from "../../modules/notification/notification.model";
-import { TTransactionFor } from "../../modules/payment.module/paymentTransaction/paymentTransaction.constant";
-import { TNotificationType } from "../../modules/notification/notification.constants";
 import { INotification } from "../../modules/notification/notification.interface";
 import { redisPubClient } from "../redis/redis";
+import { socketService } from "../socket/socketForChatV3";
+import { TRole } from "../../middlewares/roles";
 
 // Create Queue
 export const scheduleQueue = new Queue("scheduleQueue", {
@@ -261,10 +261,103 @@ export const startNotificationWorker = () => {
           referenceId: data.referenceId,
         });
 
-        logger.info(`✅ Notification created for ${data.receiverRole} :: `, notif);
+        // logger.info(`✅ Notification created for ${data.receiverRole} :: `, notif);
+
+
         
+        let eventName;
+        let emitted;
+
+        // 🎨 GUIDE FOR FRONTEND .. if admin then listen for notification::admin event  
+        if(data.receiverRole == TRole.admin){
+          console.log("⚡hit admin⚡")
+          eventName = `notification::admin`;
+
+          console.log("eventName ->> ", eventName)
+
+          emitted = socketService.emitToRole(
+            data.receiverRole,
+            eventName,
+            {
+              // id: notif._id.toString(),
+              // title: notif.title,
+              // senderId: notif.senderId?.toString(),
+              // type: notif.type,
+              // linkFor: notif.linkFor,
+              // linkId: notif.linkId?.toString(),
+              // referenceFor: notif.referenceFor,
+              // referenceId: notif.referenceId?.toString(),
+              // createdAt: notif.createdAt,
+              // isRead: notif.isRead || false
+
+              title: data.title,
+              // subTitle: data.subTitle,
+              senderId: data.senderId,
+              receiverId: null,
+              receiverRole: data.receiverRole,
+              type: data.type,
+              linkFor: data.linkFor,
+              linkId: data.linkId,
+              referenceFor: data.referenceFor,
+              referenceId: data.referenceId,
+            }            
+          );
+
+          if (emitted) {
+            logger.info(`🔔 Real-time notification sent to ${data.receiverRole}`);
+          } else {
+            logger.info(`📴 ${data.receiverRole} is offline, notification saved in DB only`);
+          }
+
+        }else{
+          console.log("⚡hit other⚡")
+          
+          const receiverId = data.receiverId.toString(); // Ensure it's a string
+
+          eventName = `notification::${receiverId}`;
+
+          console.log("eventName ->> ", eventName)
+
+          // Try to emit to the user
+          emitted = await socketService.emitToUser(
+            receiverId,
+            eventName,
+            {
+              // id: notif._id.toString(),
+              // title: notif.title,
+              // senderId: notif.senderId?.toString(),
+              // type: notif.type,
+              // linkFor: notif.linkFor,
+              // linkId: notif.linkId?.toString(),
+              // referenceFor: notif.referenceFor,
+              // referenceId: notif.referenceId?.toString(),
+              // createdAt: notif.createdAt,
+              // isRead: notif.isRead || false
+
+              title: data.title,
+              // subTitle: data.subTitle,
+              senderId: data.senderId,
+              receiverId: data.receiverId,
+              receiverRole: data.receiverRole,
+              type: data.type,
+              linkFor: data.linkFor,
+              linkId: data.linkId,
+              referenceFor: data.referenceFor,
+              referenceId: data.referenceId,
+            }
+          );
+
+          if (emitted) {
+            logger.info(`🔔 Real-time notification sent to user ${receiverId}`);
+          } else {
+            logger.info(`📴 User ${receiverId} is offline, notification saved in DB only`);
+          }
+        }
+
+        
+
       } catch (err: any) {
-        console.log("⭕ error block hit ")
+        console.log("⭕ error block hit  of notification worker", err)
         errorLogger.error(
           `❌ Notification job ${id} failed: ${err.message}`
         );

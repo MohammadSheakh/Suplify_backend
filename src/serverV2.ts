@@ -95,7 +95,7 @@ async function main() {
 
 
 
-    // 🔥 CRITICAL: Use Redis adapter for cross-worker communication
+    // 🔥 CRITICAL: Use Redis adapter for cross-worker communication //we move this to socketService.initialize
     // io.adapter(createAdapter(redisPubClient, redisSubClient));
 
     // Setup socket helper

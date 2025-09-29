@@ -186,13 +186,12 @@ export class TrainingProgramPurchaseService extends GenericService<
 
           await this._handlePersonTrainingSessionCreate(trainingProgramId, user);
 
-          /********
-           * 
+          /**********
+           * 🥇
            * Lets send notification to specialist that patient has purchased training program
-           * 
-           * ***** */
+           * ******* */
           await sendInWebNotification(
-            `${existingTrainingProgram.programName} purchased by a ${existingUser.subscriptionType} user ${existingUser.name}`,
+            `${existingTrainingProgram.programName} purchased by a ${existingUser.subscriptionType} user ${existingUser.name} .  purchaseTrainingProgramId ${purchaseTrainingProgram._id}`,
             existingUser._id, // senderId
             existingTrainingProgram.createdBy, // receiverId
             TRole.specialist, // receiverRole
@@ -201,6 +200,19 @@ export class TrainingProgramPurchaseService extends GenericService<
             existingTrainingProgram._id // linkId
             // TTransactionFor.TrainingProgramPurchase, // referenceFor
             // purchaseTrainingProgram._id // referenceId
+          );
+
+          /**********
+           * Now send notification to admin that patient has purchased training program
+           * ******* */
+          await sendInWebNotification(
+            `${existingTrainingProgram.programName} Training Program of specialist ${existingTrainingProgram.createdBy} purchased by a ${existingUser.subscriptionType} user ${existingUser.name}. purchaseTrainingProgramId ${purchaseTrainingProgram._id}`,
+            existingUser._id, // senderId
+            null, // receiverId
+            TRole.admin, // receiverRole
+            TNotificationType.trainingProgramPurchase, // type
+            null, // linkFor
+            null // linkId
           );
           
         // return  purchaseTrainingProgram;

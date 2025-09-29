@@ -49,5 +49,5 @@ export async function sendInWebNotification(
     }
   );
 
-  console.log("🔔 sendInWebNotification hit :: notifAdded -> ", notifAdded)
+  console.log("🔔 sendInWebNotification hit :: notifAdded -> ")//notifAdded
 }
