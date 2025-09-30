@@ -36,15 +36,6 @@ const controller = new SuccessTrackerController();
 
 // Add these routes to your existing success tracker routes
 
-// GET /success-tracker/overview - Get last 2 weeks comparison overview
-router.get('/overview', 
-  auth(TRole.patient),
-  controller.getSuccessTrackerOverview);
-  // getSuccessTrackerDetails
-
-
-
-
 router.post('/create', 
   auth(TRole.patient),
   validateRequest(validation.createSuccessTrackerValidationSchema),
@@ -60,7 +51,9 @@ router.route('/paginate').get(
 
 router.route('/:userId/:weekOffset').get(
    auth(TRole.patient),
-  controller.getSuccessTrackerOverview
+  controller
+   .getSuccessTrackerDetails
+  // .getSuccessTrackerOverview
 );
 
 router.route('/update/:id').put(

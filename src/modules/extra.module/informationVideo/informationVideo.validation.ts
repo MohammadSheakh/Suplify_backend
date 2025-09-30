@@ -9,11 +9,7 @@ export const createInfomationVideoValidationSchema = z.object({
     .string({
         required_error: 'videoLink is required, videoLink must be a string.',
         invalid_type_error: 'videoLink must be a string.',
-      }).min(2, {
-      message: 'videoLink must be at least 2 characters long.',
-    }).max(100, {
-      message: 'videoLink must be at most 100 characters long.',
-    }),
+      }).optional(),
 
     title: z  
     .string({

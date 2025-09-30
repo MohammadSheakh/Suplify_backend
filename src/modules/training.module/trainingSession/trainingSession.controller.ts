@@ -28,6 +28,8 @@ export class TrainingSessionController extends GenericController<
   createWithAttachments = catchAsync(async (req: Request, res: Response) => {
     const data:ITrainingSession = req.body;
 
+    console.log("data training session ..", data);
+
     //📈⚙️ Process all file upload in parallel
     const [coverPhotos, trailerContents, attachments ] = await Promise.all([
       processFiles(req.files?.coverPhotos , TFolderName.trainingProgram),

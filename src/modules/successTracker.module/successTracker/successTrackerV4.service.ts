@@ -1,3 +1,4 @@
+import OpenAI from 'openai';
 //@ts-ignore
 import { StatusCodes } from 'http-status-codes';
 import { SuccessTracker } from './successTracker.model';
@@ -10,7 +11,208 @@ import { MindsetAndMomentum } from '../mindsetAndMomentum/mindsetAndMomentum.mod
 import { SatisfactionAndFeedback } from '../satisfactionAndFeedback/satisfactionAndFeedback.model';
 import { AdherenceAndConsistency } from '../adherenceAndConsistency/adherenceAndConsistency.model';
 
-export class SuccessTrackerService extends GenericService<
+const model = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY, //OPENAI_API_KEY // OPENROUTER_API_KEY
+  baseURL: 'https://openrouter.ai/api/v1',
+  //baseURL: 'https://api.openai.com/v1'
+});
+
+
+interface OpenAIEmbeddingResponse {
+  object: string;
+  data: Array<{
+    object: string;
+    embedding: number[];
+    index: number;
+  }>;
+  model: string;
+  usage: {
+    prompt_tokens: number;
+    total_tokens: number;
+  };
+}  
+
+const openAiHeaders = {
+  "Content-Type": "application/json",
+  'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
+}
+
+
+/*********
+ * 
+ * before saving .. create embedding for user messsage .. 
+ * 
+ * ******/
+
+const embeddingResponse = await fetch('https://api.openai.com/v1/embeddings', {
+  method: 'POST',
+  headers: openAiHeaders,
+  body: JSON.stringify({
+    model: "text-embedding-3-small", // // Updated model (ada-002 is deprecated)
+    input: User
+  })
+});
+
+if (!embeddingResponse.ok) {
+  throw new ApiError(
+    StatusCodes.INTERNAL_SERVER_ERROR,
+    `Failed to create embedding: ${embeddingResponse.statusText}`
+  );
+}
+
+const embeddingData: OpenAIEmbeddingResponse = await embeddingResponse.json();
+const embedding = embeddingData.data[0].embedding;
+
+
+let systemPrompt = await ChatBotService.dateParse(userMessage, userId);
+
+// Convert previous messages to the format expected by the API
+const formattedMessages = [
+  { role: 'system', content: systemPrompt }
+];
+
+formattedMessages.push(
+  {
+    role: 'user',
+    content: userMessage.toString(),
+  }
+)
+   
+
+while (retries <= maxRetries) {
+try {
+  stream = await model.chat.completions.create({
+    model: 'gpt-4o', // GPT-4o // qwen/qwen3-30b-a3b:free <- is give wrong result   // gpt-3.5-turbo <- give perfect result
+    messages: formattedMessages,
+    /*
+      [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userMessage },
+      ],
+    */
+    temperature: 0.7,
+    stream: true,
+  });
+
+  // If we get here, the request was successful
+  break;
+} catch (error) {
+  console.log("🌋🌋🌋🌋🌋");
+  // Check if it's a rate limit error (429)
+  if (error.status === 429) {
+    if (
+      error.message &&
+      (error.message.includes('quota') ||
+        error.message.includes('billing'))
+    ) {
+      // This is a quota/billing issue - try fallback if we haven't already
+      if (retries === 0) {
+        console.log('Quota or billing issue. Trying fallback model...');
+        try {
+          // Try a different model as fallback
+          stream = await model.chat.completions.create({
+            model: 'gpt-3.5-turbo', // Using the same model as a placeholder, replace with actual fallback
+            messages: [
+              { role: 'system', content: systemPrompt },
+              { role: 'user', content: userMessage },
+            ],
+            temperature: 0.7,
+            stream: true,
+          });
+          break; // If fallback succeeds, exit the retry loop
+        } catch (fallbackError) {
+          console.error('Fallback model failed:', fallbackError);
+          // Continue with retries
+        }
+      } else {
+        console.log(
+          'Quota or billing issue. No more fallbacks available.'
+        );
+        throw error; // Give up after fallback attempts
+      }
+    }
+
+    // Regular rate limit - apply exponential backoff
+    retries++;
+    if (retries > maxRetries) {
+      // Send error message to client before throwing
+      res.write(
+        `data: ${JSON.stringify({
+          error: 'Rate limit exceeded. Please try again later.',
+        })}\n\n`
+      );
+      res.end();
+      throw error; // Give up after max retries
+    }
+
+    console.log(
+      `Rate limited. Retrying in ${delay}ms... (Attempt ${retries}/${maxRetries})`
+    );
+    await new Promise(resolve => setTimeout(resolve, delay));
+
+    // Exponential backoff with jitter
+    delay = delay * 2 * (0.5 + Math.random()); // Multiply by random factor between 1 and 1.5
+  } else {
+    // Not a rate limit error
+    console.error('OpenAI API error:', error);
+    res.write(
+      `data: ${JSON.stringify({
+        error: 'An error occurred while processing your request.',
+      })}\n\n`
+    );
+    res.end();
+    return; // Exit the function
+  }
+}
+}
+
+if (!stream) {
+  res.write(
+    `data: ${JSON.stringify({
+      error: 'Failed to generate a response. Please try again.',
+    })}\n\n`
+  );
+  res.end();
+  return;
+}
+
+// Process each chunk as it arrives
+    try {
+      for await (const chunk of stream) {
+        const content = chunk.choices[0]?.delta?.content || '';
+        if (content) {
+          responseText += content;
+
+          // Send the chunk to the client
+          res.write(`data: ${JSON.stringify({ chunk: content })}\n\n`);
+
+          // Flush the data to ensure it's sent immediately
+          if (res.flush) {
+            res.flush();
+          }
+        }
+      }
+
+      // Send end of stream marker
+      res.write(`data: ${JSON.stringify({ done: true, fullResponse: responseText })}\n\n`);
+
+
+      
+
+      res.end(); // 🟢🟢🟢 end korte hobe
+    } catch (streamError) {
+      console.error('Error processing stream:', streamError);
+      res.write(
+        `data: ${JSON.stringify({
+          error: 'Stream processing error. Please try again.',
+        })}\n\n`
+      );
+      res.end();
+    }
+ 
+
+
+export class SuccessTrackerServiceV4 extends GenericService<
   typeof SuccessTracker,
   ISuccessTracker
 > {
@@ -18,101 +220,85 @@ export class SuccessTrackerService extends GenericService<
     super(SuccessTracker);
   }
 
-  async createSuccessTracker(userId, data) {
+  // 🟢🟢 
+  async getAllSuccessTrackerData(userId) {
     try {
-      // Get current week start and end dates
-      const weekStart = moment().startOf('week').toDate();
-      const weekEnd = moment().endOf('week').toDate();
-      
-      // Check if entry already exists for current week
-      const existingTracker = await SuccessTracker.findOne({
+      // Get all success trackers for user, sorted by week (oldest first)
+      const trackers = await SuccessTracker.find({
         createdBy: userId,
-        weekStartDate: { $gte: weekStart, $lte: weekEnd },
         isDeleted: false
-      });
-      
-      if (existingTracker) {
-        throw new Error('Success tracker already exists for this week');
-      }
-      
-      // Create main tracker entry
-      const successTracker = new SuccessTracker({
-        createdBy: userId,
-        weekStartDate: weekStart,
-        weekEndDate: weekEnd
-      });
-      
-      await successTracker.save();
-      
-      // Create all category entries
-      const promises = [];
-      
-      // Health and Performance
-      if (data.healthAndPerformance) {
-        const healthEntry = new HealthAndPerformance({
-          successTrackerId: successTracker._id,
-          ...data.healthAndPerformance
-        });
-        promises.push(healthEntry.save());
-      }
-      
-      // Mindset and Momentum
-      if (data.mindsetAndMomentum) {
-        const mindsetEntry = new MindsetAndMomentum({
-          successTrackerId: successTracker._id,
-          ...data.mindsetAndMomentum
-        });
-        promises.push(mindsetEntry.save());
-      }
-      
-      // Satisfaction and Feedback
-      if (data.satisfactionAndFeedback) {
-        const satisfactionEntry = new SatisfactionAndFeedback({
-          successTrackerId: successTracker._id,
-          ...data.satisfactionAndFeedback
-        });
-        promises.push(satisfactionEntry.save());
-      }
-      
-      // Adherence and Consistency
-      if (data.adherenceAndConsistency) {
-        const adherenceEntry = new AdherenceAndConsistency({
-          successTrackerId: successTracker._id,
-          ...data.adherenceAndConsistency
-        });
-        promises.push(adherenceEntry.save());
-      }
-      
-      await Promise.all(promises);
-      
-      // return await this.getSuccessTrackerComparison(userId);
+      })
+      .sort({ weekStartDate: 1 })
+      .lean();
 
-      return null;
-      
+      if (!trackers.length) return [];
+
+      // Fetch all related data in bulk
+      const trackerIds = trackers.map(t => t._id);
+
+      const [healthList, mindsetList, satisfactionList, adherenceList] = await Promise.all([
+        HealthAndPerformance.find({ successTrackerId: { $in: trackerIds } }).lean(),
+        MindsetAndMomentum.find({ successTrackerId: { $in: trackerIds } }).lean(),
+        SatisfactionAndFeedback.find({ successTrackerId: { $in: trackerIds } }).lean(),
+        AdherenceAndConsistency.find({ successTrackerId: { $in: trackerIds } }).lean()
+      ]);
+
+      // Create maps for quick lookup
+      const healthMap = new Map(healthList.map(h => [h.successTrackerId.toString(), h]));
+      const mindsetMap = new Map(mindsetList.map(m => [m.successTrackerId.toString(), m]));
+      const satisfactionMap = new Map(satisfactionList.map(s => [s.successTrackerId.toString(), s]));
+      const adherenceMap = new Map(adherenceList.map(a => [a.successTrackerId.toString(), a]));
+
+      return trackers.map(tracker => ({
+        successTracker: tracker,
+        healthAndPerformance: healthMap.get(tracker._id.toString()) || null,
+        mindsetAndMomentum: mindsetMap.get(tracker._id.toString()) || null,
+        satisfactionAndFeedback: satisfactionMap.get(tracker._id.toString()) || null,
+        adherenceAndConsistency: adherenceMap.get(tracker._id.toString()) || null
+      }));
     } catch (error) {
       throw error;
     }
   }
 
-  /*******************
-   * 
-   * Claude
-   * 
-   * ************ */
 
+ //🟢🟢 
   async getSuccessTrackerOverview(userId) {
-      try {
-        // Get current week and previous week data
-        const currentWeekData = await this.getSuccessTrackerDetails(userId, 0);
-        const previousWeekData = await this.getSuccessTrackerDetails(userId, -1);
-
-        // Calculate percentage changes
-        const overview = this.calculateOverviewMetrics(currentWeekData, previousWeekData);
-        
-        return overview;
-      } catch (error) {
-        throw error;
+    try {
+      const allWeeksData = await this.getAllSuccessTrackerData(userId);
+      
+      if (!allWeeksData.length) {
+        return this.getEmptyOverview();
       }
+
+      // Current week = last entry
+      const currentWeek = allWeeksData[allWeeksData.length - 1];
+      
+      // Previous week = second last (if exists)
+      const previousWeek = allWeeksData.length > 1 
+        ? allWeeksData[allWeeksData.length - 2] 
+        : null;
+
+      // All historical weeks (excluding current)
+      const historicalWeeks = allWeeksData.slice(0, -1);
+
+      const overview = this.calculateOverviewMetrics(currentWeek, previousWeek, historicalWeeks);
+      
+      return overview;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  getEmptyOverview() {
+    return {
+      all: { percentage: 0, score: 0, maxScore: 115 },
+      healthAndPerformance: { percentage: 0, score: 0, maxScore: 25 },
+      adherenceAndConsistency: { percentage: 0, score: 0, maxScore: 55 },
+      mindsetAndMomentum: { percentage: 0, score: 0, maxScore: 25 },
+      satisfactionAndFeedback: { percentage: 0, score: 0, maxScore: 10 },
+      comparisonData: []
+    };
   }
 
   async getSuccessTrackerDetails(userId, weekOffset = 0) {
@@ -152,9 +338,10 @@ export class SuccessTrackerService extends GenericService<
     }
   }
 
-  calculateOverviewMetrics(currentWeek, previousWeek) {
+  // 🟢 qwen updated
+  calculateOverviewMetrics(currentWeek, previousWeek, historicalWeeks = []) {
     const metrics = {
-      all: { percentage: 0, score: 0, maxScore: 90 },
+      all: { percentage: 0, score: 0, maxScore: 115 },
       healthAndPerformance: { percentage: 0, score: 0, maxScore: 25 },
       adherenceAndConsistency: { percentage: 0, score: 0, maxScore: 55 },
       mindsetAndMomentum: { percentage: 0, score: 0, maxScore: 25 },
@@ -162,65 +349,83 @@ export class SuccessTrackerService extends GenericService<
       comparisonData: []
     };
 
-    if (!currentWeek || !previousWeek) {
-      // Calculate current week scores even without previous data
-      if (currentWeek) {
-        metrics.healthAndPerformance.score = this.calculateHealthPerformanceScore(currentWeek.healthAndPerformance);
-        metrics.adherenceAndConsistency.score = this.calculateAdherenceScore(currentWeek.adherenceAndConsistency);
-        metrics.mindsetAndMomentum.score = this.calculateMindsetScore(currentWeek.mindsetAndMomentum);
-        metrics.satisfactionAndFeedback.score = this.calculateSatisfactionScore(currentWeek.satisfactionAndFeedback);
-        metrics.all.score = metrics.healthAndPerformance.score + metrics.adherenceAndConsistency.score + 
-                           metrics.mindsetAndMomentum.score + metrics.satisfactionAndFeedback.score;
-      }
-      
-      return {
-        ...metrics,
-        comparisonData: this.getComparisonTableData(currentWeek, previousWeek)
-      };
+    // Always calculate current week score
+    if (currentWeek) {
+      metrics.healthAndPerformance.score = this.calculateHealthPerformanceScore(currentWeek.healthAndPerformance);
+      metrics.adherenceAndConsistency.score = this.calculateAdherenceScore(currentWeek.adherenceAndConsistency);
+      metrics.mindsetAndMomentum.score = this.calculateMindsetScore(currentWeek.mindsetAndMomentum);
+      metrics.satisfactionAndFeedback.score = this.calculateSatisfactionScore(currentWeek.satisfactionAndFeedback);
+      metrics.all.score = metrics.healthAndPerformance.score + 
+                          metrics.adherenceAndConsistency.score + 
+                          metrics.mindsetAndMomentum.score + 
+                          metrics.satisfactionAndFeedback.score;
     }
 
-    // Calculate category percentages and scores
-    metrics.healthAndPerformance.percentage = this.calculateHealthPerformanceChange(
-      currentWeek.healthAndPerformance, 
-      previousWeek.healthAndPerformance
-    );
-    metrics.healthAndPerformance.score = this.calculateHealthPerformanceScore(currentWeek.healthAndPerformance);
+    // Calculate percentage change vs. historical average (not just last week)
+    const historicalScores = {
+      health: [],
+      adherence: [],
+      mindset: [],
+      satisfaction: []
+    };
 
-    metrics.adherenceAndConsistency.percentage = this.calculateAdherenceChange(
-      currentWeek.adherenceAndConsistency, 
-      previousWeek.adherenceAndConsistency
-    );
-    metrics.adherenceAndConsistency.score = this.calculateAdherenceScore(currentWeek.adherenceAndConsistency);
+    for (const week of historicalWeeks) {
+      if (week.healthAndPerformance) {
+        historicalScores.health.push(this.calculateHealthPerformanceScore(week.healthAndPerformance));
+      }
+      if (week.adherenceAndConsistency) {
+        historicalScores.adherence.push(this.calculateAdherenceScore(week.adherenceAndConsistency));
+      }
+      if (week.mindsetAndMomentum) {
+        historicalScores.mindset.push(this.calculateMindsetScore(week.mindsetAndMomentum));
+      }
+      if (week.satisfactionAndFeedback) {
+        historicalScores.satisfaction.push(this.calculateSatisfactionScore(week.satisfactionAndFeedback));
+      }
+    }
 
-    metrics.mindsetAndMomentum.percentage = this.calculateMindsetChange(
-      currentWeek.mindsetAndMomentum, 
-      previousWeek.mindsetAndMomentum
-    );
-    metrics.mindsetAndMomentum.score = this.calculateMindsetScore(currentWeek.mindsetAndMomentum);
+    // Helper to calculate % change vs average
+    const calcChangeVsAvg = (currentScore, historicalScores) => {
+      if (historicalScores.length === 0 || currentScore === 0) return 0;
+      const avg = historicalScores.reduce((a, b) => a + b, 0) / historicalScores.length;
+      if (avg === 0) return 0;
+      return Math.round(((currentScore - avg) / avg) * 100);
+    };
 
-    metrics.satisfactionAndFeedback.percentage = this.calculateSatisfactionChange(
-      currentWeek.satisfactionAndFeedback, 
-      previousWeek.satisfactionAndFeedback
+    // Set percentage changes vs historical average
+    metrics.healthAndPerformance.percentage = calcChangeVsAvg(
+      metrics.healthAndPerformance.score,
+      historicalScores.health
     );
-    metrics.satisfactionAndFeedback.score = this.calculateSatisfactionScore(currentWeek.satisfactionAndFeedback);
 
-    // Calculate overall percentage (average of all categories)
+    metrics.adherenceAndConsistency.percentage = calcChangeVsAvg(
+      metrics.adherenceAndConsistency.score,
+      historicalScores.adherence
+    );
+
+    metrics.mindsetAndMomentum.percentage = calcChangeVsAvg(
+      metrics.mindsetAndMomentum.score,
+      historicalScores.mindset
+    );
+
+    metrics.satisfactionAndFeedback.percentage = calcChangeVsAvg(
+      metrics.satisfactionAndFeedback.score,
+      historicalScores.satisfaction
+    );
+
+    // Overall percentage = average of category % changes
     const allPercentages = [
       metrics.healthAndPerformance.percentage,
       metrics.adherenceAndConsistency.percentage,
       metrics.mindsetAndMomentum.percentage,
       metrics.satisfactionAndFeedback.percentage
-    ];
-    
-    metrics.all.percentage = Math.round(
-      allPercentages.reduce((sum, val) => sum + val, 0) / allPercentages.length
-    );
+    ].filter(p => !isNaN(p));
 
-    // Calculate total score
-    metrics.all.score = metrics.healthAndPerformance.score + metrics.adherenceAndConsistency.score + 
-                       metrics.mindsetAndMomentum.score + metrics.satisfactionAndFeedback.score;
+    metrics.all.percentage = allPercentages.length > 0
+      ? Math.round(allPercentages.reduce((sum, p) => sum + p, 0) / allPercentages.length)
+      : 0;
 
-    // Get detailed comparison data
+    // Keep comparison table as current vs previous week (for UI)
     metrics.comparisonData = this.getComparisonTableData(currentWeek, previousWeek);
 
     return metrics;
@@ -565,4 +770,78 @@ export class SuccessTrackerService extends GenericService<
     return comparisonData;
   }
 
+  // Your existing createSuccessTracker method
+  async createSuccessTracker(userId, data) {
+    try {
+      // Get current week start and end dates
+      const weekStart = moment().startOf('week').toDate();
+      const weekEnd = moment().endOf('week').toDate();
+      
+      // Check if entry already exists for current week
+      const existingTracker = await SuccessTracker.findOne({
+        createdBy: userId,
+        weekStartDate: { $gte: weekStart, $lte: weekEnd },
+        isDeleted: false
+      });
+      
+      if (existingTracker) {
+        throw new Error('Success tracker already exists for this week');
+      }
+      
+      // Create main tracker entry
+      const successTracker = new SuccessTracker({
+        createdBy: userId,
+        weekStartDate: weekStart,
+        weekEndDate: weekEnd
+      });
+      
+      await successTracker.save();
+      
+      // Create all category entries
+      const promises = [];
+      
+      // Health and Performance
+      if (data.healthAndPerformance) {
+        const healthEntry = new HealthAndPerformance({
+          successTrackerId: successTracker._id,
+          ...data.healthAndPerformance
+        });
+        promises.push(healthEntry.save());
+      }
+      
+      // Mindset and Momentum
+      if (data.mindsetAndMomentum) {
+        const mindsetEntry = new MindsetAndMomentum({
+          successTrackerId: successTracker._id,
+          ...data.mindsetAndMomentum
+        });
+        promises.push(mindsetEntry.save());
+      }
+      
+      // Satisfaction and Feedback
+      if (data.satisfactionAndFeedback) {
+        const satisfactionEntry = new SatisfactionAndFeedback({
+          successTrackerId: successTracker._id,
+          ...data.satisfactionAndFeedback
+        });
+        promises.push(satisfactionEntry.save());
+      }
+      
+      // Adherence and Consistency
+      if (data.adherenceAndConsistency) {
+        const adherenceEntry = new AdherenceAndConsistency({
+          successTrackerId: successTracker._id,
+          ...data.adherenceAndConsistency
+        });
+        promises.push(adherenceEntry.save());
+      }
+      
+      await Promise.all(promises);
+      
+      return await this.getSuccessTrackerOverview(userId);
+    } catch (error) {
+      throw error;
+    }
+  }
 }
+

@@ -23,6 +23,7 @@ import { sendInWebNotification } from '../../services/notification.service';
 import { TRole } from '../../middlewares/roles';
 import { TNotificationType } from '../notification/notification.constants';
 const eventEmitterForUpdateUserProfile = new EventEmitter(); // functional way
+const eventEmitterForCreateWallet = new EventEmitter();
 
 eventEmitterForUpdateUserProfile.on('eventEmitterForUpdateUserProfile', async (valueFromRequest: any) => {
   try {
@@ -34,6 +35,29 @@ eventEmitterForUpdateUserProfile.on('eventEmitterForUpdateUserProfile', async (v
 });
 
 export default eventEmitterForUpdateUserProfile;
+
+
+eventEmitterForCreateWallet.on('eventEmitterForCreateWallet', async (valueFromRequest: any) => {
+  try {
+      const { userId } = valueFromRequest;
+      
+      const wallet =  await walletService.create({
+        userId: userId,
+        amount: 0, // default 0
+        currency: TCurrency.usd,
+      });
+
+      await User.findByIdAndUpdate(
+        userId,
+        { walletId: wallet._id },
+        { new: true }
+      )
+
+    }catch (error) {
+      console.error('Error occurred while handling token creation and deletion:', error);
+    }
+});
+
 
 
 const validateUserStatus = (user: TUser) => {
@@ -104,13 +128,12 @@ const createUser = async (userData: TUser, userProfileId:string) => {
    * 
    * ********* */
 
-    const wallet =  await walletService.create({
-      userId: user._id,
-      amount: 0, // default 0
-      currency: TCurrency.usd,
+    // 📈⚙️ optimize with event emmiter 
+    eventEmitterForCreateWallet.emit('eventEmitterForCreateWallet', { 
+      userId : user._id
     });
 
-    user.walletId = wallet._id;
+    
 
     /********
      * 

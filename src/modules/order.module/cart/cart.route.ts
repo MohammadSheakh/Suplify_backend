@@ -1,3 +1,4 @@
+//@ts-ignore
 import express from 'express';
 import * as validation from './cart.validation';
 import { CartController} from './cart.controller';
@@ -5,9 +6,12 @@ import { ICart } from './cart.interface';
 import { validateFiltersForQuery } from '../../../middlewares/queryValidation/paginationQueryValidationMiddleware';
 import validateRequest from '../../../shared/validateRequest';
 import auth from '../../../middlewares/auth';
-
+//@ts-ignore
+import { StatusCodes } from 'http-status-codes';
+//@ts-ignore
 import  multer from 'multer';
 import { TRole } from '../../../middlewares/roles';
+import { getLoggedInUserAndSetReferenceToUser } from '../../../middlewares/getLoggedInUserAndSetReferenceToUser';
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
@@ -29,10 +33,16 @@ const paginationOptions: Array<'sortBy' | 'page' | 'limit' | 'populate'> = [
 // const taskService = new TaskService();
 const controller = new CartController();
 
+/********
+ * 
+ * Patient | Landing Page 
+ * 
+ * ***** */
 //info : pagination route must be before the route with params
 router.route('/paginate').get(
-  //auth('common'),
+  auth(TRole.patient),
   validateFiltersForQuery(optionValidationChecking(['_id', ...paginationOptions])),
+  getLoggedInUserAndSetReferenceToUser('userId'), // always filter by userId from logged in user Id
   controller.getAllWithPagination
 );
 

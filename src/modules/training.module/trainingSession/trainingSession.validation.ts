@@ -38,16 +38,16 @@ export const createTrainingSessionValidationSchema = z.object({
 
     /**
      * 🟡 benefits - array of non-empty strings
+     * TODO : MUST validation must be added 
      */
-    benefits: z
-      .array(
-        z.string()
-      // .min(1, 
-      //   { message: 'Each benefit must be a non-empty string' })
-      ).optional(),
-      // .min(0, 
-      //   { message: 'benefits array must have at least one item' }
-      // ),
+    // benefits: z
+    //   .array(
+    //     z.string()
+    //     .min(1, 
+    //     { message: 'Each benefit must be a non-empty string' })
+    //   ).optional()
+      
+      
     
     tokenCount: z
       .number()
@@ -77,7 +77,7 @@ export const createTrainingSessionValidationSchema = z.object({
      */
     external_link: z
       .string()
-      .url({ message: 'external_link must be a valid URL' })
+      // .url({ message: 'external_link must be a valid URL' })
       .optional()
       .nullable()
       .or(z.literal('').transform(() => null)) // Allow empty string to be treated as null

@@ -33,6 +33,7 @@ import { SpecialistPatientScheduleBookingRoute } from '../modules/scheduleAndApp
 import { DoctorSpecialistPatientRoute } from '../modules/personRelationships.module/doctorSpecialistPatient/doctorSpecialistPatient.route';
 import { OrderItemRoute } from '../modules/order.module/orderItem/orderItem.route';
 import { SuccessTrackerRoute } from '../modules/successTracker.module/successTracker/successTracker.route';
+import { WalletTransactionHistoryRoute } from '../modules/wallet.module/walletTransactionHistory/walletTransactionHistory.route';
 
 // import { ChatRoutes } from '../modules/chat/chat.routes';
 // import { MessageRoutes } from '../modules/message/message.routes';
@@ -196,6 +197,12 @@ const apiRoutes = [
     path: '/stripe',
     route: stripeAccountRoutes,
   },
+  ///////////////////////////////////////////// Wallet
+  { // 🟢
+    path: '/wallet-transactions',
+    route: WalletTransactionHistoryRoute,
+  },
+  
 ];
 
 apiRoutes.forEach(route => router.use(route.path, route.route));

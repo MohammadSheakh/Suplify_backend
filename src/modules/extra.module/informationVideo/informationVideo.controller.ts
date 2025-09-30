@@ -58,6 +58,46 @@ export class informationVideoController extends GenericController<
     });
   });
 
+
+  /*************
+   * 
+   * Specialist | 
+   * 
+   * ******** */
+  getAllWithPagination = catchAsync(async (req: Request, res: Response) => {
+    //const filters = pick(req.query, ['_id', 'title']); // now this comes from middleware in router
+    const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']); ;
+    const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
+    
+
+    const populateOptions: (string | {path: string, select: string}[]) = [
+      {
+        path: 'video',
+        select: 'attachment attachmentType' 
+      },
+      // 'personId'
+      {
+        path: 'thumbnail',
+        select: 'attachment attachmentType',
+        // populate: {
+        //   path: '',
+        // }
+      }
+    ];
+
+    const select = '-isDeleted -createdAt -updatedAt -__v'; 
+
+    const result = await this.service.getAllWithPagination(filters, options, populateOptions , select );
+
+    sendResponse(res, {
+      code: StatusCodes.OK,
+      data: result,
+      message: `All ${this.modelName} with pagination`,
+      success: true,
+    });
+  });
+
+
   /*******
    * 
    * Patient | Landing Page | Information video 

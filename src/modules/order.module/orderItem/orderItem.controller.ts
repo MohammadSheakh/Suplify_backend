@@ -3,9 +3,12 @@ import omit from "../../../shared/omit";
 import pick from "../../../shared/pick";
 import sendResponse from "../../../shared/sendResponse";
 import { GenericController } from "../../_generic-module/generic.controller";
+import { Order } from "../order/order.model";
 import { IOrderItem } from "./orderItem.interface";
 import { OrderItem } from "./orderItem.model";
 import { OrderItemService } from "./orderItem.service";
+//@ts-ignore
+import { Request, Response } from 'express';
 //@ts-ignore
 import { StatusCodes } from 'http-status-codes';
 
@@ -22,23 +25,17 @@ export class OrderItemController extends GenericController<typeof OrderItem, IOr
     
 
     const populateOptions: (string | {path: string, select: string}[]) = [
-      // {
-      //   path: 'personId',
-      //   select: 'name ' 
-      // },
-      // 'personId'
-      // {
-      //   path: 'conversationId',
-      //   select: 'lastMessage updatedAt',
-      //   populate: {
-      //     path: 'lastMessage',
-      //   }
-      // }
     ];
 
     const select = '-isDeleted -createdAt -updatedAt -__v'; 
 
     const result = await this.service.getAllWithPagination(filters, options, populateOptions , select );
+
+    const orderInfo = await Order.findOne({
+      _id: filters.orderId
+    }).select('-isDeleted -createdAt -updatedAt -__v').lean();
+
+    result.orderInfo = orderInfo
 
     sendResponse(res, {
       code: StatusCodes.OK,

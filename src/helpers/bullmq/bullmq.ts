@@ -262,8 +262,6 @@ export const startNotificationWorker = () => {
         });
 
         // logger.info(`✅ Notification created for ${data.receiverRole} :: `, notif);
-
-
         
         let eventName;
         let emitted;
@@ -353,8 +351,6 @@ export const startNotificationWorker = () => {
             logger.info(`📴 User ${receiverId} is offline, notification saved in DB only`);
           }
         }
-
-        
 
       } catch (err: any) {
         console.log("⭕ error block hit  of notification worker", err)

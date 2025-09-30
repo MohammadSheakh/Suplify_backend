@@ -41,7 +41,9 @@ const TrainingSessionSchema = new Schema<ITrainingSession>(
       ],
     },
     benefits : {
-      type: [String],
+      // type: [], // String
+      type: Array,
+      // of : String,
       required: [true, 'benefits are required'],
     },
     tokenCount: {

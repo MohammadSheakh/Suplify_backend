@@ -21,7 +21,7 @@ const informationVideoSchema = new Schema<IinformationVideo>(
     ],
     videoLink: {
       type: String,
-      required: [true, 'videoLink is required'],
+      required: [false, 'videoLink is not required'],
     },
     title: {
       type: String,

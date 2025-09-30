@@ -29,3 +29,5 @@ dependencies: ------ remove these dependencies
 + ioredis 5.8.0
  
 
+ Clean up all event emmiter .. Must 
+

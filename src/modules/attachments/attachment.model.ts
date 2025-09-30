@@ -14,6 +14,8 @@ const attachmentSchema = new Schema<IAttachment>(
       enum : [
          AttachmentType.document,
          AttachmentType.image,
+         AttachmentType.video,
+         AttachmentType.unknown
       ],
       required: [true, 'Attached Type is required. It can be pdf / image'],
     },

@@ -8,6 +8,7 @@ import validateRequest from '../../../shared/validateRequest';
 import auth from '../../../middlewares/auth';
 //@ts-ignore
 import multer from "multer";
+import { TRole } from '../../../middlewares/roles';
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
@@ -29,10 +30,16 @@ const paginationOptions: Array<'sortBy' | 'page' | 'limit' | 'populate'> = [
 // const taskService = new TaskService();
 const controller = new WalletTransactionHistoryController();
 
+/*********
+ * 
+ * Specialist | get all transaction history with
+ * wallet balance 
+ * 
+ * ******** */
 //info : pagination route must be before the route with params
 router.route('/paginate').get(
-  //auth('common'),
-  validateFiltersForQuery(optionValidationChecking(['_id', ...paginationOptions])),
+  auth(TRole.specialist),
+  validateFiltersForQuery(optionValidationChecking(['_id', 'walletId', ...paginationOptions])),
   controller.getAllWithPagination
 );
 
