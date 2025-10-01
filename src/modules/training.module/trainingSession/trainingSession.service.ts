@@ -82,7 +82,7 @@ export class TrainingSessionService extends GenericService<
      * 
      * ************** */
 
-    //📈⚙️ lets do above work via event emitter for scalability
+    //📈⚙️ OPTIMIZATION: do above work via event emitter for scalability
     eventEmitForCreatePatientTrainingSessionForWhoPurchased.emit(
       'eventEmitForCreatePatientTrainingSessionForWhoPurchased'
       , {trainingProgramId: data.trainingProgramId , createdTrainingSession} );

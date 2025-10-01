@@ -229,7 +229,7 @@ export class SpecialistPatientService extends GenericService<
     options :any
   ) {
     
-    //📈⚙️ Business logic: Build the aggregation pipeline
+    //📈⚙️ OPTIMIZATION: 
     const pipeline = [
       // Match all specialists
       {

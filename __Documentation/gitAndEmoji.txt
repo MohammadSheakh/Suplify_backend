@@ -1,4 +1,4 @@
-//📈⚙️  ->  optimization related
+//📈⚙️ OPTIMIZATION: ->  optimization related // PERF:
 // ⚠️    ->  bad code .. Need to optimize
 // 🟢    ->  new section
 // 🔵    ->  new feature ..
@@ -42,3 +42,5 @@ git status
 git diff --stat
 git diff --shortstat
 git diff --numstat | awk '{inserted+=$1} END {print inserted}'
+
+

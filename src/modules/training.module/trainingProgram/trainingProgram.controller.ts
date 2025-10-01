@@ -29,7 +29,7 @@ export class TrainingProgramController extends GenericController<
   /***********
    * 
    * Patient | Get all Training Program of a Specialist ..
-   * //📈⚙️
+   * //📈⚙️ OPTIMIZATION:
    * ********* */
   getAllWithAggregation = catchAsync(async (req: Request, res: Response) => {
     const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']); ;
@@ -66,7 +66,7 @@ export class TrainingProgramController extends GenericController<
      * // TODO : We need to check Specialist is approved by admin or not
     ********** */
 
-    //📈⚙️ Process both file types in parallel
+    //📈⚙️ OPTIMIZATION: Process both file types in parallel
     const [attachments, trailerContents] = await Promise.all([
       processFiles(req.files?.attachments, TFolderName.trainingProgram),
       processFiles(req.files?.trailerContents, TFolderName.trainingProgram)
@@ -77,7 +77,7 @@ export class TrainingProgramController extends GenericController<
 
     const result = await this.service.create(data);
 
-    //📈⚙️ update userProfile's howmanyPrograms count in 
+    //📈⚙️ OPTIMIZATION: update userProfile's howmanyPrograms count in 
     eventEmitForUpdateSpecialistUserProfile.emit('eventEmitForUpdateSpecialistUserProfile', (req.user as IUser).userId);
 
     sendResponse(res, {

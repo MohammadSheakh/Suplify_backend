@@ -73,7 +73,7 @@ export class TrainingProgramPurchaseService extends GenericService<
       })
     });
     ******* */
-    //📈⚙️
+    //📈⚙️ OPTIMIZATION: _handlePersonTrainingSessionCreate
     const patientTrainingSessionsData = trainingSessions.map(
       (trainingSession:ITrainingSession) => ({
         patientId: user.userId,
@@ -87,7 +87,7 @@ export class TrainingProgramPurchaseService extends GenericService<
       })
     )
 
-    //📈⚙️ Use insertMany for bulk insert - much faster than individual creates
+    //📈⚙️ OPTIMIZATION: Use insertMany for bulk insert - much faster than individual creates
     if (patientTrainingSessionsData.length > 0) {
       
       await PatientTrainingSession.insertMany(patientTrainingSessionsData) as IPatientTrainingSession[];

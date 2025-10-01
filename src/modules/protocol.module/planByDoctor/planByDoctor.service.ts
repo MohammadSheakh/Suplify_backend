@@ -28,7 +28,7 @@ export class PlanByDoctorService extends GenericService<
    * ********* */
   async getAPlanWithSuggestions(planId: string, specialistId: string) {
 
-    //📈⚙️
+    //📈⚙️ OPTIMIZATION:
     const result = await PlanByDoctor.aggregate([
       // 1. Match the specific plan
       {
@@ -131,7 +131,7 @@ export class PlanByDoctorService extends GenericService<
    * ********* */
   async getAPlanWithSuggestionsByOnlyPlanId(planId: string /* , specialistId: string */ ) {
 
-    //📈⚙️
+    //📈⚙️ OPTIMIZATION:
     const result = await PlanByDoctor.aggregate([
       // 1. Match the specific plan
       {
@@ -236,7 +236,7 @@ export class PlanByDoctorService extends GenericService<
    * ********* */
   async getAllPlanWithSuggestionsForPatient(protocolId: string, planType: string) {
 
-    //📈⚙️
+    //📈⚙️ OPTIMIZATION:
     const result = await PlanByDoctor.aggregate([
       // 1. Match the specific plan
       // {

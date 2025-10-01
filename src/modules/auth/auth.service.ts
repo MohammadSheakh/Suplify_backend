@@ -92,7 +92,7 @@ const createUser = async (userData: TUser, userProfileId:string) => {
   // ⚠️ bad code .. 
   // await UserProfile.findByIdAndUpdate(userProfileId, { userId: user._id });
 
-  // 📈⚙️ optimize with event emmiter 
+  // 📈⚙️ OPTIMIZATION: with event emmiter 
   eventEmitterForUpdateUserProfile.emit('eventEmitterForUpdateUserProfile', { 
     userProfileId,
     userId : user._id
@@ -128,7 +128,7 @@ const createUser = async (userData: TUser, userProfileId:string) => {
    * 
    * ********* */
 
-    // 📈⚙️ optimize with event emmiter 
+    // 📈⚙️ OPTIMIZATION: with event emmiter 
     eventEmitterForCreateWallet.emit('eventEmitterForCreateWallet', { 
       userId : user._id
     });

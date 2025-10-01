@@ -9,6 +9,104 @@ import { HealthAndPerformance } from '../healthAndPerformance/healthAndPerforman
 import { MindsetAndMomentum } from '../mindsetAndMomentum/mindsetAndMomentum.model';
 import { SatisfactionAndFeedback } from '../satisfactionAndFeedback/satisfactionAndFeedback.model';
 import { AdherenceAndConsistency } from '../adherenceAndConsistency/adherenceAndConsistency.model';
+//@ts-ignore
+import EventEmitter from 'events';
+import { User } from '../../user/user.model';
+import ApiError from '../../../errors/ApiError';
+//@ts-ignore
+import OpenAI from 'openai';
+import { sendEmail } from '../../../helpers/emailService';
+
+interface EmailResponse {
+  subject: string;
+  body: string;
+}
+
+const eventEmitterForSendingEmailBasedOnSuccessTracker = new EventEmitter();
+
+const openai = new OpenAI({
+  baseURL: "https://openrouter.ai/api/v1",
+  apiKey: process.env.OPENAI_API_KEY, // Make sure this is set
+});
+
+eventEmitterForSendingEmailBasedOnSuccessTracker.
+  on('eventEmitterForSendingEmailBasedOnSuccessTracker', async (valueFromRequest: any) => {
+  try {
+      const { userId, data } = valueFromRequest;
+      const user =  await User.findById(userId).select('name email');
+
+      if(!user){
+        throw new ApiError(StatusCodes.BAD_REQUEST, 'User is not found');
+      }
+
+      // lets send email now 
+
+      const prompt = `
+        You are a supportive and professional fitness coach Suplify. Based on the user's weekly check-in responses below, generate:
+        1. A warm, encouraging email subject line (max 60 characters).
+        2. An email body that includes:
+          - A concise summary of their week (highlight energy, sleep, hydration, meals, workouts, wins).
+          - Brief positive reinforcement or analysis.
+          - One actionable, personalized suggestion based on any area scoring low (e.g., hydration < 7, sleep < 7, etc.).
+          - Keep tone uplifting, human, and coach-like (not robotic).
+
+
+      Requirements:
+      - Subject: short and encouraging (< 60 chars)
+      - Body: clean, mobile-friendly HTML email
+      - Use <p> for paragraphs, <strong> for emphasis, maybe a <ul> if helpful
+      - Include: summary, praise, 1 personalized tip
+      - Keep it warm and human
+
+
+        User's Weekly Check-In Data:
+        ${JSON.stringify(data, null, 2)}
+
+        Respond ONLY in the following JSON format:
+        {
+          "subject": "Your Weekly Subject Here",
+          "body": "Your full email body here. Use **HTML format** (no markdown). Be specific and kind."
+        }
+        `;
+
+
+        const response = await openai.chat.completions.create({
+          model: 'gpt-4o', // or 'gpt-4-turbo'
+          messages: [
+            {
+              role: 'user',
+              content: prompt,
+            },
+          ],
+          response_format: { type: 'json_object' }, // Enforces JSON output
+          temperature: 0.7,
+          max_tokens: 500,
+        });
+
+        const content = response.choices[0].message.content;
+        if (!content) {
+          throw new Error('Empty response from OpenAI');
+        }
+
+        const result:EmailResponse = JSON.parse(content) as EmailResponse;
+        console.log("🟢🟢 result " , result)
+
+        await sendEmail({ 
+          to: 'mohammad.sheakh01@gmail.com', // user.email // TODO : MUST use here user.email
+          subject: result.subject,
+          html: result.body 
+        });
+
+        return result;
+          
+    }catch (error) {
+
+      console.error('Error generating email:', error);
+      throw new Error('Failed to generate personalized email');
+      console.error('Error occurred while handling token creation and deletion:', error);
+    }
+});
+
 
 export class SuccessTrackerService extends GenericService<
   typeof SuccessTracker,
@@ -44,7 +142,7 @@ export class SuccessTrackerService extends GenericService<
       
       await successTracker.save();
       
-      // Create all category entries
+      //📈⚙️ Create all category entries
       const promises = [];
       
       // Health and Performance
@@ -86,6 +184,13 @@ export class SuccessTrackerService extends GenericService<
       await Promise.all(promises);
       
       // return await this.getSuccessTrackerComparison(userId);
+
+
+      eventEmitterForSendingEmailBasedOnSuccessTracker.emit(
+        'eventEmitterForSendingEmailBasedOnSuccessTracker',{
+          userId,data
+        }
+      )
 
       return null;
       

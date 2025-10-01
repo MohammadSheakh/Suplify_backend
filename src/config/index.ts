@@ -11,6 +11,12 @@ export const config = {
     port: process.env.REDIS_PORT, // || 6380
   },
 
+  openRouterOrChatGPT: {
+    openai: {
+      apiKey: process.env.OPENAI_API_KEY,
+    },
+  },
+
   database: {
     mongoUrl:
       process.env.MONGODB_URL || 'mongodb://localhost:27017/mentor-service',

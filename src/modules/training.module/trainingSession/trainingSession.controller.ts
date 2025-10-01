@@ -30,7 +30,9 @@ export class TrainingSessionController extends GenericController<
 
     console.log("data training session ..", data);
 
-    //📈⚙️ Process all file upload in parallel
+    console.log("files ..", req.files);
+
+    //📈⚙️ OPTIMIZATION: Process all file upload in parallel
     const [coverPhotos, trailerContents, attachments ] = await Promise.all([
       processFiles(req.files?.coverPhotos , TFolderName.trainingProgram),
       processFiles(req.files?.trailerContents , TFolderName.trainingProgram),
@@ -96,7 +98,7 @@ export class TrainingSessionController extends GenericController<
 
     const populateOptions: (string | {path: string, select: string}[]) = [
       {
-        path: 'attachments',
+        path: 'attachments coverPhotos',
         select: '-__v -updatedAt -createdAt' 
       },
     ];

@@ -54,7 +54,7 @@ export class TrainingProgramService extends GenericService<
       patientId: string,
     ) {
       
-    //📈⚙️ Business logic: Build the aggregation pipeline
+    //📈⚙️ OPTIMIZATION: aggregation pipeline
     const pipeline = [
     // Match training programs created by the specialist
     {

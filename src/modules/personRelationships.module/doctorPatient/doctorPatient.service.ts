@@ -205,7 +205,7 @@ export class DoctorPatientService extends GenericService<
     //   isDeleted: { $ne: true }
     // }).select('-isDeleted -createdAt -updatedAt -__v -createdBy -patientId');
 
-    // 📈⚙️
+    // 📈⚙️ OPTIMIZATION:
     const protocols = await Protocol.aggregate([
       {
         $match: {

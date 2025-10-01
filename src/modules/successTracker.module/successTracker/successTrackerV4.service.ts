@@ -11,6 +11,7 @@ import { MindsetAndMomentum } from '../mindsetAndMomentum/mindsetAndMomentum.mod
 import { SatisfactionAndFeedback } from '../satisfactionAndFeedback/satisfactionAndFeedback.model';
 import { AdherenceAndConsistency } from '../adherenceAndConsistency/adherenceAndConsistency.model';
 
+/******************
 const model = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY, //OPENAI_API_KEY // OPENROUTER_API_KEY
   baseURL: 'https://openrouter.ai/api/v1',
@@ -38,11 +39,11 @@ const openAiHeaders = {
 }
 
 
-/*********
- * 
+
+ * ************
  * before saving .. create embedding for user messsage .. 
- * 
- * ******/
+ * ***********
+
 
 const embeddingResponse = await fetch('https://api.openai.com/v1/embeddings', {
   method: 'POST',
@@ -84,12 +85,12 @@ try {
   stream = await model.chat.completions.create({
     model: 'gpt-4o', // GPT-4o // qwen/qwen3-30b-a3b:free <- is give wrong result   // gpt-3.5-turbo <- give perfect result
     messages: formattedMessages,
-    /*
-      [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userMessage },
-      ],
-    */
+    
+      // [
+      //   { role: 'system', content: systemPrompt },
+      //   { role: 'user', content: userMessage },
+      // ],
+    
     temperature: 0.7,
     stream: true,
   });
@@ -210,7 +211,7 @@ if (!stream) {
       res.end();
     }
  
-
+************ */
 
 export class SuccessTrackerServiceV4 extends GenericService<
   typeof SuccessTracker,

@@ -77,7 +77,7 @@ export class UserService extends GenericService<typeof User, IUser> {
   const generalFilters = omit(filters, ['approvalStatus']); // Exclude profile-specific fields
   const profileFilter = pick(filters, ['approvalStatus']);  // Extract profile-specific fields
       
-    // 📈⚙️ Business logic: Build the aggregation pipeline
+    // 📈⚙️ OPTIMIZATION:
     const pipeline = [
         // Step 1: Match users based on filters
         ...(Object.keys(filters).length > 0 ? [{ $match: generalFilters }] : []),
@@ -142,7 +142,7 @@ export class UserService extends GenericService<typeof User, IUser> {
 
 
 
-    // 📈⚙️ Business logic: Get role-based statistics first
+    // 📈⚙️ OPTIMIZATION: Get role-based statistics first
     const statisticsPipeline = [
         {
             $group: {

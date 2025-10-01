@@ -28,12 +28,35 @@ export class SpecialistWorkoutClassScheduleService extends GenericService<
     if(data.scheduleDate && data.startTime && data.endTime) {
         const scheduleDate = new Date(data.scheduleDate);
         
+        console.log("data.startTime before ->>>", data.startTime, typeof data.startTime)
+        console.log("data.scheduleDate before ->>>", data.scheduleDate, typeof data.scheduleDate)
+
         data.startTime = toUTCTime(data.startTime, userTimeZone);
         data.endTime = toUTCTime(data.endTime, userTimeZone);
 
-        if(isNaN(scheduleDate.getTime()) || isNaN(data.startTime.getTime()) || isNaN(data.endTime.getTime())) {
-            throw new Error('Invalid date or time format');
+        console.log("scheduleDate.getTime() ->>>", scheduleDate.getTime())
+
+        
+        console.log("data.startTime.getTime() ->>>", data.startTime.getTime())
+
+        console.log("data.endTime.getTime() ->>>", data.endTime.getTime())
+
+
+        if(isNaN(scheduleDate.getTime()) ) {
+            throw new Error('Invalid schedule date format');
         }
+
+        
+        if(isNaN(data.startTime.getTime()) ) {
+            throw new Error('Invalid startTime format');
+        }
+        
+        if(isNaN(data.endTime.getTime()) ) {
+            throw new Error('Invalid endTime format');
+        }
+
+    
+
 
         if(data.startTime >= data.endTime) {
             throw new Error('Start time must be before end time');

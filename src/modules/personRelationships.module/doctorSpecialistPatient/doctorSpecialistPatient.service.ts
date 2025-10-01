@@ -14,7 +14,7 @@ export class DoctorSpecialistPatientService extends GenericService<
     super(DoctorSpecialistPatient);
   }
 
-  //📈⚙️
+  //📈⚙️ OPTIMIZATION:
   async getAllWithSpecilistWhoGiveSuggestionToDoctorsPlan(patientId: string) {
 
     

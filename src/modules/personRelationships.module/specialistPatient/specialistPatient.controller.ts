@@ -155,7 +155,7 @@ export class SpecialistPatientController extends GenericController<
     const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
     // const { page, limit } = PaginationHelpers.extractPaginationFromQuery(req.query);
     
-    // 📈⚙️
+    // 📈⚙️ OPTIMIZATION:
     const result = await this.specialistPatientService.getUnknownSpecialistsForPatient(req.user.userId,
       // {
       //   page: options.page,

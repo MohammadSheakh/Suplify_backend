@@ -1,3 +1,30 @@
+
+
+![alt text](image.png)
+
+// In dev, you can check
+console.log('OTP listeners:', eventEmitterForOTPCreateAndSendMail.listenerCount(OTP_CREATE_AND_SEND_MAIL));
+
+// In your main server file
+process.on('SIGTERM', () => {
+  eventEmitterForOTPCreateAndSendMail.removeAllListeners();
+
+
+
+🔁 Alternative: Use a Message Queue (for scale)
+If your app grows, consider replacing EventEmitter with:
+
+BullMQ (Redis-based queue)
+RabbitMQ, Kafka, etc.
+Why?
+
+Survives process restarts
+Retries on failure
+Distributed across services
+But for a single Node.js app, EventEmitter is perfectly fine.
+
+
+
 Absolutely! Since you’re using Node.js clustering, we can make your eventEmitterForAuditLog work across all workers using Redis Pub/Sub. This way, any worker emitting the event will notify all other workers, and all will persist to the DB.
 
 Here’s a full working example:

@@ -49,7 +49,7 @@ router.route('/paginate').get(
  * 
  * Patient | Get all Workout Class of a Specialist ..
  *  |-> with isBooked boolean field 
- * //📈⚙️
+ * //📈⚙️ OPTIMIZATION:
  * ****** */
 router.route('/paginate/for-patient').get(
   auth(TRole.patient),

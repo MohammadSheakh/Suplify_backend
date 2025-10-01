@@ -33,7 +33,7 @@ const controller = new TrainingProgramController();
  * 
  * Patient | Get all Training Program of a Specialist ..
  *  |-> with isPurchased boolean field 
- * //📈⚙️
+ * //📈⚙️ OPTIMIZATION:
  * ****** */
 //info : pagination route must be before the route with params
 router.route('/paginate').get(

@@ -30,7 +30,7 @@ export class informationVideoController extends GenericController<
     
     const data:IinformationVideo = req.body;
   
-    //📈⚙️ Process all file upload in parallel
+    //📈⚙️ OPTIMIZATION: Process all file upload in parallel
     const [thumbnail, video ] = await Promise.all([
       
       (!data.videoLink) 

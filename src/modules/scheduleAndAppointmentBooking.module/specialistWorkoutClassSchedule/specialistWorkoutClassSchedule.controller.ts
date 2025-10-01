@@ -29,6 +29,8 @@ export class SpecialistWorkoutClassScheduleController extends GenericController<
     const userTimeZone = req.header('X-Time-Zone') || 'Asia/Dhaka'; //TODO: Timezone must from env file
 
     const data:ISpecialistWorkoutClassSchedule = req.body;
+
+    console.log("data :: ", data);
     
     data.createdBy = (req.user as IUser)?.userId; // speacialist Id
 
@@ -46,7 +48,7 @@ export class SpecialistWorkoutClassScheduleController extends GenericController<
   /***********
    * 
    * Patient | Get all workout class of a specialist with isBooked boolean field
-   * //📈⚙️
+   * //📈⚙️ OPTIMIZATION:
    * ********* */
   getAllWithAggregation = catchAsync(async (req: Request, res: Response) => {
     const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']); ;
@@ -82,7 +84,7 @@ export class SpecialistWorkoutClassScheduleController extends GenericController<
    * Specialist  | WorkoutClass | get all  .. (query -> scheduleStatus[available])
    * ******* */
   getAllWithPagination = catchAsync(async (req: Request, res: Response) => {
-    const userTimeZone = req.header('X-Time-Zone') || 'Asia/Dhaka'; //TODO: Timezone must from env file
+    const userTimeZone = req.header('X-Time-Zone') || 'Asia/Dhaka'; //TODO: Must Timezone must from env file
     
     const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']); 
     const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
