@@ -60,11 +60,11 @@ export const startScheduleWorker = () => {
         const { scheduleId, appointmentBookingId } = job.data;
 
         const tomorrow = new Date();
-        const timeForTomorrow = new Date()
+        // const timeForTomorrow = new Date()
         tomorrow.setDate(tomorrow.getDate() + 1);
         tomorrow.setHours(0, 0, 0, 0); // reset to midnight
+        // timeForTomorrow.setUTCDate(timeForTomorrow.getUTCDate() + 1);
 
-        timeForTomorrow.setUTCDate(timeForTomorrow.getUTCDate() + 1); 
         /*****
          * 📝
          * For start Time and endTime .. we only manupulate date thing .. not time .. 
@@ -92,6 +92,34 @@ export const startScheduleWorker = () => {
           }
         });
 
+        console.log("updatedSchedule.startTime :: ", updatedSchedule.startTime)
+        console.log("updatedSchedule.endTime :: ", updatedSchedule.endTime)
+
+         // 🔹 Step 3: Preserve original time-of-day from startTime & endTime
+        const originalStart = new Date(updatedSchedule.startTime);
+        const originalEnd = new Date(updatedSchedule.endTime);
+
+        // Create new startTime: tomorrow + original start time (hours, minutes, seconds)
+        const newStartTime = new Date(tomorrow);
+        newStartTime.setHours(
+          originalStart.getHours(),
+          originalStart.getMinutes(),
+          originalStart.getSeconds(),
+          originalStart.getMilliseconds()
+        );
+
+        // Create new endTime: tomorrow + original end time
+        const newEndTime = new Date(tomorrow);
+        newEndTime.setHours(
+          originalEnd.getHours(),
+          originalEnd.getMinutes(),
+          originalEnd.getSeconds(),
+          originalEnd.getMilliseconds()
+        );
+
+        console.log("newStartTime :: ", newStartTime)
+        console.log("newEndTime :: ", newEndTime)
+
         /****
          * lets create another 
          * ** */
@@ -100,8 +128,8 @@ export const startScheduleWorker = () => {
           createdBy: updatedSchedule.createdBy,
           scheduleName: updatedSchedule.scheduleName,
           scheduleDate: tomorrow,
-          startTime: timeForTomorrow,
-          endTime: timeForTomorrow,
+          startTime: newStartTime,
+          endTime: newEndTime,
 
           description: updatedSchedule.description,
           price: updatedSchedule.price,
@@ -117,6 +145,29 @@ export const startScheduleWorker = () => {
         });
 
         console.log(`✅ Schedule ${scheduleId} automatically freed.`);
+      }else if (job.name === "expireDoctorAppointmentScheduleAfterEndTime") {
+
+        console.log("🔎🔎🔎🔎 expireDoctorAppointmentScheduleAfterEndTime ")
+        const { scheduleId } = job.data;
+
+        /*****
+         * 📝
+         * 
+         * TODO: 
+         * later we can create a cron job to delete all expired schedule after 7 days or so
+         * 
+         * *** */
+        
+        const updatedSchedule:IDoctorAppointmentSchedule = await DoctorAppointmentSchedule.findByIdAndUpdate(scheduleId, {
+          $set: { 
+            scheduleStatus: 
+            // TDoctorAppointmentScheduleStatus.available,
+            TDoctorAppointmentScheduleStatus.expired,
+            booked_by: null,
+          }
+        });
+
+        console.log(`✅ Schedule ${scheduleId} automatically expired at ${new Date().toLocaleString()}.`);
       }else if (job.name === "makeSpecialistWorkoutClassScheduleAvailable") {
         console.log("🔎🔎🔎🔎 makeSpecialistWorkoutClassScheduleAvailable ")
         const { scheduleId } = job.data; 

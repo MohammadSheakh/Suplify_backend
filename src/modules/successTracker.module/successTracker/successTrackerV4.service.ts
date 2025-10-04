@@ -11,207 +11,7 @@ import { MindsetAndMomentum } from '../mindsetAndMomentum/mindsetAndMomentum.mod
 import { SatisfactionAndFeedback } from '../satisfactionAndFeedback/satisfactionAndFeedback.model';
 import { AdherenceAndConsistency } from '../adherenceAndConsistency/adherenceAndConsistency.model';
 
-/******************
-const model = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY, //OPENAI_API_KEY // OPENROUTER_API_KEY
-  baseURL: 'https://openrouter.ai/api/v1',
-  //baseURL: 'https://api.openai.com/v1'
-});
 
-
-interface OpenAIEmbeddingResponse {
-  object: string;
-  data: Array<{
-    object: string;
-    embedding: number[];
-    index: number;
-  }>;
-  model: string;
-  usage: {
-    prompt_tokens: number;
-    total_tokens: number;
-  };
-}  
-
-const openAiHeaders = {
-  "Content-Type": "application/json",
-  'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
-}
-
-
-
- * ************
- * before saving .. create embedding for user messsage .. 
- * ***********
-
-
-const embeddingResponse = await fetch('https://api.openai.com/v1/embeddings', {
-  method: 'POST',
-  headers: openAiHeaders,
-  body: JSON.stringify({
-    model: "text-embedding-3-small", // // Updated model (ada-002 is deprecated)
-    input: User
-  })
-});
-
-if (!embeddingResponse.ok) {
-  throw new ApiError(
-    StatusCodes.INTERNAL_SERVER_ERROR,
-    `Failed to create embedding: ${embeddingResponse.statusText}`
-  );
-}
-
-const embeddingData: OpenAIEmbeddingResponse = await embeddingResponse.json();
-const embedding = embeddingData.data[0].embedding;
-
-
-let systemPrompt = await ChatBotService.dateParse(userMessage, userId);
-
-// Convert previous messages to the format expected by the API
-const formattedMessages = [
-  { role: 'system', content: systemPrompt }
-];
-
-formattedMessages.push(
-  {
-    role: 'user',
-    content: userMessage.toString(),
-  }
-)
-   
-
-while (retries <= maxRetries) {
-try {
-  stream = await model.chat.completions.create({
-    model: 'gpt-4o', // GPT-4o // qwen/qwen3-30b-a3b:free <- is give wrong result   // gpt-3.5-turbo <- give perfect result
-    messages: formattedMessages,
-    
-      // [
-      //   { role: 'system', content: systemPrompt },
-      //   { role: 'user', content: userMessage },
-      // ],
-    
-    temperature: 0.7,
-    stream: true,
-  });
-
-  // If we get here, the request was successful
-  break;
-} catch (error) {
-  console.log("🌋🌋🌋🌋🌋");
-  // Check if it's a rate limit error (429)
-  if (error.status === 429) {
-    if (
-      error.message &&
-      (error.message.includes('quota') ||
-        error.message.includes('billing'))
-    ) {
-      // This is a quota/billing issue - try fallback if we haven't already
-      if (retries === 0) {
-        console.log('Quota or billing issue. Trying fallback model...');
-        try {
-          // Try a different model as fallback
-          stream = await model.chat.completions.create({
-            model: 'gpt-3.5-turbo', // Using the same model as a placeholder, replace with actual fallback
-            messages: [
-              { role: 'system', content: systemPrompt },
-              { role: 'user', content: userMessage },
-            ],
-            temperature: 0.7,
-            stream: true,
-          });
-          break; // If fallback succeeds, exit the retry loop
-        } catch (fallbackError) {
-          console.error('Fallback model failed:', fallbackError);
-          // Continue with retries
-        }
-      } else {
-        console.log(
-          'Quota or billing issue. No more fallbacks available.'
-        );
-        throw error; // Give up after fallback attempts
-      }
-    }
-
-    // Regular rate limit - apply exponential backoff
-    retries++;
-    if (retries > maxRetries) {
-      // Send error message to client before throwing
-      res.write(
-        `data: ${JSON.stringify({
-          error: 'Rate limit exceeded. Please try again later.',
-        })}\n\n`
-      );
-      res.end();
-      throw error; // Give up after max retries
-    }
-
-    console.log(
-      `Rate limited. Retrying in ${delay}ms... (Attempt ${retries}/${maxRetries})`
-    );
-    await new Promise(resolve => setTimeout(resolve, delay));
-
-    // Exponential backoff with jitter
-    delay = delay * 2 * (0.5 + Math.random()); // Multiply by random factor between 1 and 1.5
-  } else {
-    // Not a rate limit error
-    console.error('OpenAI API error:', error);
-    res.write(
-      `data: ${JSON.stringify({
-        error: 'An error occurred while processing your request.',
-      })}\n\n`
-    );
-    res.end();
-    return; // Exit the function
-  }
-}
-}
-
-if (!stream) {
-  res.write(
-    `data: ${JSON.stringify({
-      error: 'Failed to generate a response. Please try again.',
-    })}\n\n`
-  );
-  res.end();
-  return;
-}
-
-// Process each chunk as it arrives
-    try {
-      for await (const chunk of stream) {
-        const content = chunk.choices[0]?.delta?.content || '';
-        if (content) {
-          responseText += content;
-
-          // Send the chunk to the client
-          res.write(`data: ${JSON.stringify({ chunk: content })}\n\n`);
-
-          // Flush the data to ensure it's sent immediately
-          if (res.flush) {
-            res.flush();
-          }
-        }
-      }
-
-      // Send end of stream marker
-      res.write(`data: ${JSON.stringify({ done: true, fullResponse: responseText })}\n\n`);
-
-
-      
-
-      res.end(); // 🟢🟢🟢 end korte hobe
-    } catch (streamError) {
-      console.error('Error processing stream:', streamError);
-      res.write(
-        `data: ${JSON.stringify({
-          error: 'Stream processing error. Please try again.',
-        })}\n\n`
-      );
-      res.end();
-    }
- 
-************ */
 
 export class SuccessTrackerServiceV4 extends GenericService<
   typeof SuccessTracker,
@@ -846,3 +646,204 @@ export class SuccessTrackerServiceV4 extends GenericService<
   }
 }
 
+/******************
+const model = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY, //OPENAI_API_KEY // OPENROUTER_API_KEY
+  baseURL: 'https://openrouter.ai/api/v1',
+  //baseURL: 'https://api.openai.com/v1'
+});
+
+
+interface OpenAIEmbeddingResponse {
+  object: string;
+  data: Array<{
+    object: string;
+    embedding: number[];
+    index: number;
+  }>;
+  model: string;
+  usage: {
+    prompt_tokens: number;
+    total_tokens: number;
+  };
+}  
+
+const openAiHeaders = {
+  "Content-Type": "application/json",
+  'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
+}
+
+
+
+ * ************
+ * before saving .. create embedding for user messsage .. 
+ * ***********
+
+
+const embeddingResponse = await fetch('https://api.openai.com/v1/embeddings', {
+  method: 'POST',
+  headers: openAiHeaders,
+  body: JSON.stringify({
+    model: "text-embedding-3-small", // // Updated model (ada-002 is deprecated)
+    input: User
+  })
+});
+
+if (!embeddingResponse.ok) {
+  throw new ApiError(
+    StatusCodes.INTERNAL_SERVER_ERROR,
+    `Failed to create embedding: ${embeddingResponse.statusText}`
+  );
+}
+
+const embeddingData: OpenAIEmbeddingResponse = await embeddingResponse.json();
+const embedding = embeddingData.data[0].embedding;
+
+
+let systemPrompt = await ChatBotService.dateParse(userMessage, userId);
+
+// Convert previous messages to the format expected by the API
+const formattedMessages = [
+  { role: 'system', content: systemPrompt }
+];
+
+formattedMessages.push(
+  {
+    role: 'user',
+    content: userMessage.toString(),
+  }
+)
+   
+
+while (retries <= maxRetries) {
+try {
+  stream = await model.chat.completions.create({
+    model: 'gpt-4o', // GPT-4o // qwen/qwen3-30b-a3b:free <- is give wrong result   // gpt-3.5-turbo <- give perfect result
+    messages: formattedMessages,
+    
+      // [
+      //   { role: 'system', content: systemPrompt },
+      //   { role: 'user', content: userMessage },
+      // ],
+    
+    temperature: 0.7,
+    stream: true,
+  });
+
+  // If we get here, the request was successful
+  break;
+} catch (error) {
+  console.log("🌋🌋🌋🌋🌋");
+  // Check if it's a rate limit error (429)
+  if (error.status === 429) {
+    if (
+      error.message &&
+      (error.message.includes('quota') ||
+        error.message.includes('billing'))
+    ) {
+      // This is a quota/billing issue - try fallback if we haven't already
+      if (retries === 0) {
+        console.log('Quota or billing issue. Trying fallback model...');
+        try {
+          // Try a different model as fallback
+          stream = await model.chat.completions.create({
+            model: 'gpt-3.5-turbo', // Using the same model as a placeholder, replace with actual fallback
+            messages: [
+              { role: 'system', content: systemPrompt },
+              { role: 'user', content: userMessage },
+            ],
+            temperature: 0.7,
+            stream: true,
+          });
+          break; // If fallback succeeds, exit the retry loop
+        } catch (fallbackError) {
+          console.error('Fallback model failed:', fallbackError);
+          // Continue with retries
+        }
+      } else {
+        console.log(
+          'Quota or billing issue. No more fallbacks available.'
+        );
+        throw error; // Give up after fallback attempts
+      }
+    }
+
+    // Regular rate limit - apply exponential backoff
+    retries++;
+    if (retries > maxRetries) {
+      // Send error message to client before throwing
+      res.write(
+        `data: ${JSON.stringify({
+          error: 'Rate limit exceeded. Please try again later.',
+        })}\n\n`
+      );
+      res.end();
+      throw error; // Give up after max retries
+    }
+
+    console.log(
+      `Rate limited. Retrying in ${delay}ms... (Attempt ${retries}/${maxRetries})`
+    );
+    await new Promise(resolve => setTimeout(resolve, delay));
+
+    // Exponential backoff with jitter
+    delay = delay * 2 * (0.5 + Math.random()); // Multiply by random factor between 1 and 1.5
+  } else {
+    // Not a rate limit error
+    console.error('OpenAI API error:', error);
+    res.write(
+      `data: ${JSON.stringify({
+        error: 'An error occurred while processing your request.',
+      })}\n\n`
+    );
+    res.end();
+    return; // Exit the function
+  }
+}
+}
+
+if (!stream) {
+  res.write(
+    `data: ${JSON.stringify({
+      error: 'Failed to generate a response. Please try again.',
+    })}\n\n`
+  );
+  res.end();
+  return;
+}
+
+// Process each chunk as it arrives
+    try {
+      for await (const chunk of stream) {
+        const content = chunk.choices[0]?.delta?.content || '';
+        if (content) {
+          responseText += content;
+
+          // Send the chunk to the client
+          res.write(`data: ${JSON.stringify({ chunk: content })}\n\n`);
+
+          // Flush the data to ensure it's sent immediately
+          if (res.flush) {
+            res.flush();
+          }
+        }
+      }
+
+      // Send end of stream marker
+      res.write(`data: ${JSON.stringify({ done: true, fullResponse: responseText })}\n\n`);
+
+
+      
+
+      res.end(); // 🟢🟢🟢 end korte hobe
+    } catch (streamError) {
+      console.error('Error processing stream:', streamError);
+      res.write(
+        `data: ${JSON.stringify({
+          error: 'Stream processing error. Please try again.',
+        })}\n\n`
+      );
+      res.end();
+    }
+ 
+************ */

@@ -10,6 +10,12 @@ import { PaginateOptions } from '../../../types/paginate';
 import PaginationService from '../../../common/service/paginationService';
 //@ts-ignore
 import mongoose from 'mongoose';
+import { scheduleQueue } from '../../../helpers/bullmq/bullmq';
+import { logger } from '../../../shared/logger';
+//@ts-ignore
+import colors from 'colors';
+import { formatDelay } from '../../../utils/formatDelay';
+
 
 export class DoctorAppointmentScheduleService extends GenericService<
   typeof DoctorAppointmentSchedule,
@@ -64,6 +70,10 @@ export class DoctorAppointmentScheduleService extends GenericService<
         throw new Error('scheduleDate, startTime and endTime are required');
     }
     const createdDoc = await this.model.create(data);
+
+    
+    addToBullQueueToExpireDoctorAppointmentScheduleAfterEndTime(createdDoc);
+
 
     // Convert back to user's timezone before returning
     const transformedDoc = {
@@ -216,6 +226,50 @@ export class DoctorAppointmentScheduleService extends GenericService<
     );
   }
 }
+
+
+/*********
+ * we actually expire this one and create a new schedule for next day ..
+ * because making the same schedule free for the next day is not good .. it create 
+ * complexity
+ * ******** */
+async function addToBullQueueToExpireDoctorAppointmentScheduleAfterEndTime(
+    createdDoctorSchedule : IDoctorAppointmentSchedule){
+
+    const endTime = new Date(createdDoctorSchedule.endTime);
+
+    const now = Date.now();
+    
+    const delay = endTime.getTime() - now;
+    
+    if (delay > 0) {
+        await scheduleQueue.add(
+            "expireDoctorAppointmentScheduleAfterEndTime",
+            { 
+                scheduleId: createdDoctorSchedule._id,
+            },
+            { delay }
+        );
+        /*************
+            Retries & Backoff
+
+            Currently if a job fails, it just logs.
+
+            You should configure retries (e.g. 3–5 retries with exponential backoff).
+            {
+                attempts: 5, // retry 5 times
+                backoff: { type: "exponential", delay: 5000 }, // 5s, 10s, 20s...
+                removeOnComplete: true,
+                removeOnFail: false, // keep failed jobs for inspection
+            }
+        ********** */
+
+        // ${delay / 1000}s -> 
+        console.log(`⏰ Job added to expire schedule ${createdDoctorSchedule._id} in ${formatDelay(delay)} `);
+        logger.info(colors.green(`⏰ Job added to expire schedule ${createdDoctorSchedule._id} in ${formatDelay(delay)} `));
+    }
+}
+
 
 
 /************

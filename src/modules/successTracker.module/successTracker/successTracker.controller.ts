@@ -26,6 +26,36 @@ export class SuccessTrackerController extends GenericController<
     super(successTrackerService, 'SuccessTracker');
   }
 
+  // Create new success tracker entry
+  createSuccessTracker = catchAsync(async (req: Request, res: Response): Promise<any> => {
+    try {
+      
+      const userId = req.user.userId; // Assuming user ID is available in req.user
+      const result = await successTrackerService.createSuccessTracker(userId, req.body);
+      
+      return res.status(201).json({
+        success: true,
+        message: 'Success tracker created successfully',
+        data: result
+      });
+      
+    } catch (error) {
+      console.error('Error creating success tracker:', error);
+      
+      if (error.message.includes('already exists')) {
+        return res.status(409).json({
+          success: false,
+          message: error.message
+        });
+      }
+      
+      return res.status(500).json({
+        success: false,
+        message: 'Internal server error'
+      });
+    }
+  })
+
    getSuccessTrackerOverview= catchAsync(async (req: Request, res: Response): Promise<any> => {
     try {
       const { userId } = req.params;
@@ -91,35 +121,7 @@ export class SuccessTrackerController extends GenericController<
   })
 
  
-// Create new success tracker entry
-  createSuccessTracker = catchAsync(async (req: Request, res: Response): Promise<any> => {
-    try {
-      
-      const userId = req.user.userId; // Assuming user ID is available in req.user
-      const result = await successTrackerService.createSuccessTracker(userId, req.body);
-      
-      return res.status(201).json({
-        success: true,
-        message: 'Success tracker created successfully',
-        data: result
-      });
-      
-    } catch (error) {
-      console.error('Error creating success tracker:', error);
-      
-      if (error.message.includes('already exists')) {
-        return res.status(409).json({
-          success: false,
-          message: error.message
-        });
-      }
-      
-      return res.status(500).json({
-        success: false,
-        message: 'Internal server error'
-      });
-    }
-  })
+
 
   // add more methods here if needed or override the existing ones 
 }

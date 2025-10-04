@@ -25,11 +25,12 @@ import { DoctorAppointmentSchedule } from '../doctorAppointmentSchedule/doctorAp
 import { DoctorPatient } from '../../personRelationships.module/doctorPatient/doctorPatient.model';
 import { scheduleQueue } from '../../../helpers/bullmq/bullmq';
 import { logger } from '../../../shared/logger';
-import { formatDelay } from '../../../utils/formatDelay';
+import { formatDelay, formatRemainingTime } from '../../../utils/formatDelay';
 import { TUser } from '../../user/user.interface';
 import { sendInWebNotification } from '../../../services/notification.service';
 import { TRole } from '../../../middlewares/roles';
 import { TNotificationType } from '../../notification/notification.constants';
+import { toLocalTime } from '../../../utils/timezone';
 
 export class DoctorPatientScheduleBookingService extends GenericService<
   typeof DoctorPatientScheduleBooking,
@@ -127,7 +128,7 @@ export class DoctorPatientScheduleBookingService extends GenericService<
             });
 
             /***
-             * TODO : MUST : send notification to doctor and patient
+             * TODO : DONE : send notification to doctor and patient
              * ** */
 
             await existingSchedule.save();
@@ -309,12 +310,49 @@ export class DoctorPatientScheduleBookingService extends GenericService<
     }
 
     return stripeResult; // result ;//session.url;
-}
+    }
+
+    /**********
+     * 
+     * Doctor | Get All Upcoming Schedule
+     * 
+     * ******** */
+    async getAllUpcomingSchedule(doctorId: string, userTimeZone: string) {
+
+        console.log("doctorId ::: " , doctorId)
+
+        const schedules = await DoctorPatientScheduleBooking.find({
+            doctorId,
+            isDeleted: false,
+            status: { $in: ["scheduled"] },
+        })
+        .populate("patientId", "name email role")
+        .populate("doctorScheduleId")
+        .sort({ startTime: 1 });
+
+        const formattedSchedules = schedules.map((s) => ({
+            _id: s._id,
+            doctorId: s.doctorId,
+            patient: s.patientId,
+            scheduleDate: s.scheduleDate,
+            startTime: toLocalTime(s.startTime, userTimeZone), // s.startTime,
+            endTime: toLocalTime(s.endTime, userTimeZone), // s.endTime,
+            price: s.price,
+            paymentStatus: s.paymentStatus,
+            remainingText: formatRemainingTime(s.startTime),
+        }));
+
+        return formattedSchedules;
+    }
 }
 
-
+/*********
+ * we actually expire this one and create a new schedule for next day ..
+ * because making the same schedule free for the next day is not good .. it create 
+ * complexity
+ * ******** */
 async function addToBullQueueToFreeDoctorAppointmentSchedule(existingSchedule : IDoctorAppointmentSchedule, createdBooking: IDoctorPatientScheduleBooking){
-    
+    // 🥇
     // const endTime = new Date(existingSchedule.endTime); 
     // const delay = endTime.getTime() - Date.now();
     
@@ -368,7 +406,7 @@ async function addToBullQueueToFreeDoctorAppointmentSchedule(existingSchedule : 
         ********** */
 
         // ${delay / 1000}s -> 
-        console.log(`⏰ Job added to free schedule ${existingSchedule._id} in ${formatDelay(delay)} min`);
-        logger.info(colors.green(`⏰ Job added to free schedule ${existingSchedule._id} in ${formatDelay(delay)} min`));
+        console.log(`⏰ Job added to free schedule ${existingSchedule._id} in ${formatDelay(delay)}`);
+        logger.info(colors.green(`⏰ Job added to free schedule ${existingSchedule._id} in ${formatDelay(delay)}`));
     }
 }

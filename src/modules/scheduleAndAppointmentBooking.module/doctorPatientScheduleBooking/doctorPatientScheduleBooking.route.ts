@@ -9,6 +9,7 @@ import auth from '../../../middlewares/auth';
 import { TRole } from '../../../middlewares/roles';
 //@ts-ignore
 import multer from 'multer';
+import { getLoggedInUserAndSetReferenceToUser } from '../../../middlewares/getLoggedInUserAndSetReferenceToUser';
 // import multer from "multer";
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
@@ -36,6 +37,17 @@ router.route('/paginate').get(
   //auth('common'),
   validateFiltersForQuery(optionValidationChecking(['_id', ...paginationOptions])),
   controller.getAllWithPagination
+);
+/**********
+ * 
+ * Doctor | Upcoming Schedule | 
+ * 
+ * ********** */
+router.route('/upcoming').get(
+  auth(TRole.doctor),
+  validateFiltersForQuery(optionValidationChecking(['_id', ...paginationOptions])),
+  getLoggedInUserAndSetReferenceToUser('doctorId'),
+  controller.getAllUpcomingSchedule
 );
 
 router.route('/:id').get(
@@ -78,8 +90,7 @@ router.route('/softDelete/:id').put(
   controller.softDeleteById
 );
 
-////////////
-//[🚧][🧑‍💻✅][🧪] // 🆗
+
 
 
 export const DoctorPatientScheduleBookingRoute = router;
