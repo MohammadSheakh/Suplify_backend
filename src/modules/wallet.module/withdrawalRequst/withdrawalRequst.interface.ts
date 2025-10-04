@@ -16,6 +16,7 @@ export interface IWithdrawalRequst {
   bankAccountType: TBankAccount; //🧩 
   bankBranch: string;
   bankName: string;
+  requestedAmount: number;
 
   status: TWithdrawalRequst; //🧩 
 

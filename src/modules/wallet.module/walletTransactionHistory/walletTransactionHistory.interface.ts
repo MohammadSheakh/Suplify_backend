@@ -10,6 +10,7 @@ export interface IWalletTransactionHistory {
   // _taskId: undefined | Types.ObjectId;
   _id?: Types.ObjectId; // undefined |  Types.ObjectId |
   walletId: Types.ObjectId; //🔗
+  userId: Types.ObjectId;   //🔗
   paymentTransactionId?: Types.ObjectId; //🔗
   withdrawalRequestId?: Types.ObjectId; //🔗
 

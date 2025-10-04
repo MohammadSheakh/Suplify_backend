@@ -8,6 +8,7 @@ import validateRequest from '../../../shared/validateRequest';
 import auth from '../../../middlewares/auth';
 //@ts-ignore
 import multer from "multer";
+import { TRole } from '../../../middlewares/roles';
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
@@ -53,15 +54,15 @@ router.route('/').get(
   controller.getAll
 );
 
-//[🚧][🧑‍💻✅][🧪] // 🆗
-router.route('/create').post(
-  // [
-  //   upload.fields([
-  //     { name: 'attachments', maxCount: 15 }, // Allow up to 5 cover photos
-  //   ]),
-  // ],
-  auth('common'),
-  validateRequest(validation.createHelpMessageValidationSchema),
+
+/***********
+ * 
+ * Specialist / Doctor  | Wallet | Create withdrawal request
+ * 
+ * ******** */
+router.route('/').post(
+  auth(TRole.doctor, TRole.specialist),
+  validateRequest(validation.createWithdrawalRequstValidationSchema),
   controller.create
 );
 

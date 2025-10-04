@@ -16,6 +16,12 @@ const WithdrawalRequstSchema = new Schema<IWithdrawalRequst>(
       type: Schema.Types.ObjectId,
       ref: 'User',
     },
+
+    requestedAmount: {
+      type: Number,
+      required: [true, 'requestedAmount is required'],
+    },
+
     bankAccountNumber: {
       type: String,
       required: [true, 'bankAccountNumber is required'],

@@ -4,7 +4,7 @@ import { IBankInfo, IBankInfoModel } from './bankInfo.interface';
 import paginate from '../../../common/plugins/paginate';
 import { TBankAccount } from './bankInfo.constant';
 
-const BankInfoSchema = new Schema<IBankInfo>(
+const bankInfoSchema = new Schema<IBankInfo>(
   {
     userId: { //🔗
       type: Schema.Types.ObjectId,
@@ -40,6 +40,12 @@ const BankInfoSchema = new Schema<IBankInfo>(
       type: String,
       required: [true, 'bankName is required'],
     },
+    isActive:{
+      type: Boolean,
+      required: [false, 'isActive is not required'],
+      default: true,
+    },
+
     isDeleted: {
       type: Boolean,
       required: [false, 'isDeleted is not required'],
@@ -49,9 +55,9 @@ const BankInfoSchema = new Schema<IBankInfo>(
   { timestamps: true }
 );
 
-BankInfoSchema.plugin(paginate);
+bankInfoSchema.plugin(paginate);
 
-BankInfoSchema.pre('save', function (next) {
+bankInfoSchema.pre('save', function (next) {
   // Rename _id to _projectId
   // this._taskId = this._id;
   // this._id = undefined;  // Remove the default _id field
@@ -61,7 +67,7 @@ BankInfoSchema.pre('save', function (next) {
 });
 
 // Use transform to rename _id to _projectId
-BankInfoSchema.set('toJSON', {
+bankInfoSchema.set('toJSON', {
   transform: function (doc, ret, options) {
     ret._BankInfoId = ret._id; // Rename _id to _subscriptionId
     delete ret._id; // Remove the original _id field
@@ -72,4 +78,4 @@ BankInfoSchema.set('toJSON', {
 export const BankInfo = model<
   IBankInfo,
   IBankInfoModel
->('BankInfo', BankInfoSchema);
+>('BankInfo', bankInfoSchema);

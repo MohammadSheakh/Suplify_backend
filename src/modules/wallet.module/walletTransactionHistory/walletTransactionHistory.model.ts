@@ -13,6 +13,10 @@ const WalletTransactionHistorySchema = new Schema<IWalletTransactionHistory>(
       type: Schema.Types.ObjectId,
       ref: 'Wallet',
     },
+    userId: { //🔗 for which user this withdraw request
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+    },
     paymentTransactionId: { //🔗
       type: Schema.Types.ObjectId,
       ref: 'PaymentTransaction',

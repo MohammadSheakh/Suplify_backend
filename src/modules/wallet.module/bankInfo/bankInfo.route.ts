@@ -8,6 +8,7 @@ import validateRequest from '../../../shared/validateRequest';
 import auth from '../../../middlewares/auth';
 //@ts-ignore
 import multer from "multer";
+import { TRole } from '../../../middlewares/roles';
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
@@ -41,10 +42,21 @@ router.route('/:id').get(
   controller.getById
 );
 
-router.route('/update/:id').put(
-  //auth('common'),
-  // validateRequest(validation.createHelpMessageValidationSchema),
-  controller.updateById
+/************
+ * 
+ * Wallet | create or update bank info
+ * 
+ * as to create a withdrawal request .. 
+ * a specialist or doctor must have bankInformation
+ * 
+ * so that admin can send money to that bank offline
+ * and upload a proof of that payment receipt
+ * 
+ * ********** */
+router.route('/create-or-update').put(
+  auth(TRole.specialist, TRole.doctor),
+  validateRequest(validation.createOrUpdateBankInfoValidationSchema),
+  controller.createOrUpdate
 );
 
 //[🚧][🧑‍💻✅][🧪] // 🆗
@@ -53,15 +65,9 @@ router.route('/').get(
   controller.getAll
 );
 
-//[🚧][🧑‍💻✅][🧪] // 🆗
-router.route('/create').post(
-  // [
-  //   upload.fields([
-  //     { name: 'attachments', maxCount: 15 }, // Allow up to 5 cover photos
-  //   ]),
-  // ],
-  auth('common'),
-  validateRequest(validation.createHelpMessageValidationSchema),
+
+router.route('/').post(
+  
   controller.create
 );
 

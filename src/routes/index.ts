@@ -34,6 +34,8 @@ import { DoctorSpecialistPatientRoute } from '../modules/personRelationships.mod
 import { OrderItemRoute } from '../modules/order.module/orderItem/orderItem.route';
 import { SuccessTrackerRoute } from '../modules/successTracker.module/successTracker/successTracker.route';
 import { WalletTransactionHistoryRoute } from '../modules/wallet.module/walletTransactionHistory/walletTransactionHistory.route';
+import { BankInfoRoute } from '../modules/wallet.module/bankInfo/bankInfo.route';
+import { WithdrawalRequstRoute } from '../modules/wallet.module/withdrawalRequst/withdrawalRequst.route';
 
 // import { ChatRoutes } from '../modules/chat/chat.routes';
 // import { MessageRoutes } from '../modules/message/message.routes';
@@ -202,6 +204,14 @@ const apiRoutes = [
     path: '/wallet-transactions',
     route: WalletTransactionHistoryRoute,
   },
+  { // 🟢
+    path: '/withdrawal-requst',
+    route: WithdrawalRequstRoute,
+  },
+  { // 🟢
+    path: '/bank-info',
+    route: BankInfoRoute,
+  }
   
 ];
 
