@@ -326,13 +326,16 @@ export class DoctorPatientScheduleBookingService extends GenericService<
             isDeleted: false,
             status: { $in: ["scheduled"] },
         })
-        .populate("patientId", "name email role")
-        .populate("doctorScheduleId")
+        .populate("patientId", "name subscriptionType")
+        .populate("doctorScheduleId", "scheduleName description scheduleStatus meetingLink typeOfLink ")
+
+        // scheduleDate startTime endTime 
         .sort({ startTime: 1 });
 
         const formattedSchedules = schedules.map((s) => ({
             _id: s._id,
             doctorId: s.doctorId,
+            doctorSchedule: s.doctorScheduleId,
             patient: s.patientId,
             scheduleDate: s.scheduleDate,
             startTime: toLocalTime(s.startTime, userTimeZone), // s.startTime,

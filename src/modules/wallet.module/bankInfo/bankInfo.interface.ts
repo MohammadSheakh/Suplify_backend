@@ -1,34 +1,28 @@
 //@ts-ignore
 import { Model, Types } from 'mongoose';
 import { PaginateOptions, PaginateResult } from '../../../types/paginate';
-import { TWithdrawalRequst } from './withdrawalRequst.constant';
-import { TBankAccount } from '../bankInfo/bankInfo.constant';
+import { TBankAccount } from './bankInfo.constant';
 
-export interface IWithdrawalRequst {
+export interface IBankInfo {
   // _taskId: undefined | Types.ObjectId;
   _id?: Types.ObjectId; // undefined |  Types.ObjectId |
-  walletId: Types.ObjectId; //🔗
   userId: Types.ObjectId;   //🔗
 
   bankAccountNumber: string;
   bankRoutingNumber: string;
   bankAccountHolderName: string;
-  bankAccountType: TBankAccount; //🧩 
+  bankAccountType: TBankAccount; // 🧩
   bankBranch: string;
   bankName: string;
-
-  status: TWithdrawalRequst; //🧩 
-
-  requestedAt: Date;
-  processedAt?: Date | null;
+  
   isDeleted? : boolean;  
   createdAt?: Date;
   updatedAt?: Date;
 }
 
-export interface IWithdrawalRequstModel extends Model<IWithdrawalRequst> {
+export interface IBankInfoModel extends Model<IBankInfo> {
   paginate: (
     query: Record<string, any>,
     options: PaginateOptions
-  ) => Promise<PaginateResult<IWithdrawalRequst>>;
+  ) => Promise<PaginateResult<IBankInfo>>;
 }

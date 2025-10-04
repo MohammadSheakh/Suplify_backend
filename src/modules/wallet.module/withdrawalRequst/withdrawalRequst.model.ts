@@ -3,6 +3,7 @@ import { model, Schema } from 'mongoose';
 import { IWithdrawalRequst, IWithdrawalRequstModel } from './withdrawalRequst.interface';
 import paginate from '../../../common/plugins/paginate';
 import { TWithdrawalRequst } from './withdrawalRequst.constant';
+import { TBankAccount } from '../bankInfo/bankInfo.constant';
 
 
 const WithdrawalRequstSchema = new Schema<IWithdrawalRequst>(
@@ -25,13 +26,17 @@ const WithdrawalRequstSchema = new Schema<IWithdrawalRequst>(
       required: [true, 'bankRoutingNumber is required'],
     },
 
-    bankAccountHolder: {
+    bankAccountHolderName: {
       type: String,
-      required: [true, 'bankAccountHolder is required'],
+      required: [true, 'bankAccountHolderName is required'],
     },
 
     bankAccountType: {
       type: String,
+      enum : [
+        TBankAccount.savings,
+        TBankAccount.current  
+      ],
       required: [true, 'bankAccountType is required'],
     },
 
