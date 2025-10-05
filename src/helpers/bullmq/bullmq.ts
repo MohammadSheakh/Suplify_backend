@@ -246,7 +246,7 @@ export const startScheduleWorker = () => {
       connection: redisPubClient.options,
     }
   );
-
+  //@ts-ignore
   worker.on("completed", (job) => {
     console.log(`✅ Job ${job.id} (${job.name}) completed`);
   });
@@ -319,10 +319,8 @@ export const startNotificationWorker = () => {
 
         // 🎨 GUIDE FOR FRONTEND .. if admin then listen for notification::admin event  
         if(data.receiverRole == TRole.admin){
-          console.log("⚡hit admin⚡")
+          
           eventName = `notification::admin`;
-
-          console.log("eventName ->> ", eventName)
 
           emitted = socketService.emitToRole(
             data.receiverRole,
@@ -359,13 +357,9 @@ export const startNotificationWorker = () => {
           }
 
         }else{
-          console.log("⚡hit other⚡")
-          
+        
           const receiverId = data.receiverId.toString(); // Ensure it's a string
-
           eventName = `notification::${receiverId}`;
-
-          console.log("eventName ->> ", eventName)
 
           // Try to emit to the user
           emitted = await socketService.emitToUser(
@@ -413,11 +407,11 @@ export const startNotificationWorker = () => {
     },
     { connection: redisPubClient.options }
   );
-
+  //@ts-ignore
   worker.on("completed", (job) =>
     logger.info(`✅ Notification job ${job.id} (${job.name}) completed`)
   );
-
+  //@ts-ignore
   worker.on("failed", (job, err) =>
     errorLogger.error(`❌ Notification job ${job?.id} (${job?.name}) failed`, err)
   );

@@ -1,8 +1,10 @@
+const parentFolder = "testing"; // suplify // testing // TODO : MUST : should come from .env file
+
 export enum TFolderName {
-    // suplify // testing
-    informationVideo = "testing/informationVideo",
-    product = "testing/product",
-    user = "testing/user",
-    trainingProgram = "testing/trainingProgram",
-    shop = "testing/shop" 
+    informationVideo = `${parentFolder}/informationVideo`,
+    product = `${parentFolder}/product`,
+    user = `${parentFolder}/user`,
+    trainingProgram = `${parentFolder}/trainingProgram`,
+    shop = `${parentFolder}/shop`,
+    wallet = `${parentFolder}/wallet`,
 };

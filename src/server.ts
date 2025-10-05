@@ -21,10 +21,11 @@ import { socketHelperForKafka } from './helpers/socket/socketForChatV1WithKafka'
 
 // in production, use all cores, but in development, limit to 2-4 cores
 const numCPUs = config.environment === 'production' ? os.cpus().length : Math.max(0, Math.min(1, os.cpus().length));
-
+//@ts-ignore
 //uncaught exception
 process.on('uncaughtException', error => {
   errorLogger.error('UnhandleException Detected', error);
+  //@ts-ignore
   process.exit(1);
 });
 
@@ -37,7 +38,7 @@ if (cluster.isPrimary) { // isMaster (deprecated)
     console.log("num of CPUs forking 🍴 numCPUs i", i);
     cluster.fork();
   }
-
+  //@ts-ignore
   // When a worker dies, log it and fork a new worker
   cluster.on('exit', (worker, code, signal) => {
     logger.error(`Worker ${worker.process.pid} died`);
@@ -106,15 +107,17 @@ async function main() {
   } catch (error) {
     errorLogger.error(colors.red('🤢 Issue from server.ts => ', error));
   }
-
+  //@ts-ignore
   //handle unhandledRejection
   process.on('unhandledRejection', error => {
     if (server) {
       server.close(() => {
         errorLogger.error('UnhandledRejection Detected', error);
+        //@ts-ignore
         process.exit(1);
       });
     } else {
+      //@ts-ignore
       process.exit(1);
     }
   });

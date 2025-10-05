@@ -7,6 +7,7 @@
 // TODO : MUST ->  self explanatory
 // TODO : DONE
 // TODO: 
+// TODO : MUST : NEED_TO_TEST
 // INFO :  self explanatory
 // 🧱💪 ->  Robust System -> 
 // 🆗   ->  Ok System 
@@ -17,6 +18,13 @@
 // 📝   -> flow
 // 💎✨🔍 -> V2 Found
 // 🧩      -> piece that connects to something
+// 🔗➡️  fileName -> functionName
+// 🧠      -> Need to Think About In Future
+// 🔍      -> need to check this code
+
+// =============================================
+// 
+// =============================================
 
 -------------------------
 

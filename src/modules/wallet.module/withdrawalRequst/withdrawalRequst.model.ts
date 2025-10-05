@@ -65,7 +65,11 @@ const WithdrawalRequstSchema = new Schema<IWithdrawalRequst>(
         TWithdrawalRequst.requested,
       ],
     },
-
+    proofOfPayment: {
+      type: String,
+      required: [false, 'proofOfPayment is not required'],
+      default: null,
+    },
     requestedAt: {
       type: Date,
       required: [true, 'requestedAt is required'],

@@ -30,6 +30,12 @@ const paginationOptions: Array<'sortBy' | 'page' | 'limit' | 'populate'> = [
 // const taskService = new TaskService();
 const controller = new WithdrawalRequstController();
 
+/************
+ * 
+ * TODO : MUST : NEED_TO_TEST
+ * Admin | Show All Withdraw Request 
+ * 
+ * ******** */
 //info : pagination route must be before the route with params
 router.route('/paginate').get(
   //auth('common'),
@@ -42,10 +48,21 @@ router.route('/:id').get(
   controller.getById
 );
 
-router.route('/update/:id').put(
-  //auth('common'),
-  // validateRequest(validation.createHelpMessageValidationSchema),
-  controller.updateById
+/************
+ * 
+ *  Admin | Upload receipt And Update status 
+ * 
+ * :id actually withdrawalRequestId
+ * ********** */
+router.route('/:id').put(
+  auth(TRole.admin),
+  [
+    upload.fields([
+      { name: 'proofOfPayment', maxCount: 1 }, // Allow up to 1 photos
+    ]),
+  ],
+  validateRequest(validation.updateStatusOfWithdrawalRequestValidationSchema),
+  controller.uploadReceiptAndUpdateStatus //updateById
 );
 
 //[🚧][🧑‍💻✅][🧪] // 🆗

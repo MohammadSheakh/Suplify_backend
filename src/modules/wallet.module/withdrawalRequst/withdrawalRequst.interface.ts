@@ -17,6 +17,7 @@ export interface IWithdrawalRequst {
   bankBranch: string;
   bankName: string;
   requestedAmount: number;
+  proofOfPayment? : string;
 
   status: TWithdrawalRequst; //🧩 
 

@@ -1,5 +1,6 @@
-// redis.ts
+//@ts-ignore
 import { createClient } from 'redis';
+//@ts-ignore
 import colors from 'colors';
 import { errorLogger, logger } from '../../shared/logger';
 import { config } from '../../config';
@@ -41,7 +42,7 @@ export { redisPubClient, redisSubClient };
 redisPubClient.on('ready', () => {
   logger.info(colors.green('♨️  Redis Pub Client ready'));
 });
-
+//@ts-ignore
 redisPubClient.on('error', (err) => {
   errorLogger.error('Redis Pub Client Error:', err);
 });
@@ -49,7 +50,7 @@ redisPubClient.on('error', (err) => {
 redisSubClient.on('ready', () => {
   logger.info(colors.green('♨️  Redis Sub Client ready'));
 });
-
+//@ts-ignore
 redisSubClient.on('error', (err) => {
   logger.error('Redis Sub Client Error:', err);
 });
@@ -58,7 +59,7 @@ redisSubClient.on('error', (err) => {
 export async function initializeRedis() {
 
   // Add this to your main server file or Redis config file
-  console.log('😄😄😄😄😄😄😄😄😄😄😄😄😄😄😄😄😄😄😄😄😄 process.env.redis_host', process.env.REDIS_HOST, process.env.REDIS_PORT);
+  // console.log('😄😄😄😄😄😄😄😄😄😄😄😄😄😄😄😄😄😄😄😄😄 process.env.redis_host', process.env.REDIS_HOST, process.env.REDIS_PORT);
 
   try {
     await Promise.all([

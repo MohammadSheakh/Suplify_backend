@@ -1,15 +1,20 @@
 // src/helpers/redis/RedisStateManager.ts
+//@ts-ignore
 import { RedisClientType } from 'redis';
+//@ts-ignore
 import colors from 'colors';
 import { logger } from '../../shared/logger';
+import { IUserProfile } from '../socket/socketForChatV3';
+import { ConversationParticipentsService } from '../../modules/chatting.module/conversationParticipents/conversationParticipents.service';
 
 interface UserConnectionInfo {
   socketId: string;
   workerId: string;
   connectedAt: number;
-  userInfo?: any;
+  userInfo?: IUserProfile;
 }
 
+const conversationParticipentsService = new ConversationParticipentsService();
 export class RedisStateManager {
   private redis: RedisClientType;
   private readonly KEYS = {
@@ -29,20 +34,49 @@ export class RedisStateManager {
   // Online Users Management
   // =============================================
 
-  async addOnlineUser(userId: string, socketId: string, workerId: string, userInfo?: any): Promise<void> {
-     // DEBUG: Validate types
-      if (typeof userId !== 'string') {
-        logger.error('❌ userId is not a string:', { type: typeof userId, value: userId });
-        throw new Error('userId must be a string');
-      }
-      if (typeof socketId !== 'string') {
-        logger.error('❌ socketId is not a string:', { type: typeof socketId, value: socketId });
-        throw new Error('socketId must be a string');
-      }
+  // 🔗➡️ socketForChatV3.ts -> setupEventHandlers
+  async handleUserReconnection(
+    userId: string,
+    newSocketId: string,
+    workerId: string,
+    userInfo?: IUserProfile
+  ): Promise<string | null> {
+    const existingInfo = await this.getUserConnectionInfo(userId);
+
+    if (existingInfo && existingInfo.socketId !== newSocketId) {
+      logger.info(
+        colors.yellow(
+          `🔄 User ${userId} reconnecting. Old socket: ${existingInfo.socketId}, New socket: ${newSocketId}`
+        )
+      );
+
+      // Clean up old socket mapping
+      await this.redis.del(`${this.KEYS.SOCKET_USER_MAP}${existingInfo.socketId}`);
+
+      // Return old socket ID so caller can disconnect it
+      return existingInfo.socketId;
+    }
+
+    // Add new connection
+    await this.addOnlineUser(userId, newSocketId, workerId, userInfo);
+    return null;
+  }
+
+  // 🔗➡️ handleUserReconnection
+  async addOnlineUser(userId: string, socketId: string, workerId: string, userInfo?: IUserProfile): Promise<void> {
+    // Validate types
+    if (typeof userId !== 'string') {
+      logger.error('❌ userId is not a string:', { type: typeof userId, value: userId });
+      throw new Error('userId must be a string');
+    }
+    if (typeof socketId !== 'string') {
+      logger.error('❌ socketId is not a string:', { type: typeof socketId, value: socketId });
+      throw new Error('socketId must be a string');
+    }
 
     const pipeline = this.redis.multi(); // Use .multi() for transactions in redis v4+
 
-    // Add to online users set
+    // Adds the user to the online users set.
     pipeline.sAdd(this.KEYS.ONLINE_USERS, userId);
 
     // Store user-socket mapping
@@ -74,6 +108,7 @@ export class RedisStateManager {
     logger.info(colors.green(`✅ User ${userId} added to Redis state (Worker: ${workerId})`));
   }
 
+  // 🔗➡️ cleanupStaleConnections
   async removeOnlineUser(userId: string, socketId: string): Promise<void> {
     const pipeline = this.redis.multi();
 
@@ -112,10 +147,12 @@ export class RedisStateManager {
     return await this.redis.sMembers(this.KEYS.ONLINE_USERS);
   }
 
+  // 🔗➡️ getSystemStats
   async getOnlineUsersCount(): Promise<number> {
     return await this.redis.sCard(this.KEYS.ONLINE_USERS);
   }
 
+  // 🔗➡️ cleanupStaleConnections || handleUserReconnection
   async getUserConnectionInfo(userId: string): Promise<UserConnectionInfo | null> {
     const info = await this.redis.hGetAll(`${this.KEYS.USER_SOCKET_MAP}${userId}`);
 
@@ -133,33 +170,6 @@ export class RedisStateManager {
   async getUserBySocketId(socketId: string): Promise<string | null> {
     const userId = await this.redis.hGet(`${this.KEYS.SOCKET_USER_MAP}${socketId}`, 'userId');
     return userId; // string or null
-  }
-
-  async handleUserReconnection(
-    userId: string,
-    newSocketId: string,
-    workerId: string,
-    userInfo?: any
-  ): Promise<string | null> {
-    const existingInfo = await this.getUserConnectionInfo(userId);
-
-    if (existingInfo && existingInfo.socketId !== newSocketId) {
-      logger.info(
-        colors.yellow(
-          `🔄 User ${userId} reconnecting. Old socket: ${existingInfo.socketId}, New socket: ${newSocketId}`
-        )
-      );
-
-      // Clean up old socket mapping
-      await this.redis.del(`${this.KEYS.SOCKET_USER_MAP}${existingInfo.socketId}`);
-
-      // Return old socket ID so caller can disconnect it
-      return existingInfo.socketId;
-    }
-
-    // Add new connection
-    await this.addOnlineUser(userId, newSocketId, workerId, userInfo);
-    return null;
   }
 
   // =============================================
@@ -226,15 +236,14 @@ export class RedisStateManager {
   // Related Users
   // =============================================
 
+  //🔗➡️ socketForChatV3.ts -> notifyRelatedUsersOnlineStatus
+  // 🔗➡️ socketForChatV3.ts ->  setupUserEventHandlers -> socket.on('only-related-online-users'
   async getRelatedOnlineUsers(userId: string): Promise<string[]> {
     try {
       const allOnlineUsers = await this.getAllOnlineUsers();
 
-      const ConversationParticipentsService = (
-        await import('../services/ConversationParticipentsService')
-      ).default;
-
-      const usersWithConversations = await new ConversationParticipentsService()
+    //🔎 need to check these codes 
+      const usersWithConversations = await conversationParticipentsService
         .getAllConversationsOnlyPersonInformationByUserId(userId);
 
       const relatedOnlineUsers = allOnlineUsers.filter((onlineUserId) =>
@@ -256,6 +265,7 @@ export class RedisStateManager {
   // Cleanup & Maintenance
   // =============================================
 
+  // 🔗➡️ socketForChatV3.ts -> startCleanupJob
   async cleanupStaleConnections(): Promise<void> {
     const onlineUsers = await this.getAllOnlineUsers();
     const staleThreshold = Date.now() - 5 * 60 * 1000; // 5 minutes
@@ -270,6 +280,7 @@ export class RedisStateManager {
     }
   }
 
+  // 🔗➡️ socketForChatV3.ts -> getSystemStats
   async getSystemStats(): Promise<any> {
     return {
       totalOnlineUsers: await this.getOnlineUsersCount(),
