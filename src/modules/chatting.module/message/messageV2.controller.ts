@@ -107,9 +107,13 @@ export class MessageController extends GenericController<typeof Message, IMessag
         });
 
 
-        SocketService.getInstance().emit(eventName, {
+        SocketService.getInstance()
+        // .to(result.conversationId.toString())
+        .emit(eventName, {
           message: result,
         });
+
+        
 
         /**********
          * 

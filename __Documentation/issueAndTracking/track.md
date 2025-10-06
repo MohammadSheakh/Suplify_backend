@@ -13,10 +13,10 @@ cm -> can't measure
 
 Remaining
 
-| Sl. | Role    | Feature          |
-|-----|---------|------------------|
-| 1   | Patient | Success Tracker  |
-| 2   | All     | Conversation     |
-| 1   | All     | Notification     |
-| 1   | All     | Payment          |
-| 1   | Admin   | Order Management |
+| Sl. | Role    | Feature              |
+|-----|---------|----------------------|
+| 1   | Patient | Success Tracker      |
+| 2   | All     | Conversation         |
+| 1   | All     | Notification         |
+| 1   | All     | Payment              |
+| 1   | Admin   | Order Management ddd |

@@ -26,7 +26,7 @@ const conversationParticipentsSchema = new Schema<IConversationParticipents>(
 
     role: {
       type : String,
-      enum :[Roles],
+      enum :Roles,
       required: [true, 'Role is required'],
     },
 
