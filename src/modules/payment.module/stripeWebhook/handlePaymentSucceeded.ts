@@ -34,6 +34,9 @@ const trainingProgramPurchaseService = new TrainingProgramPurchaseService();
 export const handlePaymentSucceeded = async (session: Stripe.Checkout.Session) => {
      
      try {
+
+          console.log("session.metadata 🔎🔎", session.metadata)
+
           const { 
                referenceId,
                user,
@@ -41,7 +44,8 @@ export const handlePaymentSucceeded = async (session: Stripe.Checkout.Session) =
                currency,
                amount,
                referenceId2,
-               referenceFor2
+               referenceFor2,
+               ...rest  // 👈 This captures everything else
           }: any = session.metadata;
           // userId // for sending notification .. 
 
@@ -65,6 +69,15 @@ export const handlePaymentSucceeded = async (session: Stripe.Checkout.Session) =
 
           if (isPaymentExist) {
                throw new ApiError(StatusCodes.BAD_REQUEST, 'From Webhook handler : Payment Already exist');
+          }
+
+          if(referenceFor === TTransactionFor.UserSubscription){
+
+               // which means we dont create paymentTransaction here ..
+               // we want to create  paymentTransaction in handleSuccessfulPayment
+               console.log("🟡🟡 which means we dont create paymentTransaction here 🟡🟡 we want to create  paymentTransaction in handleSuccessfulPayment")
+               // lets test ... 
+               return
           }
           
           const newPayment = await PaymentTransaction.create({
@@ -114,11 +127,15 @@ export const handlePaymentSucceeded = async (session: Stripe.Checkout.Session) =
                     referenceId2,
                     referenceFor2
                )
+          } else if (referenceFor === TTransactionFor.UserSubscription){
+               console.log("Do we need to handle this ? 🤔🤔🤔 referenceFor === TTransactionFor.UserSubscription");
+          }else{
+               console.log(`🔎🔎🔎🔎🔎 May be we need to handle this  ${referenceFor} :: ${referenceId}`)
           }
 
-          if (!updatedObjectOfReferenceFor) {
-               throw new ApiError(StatusCodes.NOT_FOUND, `In handlePaymentSucceeded Webhook Handler.. Booking not found 🚫 For '${referenceFor}': Id : ${referenceId}`);
-          }
+          // if (!updatedObjectOfReferenceFor) {
+          //      throw new ApiError(StatusCodes.NOT_FOUND, `In handlePaymentSucceeded Webhook Handler.. Booking not found 🚫 For '${referenceFor}': Id : ${referenceId}`);
+          // }
 
           /******
            * 

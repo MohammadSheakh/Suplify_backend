@@ -38,7 +38,7 @@ export class SubscriptionPlanService extends GenericService<typeof SubscriptionP
      * Patient | Landing Page | Purchase a subscription plan .. 
      * 
      * ****** */
-    purchaseSubscriptionForSuplify = async (subscriptionPlanId: string, userId: string | undefined) => {
+    purchaseSubscriptionForSuplify = async (subscriptionPlanId: string, _user: IUser/*, userId: string | undefined*/) => {
         //  User → Clicks "Buy Plan"
         //        ↓
         // Backend → Creates Checkout Session (stripe.checkout.sessions.create)
@@ -60,6 +60,8 @@ export class SubscriptionPlanService extends GenericService<typeof SubscriptionP
         // Backend → Returns safe data (plan, amount, status)
         //        ↓
         // Frontend → Shows success UI, logs analytics, redirects
+
+        const {userId} = _user;
         
         let subscriptionPlan: ISubscriptionPlan | null = await SubscriptionPlan.findById(subscriptionPlanId);
         if (!subscriptionPlan) {
@@ -177,14 +179,24 @@ export class SubscriptionPlanService extends GenericService<typeof SubscriptionP
             },
             // ✅ Top-level metadata (available directly on session)
             metadata: {
-                userId: user._id.toString(),
+                referenceId: newUserSubscription._id.toString(),
+                referenceFor: TTransactionFor.UserSubscription.toString(),
+                user : JSON.stringify(_user), // for handlePaymentSucceeded 
+                currency: TCurrency.usd.toString(),
+                amount: subscriptionPlan.amount.toString(),
+
                 subscriptionType: subscriptionPlan.subscriptionType.toString(),
                 subscriptionPlanId: subscriptionPlan._id.toString(),
+                userId: user._id.toString(),
+                planNickname: subscriptionPlan.subscriptionName.toString(), // e.g., "Pro Plan"
+                
+               /*******
                 referenceId: newUserSubscription._id.toString(),
                 referenceFor: TTransactionFor.UserSubscription.toString(),
                 currency: TCurrency.usd.toString(),
                 amount: subscriptionPlan.amount.toString(),
-                planNickname: subscriptionPlan.subscriptionName.toString(), // e.g., "Pro Plan"
+                user : JSON.stringify(_user),
+                ****** */
             },
             // success_url: `${config.app.frontendUrl}/subscription/success?session_id={CHECKOUT_SESSION_ID}`,
             // cancel_url: `${config.app.frontendUrl}/pricing`,

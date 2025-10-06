@@ -62,7 +62,7 @@ export class SubscriptionController extends GenericController<
     const checkoutUrl = await new SubscriptionPlanService()
     .purchaseSubscriptionForSuplify(
       subscriptionPlanId,
-      (req.user as IUser).userId
+      (req.user as IUser)//.userId
     );
 
 
