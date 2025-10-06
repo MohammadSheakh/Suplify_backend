@@ -1,3 +1,4 @@
+//@ts-ignore
 import { Model, Types } from 'mongoose';
 import { PaginateOptions, PaginateResult } from '../../../types/paginate';
 
@@ -7,6 +8,10 @@ export interface IConversationParticipents {
   userId : Types.ObjectId;
   conversationId: Types.ObjectId;
   joinedAt : Date;
+  role : string; // can be doctor | specialist | patient | admin
+  lastMessageReadAt? : Date;
+  unreadCount? : number;
+
   isDeleted : boolean;
   createdAt?: Date;
   updatedAt?: Date;

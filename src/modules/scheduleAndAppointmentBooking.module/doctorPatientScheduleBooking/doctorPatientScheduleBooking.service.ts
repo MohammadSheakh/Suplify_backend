@@ -31,6 +31,7 @@ import { sendInWebNotification } from '../../../services/notification.service';
 import { TRole } from '../../../middlewares/roles';
 import { TNotificationType } from '../../notification/notification.constants';
 import { toLocalTime } from '../../../utils/timezone';
+import { TRelationCreatedBy } from '../../personRelationships.module/doctorSpecialistPatient/doctorSpecialistPatient.constant';
 
 export class DoctorPatientScheduleBookingService extends GenericService<
   typeof DoctorPatientScheduleBooking,
@@ -87,7 +88,8 @@ export class DoctorPatientScheduleBookingService extends GenericService<
             // Create the relationship if it doesn't exist
             const newRelation = new DoctorPatient({
                 doctorId: existingSchedule.createdBy,
-                patientId: user.userId
+                patientId: user.userId,
+                relationCreatedBy : TRelationCreatedBy.purchasingService,
             });
             await newRelation.save();
         }

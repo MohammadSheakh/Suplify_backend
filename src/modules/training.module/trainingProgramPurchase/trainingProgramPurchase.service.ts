@@ -31,6 +31,7 @@ import { notificationQueue } from '../../../helpers/bullmq/bullmq';
 import { TRole } from '../../../middlewares/roles';
 import { TNotificationType } from '../../notification/notification.constants';
 import { sendInWebNotification } from '../../../services/notification.service';
+import { TRelationCreatedBy } from '../../personRelationships.module/doctorSpecialistPatient/doctorSpecialistPatient.constant';
 
 const patientTrainingSessionService = new PatientTrainingSessionService();
 
@@ -147,7 +148,8 @@ export class TrainingProgramPurchaseService extends GenericService<
       // TODO : Need Test this code .. if already relation exist .. it should not create duplicate relation 
       const newRelation:ISpecialistPatient = new SpecialistPatient({
           specialistId: existingTrainingProgram.createdBy,
-          patientId: user.userId
+          patientId: user.userId,
+          relationCreatedBy : TRelationCreatedBy.purchasingService,
       });
 
       const savedRelation = await newRelation.save();

@@ -20,15 +20,15 @@ Issue 🔥  /  Solved ☑️ / Extra Note 📝
 | 🔥     | /products/id       |                      | Cannot read properties of null (reading 'category') |             | 14/9/   |          |
 | 🔥     | TrainingSession    | getAllWithPagination | totalSessionCount calculation has serious issue ..  | may be      | 20/9/   | no need  |
 | 🔥     | TrainingProgram    |                      | Total Purchase count need to track                  |             | /8/     | MUST     |
-| 🔥     | Specialist Patient |                      | Create multiple relation .. but it                  |             | 21/9/     |          |
+| 🔥     | Specialist Patient |                      | Create multiple relation .. but it                  |             | 21/9/   |          |
 | 📝     |                    |                      | should create only one relation                     |             | /8/     |          |
+| 🔥     | Auth               | Register             | Patient Role ... Assign specialist automatic        |             | /10/    |          |
 
 
 dependencies: ------ remove these dependencies
 + @types/ioredis 5.0.0
 + ioredis 5.8.0
  
-
- Clean up all event emmiter .. Must 
+Clean up all event emmiter .. Must 
 
 Handle Lab Test Booking for Vise User .. Must ..

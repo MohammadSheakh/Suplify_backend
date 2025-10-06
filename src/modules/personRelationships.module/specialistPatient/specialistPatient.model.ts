@@ -2,6 +2,7 @@
 import { model, Schema } from 'mongoose';
 import { ISpecialistPatient, ISpecialistPatientModel } from './specialistPatient.interface';
 import paginate from '../../../common/plugins/paginate';
+import { TRelationCreatedBy } from '../doctorSpecialistPatient/doctorSpecialistPatient.constant';
 
 const specialistPatientSchema = new Schema<ISpecialistPatient>(
   {
@@ -14,6 +15,11 @@ const specialistPatientSchema = new Schema<ISpecialistPatient>(
       type: Schema.Types.ObjectId,
       ref: 'User',
       required: [true, 'specialistId is required'],
+    },
+    relationCreatedBy : {
+      type: String,
+      enum : [TRelationCreatedBy],
+      required: [false, 'relationCreatedBy is not required'],
     },
     isDeleted: {
       type: Boolean,

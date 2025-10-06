@@ -5,6 +5,7 @@ import { MessageController } from './message.controller';
 import auth from '../../../middlewares/auth';
 
 import multer from "multer";
+import { TRole } from '../../../middlewares/roles';
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
@@ -60,7 +61,7 @@ router.route('/create').post(
       { name: 'attachments', maxCount: 15 }, // Allow up to 5 cover photos
     ]),
   ],
-  auth('common'),
+  auth(TRole.common),
   // validateRequest(validation.createHelpMessageValidationSchema),
   controller.create
 );

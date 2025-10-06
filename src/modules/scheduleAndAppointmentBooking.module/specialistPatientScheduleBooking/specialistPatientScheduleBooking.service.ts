@@ -28,6 +28,7 @@ import { formatDelay } from '../../../utils/formatDelay';
 import { sendInWebNotification } from '../../../services/notification.service';
 import { TRole } from '../../../middlewares/roles';
 import { TNotificationType } from '../../notification/notification.constants';
+import { TRelationCreatedBy } from '../../personRelationships.module/doctorSpecialistPatient/doctorSpecialistPatient.constant';
 
 
 export class SpecialistPatientScheduleBookingService extends GenericService<
@@ -97,7 +98,8 @@ export class SpecialistPatientScheduleBookingService extends GenericService<
         // TODO : Need Test this code .. if already relation exist .. it should not create duplicate relation 
         const newRelation:ISpecialistPatient = new SpecialistPatient({
             specialistId: existingWorkoutClass.createdBy,
-            patientId: user.userId
+            patientId: user.userId,
+            relationCreatedBy : TRelationCreatedBy.purchasingService,
         });
 
         const savedRelation = await newRelation.save();

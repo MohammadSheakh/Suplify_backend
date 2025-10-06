@@ -1,7 +1,9 @@
+//@ts-ignore
 import { model, Schema } from 'mongoose';
 import paginate from '../../../common/plugins/paginate';
 import { IConversationParticipents, IConversationParticipentsModel } from './conversationParticipents.interface';
-import { RoleType } from './conversationParticipents.constant';
+import { Roles } from '../../../middlewares/roles';
+
 
 const conversationParticipentsSchema = new Schema<IConversationParticipents>(
   {
@@ -15,12 +17,27 @@ const conversationParticipentsSchema = new Schema<IConversationParticipents>(
       ref: 'Conversation',
       required: [true, 'Conversation Id is required'],
     },
+    
     joinedAt :{
       type: Date,
       required: [true, 'joinedAt is required'],
       default: Date.now,
     },
-    
+
+    role: {
+      type : String,
+      enum :[Roles],
+      required: [true, 'Role is required'],
+    },
+
+    lastMessageReadAt: {
+      type: Date,
+      required: [false, 'lastMessageReadAt is not required'],
+    },
+    unreadCount: {
+      type: Number,
+      required: [false, 'unreadCount is not required']
+    },
     isDeleted: {
       type: Boolean,
       required: [false, 'isDeleted is not required'],

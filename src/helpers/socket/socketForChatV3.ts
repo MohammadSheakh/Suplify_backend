@@ -64,7 +64,7 @@ function emitError(socket: any, message: string, disconnect: boolean = false) {
 }
 
 
-class SocketService {
+export class SocketService {
 
   private static instance: SocketService;
   private io: SocketIOServer | null = null;

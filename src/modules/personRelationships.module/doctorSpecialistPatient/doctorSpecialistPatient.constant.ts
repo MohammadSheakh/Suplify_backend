@@ -1,5 +1,5 @@
-export enum DemoType {
-  document = 'document',
-  image = 'image',
-  unknown = 'unknown',
+export enum TRelationCreatedBy {
+  admin = 'admin',
+  system = 'system',
+  purchasingService = 'purchasingService',
 }

@@ -15,6 +15,8 @@ import pick from "../../../shared/pick";
 import { Conversation } from "../conversation/conversation.model";
 import { ConversationParticipents } from "../conversationParticipents/conversationParticipents.model";
 import { TFolderName } from "../../../enums/folderNames";
+import { SocketService } from "../../../helpers/socket/socketForChatV3";
+// import { socketService } from "../../../helpers/socket/socketForChatV3";
 // Import the io instance from your socket setup
 
 // Adjust the path as needed to where your io instance is exported
@@ -102,6 +104,11 @@ export class MessageController extends GenericController<typeof Message, IMessag
         //@ts-ignore
         io.to(result.conversationId.toString()).emit(eventName, {
             message: result,
+        });
+
+
+        SocketService.getInstance().emit(eventName, {
+          message: result,
         });
 
         /**********

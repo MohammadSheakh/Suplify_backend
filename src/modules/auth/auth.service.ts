@@ -1,5 +1,7 @@
 //@ts-ignore
 import moment from 'moment';
+//@ts-ignore
+import mongoose from "mongoose";
 import ApiError from '../../errors/ApiError';
 //@ts-ignore
 import { StatusCodes } from 'http-status-codes';
@@ -22,8 +24,11 @@ import EventEmitter from 'events';
 import { sendInWebNotification } from '../../services/notification.service';
 import { TRole } from '../../middlewares/roles';
 import { TNotificationType } from '../notification/notification.constants';
+import { SpecialistPatient } from '../personRelationships.module/specialistPatient/specialistPatient.model';
 const eventEmitterForUpdateUserProfile = new EventEmitter(); // functional way
 const eventEmitterForCreateWallet = new EventEmitter();
+const eventEmitterForAssignSpecialistAutomatically = new EventEmitter();
+
 
 eventEmitterForUpdateUserProfile.on('eventEmitterForUpdateUserProfile', async (valueFromRequest: any) => {
   try {
@@ -35,6 +40,109 @@ eventEmitterForUpdateUserProfile.on('eventEmitterForUpdateUserProfile', async (v
 });
 
 export default eventEmitterForUpdateUserProfile;
+
+eventEmitterForAssignSpecialistAutomatically.on('eventEmitterForAssignSpecialistAutomatically', 
+  async (valueFromRequest: any) => {
+  try {
+      const { userId } = valueFromRequest; // this userId is patientId
+
+      /********* Version 1️⃣
+      
+      // Step 1️⃣ Find all specialists
+      const specialists = await User.find({ role: 'specialist', isActive: true });
+
+      if (!specialists.length) {
+        throw new Error('No available specialists found.');
+      }
+
+      // Step 2️⃣ Count relations per specialist
+      const relationCounts = await SpecialistPatient.aggregate([
+        { $match: { isDeleted: false } },
+        { $group: { _id: '$specialistId', totalPatients: { $sum: 1 } } },
+      ]);
+      console.log("relationCounts :: ", relationCounts)
+
+      // Create a quick lookup map
+      const specialistCountMap: Record<string, number> = {};
+      for (const r of relationCounts) {
+        specialistCountMap[r._id.toString()] = r.totalPatients;
+      }
+
+      console.log("specialistCountMap :: ", specialistCountMap)
+
+      // Step 3️⃣ Pick specialist with least patients
+      let leastLoadedSpecialist = specialists[0];
+      let minCount = specialistCountMap[specialists[0]._id.toString()] || 0;
+
+      for (const sp of specialists) {
+        const count = specialistCountMap[sp._id.toString()] || 0;
+        if (count < minCount) {
+          minCount = count;
+          leastLoadedSpecialist = sp;
+        }
+      }
+
+      // Step 4️⃣ Create new relation
+      const newRelation = await SpecialistPatient.create({
+        userId,
+        specialistId: leastLoadedSpecialist._id,
+        relationCreatedBy: 'system',
+      });
+
+      console.log(
+        `✅ Assigned patient ${userId} to specialist ${leastLoadedSpecialist._id} (has ${minCount} patients).`
+      );
+      ****** */
+
+
+      // Step 1️⃣ Find the specialist with the least patients (lowest relation count)
+      const leastLoaded = await SpecialistPatient.aggregate([
+        { $match: { isDeleted: false } },
+        { $group: { _id: '$specialistId', count: { $sum: 1 } } },
+        { $sort: { count: 1 } },
+        { $limit: 1 },
+      ]);
+
+      let specialistId: mongoose.Types.ObjectId | null = null;
+
+      if (leastLoaded.length > 0) {
+        // Found one with least count
+        specialistId = leastLoaded[0]._id;
+      } else {
+        // No relations yet → assign any active specialist
+        const fallbackSpecialist = await User.findOne({ role: 'specialist', isActive: true }).select('_id');
+        if (!fallbackSpecialist) {
+          throw new Error('No available specialists found.');
+        }
+        specialistId = fallbackSpecialist._id;
+      }
+
+      // Step 2️⃣ Create the relation
+      const existingRelation = await SpecialistPatient.findOne({
+        userId,
+        specialistId,
+        isDeleted: false,
+      });
+
+      if (existingRelation) {
+        console.log('ℹ️ Patient already assigned to this specialist.');
+        return existingRelation;
+      }
+
+      const relation = await SpecialistPatient.create({
+        userId,
+        specialistId,
+        relationCreatedBy: 'system', // optional: can also be 'admin' or 'patient'
+      });
+
+      console.log(
+        `✅ Patient ${userId} assigned to specialist ${specialistId.toString()} successfully.`
+      );
+
+    }catch (error) {
+      console.error('Error occurred while assigning specialist automatically:', error);
+    }
+});
 
 
 eventEmitterForCreateWallet.on('eventEmitterForCreateWallet', async (valueFromRequest: any) => {
@@ -157,6 +265,14 @@ const createUser = async (userData: TUser, userProfileId:string) => {
     
     return { user };
   }
+
+  ///////////////////////////////////////// ⚔️💪🏔️  // 📈⚙️ OPTIMIZATION:
+  // if patient .. then we need to assign a specialist to him automatically 
+  ////////////////////////////////////////
+
+  eventEmitterForAssignSpecialistAutomatically.emit('eventEmitterForAssignSpecialistAutomatically', { 
+    userId : user._id
+  });
 
   // , { otp }
   // Run token and OTP creation in parallel

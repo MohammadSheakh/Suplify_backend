@@ -1,3 +1,4 @@
+//@ts-ignore
 import { model, Schema } from 'mongoose';
 import paginate from '../../../common/plugins/paginate';
 import { IConversation, IConversationModel } from './conversation.interface';
@@ -23,17 +24,6 @@ const conversationSchema = new Schema<IConversation>(
         ).join(', ')}`,
       ],
     },
-
-    // siteId: {
-    //   type: Schema.Types.ObjectId,
-    //   ref: 'Site', // Reference to Site model
-    //   required: [true, 'Site Id is required'], // Optional site ID
-    // },
-    // canConversate :{
-    //   type: Boolean,
-    //   required: [false, 'canConversate is not required'],
-    //   default: true, 
-    // },
   
     groupName: {
       type: String,
@@ -43,6 +33,20 @@ const conversationSchema = new Schema<IConversation>(
       type: String,
       default: null, // Optional group profile picture
     },
+    lastMessageId : { //🔗
+      type: Schema.Types.ObjectId,
+      ref: 'Message',
+      default: null, // Optional last message reference
+    },
+    lastMessage : {
+      type: String,
+      default: null, 
+    },
+    lastMessageCreatedAt: {
+      type: Date,
+      required: [false, 'lastMessageCreatedAt is required'],
+    },
+    /***********
     groupBio: {
       type: String,
       default: null, // Optional group bio
@@ -61,18 +65,14 @@ const conversationSchema = new Schema<IConversation>(
       default: [],
       ref: 'User',
     },
+    
     deletedFor: {
       type: [Schema.Types.ObjectId], // Users who have deleted the chat
       default: [],
       ref: 'User',
     },
-
-    lastMessage : { //🔗
-      type: Schema.Types.ObjectId,
-      ref: 'Message',
-      default: null, // Optional last message reference
-    },
-    // test
+    ********* */
+    
     isDeleted: {
       type: Boolean,
       required: [false, 'isDeleted is not required'],
