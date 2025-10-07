@@ -2,7 +2,8 @@ import { GenericService } from "../../_generic-module/generic.services";
 import { IConversation } from "./conversation.interface";
 import { Conversation } from "./conversation.model";
 import ApiError from "../../../errors/ApiError";
-import { StatusCodes } from "http-status-codes";// 
+//@ts-ignore
+import { StatusCodes } from "http-status-codes";
 
 export class ConversationService extends GenericService<typeof Conversation , IConversation>{
     constructor(){

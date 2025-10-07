@@ -61,7 +61,7 @@ export class DoctorPlanController extends GenericController<
     const populateOptions: (string | {path: string, select: string}[]) = [
     ];
 
-    const select = '-description -keyPoints -createdAt -updatedAt -__v -isDeleted'; // fields to exclude
+    const select = '-createdAt -updatedAt -__v -isDeleted'; // fields to exclude
 
     const query = {};
 

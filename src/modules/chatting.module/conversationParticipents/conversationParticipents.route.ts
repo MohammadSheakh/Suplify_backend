@@ -5,6 +5,7 @@ import { IConversationParticipents } from './conversationParticipents.interface'
 import auth from '../../../middlewares/auth';
 
 import multer from "multer";
+import { TRole } from '../../../middlewares/roles';
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
@@ -40,23 +41,11 @@ router.route('/paginate').get(
 router
 .route('/getRelatedUsers')
 .get(
-  auth('common'),
+  auth(TRole.common),
   controller.getRelatedUsers
 );
 
-/*********
- *  ( Dashboard ) | (Admin) 
- * 
- *  as Sayed Vai dont want to show conversations with socket .. 
- *  so, we will provide rest api to get conversationsParticipant
- * 
- * 
- * ******** */
 
-router.route('/getConversationsParticipents').get(
-  auth('common'),
-  controller.getAllConversationByUserIdWithPagination
-);
 
 /**********
  * 
@@ -108,7 +97,13 @@ router
   //auth('common'),
   controller.softDeleteById);
 
-
+/*********
+ *  ( Dashboard ) | (Admin) 
+ * 
+ *  as Sayed Vai dont want to show conversations with socket .. 
+ *  so, we will provide rest api to get conversationsParticipant
+ * 
+ * ******** */
 
 
 

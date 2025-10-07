@@ -97,104 +97,12 @@ export class ConversationParticipentsController extends GenericController<typeof
       });
   });
 
-/************ This code is not working . Updated method : getRelatedUsers
- * 
- * we need logged in users conversationsParticipents where we want to show only another person not logged in user  
- * For App ... 
- * 
- * ************ */ 
-  getRelatedUsers1 = catchAsync(async (req: Request, res: Response) => {
-    let loggedInUserId = req.user.userId;
-    
-    const relatedUsers = await ConversationParticipents.aggregate([
-      // Stage 1: Find all conversations where the logged-in user participates
-      {
-        $match: {
-          userId: new mongoose.Types.ObjectId(loggedInUserId),
-          isDeleted: false
-        }
-      },
-      // Stage 2: Get all participants from those conversations
-      {
-        $lookup: {
-          from: 'conversationparticipants', // collection name (usually lowercase + plural)
-          localField: 'conversationId',
-          foreignField: 'conversationId',
-          as: 'allParticipants'
-        }
-      },
-      // Stage 3: Unwind the participants array
-      {
-        $unwind: '$allParticipants'
-      },
-      // Stage 4: Filter out the logged-in user and deleted participants
-      {
-        $match: {
-          'allParticipants.userId': { $ne: new mongoose.Types.ObjectId(loggedInUserId) },
-          'allParticipants.isDeleted': false
-        }
-      },
-      // Stage 5: Group by userId to avoid duplicates
-      {
-        $group: {
-          _id: '$allParticipants.userId',
-          participantData: { $first: '$allParticipants' },
-          conversations: { $addToSet: '$conversationId' }
-        }
-      },
-      // Stage 6: Populate user data
-      {
-        $lookup: {
-          from: 'users',
-          localField: '_id',
-          foreignField: '_id',
-          as: 'userData'
-        }
-      },
-      // Stage 7: Populate conversation data
-      {
-        $lookup: {
-          from: 'conversations',
-          localField: 'conversations',
-          foreignField: '_id',
-          as: 'conversationData'
-        }
-      },
-      // Stage 8: Format the output
-      {
-        $project: {
-          _id: 0,
-          userId: {
-            _userId: '$_id',
-            name: { $arrayElemAt: ['$userData.name', 0] },
-            profileImage: { $arrayElemAt: ['$userData.profileImage', 0] }
-          },
-          conversations: '$conversationData',
-          participantInfo: {
-            joinedAt: '$participantData.joinedAt',
-            isDeleted: '$participantData.isDeleted',
-            _conversationParticipentsId: '$participantData._id'
-          }
-        }
-      }
-    ]);
-
-     //;
-
-    sendResponse(res, {
-      code: StatusCodes.OK,
-      data: relatedUsers,
-      message: `All ${this.modelName} with pagination`,
-      success: true,
-    });
-  });
-
-/************ Updated Method .. Working as expected ... 
- * 
- * we need logged in users conversationsParticipents where we want to show only another person not logged in user  
- * For App ... 
- * 
- * ************ */ 
+  /************ Updated Method .. Working as expected ... 
+   * 
+   * we need logged in users conversationsParticipents where we want to show only another person not logged in user  
+   * For App ... 
+   * 
+   * ************ */ 
   getRelatedUsers = catchAsync(async (req: Request, res: Response) => {
     let loggedInUserId = req.user.userId;
     // Step 1: Find all conversations the logged-in user participates in
@@ -221,9 +129,9 @@ export class ConversationParticipentsController extends GenericController<typeof
     });
 
     // Step 3: Remove duplicates and format data
-    const uniqueUsers = {};
+    const uniqueUsers : any = {};
     
-    relatedParticipants.forEach(participant => {
+    relatedParticipants.forEach((participant : any)  => {
       const userId = participant.userId._id.toString();
       
       if (!uniqueUsers[userId]) {
@@ -235,6 +143,7 @@ export class ConversationParticipentsController extends GenericController<typeof
             role: participant.userId.role
           },
           conversations: [],
+          // isOnline: global.socketUtils.isUserOnline(userId), // ⚠️ DEPRECATED:
           isOnline: global.socketUtils.isUserOnline(userId),
           // participantInfo: {
           //   joinedAt: participant.joinedAt,
@@ -258,8 +167,6 @@ export class ConversationParticipentsController extends GenericController<typeof
       }
     });
 
-
-
     // let ress = await conversationParticipentsService.getAllConversationsOnlyPersonInformationByUserId(loggedInUserId);
 
     //return Object.values(uniqueUsers);
@@ -271,19 +178,6 @@ export class ConversationParticipentsController extends GenericController<typeof
       success: true,
     });
   });
-
-
-  /*********
-   * 
-   * 
-   * 
-   * ******* */
-  getAllConversationByUserIdWithPagination = catchAsync(async (req: Request, res: Response) => {
-    const userId = req.user.userId;
-
-    
-
-  })
 
 
     // add more methods here if needed or override the existing ones

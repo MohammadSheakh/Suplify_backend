@@ -1,18 +1,19 @@
 //@ts-ignore
 import { Model, Types } from 'mongoose';
 import { PaginateOptions, PaginateResult } from '../../../types/paginate';
+import { TParticipants } from '../conversation/conversation.constant';
 
 export interface IConversationParticipents {
   // _taskId: undefined | Types.ObjectId;
   _id?: Types.ObjectId; // undefined |  Types.ObjectId |
-  userId : Types.ObjectId;
-  conversationId: Types.ObjectId;
+  userId : Types.ObjectId; //🔗
+  conversationId: Types.ObjectId; //🔗
   joinedAt : Date;
-  role : string; // can be doctor | specialist | patient | admin
+  role : TParticipants; //🧩 // can be doctor | specialist | patient | admin
   lastMessageReadAt? : Date;
   unreadCount? : number;
 
-  isDeleted : boolean;
+  isDeleted? : boolean;
   createdAt?: Date;
   updatedAt?: Date;
 }

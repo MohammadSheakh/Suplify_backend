@@ -42,8 +42,8 @@ export const createWorkoutClassSessionValidationSchema = z.object({
         required_error: 'description is required, description must be a string.',
         invalid_type_error: 'description must be a string.',
       })
-      .min(10, {
-        message: 'description must be at least 10 characters long.',
+      .min(2, {
+        message: 'description must be at least 2 characters long.',
       })
       .max(1000, {
         message: 'description must be at most 1000 characters long.',

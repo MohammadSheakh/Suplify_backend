@@ -3,6 +3,7 @@ import { model, Schema } from 'mongoose';
 import paginate from '../../../common/plugins/paginate';
 import { IConversationParticipents, IConversationParticipentsModel } from './conversationParticipents.interface';
 import { Roles } from '../../../middlewares/roles';
+import { TParticipants } from '../conversation/conversation.constant';
 
 
 const conversationParticipentsSchema = new Schema<IConversationParticipents>(
@@ -26,7 +27,7 @@ const conversationParticipentsSchema = new Schema<IConversationParticipents>(
 
     role: {
       type : String,
-      enum :Roles,
+      enum : [ TParticipants.member, TParticipants.admin ],
       required: [true, 'Role is required'],
     },
 

@@ -10,7 +10,7 @@ import { StatusCodes } from 'http-status-codes';
 import { ConversationParticipentsService } from '../conversationParticipents/conversationParticipents.service';
 import ApiError from '../../../errors/ApiError';
 import { IConversation } from './conversation.interface';
-import { ConversationType } from './conversation.constant';
+import { ConversationType, TParticipants } from './conversation.constant';
 import { MessagerService } from '../message/message.service';
 import { IMessage } from '../message/message.interface';
 import { User } from '../../user/user.model';
@@ -21,6 +21,7 @@ import { populate } from 'dotenv';
 //@ts-ignore
 import mongoose from 'mongoose';
 import { ConversationParticipents } from '../conversationParticipents/conversationParticipents.model';
+import { IConversationParticipents } from '../conversationParticipents/conversationParticipents.interface';
 
 let conversationParticipantsService = new ConversationParticipentsService();
 let messageService = new MessagerService();
@@ -102,164 +103,11 @@ export class ConversationController extends GenericController<typeof Conversatio
     }
   );
 
-  // Not Updated Code .. Updated code is createV2
-  create = catchAsync(async (req: Request, res: Response) => {
-    let type;
-    let result: IConversation;
-    
-    // creatorId ta req.user theke ashbe
-    
-    let { participants, message } = req.body; // type, attachedToId, attachedToCategory
-
-    // type is based on participants count .. if count is greater than 2 then group else direct
-
-    if (!participants) {
-      // 🔥 test korte hobe logic ..
-      throw new ApiError(
-        StatusCodes.BAD_REQUEST,
-        'Without participants you can not create a conversation'
-      );
-    }
-
-    participants = [...participants, req.user.userId]; // add yourself to the participants list
-
-    if (participants.length > 0) {
-      type =
-        participants.length > 2
-          ? ConversationType.group
-          : ConversationType.direct;
-
-      const conversationData: IConversation = {
-        creatorId: req.user.userId,
-        type,
-        siteId: req.body.siteId,
-      };
-
-      /********************
-      // check if the conversation already exists
-      const existingConversation = await Conversation.findOne({
-        creatorId: conversationData.creatorId,
-      }).select('-isDeleted -updatedAt -createdAt -__v');
-
-      *******************/
-
-
-      // For direct conversations, check if these 2 participants already have a conversation
-      const  existingConversation = await Conversation.findOne({
-          type: ConversationType.direct,
-          siteId: req.body.siteId,
-          _id: {
-            $in: await ConversationParticipents.find({
-              userId: { $in: participants }
-            }).distinct('conversationId')
-          }
-        }).populate({
-          path: 'participants',
-          match: { userId: { $in: participants } }
-        });
-
-
-      if (!existingConversation){
-
-        /***********
-         * 
-         * Create a new conversation
-         * 
-         * ********** */
-    
-        result = await this.service.create(conversationData); // 🎯🎯🎯🎯
-
-        if (!result) {
-          throw new ApiError(
-            StatusCodes.BAD_REQUEST,
-            'Unable to create conversation'
-          );
-        }
-
-        for (const participant of participants) {
-        
-          // as participants is just an id .. 
-
-          let user = await User.findById(participant).select('role');
-
-          if (!user) {
-            throw new ApiError(
-              StatusCodes.NOT_FOUND,
-              `User with id ${participant} not found`
-            );
-          }
-
-          const res1 = await conversationParticipantsService.create({
-            userId: participant,
-            conversationId: result._id 
-          });
-
-          if (!res1) {
-            throw new ApiError(
-              StatusCodes.BAD_REQUEST,
-              'Unable to create conversation participant'
-            );
-          }
-
-          // console.log('🔥🔥res1🔥', res1);
-          // } catch (error) {
-          // console.error("Error creating conversation participant:", error);
-          // }
-        }
-
-        if (message && result?._id) {
-          const res1: IMessage | null = await messageService.create({
-            text: message,
-            senderId: req.user.userId,
-            conversationId: result?._id,
-          });
-          if (!res1) {
-            throw new ApiError(
-              StatusCodes.BAD_REQUEST,
-              'Unable to create conversation participant'
-            );
-          }
-        }
-
-      // dont need to create conversation .. 
-      // just send message to the existing conversation
-
-      let res1 ;
-      if (message && existingConversation?._id && existingConversation?.canConversate) {
-        let res1 : IMessage | null = await messageService.create({
-          text: message,
-          senderId: req.user.userId,
-          conversationId: existingConversation?._id,
-        });
-        if (!res1) {
-          throw new ApiError(
-            StatusCodes.BAD_REQUEST,
-            'Unable to create conversation participant'
-          );
-        }
-      }
-    }
-
-      sendResponse(res, {
-        code: StatusCodes.OK,
-        data: existingConversation ? existingConversation : result,
-        message: existingConversation ?  `${this.modelName} already exist` : `${this.modelName} created successfully`,
-        success: true,
-      });
-    }
-  });
-
 
   /***********
-   * 
-   * This code is from Claude 
-   * 
-   * Sayed Vai face an issue ..
-   * 
-   * we try to solve that issue here .. 
-   * 
+   * Claude 
    * ********** */
-  createV2 = catchAsync(async (req: Request, res: Response) => {
+  create = catchAsync(async (req: Request, res: Response) => {
     let type;
     let result: IConversation;
     
@@ -404,11 +252,14 @@ export class ConversationController extends GenericController<typeof Conversatio
           );
         }
 
-        const participantResult = await conversationParticipantsService.create({
-          userId: participant,
-          conversationId: result._id,
-          // joinedAt will be set automatically by schema default
-        });
+        const participantResult: IConversationParticipents =
+          await conversationParticipantsService.create({
+            userId: participant,
+            conversationId: result._id,
+            role: user.role === TParticipants.admin ? TParticipants.admin : TParticipants.member,
+            joinedAt: new Date(),
+            // joinedAt will be set automatically by schema default
+          });
 
         if (!participantResult) {
           throw new ApiError(
@@ -494,10 +345,10 @@ export class ConversationController extends GenericController<typeof Conversatio
         for (const participantId of participants) {
           if (participantId !== req.user.userId) {
             const existingParticipant =
-              await conversationParticipantsService.getByUserIdAndConversationId(
-                participantId,
-                conversationId
-              );
+            await conversationParticipantsService.getByUserIdAndConversationId(
+              participantId,
+              conversationId
+            );
               
             // console.log(
             //   'existingParticipant 🧪🧪',
@@ -509,7 +360,8 @@ export class ConversationController extends GenericController<typeof Conversatio
               await conversationParticipantsService.create({
                 userId: participantId,
                 conversationId: conversation?._id,
-                role: req.user.role === 'user' ? 'member' : 'admin',
+                role: req.user.role === TParticipants.admin ? TParticipants.admin : TParticipants.member,
+                joinedAt: new Date(),
               });
 
               sendResponse(res, {
@@ -613,40 +465,6 @@ export class ConversationController extends GenericController<typeof Conversatio
         code: StatusCodes.OK,
         data: null,
         message: `Participant removed successfully from this ${this.modelName}.. ${conversationId}`,
-        success: true,
-      });
-    }
-  );
-
-  /**********
-   * requirement by : Sayed Vai
-   * details : Sayed vai wants to change the status of a conversation by conversationId
-   * he dont want to give any other data .. just conversationId
-   * ********* */
-  changeConversationStatus = catchAsync(
-    async (req: Request, res: Response) => {
-      const { id } = req.params;
-
-      if (!id) {
-        throw new ApiError(
-          StatusCodes.BAD_REQUEST,
-          'Without conversationId you can not change status'
-        );
-      }
-
-      const conversation = await this.service.getById(id);
-      if (!conversation) {
-        throw new ApiError(StatusCodes.NOT_FOUND, 'Conversation not found');
-      }
-
-      // toggle the status
-      conversation.canConversate = !conversation.canConversate;
-      const result = await this.service.updateById(id, conversation);
-
-      sendResponse(res, {
-        code: StatusCodes.OK,
-        data: result,
-        message: `Conversation status changed successfully`,
         success: true,
       });
     }

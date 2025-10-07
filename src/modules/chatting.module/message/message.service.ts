@@ -7,6 +7,9 @@ export class MessagerService extends GenericService<typeof Message, IMessage>{ /
         super(Message)
     }
 
+    /***
+     * ⭕ not needed may be 
+     * *** */
     async getAllByConversationId(conversationId: string) {
         const object = await this.model.find({ conversationId});
         

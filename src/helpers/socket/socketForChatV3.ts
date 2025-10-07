@@ -515,20 +515,39 @@ export class SocketService {
         // 🟢 NEW: Notify all conversation participants about conversation list update
       
         // Notify each participant (except the sender if excludeUserId is provided)
-        conversationParticipants.forEach((participant: any) => {
+        conversationParticipants.forEach(async(participant: any) => {
           const participantId = participant.userId?.toString();
           
           console.log(`1️⃣ .forEach Participant ID: ${participantId}, User ID: ${userId}`);
-          
-          // Skip the sender if excludeUserId is provided
-          // if (userId && participantId == userId) {
-          //   return;
-          // }
 
-          // onlineUsers.has(participantId)
-
+          const isOnline = await socketService.isUserOnline(participantId);
+         
           // Check if participant is online
-          if (Array.from(onlineUsers).some(id => id.toString() === participantId)) {
+          //if (Array.from(onlineUsers).some(id => id.toString() === participantId)) {
+
+          if(isOnline){
+         
+            await socketService.emitToUser(
+              participantId,
+              `conversation-list-updated::${participantId}`,
+              {
+              creatorId : updatedConversation?.creatorId,
+              type: updatedConversation?.type,
+              siteId: updatedConversation?.siteId,
+              canConversate: updatedConversation?.canConversate,
+              lastMessage: {
+                _id: newMessage._id,
+                text: messageData.text,
+                senderId: userId,
+                conversationId: messageData.conversationId,
+              },
+              isDeleted: false,
+              createdAt: "2025-07-19T12:06:00.287Z",
+              _conversationId: updatedConversation?._id,
+            }
+          );
+
+            /*********
 
             // Emit to participant's personal room  .to(participantId)
             io.emit(`conversation-list-updated::${participantId}`, {
@@ -546,8 +565,11 @@ export class SocketService {
               createdAt: "2025-07-19T12:06:00.287Z",
               _conversationId: updatedConversation?._id,
             });
+
+            ********** */
             
           }else{
+            // TODO : MUST Push notification
             // .... TODO: push notification .. 
           }
         });
@@ -676,7 +698,9 @@ export class SocketService {
     return true
   }
 
-  public async emitToConversation(conversationId: string, event: string, data: any) {
+  public async emitToConversation(conversationId: string,
+     event: string,
+     data: any) {
     if (!this.io) return;
     this.io.to(conversationId).emit(event, data);
   }

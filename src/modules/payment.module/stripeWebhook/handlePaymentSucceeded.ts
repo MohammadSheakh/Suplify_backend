@@ -21,6 +21,8 @@ import { ITrainingProgramPurchase } from "../../training.module/trainingProgramP
 import { TrainingProgramPurchaseService } from "../../training.module/trainingProgramPurchase/trainingProgramPurchase.service";
 import { TUser } from "../../user/user.interface";
 import { User } from "../../user/user.model";
+import { IWallet } from "../../wallet.module/wallet/wallet.interface";
+import { Wallet } from "../../wallet.module/wallet/wallet.model";
 import { TPaymentGateway, TPaymentStatus, TTransactionFor } from "../paymentTransaction/paymentTransaction.constant";
 import { PaymentTransaction } from "../paymentTransaction/paymentTransaction.model";
 //@ts-ignore
@@ -309,6 +311,23 @@ async function updatePurchaseTrainingProgram(
           { new: true }
      );
 
+     // -------------------------------
+     // add amount to specialist wallet
+     // -------------------------------
+
+     const updatedWallet = await Wallet.findOneAndUpdate(
+          { userId: updatedTrainingProgramPurchase.specialistId },
+          { $inc: { amount: updatedTrainingProgramPurchase.price } },
+          { new: true }
+     );
+
+     /*******
+      * TODO : MUST .. need to handle this usecase that specialist has no wallet
+      * ******* */
+     if (!updatedWallet) {
+          // Handle missing wallet
+          throw new Error('Specialist wallet not found');
+     }
 
      console.log("♻️updatedTrainingProgramPurchase from webhook 🪝 🪝  ", updatedTrainingProgramPurchase)
 

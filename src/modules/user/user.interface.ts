@@ -47,6 +47,8 @@ export interface IUser extends Document {
   trialEndDate: Date | undefined;
   trialPlanType: TSubscription | undefined;
 
+  walletId: Types.ObjectId;
+
   createdAt: Date;
   updatedAt: Date;
 }

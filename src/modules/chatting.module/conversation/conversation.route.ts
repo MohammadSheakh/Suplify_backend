@@ -8,6 +8,7 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 import * as validation from './conversation.validation';
 import validateRequest from '../../../shared/validateRequest';
+import { TRole } from '../../../middlewares/roles';
 const router = express.Router();
 
 export const optionValidationChecking = <T extends keyof IConversation | 'sortBy' | 'page' | 'limit' | 'populate'>(
@@ -36,36 +37,26 @@ router.route('/paginate').get(
 );
 
 
-router.route('/change-status/:id').put(
-  //auth('common'),
-  validateFiltersForQuery(optionValidationChecking(['_id', ...paginationOptions])),
-  controller.changeConversationStatus
-);
-
-
-
 router.route('/:id').get(
   // auth('common'),
   controller.getById
 );
-
-
 
 router.route('/').get(
   //auth('common'), // FIXME: maybe authentication lagbe na ..
   controller.getAll
 );
 
-//[🚧][🧑‍💻✅][🧪] // 🆗2️⃣
-router.route('/create').post(
-  // [
-  //   upload.fields([
-  //     { name: 'attachments', maxCount: 15 }, // Allow up to 5 cover photos
-  //   ]),
-  // ],
-  auth('common'),
+/***********
+ * 
+ * Create Conversation ..
+ * Do We need to give permission to upload image
+ * 
+ * ******** */
+router.route('/').post(
+  auth(TRole.common),
   validateRequest(validation.createConversationValidationSchema),
-  controller.createV2 // 2️⃣
+  controller.create
 );
 
 router.route('/update/:id').put(

@@ -1,3 +1,4 @@
+//@ts-ignore
 import { z } from 'zod';
 
 export const createConversationValidationSchema = z.object({

@@ -16,16 +16,15 @@ import { Conversation } from "../conversation/conversation.model";
 import { ConversationParticipents } from "../conversationParticipents/conversationParticipents.model";
 import { TFolderName } from "../../../enums/folderNames";
 import { SocketService } from "../../../helpers/socket/socketForChatV3";
-// import { socketService } from "../../../helpers/socket/socketForChatV3";
+import { socketService } from "../../../helpers/socket/socketForChatV3";
 // Import the io instance from your socket setup
 
 // Adjust the path as needed to where your io instance is exported
 
-
 const attachmentService = new AttachmentService();
 const conversationService = new ConversationService();
 
-export class MessageController extends GenericController<typeof Message, IMessage> {
+export class MessageControllerV2 extends GenericController<typeof Message, IMessage> {
     messageService = new MessagerService();
     constructor(){
         super(new MessagerService(), "Message")
@@ -91,27 +90,34 @@ export class MessageController extends GenericController<typeof Message, IMessag
         lastMessage: result._id,
         });
 
-
         /***********
          * 
          * As per sayed vais suggestion, we will emit the event to the specific conversation room
-         * 
          * as when a user send attachments via chat, we need to notify all the participants of that conversation
          * 
-         * ********** */
+         * *********/
         const eventName = `new-message-received::${result.conversationId.toString()}`;
       
-        //@ts-ignore
-        io.to(result.conversationId.toString()).emit(eventName, {
-            message: result,
-        });
+        //⚠️ DEPRECATED: From Previous code 
+        // io.to(result.conversationId.toString()).emit(eventName, {
+        //     message: result,
+        // });
 
 
-        SocketService.getInstance()
+        await socketService.emitToConversation(
+          result.conversationId.toString(),
+          eventName,
+          {
+            message:result
+          }
+        )
+
+        //------ 🔄 
+        // socketService.getIO()
         // .to(result.conversationId.toString())
-        .emit(eventName, {
-          message: result,
-        });
+        // .emit(eventName, {
+        //   message: result,
+        // });
 
         
 
@@ -122,6 +128,49 @@ export class MessageController extends GenericController<typeof Message, IMessag
          * 
          * ********** */
 
+        conversationParticipants.forEach(async(participant: any) => {
+          const participantId = participant.userId?.toString();
+          
+          console.log(`1️⃣ .forEach Participant ID: ${participantId}, User ID: ${req.user.userId}`);
+          
+          // Skip the sender if excludeUserId is provided
+          if (req.user.userId && participantId == req.user.userId) {
+            return;
+          }
+          // @ts-ignore
+          // Check if participant is online
+          const isOnline = await socketService.isUserOnline(participantId);
+          if (isOnline) {
+            //@ts-ignore
+            // Emit to participant's personal room  .to(participantId)
+
+            await socketService.emitToUser(
+              participantId,
+              `conversation-list-updated::${participantId}`,
+              {
+                creatorId : updatedConversation?.creatorId,
+                type: updatedConversation?.type,
+                siteId: updatedConversation?.siteId,
+                canConversate: updatedConversation?.canConversate,
+                lastMessage: {
+                  _id: result._id,
+                  text: result.text,
+                  senderId: req.user.userId,
+                  conversationId: result.conversationId,
+                },
+                isDeleted: false,
+                createdAt: "2025-07-19T12:06:00.287Z",
+                _conversationId: updatedConversation?._id,
+              }
+            );
+          }else{
+            // .... TODO: push notification .. Suggested by Abu Bokor Vai ..
+          }
+        });
+
+        /******
+        //⚠️ DEPRECATED: From Previous code
+
         conversationParticipants.forEach((participant: any) => {
           const participantId = participant.userId?.toString();
           
@@ -131,11 +180,9 @@ export class MessageController extends GenericController<typeof Message, IMessag
           if (req.user.userId && participantId == req.user.userId) {
             return;
           }
-
           // @ts-ignore
           // Check if participant is online
           if (global.socketUtils.getOnlineUsers().some(id => id.toString() === participantId)) {
-
             //@ts-ignore
             // Emit to participant's personal room  .to(participantId)
             io.emit(`conversation-list-updated::${participantId}`, {
@@ -158,7 +205,7 @@ export class MessageController extends GenericController<typeof Message, IMessag
             // .... TODO: push notification .. Suggested by Abu Bokor Vai ..
           }
         });
-
+        ****** */
 
         sendResponse(res, {
           code: StatusCodes.OK,
@@ -173,20 +220,20 @@ export class MessageController extends GenericController<typeof Message, IMessag
         const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']); ;
         const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
 
-         const populateOptions: (string | {path: string, select: string}[]) = [
-            {
-              path: 'senderId',
-              select: 'name role profileImage' // name 
-            },
-            {
-              path: 'conversationId',
-              select: 'canConversate siteId' // name 
-            },
-            {
-              path: 'attachments',
-              select: 'attachment'
-            }
-          ];
+        const populateOptions: (string | {path: string, select: string}[]) = [
+          {
+            path: 'senderId',
+            select: 'name role profileImage' // name 
+          },
+          {
+            path: 'conversationId',
+            select: 'canConversate siteId' // name 
+          },
+          {
+            path: 'attachments',
+            select: 'attachment'
+          }
+        ];
 
 
         let select = ''; // Specify fields to exclude from the result
@@ -201,6 +248,7 @@ export class MessageController extends GenericController<typeof Message, IMessag
         });
     });
 
+    /************
     // 🟢 i think we dont need this .. because we need pagination in this case .. and pagination 
     // is already implemented ..  
     getAllMessageByConversationId = catchAsync(
@@ -227,9 +275,12 @@ export class MessageController extends GenericController<typeof Message, IMessag
         }
     );
 
+    ******** */
+
     // add more methods here if needed or override the existing ones    
 }
 
+// TODO : Add aggregation for performance // MOVE to service folder 
 async function getConversationById(conversationId: string) {
   try {
     const conversationData = await Conversation.findById(conversationId)//.populate('users').exec();  // FIXME: user populate korar bishoy ta 

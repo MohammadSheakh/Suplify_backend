@@ -327,73 +327,73 @@ export class SpecialistPatientService extends GenericService<
   ) {
     // Business logic: Build the aggregation pipeline
     const pipeline = [
-      // Match all specialists
-      {
-        $match: {
-          role: 'specialist',
-          isDeleted: { $ne: true }
-        }
-      },
-      // Left join with specialistpatient relationship
-      {
+        // Match all specialists
+        {
+          $match: {
+            role: 'specialist',
+            isDeleted: { $ne: true }
+          }
+        },
+        // Left join with specialistpatient relationship
+        {
+          $lookup: {
+            from: 'specialistpatients',
+            let: { specialistId: '$_id' },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $and: [
+                      { $eq: ['$specialistId', '$$specialistId'] },
+                      { $eq: ['$patientId', new mongoose.Types.ObjectId(patientId)] },
+                      { $ne: ['$isDeleted', true] }
+                    ]
+                  }
+                }
+              }
+            ],
+            as: 'relationship'
+          }
+        },
+        // Filter out doctors with existing relationship
+        {
+          $match: {
+            'relationship.0': { $exists: false }
+          }
+        },
+        /********************************* */
+
+        {
         $lookup: {
-          from: 'specialistpatients',
-          let: { specialistId: '$_id' },
+          from: 'userprofiles', // References 'UserProfile' collection
+          localField: 'profileId',
+          foreignField: '_id',
           pipeline: [
             {
-              $match: {
-                $expr: {
-                  $and: [
-                    { $eq: ['$specialistId', '$$specialistId'] },
-                    { $eq: ['$patientId', new mongoose.Types.ObjectId(patientId)] },
-                    { $ne: ['$isDeleted', true] }
-                  ]
-                }
+              $project: {
+                description: 1,
+                approvalStatus: 1,
+                howManyPrograms: 1, 
+                protocolNames : 1
               }
             }
           ],
-          as: 'relationship'
+          as: 'profile'
         }
       },
-      // Filter out doctors with existing relationship
+      {
+        $unwind: {
+          path: '$profile',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+
+      // Filter for only approved specialists
       {
         $match: {
-          'relationship.0': { $exists: false }
+          'profile.approvalStatus': 'approved'
         }
       },
-      /********************************* */
-
-      {
-      $lookup: {
-        from: 'userprofiles', // References 'UserProfile' collection
-        localField: 'profileId',
-        foreignField: '_id',
-        pipeline: [
-          {
-            $project: {
-              description: 1,
-              approvalStatus: 1,
-              howManyPrograms: 1, 
-              protocolNames : 1
-            }
-          }
-        ],
-        as: 'profile'
-      }
-    },
-    {
-      $unwind: {
-        path: '$profile',
-        preserveNullAndEmptyArrays: true
-      }
-    },
-
-    // Filter for only approved specialists
-    {
-      $match: {
-        'profile.approvalStatus': 'approved'
-      }
-    },
 
       /********************************* */
       // Project only needed fields
@@ -409,7 +409,7 @@ export class SpecialistPatientService extends GenericService<
     ];
 
 
-    const [result] = await User.aggregate(pipeline).exec();
+    const result = await User.aggregate(pipeline).exec();
 
     return result;
 

@@ -8,6 +8,10 @@ import catchAsync from '../shared/catchAsync';
 import { config } from '../config';
 import { TokenType } from '../modules/token/token.interface';
 import { TokenService } from '../modules/token/token.service';
+import { IUser } from '../modules/user/user.interface';
+import { IUserProfile } from '../modules/user/userProfile/userProfile.interface';
+import { UserProfile } from '../modules/user/userProfile/userProfile.model';
+import { TApprovalStatus } from '../modules/user/userProfile/userProfile.constant';
 
 const auth = (...roles: TRole[]/******** Previously it was string[] */) =>
   catchAsync(async (req: Request, res: Response, next: NextFunction) => {
@@ -28,13 +32,26 @@ const auth = (...roles: TRole[]/******** Previously it was string[] */) =>
       req.user = verifyUser;
 
       // Step 4: Check if the user exists and is active
-      const user = await User.findById(verifyUser.userId);
+      const user:IUser = await User.findById(verifyUser.userId);
+      const userProfile : IUserProfile = await UserProfile.findById(user.profileId);
+
       if (!user) {
         throw new ApiError(StatusCodes.BAD_REQUEST, 'User not found.');
-      } else if (!user.isEmailVerified) {
+      } 
+      else if (!user.isEmailVerified) {
         throw new ApiError(
           StatusCodes.BAD_REQUEST,
-          'Your account is not verified.'
+          'Your account is not email verified. please verify your email'
+        );
+      }else if (user.role !== 'patient' && userProfile.approvalStatus == TApprovalStatus.pending){
+          throw new ApiError(
+          StatusCodes.BAD_REQUEST,
+          'Your account is not approved by admin. please wait for admin approval or contact support'
+        );
+      }else if (user.role !== 'patient' && userProfile.approvalStatus == TApprovalStatus.rejected){
+          throw new ApiError(
+          StatusCodes.BAD_REQUEST,
+          'Your account is rejected by admin. please contact support'
         );
       }
 

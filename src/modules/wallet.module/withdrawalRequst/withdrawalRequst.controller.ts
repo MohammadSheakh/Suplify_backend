@@ -5,17 +5,20 @@ import { StatusCodes } from 'http-status-codes';
 
 import { GenericController } from '../../_generic-module/generic.controller';
 import { WithdrawalRequst } from './withdrawalRequst.model';
-import { IWithdrawalRequst } from './WithdrawalRequst.interface';
+import { IWithdrawalRequst } from './withdrawalRequst.interface';
 import { WithdrawalRequstService } from './withdrawalRequst.service';
 import catchAsync from '../../../shared/catchAsync';
 import sendResponse from '../../../shared/sendResponse';
-import { IUser } from '../../token/token.interface';
+// import { IUser } from '../../token/token.interface';
 import { BankInfo } from '../bankInfo/bankInfo.model';
 import { Wallet } from '../wallet/wallet.model';
 import { IWallet } from '../wallet/wallet.interface';
 import { TWithdrawalRequst } from './withdrawalRequst.constant';
 import { processFiles } from '../../../helpers/processFilesToUpload';
 import { TFolderName } from '../../../enums/folderNames';
+import { User } from '../../user/user.model';
+import { IUser as IUserMain } from '../../user/user.interface';
+import { IUser } from '../../token/token.interface';
 
 export class WithdrawalRequstController extends GenericController<
   typeof WithdrawalRequst,
@@ -38,6 +41,8 @@ export class WithdrawalRequstController extends GenericController<
 
     data.userId = (req.user as IUser).userId;
 
+    const user:IUserMain = await User.findById((req.user as IUser).userId).select('walletId').lean(); 
+
     /********
      * 📝
      * first we check withdrawl amount is less than wallet amount
@@ -50,23 +55,10 @@ export class WithdrawalRequstController extends GenericController<
      * 
      * ****** */
 
-    const bankInfo = await BankInfo.findOne({
-      userId: data.userId,
-      isActive : true
-    })
-
-    if (!bankInfo) {
-      return sendResponse(res, {
-        code: StatusCodes.BAD_REQUEST,
-        message: 'No Bank Info Found',
-        success: false,
-      });
-    }
-
     // lets get the wallet
     const wallet:IWallet = await Wallet.findOne({
       userId: data.userId,
-      _id: data.walletId
+      _id: user.walletId
     });
 
     if (!wallet) {
@@ -77,6 +69,18 @@ export class WithdrawalRequstController extends GenericController<
       });
     }
 
+    const bankInfo = await BankInfo.findOne({
+      userId: data.userId,
+      isActive : true
+    })
+
+    if (!bankInfo) {
+      return sendResponse(res, {
+        code: StatusCodes.BAD_REQUEST,
+        message: 'No Bank Info Found . Please add bank info first .',
+        success: false,
+      });
+    }
 
     if(data.requestedAmount > wallet.amount){
       return sendResponse(res, {
@@ -106,6 +110,22 @@ export class WithdrawalRequstController extends GenericController<
     }).sort({
       createdAt: -1
     }) // TODO : MUST : add logic 
+
+    // if last Withdrawal request is in week then we can not create withdrawal request
+    if (lastWithdrawalRequest && 
+      lastWithdrawalRequest.createdAt > new Date(new Date().getTime() - 7 * 24 * 60 * 60 * 1000)
+    ) {
+      return sendResponse(res, {
+        code: StatusCodes.BAD_REQUEST,
+        message: 'You can not create withdrawal request in a week',
+        success: false,
+      });
+    }
+
+    //------------------------------------
+    // Send Notification to Admin that a withdrawal request is created
+    //------------------------------------
+    
 
 
     const result = await this.service.create(docToCreate);
@@ -154,6 +174,12 @@ export class WithdrawalRequstController extends GenericController<
     withdrawalRequst.processedAt = new Date();
 
     const updated =  await withdrawalRequst.save();
+
+
+    //------------------------------------
+    // Send Notification to Doctor / Patient that a withdrawal request is approved
+    //------------------------------------
+
 
     sendResponse(res, {
       code: StatusCodes.OK,

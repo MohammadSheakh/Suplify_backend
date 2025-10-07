@@ -1,11 +1,13 @@
+//@ts-ignore
 import express from 'express';
 import { validateFiltersForQuery } from '../../../middlewares/queryValidation/paginationQueryValidationMiddleware';
 import { IMessage } from './message.interface';
 import { MessageController } from './message.controller';
 import auth from '../../../middlewares/auth';
-
+//@ts-ignore
 import multer from "multer";
 import { TRole } from '../../../middlewares/roles';
+import { MessageControllerV2 } from './messageV2.controller';
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
@@ -16,7 +18,7 @@ export const optionValidationChecking = <T extends keyof IMessage | 'sortBy' | '
 };
 
 // const taskService = new TaskService();
-const controller = new MessageController();
+const controller = new MessageControllerV2() //🆕 MessageController();
 
 const paginationOptions: Array<'sortBy' | 'page' | 'limit' | 'populate'> = [
   'sortBy',
@@ -66,11 +68,13 @@ router.route('/create').post(
   controller.create
 );
 
+/********
 // [🚧][🧑‍💻✅][🧪] // 🆗 get All messages By ConversationId 
 router.route('/all/by/').get(
   //auth('common'),
   controller.getAllMessageByConversationId
 );
+****** */
 
 router
   .route('/delete/:id')

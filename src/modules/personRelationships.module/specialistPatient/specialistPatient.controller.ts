@@ -103,7 +103,7 @@ export class SpecialistPatientController extends GenericController<
     sendResponse(res, {
       code: StatusCodes.OK,
       data: result,
-      message: `${this.modelName} created successfully`,
+      message: `Unknown Specialist for patient retrieved successfully`,
       success: true,
     });
   });
