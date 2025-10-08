@@ -32,9 +32,9 @@ const kafka = new Kafka({
 
 // lets create producer and consumers..
 /*******************
- * 
+  
     const producer = kafka.producer()
-const consumer = kafka.consumer({ groupId: 'test-group' })
+    const consumer = kafka.consumer({ groupId: 'test-group' })
 
 *******************/
 
@@ -73,11 +73,9 @@ export async function produceMessage(message : object) {
     return true ; // which means message is set 
 }
 
-/**************** 
- 
-    we have to start this consumer in server.ts 
- 
- ************** */
+//---------------------------------
+//  we have to start this consumer in server.ts 
+//---------------------------------
 export async function startMessageConsumer(){
 
     console.log("Consumer is runnning ... 🔰🚥🚦🎯📈 ")

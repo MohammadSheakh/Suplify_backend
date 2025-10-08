@@ -32,12 +32,10 @@ router.route('/paginate').get(
   controller.getAllWithPagination 
 );
 
-/************
- * 
- * we need logged in users conversationsParticipents where we want to show only another person not logged in user  
- * For App ... 
- * 
- * ************ */  
+//---------------------------------
+// we need logged in users conversationsParticipents where we want to show only another person not logged in user  
+// For App ... 
+//---------------------------------
 router
 .route('/getRelatedUsers')
 .get(
@@ -47,12 +45,10 @@ router
 
 
 
-/**********
- * 
- * (req.query.otherUserId) otherUserId
- * get conversation participents by conversationId
- * 
- * ********* */
+//---------------------------------
+// (req.query.otherUserId) otherUserId
+// get conversation participents by conversationId
+//---------------------------------
 router.route('/check-conversation').get(
   auth('common'),
   controller.hasConversationWithUser

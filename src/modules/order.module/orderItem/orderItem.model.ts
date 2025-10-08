@@ -25,9 +25,9 @@ const orderItemSchema = new Schema<IOrderItem>(
       required : [true, 'unitPrice is required.. which is a number'],
       min: [0, 'unitPrice must be greater than zero'],
     },
-    /*******
-     * do we really need totalPrice for a product
-     * ****** */
+    //---------------------------------
+    // do we really need totalPrice for a product
+    //---------------------------------
     totalPrice : {
       type: Number,
       required : [true, 'totalPrice is required.. which is a number'],

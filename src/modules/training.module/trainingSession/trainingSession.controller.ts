@@ -69,12 +69,11 @@ export class TrainingSessionController extends GenericController<
   //   return await Promise.all(uploadPromises);
   // }
 
-  /********
-   * 
-   * Specialist | Get all training session of a training program ..
-   *              along with specialist information .. 
-   * 
-   * ******* */
+  //---------------------------------
+  // Specialist | Get all training session of a training program ..
+  //             along with specialist information .. 
+  //---------------------------------
+
   getAllWithPagination = catchAsync(async (req: Request, res: Response) => {
     const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']);
     const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);

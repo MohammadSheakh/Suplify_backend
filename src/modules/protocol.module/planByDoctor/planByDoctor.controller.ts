@@ -23,11 +23,9 @@ export class PlanByDoctorController extends GenericController<
     super(new PlanByDoctorService(), 'PlanByDoctor');
   }
 
-  /*******
-   * 
-   * Doctor | Create plan for patient .. 
-   * 
-   * ***** */
+//---------------------------------
+// Doctor | Create plan for patient .. 
+//---------------------------------
   create = catchAsync(async (req: Request, res: Response) => {
     
     const data: IPlanByDoctor = req.body;
@@ -47,12 +45,10 @@ export class PlanByDoctorController extends GenericController<
   });
 
 
-  /*******
-   * 
-   * Specialist | Members and protocol 
-   *  |-> Get All plan For a protocol
-   * 
-   * ****** */
+  //---------------------------------
+  // Specialist | Members and protocol 
+  //  |-> Get All plan For a protocol
+  //---------------------------------
   getAllWithPaginationForSpecialist = catchAsync(async (req: Request, res: Response) => {
     const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']); ;
     const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
@@ -74,12 +70,10 @@ export class PlanByDoctorController extends GenericController<
   });
 
 
-  /*******
-   * 
-   * Patient | protocol 
-   *  |-> Get All plan For a protocol and planType for a patient 
-   * 
-   * ****** */
+  //---------------------------------
+  // Patient | protocol 
+  //  |-> Get All plan For a protocol and planType for a patient 
+  //---------------------------------
   getAllWithPaginationForPatient = catchAsync(async (req: Request, res: Response) => {
     const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']); ;
     const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);

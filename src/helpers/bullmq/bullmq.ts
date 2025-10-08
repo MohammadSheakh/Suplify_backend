@@ -21,12 +21,10 @@ export const scheduleQueue = new Queue("scheduleQueue", {
   connection: redisPubClient.options, // reuse your redis config
 });
 
-/***********
- * 
- * If you’re on v5.x or later, QueueScheduler was removed. The functionality is built into Worker now, 
- * so you don’t need to use QueueScheduler.
- * 
- * **** */
+//---------------------------------
+// If you’re on v5.x or later, QueueScheduler was removed. The functionality is built into Worker now, 
+// so you don’t need to use QueueScheduler.
+//---------------------------------
 
 // new QueueScheduler("scheduleQueue", {
 //   connection: redisPubClient.options,

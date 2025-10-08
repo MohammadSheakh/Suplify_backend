@@ -1,12 +1,17 @@
+//@ts-ignore
 import cookieParser from 'cookie-parser';
+//@ts-ignore
 import cors from 'cors';
+//@ts-ignore
 import express, { Request, Response } from 'express';
+//@ts-ignore
 import path from 'path';
 import globalErrorHandler from './middlewares/globalErrorHandler';
 import notFound from './middlewares/notFount';
 import router from './routes';
 import { Morgan } from './shared/morgen';
 import i18next from './i18n/i18n'; // Import the i18next configuration
+//@ts-ignore
 import i18nextMiddleware from 'i18next-http-middleware';
 import webhookHandler from './modules/payment.module/stripeWebhook/webhookHandler';
 import { welcome } from './utils/welcome';
@@ -14,11 +19,9 @@ import { welcome } from './utils/welcome';
 
 const app = express();
 
-/***********
- *
- * for payment related thing.. we need to use view engine .. 
- * 
- * ********* */
+//---------------------------------
+// for payment related thing.. we need to use view engine .. 
+//---------------------------------
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 

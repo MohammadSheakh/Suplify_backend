@@ -55,11 +55,10 @@ export const handleFailedPayment = async (session: Stripe.Checkout.Session | any
   }
 }
 
-/**********
-* 
-*  const refModel = mongoose.model(result.type);
-*  const isExistRefference = await refModel.findById(result.refferenceId).session(session);
-* ********** */
+//---------------------------------
+// const refModel = mongoose.model(result.type);
+//  const isExistRefference = await refModel.findById(result.refferenceId).session(session);
+//---------------------------------
 async function updateDoctorPatientScheduleBooking(
     thisCustomer: TUser,
     doctorAppointmentScheduleId : string,

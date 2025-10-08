@@ -32,11 +32,9 @@ const paginationOptions: Array<'sortBy' | 'page' | 'limit' | 'populate'> = [
 // const taskService = new TaskService();
 const controller = new SpecialistPatientController();
 
-/**********
- * 
- * Patient | Get all Patients Related Specialist .. 
- * 
- * ******** */
+//---------------------------------
+// Patient | Get all Patients Related Specialist .. 
+//---------------------------------
 //info : pagination route must be before the route with params
 router.route('/paginate').get(
   auth(TRole.patient),
@@ -45,11 +43,9 @@ router.route('/paginate').get(
   controller.getAllWithPagination
 );
 
-/**********
- * 
- * Admin | Get all Patients Related Specialist .. 
- * 
- * ******** */
+//---------------------------------
+// Admin | Get all Patients Related Specialist .. 
+//---------------------------------
 //info : pagination route must be before the route with params
 router.route('/paginate/for-admin').get(
   auth(TRole.admin),
@@ -57,22 +53,18 @@ router.route('/paginate/for-admin').get(
   controller.getAllWithPagination
 );
 
-/**********
- * 
- * Patient | Get all Others Specialist .. 
- * 
- * ******** */
+//---------------------------------
+// Patient | Get all Others Specialist .. 
+//---------------------------------
 router.route('/paginate/others').get(
   auth(TRole.patient),
   validateFiltersForQuery(optionValidationChecking(['_id', ...paginationOptions])),
   controller.getUnknownSpecialist
 );
 
-/**********
- * 
- * Specialist | Members And Protocol | Show all patient and their doctors, subscriptionPlan
- * 
- * ********** */
+//---------------------------------
+// Specialist | Members And Protocol | Show all patient and their doctors, subscriptionPlan
+//---------------------------------
 router.route('/all-patients').get(
   auth(TRole.specialist),
   controller.showAllPatientsAndTheirDoctors
@@ -110,12 +102,10 @@ router.route('/specialist/:patientId').get(
 );
 
 
-/**********
- * 
- * Doctor | Protocol Section | Assign Specialist for a patient
- * Admin | User Management | Assign Specialist for a patient
- * 
- * ********** */
+//---------------------------------
+// Doctor | Protocol Section | Assign Specialist for a patient
+// Admin | User Management | Assign Specialist for a patient
+//---------------------------------
 router.route('/').post(
   auth(TRole.doctor, TRole.admin),
   validateRequest(validation.assignSpecialistForAPatientValidationSchema),

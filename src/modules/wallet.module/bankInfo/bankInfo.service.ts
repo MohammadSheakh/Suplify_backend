@@ -12,11 +12,9 @@ export class BankInfoService extends GenericService<
     super(BankInfo);
   }
 
-  /*************
-   * 
-   * Specialist / Doctor | create or update bank info
-   * 
-   * ********** */
+  //---------------------------------
+  // Specialist / Doctor | create or update bank info
+  //---------------------------------
   async createOrUpdate(id: string , data: IBankInfo) {
     const bankInfo:IBankInfo = await BankInfo.findOne({
       userId: id

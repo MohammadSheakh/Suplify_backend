@@ -55,11 +55,9 @@ const userSchema = new Schema<TUser, UserModal>(
 
     fcmToken: { type: String, default: null }, // Store Firebase Token
 
-    /*********
-     * 
-     * TODO: Add once gula kivabe manage korbo chinta korte hobe .. 
-     * 
-     * ******** */
+    //---------------------------------
+    // TODO: Add once gula kivabe manage korbo chinta korte hobe .. 
+    //---------------------------------
     subscriptionType: {
       type: String,
       enum: TSubscription 
@@ -154,9 +152,10 @@ const userSchema = new Schema<TUser, UserModal>(
     },
     lockUntil: { type: Date }, // 🔴 not sure 
 
-    /*******
-     * this is for Order Something .. Like Payment Related Thing .. 
-     * ***** */
+    //---------------------------------
+    // this is for Order Something .. Like Payment Related Thing .. 
+    //---------------------------------
+
     stripe_customer_id: {
       // > stripe er customer id ...
       type: String,
@@ -178,22 +177,18 @@ const userSchema = new Schema<TUser, UserModal>(
       default: null,
     },
 
-    /********
-     * 
-     * From Kappes Backend .. 
-     * For Sending and Receiving Money Via Stripe .. 
-     * 
-     * ***** */
+    //---------------------------------
+    // From Kappes Backend .. 
+    // For Sending and Receiving Money Via Stripe .. 
+    //---------------------------------
     stripeConnectedAccount: {
       type: String,
       default: '',
     },
 
-    /********
-     * 
-     * Wallet Related Info
-     * 
-     * **** */
+    //---------------------------------
+    // Wallet Related Info
+    //---------------------------------
     walletId : {
       type: Types.ObjectId,
       ref: 'Wallet',

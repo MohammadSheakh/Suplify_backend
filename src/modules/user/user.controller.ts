@@ -25,11 +25,9 @@ export class UserController extends GenericController<
     super(new UserService(), 'User');
   }
 
-  /***********
-   * 
-   * from previous codebase
-   * 
-   * ********* */
+//---------------------------------
+// from previous codebase
+//---------------------------------
   createAdminOrSuperAdmin = catchAsync(async (req: Request, res: Response) => {
     const payload = req.body;
     const result = await this.userService.createAdminOrSuperAdmin(payload);
@@ -42,11 +40,9 @@ export class UserController extends GenericController<
     });
   });
 
-  /***********
-   * 
-   * Specialist | Get Profile Information as logged in user 
-   * 
-   * ********** */
+//---------------------------------
+// Specialist | Get Profile Information as logged in user 
+//---------------------------------
   getById = catchAsync(async (req: Request, res: Response) => {
     const id = (req.user as IUser).userId;
 
@@ -81,11 +77,9 @@ export class UserController extends GenericController<
   });
 
 
-/***********
- * 
- * Admin | Get Profile Information by Id  to approve doctor / specialist 
- * 
- * ********** */
+//---------------------------------
+// Admin | Get Profile Information by Id  to approve doctor / specialist 
+//---------------------------------
   getByIdForAdmin = catchAsync(async (req: Request, res: Response) => {
     const id = (req.user as IUser).userId;
 
@@ -119,11 +113,9 @@ export class UserController extends GenericController<
     });
   });
 
- /*********
-  * 
-  * Admin | User Management With Statistics 💎✨🔍 V2 Found
-  * 
-  * ****** */
+//---------------------------------
+// Admin | User Management With Statistics 💎✨🔍 V2 Found
+//---------------------------------
   getAllWithPagination = catchAsync(async (req: Request, res: Response) => {
     const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']); ;
     const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
@@ -151,11 +143,9 @@ export class UserController extends GenericController<
       // } else {
       } else if (mainFilter[key] !== '' && mainFilter[key] !== null && mainFilter[key] !== undefined){
         
-        /*********
-         * 
-         * In pagination in filters when we pass empty string  it retuns all data
-         * 
-         * ********* */
+        //---------------------------------
+        // In pagination in filters when we pass empty string  it retuns all data
+        //---------------------------------
         query[key] = mainFilter[key];
       }
     }
@@ -191,11 +181,9 @@ export class UserController extends GenericController<
       // } else {
       } else if (mainFilter[key] !== '' && mainFilter[key] !== null && mainFilter[key] !== undefined){
         
-        /*********
-         * 
-         * In pagination in filters when we pass empty string  it retuns all data
-         * 
-         * ********* */
+        //---------------------------------
+        // In pagination in filters when we pass empty string  it retuns all data
+        //---------------------------------
         query[key] = mainFilter[key];
       }
     }
@@ -215,11 +203,9 @@ export class UserController extends GenericController<
     });
   });
 
-  /*************
-   * 
-   * Admin | Change Approval Status of Doctor / Specialist by UserId
-   * 
-   * ********** */
+  //---------------------------------
+  // Admin | Change Approval Status of Doctor / Specialist by UserId
+  //---------------------------------
   changeApprovalStatusByUserId = catchAsync(async (req: Request, res: Response) => {
     // const userId = req.params.id;
     const { approvalStatus, userId } = req.query;

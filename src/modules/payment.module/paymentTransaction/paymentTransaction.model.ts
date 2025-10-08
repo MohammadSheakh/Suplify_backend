@@ -40,11 +40,10 @@ const paymentTransactionSchema = new Schema<IPaymentTransaction>(
        required: [true, 'referenceId is required']
     },
 
-    /**********
-     * 
-     * const refModel = mongoose.model(result.type);
-     * const isExistRefference = await refModel.findById(result.refferenceId).session(session);
-     * ********** */
+    //---------------------------------
+    // const refModel = mongoose.model(result.type);
+    // const isExistRefference = await refModel.findById(result.refferenceId).session(session);
+    //---------------------------------
 
     paymentGateway: {
       type: String,
@@ -92,11 +91,9 @@ const paymentTransactionSchema = new Schema<IPaymentTransaction>(
     },
     
     gatewayResponse: { // from kappes
-      /*****
-       * 
-       * we need to store full response .. this will help us to debug payment related issue 
-       * 
-       * *** */
+      //---------------------------------
+      // we need to store full response .. this will help us to debug payment related issue 
+      //---------------------------------
       type: Schema.Types.Mixed,
       default: null,
     },

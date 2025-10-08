@@ -92,10 +92,11 @@ const subscriptionPlanSchema = new Schema<ISubscriptionPlan>(
       ],
       default: TCurrency.usd,
     },
-    /*******
-     * in stripe .. we always have to create new subscription
-     * and we can not update existing subscription ... 
-     * **** */
+    
+    //---------------------------------
+    // in stripe .. we always have to create new subscription
+    // and we can not update existing subscription ... 
+    //---------------------------------
     stripe_product_id : {
       type: String,
       required: [true, 'stripe_product_id is required'],

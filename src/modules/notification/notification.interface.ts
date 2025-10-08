@@ -13,12 +13,10 @@ export interface INotification {
   senderId?: Types.ObjectId;   // who triggered the notification
   receiverId?: Types.ObjectId; // specific user
 
-  /*******
-   * 
-   * fallback role-based delivery
-   * so that we can send notification to admin 
-   * 
-   * **** */
+  //---------------------------------
+  // fallback role-based delivery
+  // so that we can send notification to admin 
+  //---------------------------------
   receiverRole: TRole;  //🧩         
 
   type : TNotificationType; //🧩 

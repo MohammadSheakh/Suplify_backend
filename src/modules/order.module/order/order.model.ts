@@ -135,13 +135,10 @@ const orderSchema = new Schema<IOrder>(
           PaymentStatus
         ).join(', ')}`,
       ],
-      /*******
-       * 
-       * Initially unpaid .. 
-       * 
-       * in webhook handler .. we set this to paid .. 
-       * 
-       * ******* */
+      //---------------------------------
+      // Initially unpaid ..
+      // in webhook handler .. we set this to paid .. 
+      //---------------------------------
     },
 
     orderNotes: {
@@ -149,11 +146,9 @@ const orderSchema = new Schema<IOrder>(
       required: [false, 'orderNotes is not required'],
     },
 
-    /***********
-     * 
-     * Need to check this ... TODO : 
-     * 
-     * ********** */
+    //---------------------------------
+    // Need to check this ... TODO : 
+    //---------------------------------
     // isPaymentTransferdToVendor: {
     //   type: Boolean,
     //   default: false,

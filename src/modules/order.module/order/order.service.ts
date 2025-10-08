@@ -49,11 +49,9 @@ export class OrderService extends GenericService<typeof Order, IOrder>{
         let stripeResult ;
         
         try {
-        /*****
-         * 
-         * If stripeCustomerId found .. we dont need to create that .. 
-         * 
-         * ***** */    
+        //---------------------------------
+        // If stripeCustomerId found .. we dont need to create that .. 
+        //---------------------------------  
 
         let stripeCustomer;
         if(!user.stripe_customer_id){
@@ -106,11 +104,9 @@ export class OrderService extends GenericService<typeof Order, IOrder>{
                 finalAmount: 0 // we will update this later in this function
             })
 
-            /*******
-             * 
-             * get all cartItems by cartId
-             * 
-             * ******* */
+            //---------------------------------
+            // get all cartItems by cartId
+            //---------------------------------
 
             const cartItems:ICartItem[] = await CartItem.find({ cartId: cart._id, isDeleted: false })
             .populate({

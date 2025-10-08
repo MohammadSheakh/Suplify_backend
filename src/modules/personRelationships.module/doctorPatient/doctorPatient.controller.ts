@@ -25,11 +25,9 @@ export class DoctorPatientController extends GenericController<
     super(new DoctorPatientService(), 'doctorPatient');
   }
 
-  /**********
-   * 
-   * Admin | User Management | Assign Doctor for a patient
-   * 
-   * ********** */
+  //---------------------------------
+  // Admin | User Management | Assign Doctor for a patient
+  //---------------------------------
   create = catchAsync(async (req: Request, res: Response) => {
     const data :IDoctorPatient = req.body;
 
@@ -58,11 +56,9 @@ export class DoctorPatientController extends GenericController<
     });
   });
 
-  /**********
-   * 
-   * Patient | Get all Patients Doctor .. 
-   * 
-   * ******** */
+  //---------------------------------
+  // Patient | Get all Patients Doctor .. 
+  //---------------------------------
   getAllWithPagination = catchAsync(async (req: Request, res: Response) => {
     //const filters = pick(req.query, ['_id', 'title']); // now this comes from middleware in router
     const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']); ;
@@ -92,11 +88,9 @@ export class DoctorPatientController extends GenericController<
     });
   });
 
-  /**********
-   * 
-   * Patient | Get all Unknown Doctor .. 
-   * 
-   * ******** */
+  //---------------------------------
+  // Patient | Get all Unknown Doctor .. 
+  //---------------------------------
   getUnknownDoctors = catchAsync(async (req: Request, res: Response) => {
     const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']); ;
     const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
@@ -123,11 +117,9 @@ export class DoctorPatientController extends GenericController<
     });
   });
 
-  /**********
-   * 
-   * Doctor | Get all Patients For Provide Protocol 
-   * 
-   * ******** */
+  //---------------------------------
+  // Doctor | Get all Patients For Provide Protocol 
+  //---------------------------------
   getAllWithPaginationForDoctorProtocolSection = catchAsync(async (req: Request, res: Response) => {
     //const filters = pick(req.query, ['_id', 'title']); // now this comes from middleware in router
     const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']); ;
@@ -158,12 +150,11 @@ export class DoctorPatientController extends GenericController<
   });
 
 
-  /**********
-   * 
-   * Specialist | Members and protocol 
-   *  |-> Get all doctor and protocol count for a patient 
-   * 
-   * ******** */
+  //---------------------------------
+  // Specialist | Members and protocol 
+  //  |-> Get all doctor and protocol count for a patient 
+  //---------------------------------
+
   getAllDoctorAndProtocolCountForPatient = catchAsync(async (req: Request, res: Response) => {
     //const filters = pick(req.query, ['_id', 'title']); // now this comes from middleware in router
     const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']); ;

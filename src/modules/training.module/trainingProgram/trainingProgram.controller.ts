@@ -26,11 +26,10 @@ export class TrainingProgramController extends GenericController<
     super(new TrainingProgramService(), 'TrainingProgram');
   }
 
-  /***********
-   * 
-   * Patient | Get all Training Program of a Specialist ..
-   * //📈⚙️ OPTIMIZATION:
-   * ********* */
+  //---------------------------------
+  // Patient | Get all Training Program of a Specialist ..
+  // 📈⚙️ OPTIMIZATION:
+  //---------------------------------
   getAllWithAggregation = catchAsync(async (req: Request, res: Response) => {
     const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']); ;
     const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
@@ -62,9 +61,9 @@ export class TrainingProgramController extends GenericController<
     const data:ITrainingProgram = req.body;
 
     data.createdBy = (req.user as IUser).userId;
-    /**********
-     * // TODO : We need to check Specialist is approved by admin or not
-    ********** */
+    //---------------------------------
+    // TODO : We need to check Specialist is approved by admin or not
+    //---------------------------------
 
     //📈⚙️ OPTIMIZATION: Process both file types in parallel
     const [attachments, trailerContents] = await Promise.all([
@@ -102,11 +101,9 @@ export class TrainingProgramController extends GenericController<
   // }
 
 
-  /*******
-   * 
-   * Specialist | Get all Training Program of a Specialist .. 
-   * 
-   * ****** */
+//---------------------------------
+// Specialist | Get all Training Program of a Specialist .. 
+//---------------------------------
   getAllWithPagination = catchAsync(async (req: Request, res: Response) => {
     //const filters = pick(req.query, ['_id', 'title']); // now this comes from middleware in router
     const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']); ;

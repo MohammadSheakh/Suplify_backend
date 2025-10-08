@@ -85,10 +85,9 @@ export class SubscriptionController extends GenericController<
   */  
   create = catchAsync(async (req: Request, res: Response) => {
 
-    /************
-     //> make is active false of already existing subscription plan .. 
-     * 
-     * ***** */
+    //---------------------------------
+    //> make is active false of already existing subscription plan .. 
+    //---------------------------------
 
     const existingPlan = await SubscriptionPlan.find({
       isActive: true,

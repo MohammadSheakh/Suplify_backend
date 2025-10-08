@@ -17,11 +17,9 @@ export class DoctorPatientService extends GenericService<
     super(DoctorPatient);
   }
 
-  /**********
-   * 
-   * Patient | Get all Unknown Doctor .. 
-   * 
-   * ******** */
+  //---------------------------------
+  // Patient | Get all Unknown Doctor .. 
+  //---------------------------------
   async getUnknownDoctorsForPatient(patientId: string, 
     // options: PaginateOptions = {}
     filters : any,

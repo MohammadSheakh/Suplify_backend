@@ -29,12 +29,11 @@ export class MessageController extends GenericController<typeof Message, IMessag
         super(new MessagerService(), "Message")
     }
 
-    /*****************
-     * 
-     * we need this to create a message with attachments
-     * or just to upload attachments in chat 
-     * 
-     * **************** */
+    //---------------------------------
+    // we need this to create a message with attachments
+    // or just to upload attachments in chat 
+    //---------------------------------
+
     create = catchAsync(async (req: Request, res: Response) => {
         // const data = req.body;
 
@@ -79,24 +78,20 @@ export class MessageController extends GenericController<typeof Message, IMessag
 
         const result : IMessage = await Message.create(req.body);
 
-        /********
-         * 
-         *  TODO : event emitter er maddhome message create korar por
-         *  conversation er lastMessage update korte hobe ..
-         * 
-         * ******* */
+        //---------------------------------
+        //  TODO : event emitter er maddhome message create korar por
+        // conversation er lastMessage update korte hobe ..
+        //---------------------------------
+
         const updatedConversation = await Conversation.findByIdAndUpdate(result.conversationId, {
         lastMessage: result._id,
         });
 
+        //---------------------------------
+        // As per sayed vais suggestion, we will emit the event to the specific conversation room
+        // as when a user send attachments via chat, we need to notify all the participants of that conversation
+        //---------------------------------
 
-        /***********
-         * 
-         * As per sayed vais suggestion, we will emit the event to the specific conversation room
-         * 
-         * as when a user send attachments via chat, we need to notify all the participants of that conversation
-         * 
-         * ********** */
         const eventName = `new-message-received::${result.conversationId.toString()}`;
       
         //@ts-ignore
@@ -104,12 +99,10 @@ export class MessageController extends GenericController<typeof Message, IMessag
             message: result,
         });
 
-        /**********
-         * 
-         * We also need to emit to participants personal room
-         * to update their conversation list .. 
-         * 
-         * ********** */
+        //---------------------------------
+        // We also need to emit to participants personal room
+        // to update their conversation list .. 
+        //---------------------------------
 
         conversationParticipants.forEach((participant: any) => {
           const participantId = participant.userId?.toString();

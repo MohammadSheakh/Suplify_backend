@@ -22,13 +22,13 @@ const CartItemSchema = new Schema<ICartItem>(
       required: [true, 'quantity is required.. which is a number'],
     },
     
-    /*******
-     * we dont store unit price here .. as unit price can varry .. 
-     * ****** */
+    //---------------------------------
+    // we dont store unit price here .. as unit price can varry .. 
+    //---------------------------------
 
-    /*******
-     * also we dont store total price here .. as unit price can varry ..  
-     * ****** */
+    //---------------------------------
+    // also we dont store total price here .. as unit price can varry ..  
+    //---------------------------------
     
     isDeleted: {
       type: Boolean,

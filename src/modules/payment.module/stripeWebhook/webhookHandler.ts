@@ -55,9 +55,9 @@ const webhookHandler = async (req: Request, res: Response): Promise<void> => {
                     console.log("🪝checkout.session.expired")
                     await handleFailedPayment(event.data.object);
                     break;
-               /*******
-                * later we will implement this 
-                * *****/     
+               //---------------------------------
+               // TODO : later we will implement this 
+               //---------------------------------  
                case 'transfer.created':
                     console.log("🪝transfer.created")
                     // await handleTransferCreated(event.data.object); // commented by sheakh

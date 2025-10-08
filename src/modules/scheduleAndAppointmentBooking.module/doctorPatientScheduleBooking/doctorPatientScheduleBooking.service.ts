@@ -182,11 +182,9 @@ export class DoctorPatientScheduleBookingService extends GenericService<
         let stripeResult : { url: string} | null = null;
         
         try {
-            /*****
-             * 
-             * If stripeCustomerId found .. we dont need to create that .. 
-             * 
-             * ***** */    
+            //---------------------------------
+            // If stripeCustomerId found .. we dont need to create that .. 
+            //--------------------------------- 
 
             let stripeCustomer;
             if(!user.stripe_customer_id){
@@ -314,11 +312,9 @@ export class DoctorPatientScheduleBookingService extends GenericService<
     return stripeResult; // result ;//session.url;
     }
 
-    /**********
-     * 
-     * Doctor | Get All Upcoming Schedule
-     * 
-     * ******** */
+    //---------------------------------
+    // Doctor | Get All Upcoming Schedule
+    //---------------------------------
     async getAllUpcomingSchedule(doctorId: string, userTimeZone: string) {
 
         console.log("doctorId ::: " , doctorId)

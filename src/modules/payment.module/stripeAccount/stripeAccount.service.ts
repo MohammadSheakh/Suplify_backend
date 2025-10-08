@@ -24,11 +24,9 @@ const createConnectedStripeAccount = async (user: any, host: string, protocol: s
      console.log('existingAccount', existingAccount);
 
      if (existingAccount) {
-          /*******
-           * 
-           * if stripe account exist for a user .. we create and update account for no reason
-           * 
-           * ******* */
+          //---------------------------------
+          // if stripe account exist for a user .. we create and update account for no reason
+          //---------------------------------
           if (existingAccount.isCompleted) {
                return {
                     success: false,
@@ -52,9 +50,9 @@ const createConnectedStripeAccount = async (user: any, host: string, protocol: s
           };
      }
 
-     /******
-      * if no account found .. create stripe account
-      * ***** */
+     //---------------------------------
+     // if no account found .. create stripe account
+     //---------------------------------
      const account = await stripe.accounts.create({
           type: 'express',
           email: user.email,

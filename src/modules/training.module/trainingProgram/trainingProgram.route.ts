@@ -43,11 +43,9 @@ router.route('/paginate').get(
 );
 
 
-/*******
- * 
- * Specialist | Get all Training Program of a Specialist .. 
- * 
- * ****** */
+//---------------------------------
+// Specialist | Get all Training Program of a Specialist .. 
+//---------------------------------
 //info : pagination route must be before the route with params
 router.route('/specialist/paginate/').get(
   auth(TRole.specialist),
@@ -72,11 +70,9 @@ router.route('/').get(
   controller.getAll
 );
 
-/******
- * 
- * Specialist | Specialist Dashboard | Create Training Program...  
- * 
- * ****** */
+//---------------------------------
+// Specialist | Specialist Dashboard | Create Training Program...  
+//---------------------------------
 router.route('/').post(
   [
     upload.fields([

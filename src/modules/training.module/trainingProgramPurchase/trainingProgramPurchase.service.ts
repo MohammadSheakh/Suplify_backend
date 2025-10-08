@@ -204,9 +204,10 @@ export class TrainingProgramPurchaseService extends GenericService<
             // purchaseTrainingProgram._id // referenceId
           );
 
-          /**********
-           * Now send notification to admin that patient has purchased training program
-           * ******* */
+          //---------------------------------
+          // Now send notification to admin that patient has purchased training program
+          //---------------------------------
+
           await sendInWebNotification(
             `${existingTrainingProgram.programName} Training Program of specialist ${existingTrainingProgram.createdBy} purchased by a ${existingUser.subscriptionType} user ${existingUser.name}. purchaseTrainingProgramId ${purchaseTrainingProgram._id}`,
             existingUser._id, // senderId
@@ -250,11 +251,9 @@ export class TrainingProgramPurchaseService extends GenericService<
     let trainingProgramPurchase : ITrainingProgramPurchase | null;
     
     try {
-    /*****
-     * 
-     * If stripeCustomerId found .. we dont need to create that .. 
-     * 
-     * ***** */    
+    //---------------------------------
+    // If stripeCustomerId found .. we dont need to create that .. 
+    //---------------------------------  
 
     let stripeCustomer;
     if(!user.stripe_customer_id){

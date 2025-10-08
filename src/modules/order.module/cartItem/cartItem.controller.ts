@@ -24,11 +24,9 @@ export class CartItemController extends GenericController<
     super(new CartItemService(), 'CartItem');
   }
 
-  /*********
-   * 
-   * Patient | Dashboard | add to cart 
-   * 
-   * ******* */
+  //---------------------------------
+  // Patient | Dashboard | add to cart 
+  //---------------------------------
   create = catchAsync(async (req: Request, res: Response) => {
     const data:ICreateCart = req.body;
 
@@ -76,9 +74,9 @@ export class CartItemController extends GenericController<
 
     let newCartItem:ICartItem | any
     if(isCartItemExist){
-      /*****
-       * we just update quantity of that cartItem
-       * **** */
+      //---------------------------------
+      // we just update quantity of that cartItem
+      //---------------------------------
       isCartItemExist.quantity += 1;
       
       await isCartItemExist.save();
@@ -121,12 +119,10 @@ export class CartItemController extends GenericController<
     });
   });
 
-  /*********
-   * 
-   * Patient | Remove an cartItem by cartItemId 
-   * also decrease itemCount in cart 
-   * 
-   * ******** */
+  //---------------------------------
+  // Patient | Remove an cartItem by cartItemId 
+  // also decrease itemCount in cart 
+  //---------------------------------
   softDeleteById = catchAsync(async (req: Request, res: Response) => {
     if (!req.params.id) {
       throw new ApiError(

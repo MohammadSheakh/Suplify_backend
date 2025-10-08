@@ -21,11 +21,9 @@ export class BankInfoController extends GenericController<
   }
 
   
-  /*************
-   * 
-   * Specialist / Doctor | create or update bank info
-   * 
-   * ********** */
+  //---------------------------------
+  // Specialist / Doctor | create or update bank info
+  //---------------------------------
   createOrUpdate = catchAsync(async (req: Request, res: Response) => {
     
     const data:IBankInfo = req.body;

@@ -60,11 +60,9 @@ export class ConversationController extends GenericController<typeof Conversatio
     });
   });
 
-  /*************
-   * 
-   * ( Dashboard ) | Admin :: getAllConversationAndItsParticipantsBySiteId
-   * 
-   * *********** */
+  //---------------------------------
+  // ( Dashboard ) | Admin :: getAllConversationAndItsParticipantsBySiteId
+  //---------------------------------
   getAllConversationAndItsParticipantsBySiteId = catchAsync(
     async (req: Request, res: Response) => {
       const { siteId } = req.query;
@@ -104,9 +102,9 @@ export class ConversationController extends GenericController<typeof Conversatio
   );
 
 
-  /***********
-   * Claude 
-   * ********** */
+  //---------------------------------
+  // Claude 
+  //---------------------------------
   create = catchAsync(async (req: Request, res: Response) => {
     let type;
     let result: IConversation;
@@ -228,9 +226,9 @@ export class ConversationController extends GenericController<typeof Conversatio
     }
 
     if (!existingConversation) {
-      /***********
-       * Create a new conversation
-       ***********/
+      //---------------------------------
+      // Create a new conversation
+      //---------------------------------
       
       result = await this.service.create(conversationData);
 

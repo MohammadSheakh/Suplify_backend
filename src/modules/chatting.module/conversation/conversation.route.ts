@@ -47,12 +47,10 @@ router.route('/').get(
   controller.getAll
 );
 
-/***********
- * 
- * Create Conversation ..
- * Do We need to give permission to upload image
- * 
- * ******** */
+//---------------------------------
+// Create Conversation ..
+// Do We need to give permission to upload image
+//---------------------------------
 router.route('/').post(
   auth(TRole.common),
   validateRequest(validation.createConversationValidationSchema),
@@ -115,11 +113,9 @@ router.route('trigger-cron').get(
 // )
 
 
-/*************
-   * 
-   * ( Dashboard ) | Admin :: getAllConversationAndItsParticipantsBySiteId
-   * 
-   * *********** */
+  //--------------------------------- 
+  // ( Dashboard ) | Admin :: getAllConversationAndItsParticipantsBySiteId
+  //---------------------------------
   router.route('/by/siteId').get(
   //auth('common'),
   controller.getAllConversationAndItsParticipantsBySiteId

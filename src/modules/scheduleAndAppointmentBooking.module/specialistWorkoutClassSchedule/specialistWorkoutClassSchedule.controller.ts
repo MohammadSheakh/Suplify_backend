@@ -45,11 +45,10 @@ export class SpecialistWorkoutClassScheduleController extends GenericController<
   });
 
 
-  /***********
-   * 
-   * Patient | Get all workout class of a specialist with isBooked boolean field
-   * //📈⚙️ OPTIMIZATION:
-   * ********* */
+  //---------------------------------
+  // Patient | Get all workout class of a specialist with isBooked boolean field
+  // 📈⚙️ OPTIMIZATION:
+  //---------------------------------
   getAllWithAggregation = catchAsync(async (req: Request, res: Response) => {
     const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']); ;
     const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);

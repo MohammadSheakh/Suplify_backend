@@ -46,13 +46,11 @@ const ProductSchema = new Schema<IProduct>(
       type: Number,
       required: [true, 'stockQuantity is required'],
     },
-    /************
-     * 
-     * Size, Color
-     * 
-     * Need to add later  
-     * 
-     * ********** */
+
+    //---------------------------------
+    // Size, Color Need to add later  
+    //---------------------------------
+    
     isDeleted: {
       type: Boolean,
       required: [false, 'isDeleted is not required'],

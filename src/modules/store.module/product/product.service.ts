@@ -21,11 +21,10 @@ export class ProductService extends GenericService<
     // const wellnessCount = await this.model.countDocuments({ category: TProductCategory.wellness });
     // const othersCount = await this.model.countDocuments({ category: TProductCategory.others });
 
-    /**********
-     * 
-     * this return the count of each category
-     * 
-     * ********* */
+    //---------------------------------
+    // this return the count of each category
+    //---------------------------------
+
     const counts = await this.model.aggregate([
       { $group: { _id: "$category", count: { $sum: 1 } } }
     ]);
@@ -40,12 +39,10 @@ export class ProductService extends GenericService<
     };
   }
 
-  /********
-   * 
-   * with caching .. .. this is for example purpose only .. 
-   * we use caching in controller .. 
-   * 
-   * ******** */
+  //---------------------------------
+  // with caching .. .. this is for example purpose only .. 
+  // we use caching in controller .. 
+  //---------------------------------
   async categoryWithCount () {
 
     const data = await getOrSetRedisCache(
@@ -74,11 +71,9 @@ export class ProductService extends GenericService<
     return data;
   }
 
-  /*******
-   * 
-   * (Landing Page) : E-Commerce 
-   * 
-   * ****** */
+  //---------------------------------
+  // (Landing Page) : E-Commerce 
+  //---------------------------------
   async showAllCategoryAndItsLimitedProducts() {
     const result = await this.model.aggregate([
       /************   here based on patients subscription .. we show labTest  // TODO :::: 
@@ -105,11 +100,9 @@ export class ProductService extends GenericService<
     return result;
   }
 
-  /***********
- * 
- * ( Landing Page ) |  get-product-details-with-related-products  //[][🧑‍💻][🧪] //🚧✅ 🆗
- * 
- * ********** */
+  //---------------------------------
+  // ( Landing Page ) |  get-product-details-with-related-products  //[][🧑‍💻][🧪] //🚧✅ 🆗
+  //---------------------------------
   async getProductDetailsWithRelatedProducts(productId: string) {
     console.log("🟢", productId);
     const result = await this.model.findById(productId);

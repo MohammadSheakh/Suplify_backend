@@ -36,11 +36,9 @@ router.route('/').get((req, res) => {
   console.log("🟢 test page");
 });
 
-/***********
- * 
- * Admin | get all payment transaction with pagination
- * 
- * ******** */
+//---------------------------------
+// Admin | get all payment transaction with pagination
+//---------------------------------
 router.route('/paginate').get(
   //auth('common'),
   validateFiltersForQuery(optionValidationChecking([
@@ -75,12 +73,10 @@ router.route('/paginate/dev').get(
   controller.getAllWithPaginationForDev
 );
 
-//[🚧][🧑‍💻✅][🧪] // 🆗
-/****************
- * 
- * From kappes Backend
- * 
- * ************* */
+
+//---------------------------------
+// From kappes Backend
+//---------------------------------
 
 router.route('/success').get(controller.successPage)
 router.route('/cancel').get(controller.cancelPage);

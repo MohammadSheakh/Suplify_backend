@@ -63,9 +63,9 @@ export class UserSubscriptionService extends GenericService<typeof UserSubscript
         }else{
             stripeCustomer = user.stripe_customer_id;
         }
-        /******
-         * get active standard plan priceId from database
-         * **** */
+        //---------------------------------
+        // get active standard plan priceId from database
+        //---------------------------------
         const standardPlan:ISubscriptionPlan = await SubscriptionPlan.findOne({
             subscriptionType: TSubscription.standard,
             isActive: true
@@ -76,11 +76,9 @@ export class UserSubscriptionService extends GenericService<typeof UserSubscript
         if(!standardPlan){
             return new ApiError(StatusCodes.NOT_FOUND, 'No active standard plan found');
         }
-        /*******
-         * 
-         * Lets create a userSubscription // TODO : we have to check already have userSubsription or not .. 
-         * 
-         * ******* */
+        //---------------------------------
+        // Lets create a userSubscription // TODO : we have to check already have userSubsription or not .. 
+        //---------------------------------
 
         const newUserSubscription : IUserSubscription = await UserSubscription.create({
             userId: user._id, //🔗
@@ -118,9 +116,9 @@ export class UserSubscriptionService extends GenericService<typeof UserSubscript
         mode: 'subscription',
         line_items: [{
             price: standardPlan.stripe_price_id, /*config.stripe.standard_plan_price_id,*/
-            /*****
-             *  🟢 70 dollar er priceId provide korte hobe .. which is comes from env file 
-             * ****** */
+            //---------------------------------
+            // 🟢 70 dollar er priceId provide korte hobe .. which is comes from env file 
+            //---------------------------------
             quantity: 1,
         }],
         

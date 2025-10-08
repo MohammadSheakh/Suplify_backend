@@ -38,11 +38,10 @@ router.route('/paginate').get(
   validateFiltersForQuery(optionValidationChecking(['_id', ...paginationOptions])),
   controller.getAllWithPagination
 );
-/**********
- * 
- * Doctor | Upcoming Schedule | 
- * 
- * ********** */
+
+//---------------------------------
+// Doctor | Upcoming Schedule | 
+//---------------------------------
 router.route('/upcoming').get(
   auth(TRole.doctor),
   validateFiltersForQuery(optionValidationChecking(['_id', ...paginationOptions])),

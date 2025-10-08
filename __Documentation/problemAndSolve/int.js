@@ -46,7 +46,7 @@
     methods by passing a route path as the first argument to the app.use() method.
 
 
-    /********** 
+    /***** 
      * it comes in between request and business logic .. 
     mainly used to capture logs, enable rate limiting, authentication .. basically whatever is not part of business logic 
     there are third party middlewares also available like cors, helmet, body-parser, morgan etc ..
@@ -81,7 +81,7 @@
     The event loop is a core component of Node.js that allows it to handle asynchronous operations efficiently.
     It is responsible for executing callbacks, processing events, and managing the execution of asynchronous code.
 
-    /********** 
+    /***** 
      * asynchronous is managed by event loop
 
     @Next <!--    -->
@@ -118,7 +118,7 @@
     It can help improve the overall performance and responsiveness of Node.js applications by allowing them to handle more
     requests concurrently.
 
-    /*********** *
+    /****** *
      * the cluster module is used to start up multiple node js processes that can share the same server port.
      * this allows us to take advantage of multi-core processors and improve the performance of our node js applications.
      
@@ -158,7 +158,7 @@
     across multiple cores, while worker threads are more suitable for offloading CPU-bound tasks to separate threads
     to prevent blocking the event loop.
 
-    /******************** 
+    /*************** 
      * Cluster : In cluster mode, there is one process on each cpu.. with an enter process communication protocol 
       communicate and in case we want to have multiple servers accepting http requests whereas single port clusters can be helpful
       . this is an advantage of clustering .. and the processes are spawned in each cpu and thus will have separate memory
@@ -186,7 +186,7 @@
     to find the desired range. This pattern can be implemented using various data structures such as trees
     or hash tables, and it can significantly improve the performance of search operations in large datasets.
     
-    /****************** 
+    ************* 
      * range axis search is a great way to structure test cases. It Prescribe an order of operation
      * Steps Are ...
       1. first step is to arrange inputs and targets 
@@ -267,7 +267,7 @@
     The exec method is typically used for short-lived processes or when you only need to capture the output of the command
     without needing to interact with it in real-time.
 
-    /*********** 
+    ****** 
       for spawn, it doesnt spawn a shell  and exec spawns a shell and executes the command in it.
 
       spawn streams the data returned by the child process and data flow is constant.
@@ -323,7 +323,7 @@
     invokes the corresponding callback function to handle the event. This allows for efficient handling
     of multiple events and callbacks without blocking the execution of the program.
 
-    /**************** 
+    *********** 
      * 
      Reactor pattern is a pattern for non-blocking io operations.. but in general this is used in any event driven architecture. 
 

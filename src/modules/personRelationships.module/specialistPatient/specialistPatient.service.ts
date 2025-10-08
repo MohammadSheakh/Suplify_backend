@@ -16,11 +16,9 @@ export class SpecialistPatientService extends GenericService<
     super(SpecialistPatient);
   }
 
-  /**********
-   * 
-   * Specialist | Members And Protocol | Show all patient and their doctors, subscriptionPlan
-   * 
-   * ********** */
+  //---------------------------------
+  // Specialist | Members And Protocol | Show all patient and their doctors, subscriptionPlan
+  //---------------------------------
   async showAllPatientsAndTheirDoctors(specialistId: string,
     filters: any,
     options: any
@@ -172,18 +170,14 @@ export class SpecialistPatientService extends GenericService<
             
             subscriptionType: 1
           },
-          /********
-           * 
-           * return all doctor objects ..
-           * 
-           * ****** */
+          //---------------------------------
+          // return all doctor objects ..
+          //---------------------------------
           // doctors: '$doctorPatients.doctor', // Array of doctors
           
-          /***********
-           * 
-           * return array of doctor names .. instead of objects
-           * 
-           * ********* */
+          //---------------------------------
+          // return array of doctor names .. instead of objects
+          //---------------------------------
           // doctors: {
           //   $map: {
           //     input: {
@@ -197,11 +191,9 @@ export class SpecialistPatientService extends GenericService<
           //   }
           // }
 
-          /*********
-           * 
-           * return array of doctor object .. which has only name and id
-           * 
-           * ******* */
+          //---------------------------------
+          // return array of doctor object .. which has only name and id
+          //---------------------------------
           doctors: {
             $map: {
               input: '$doctorPatients.doctor',
@@ -315,11 +307,9 @@ export class SpecialistPatientService extends GenericService<
     );
   }
 
-  /**********
-   * 
-   * Doctor | Protocol Section | Show all Specialist for assign to a patient
-   * 
-   * ********** */
+  //---------------------------------
+  // Doctor | Protocol Section | Show all Specialist for assign to a patient
+  //---------------------------------
   async getUnknownSpecialistsForPatientForAssign(patientId: string, 
     // options: PaginateOptions = {}
     filters : any,

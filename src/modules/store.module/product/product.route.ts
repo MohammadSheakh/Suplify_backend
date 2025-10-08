@@ -35,11 +35,9 @@ router.route('/paginate').get(
   controller.getAllWithPagination
 );
 
-/***********
- * 
- * ( Admin ) |  Get Shops all category with product counts //[🚧][🧑‍💻][🧪] //✅ 🆗
- * 
- * ********** */
+//---------------------------------
+// ( Admin ) |  Get Shops all category with product counts //[🚧][🧑‍💻][🧪] //✅ 🆗
+//---------------------------------
 router.route('/category-with-count').get(
   //auth('common'),
   controller.categoryWithCount
@@ -87,35 +85,26 @@ router.route('/softDelete/:id').put(
   controller.softDeleteById
 );
 
-/***********
- * 
- * ( Admin ) |  Update Product By Id //[][🧑‍💻][🧪] //🚧✅ 🆗
- * 
- * ********** */
+//---------------------------------
+// ( Admin ) |  Update Product By Id //[][🧑‍💻][🧪] //🚧✅ 🆗
+//---------------------------------
 
 
-/***********
- * 
- * ( Landing Page ) |  show-all-category-and-its-limited-products  //[][🧑‍💻][🧪] //🚧✅ 🆗
- * 
- * ********** */
+//---------------------------------
+// ( Landing Page ) |  show-all-category-and-its-limited-products  //[][🧑‍💻][🧪] //🚧✅ 🆗
+//---------------------------------
 router.route('/by/category').get(
   //auth('patient'), 
-  /******
-   * 
-   * 🟢 based on patients subscription status .. we 
-   * show labTest
-   *  
-   * **** */
+  //---------------------------------
+  //🟢 based on patients subscription status .. we  show labTest
+  //---------------------------------
    
   controller.showAllCategoryAndItsLimitedProducts
 )
 
-/***********
- * 
- * ( Landing Page ) |  get-product-details-with-related-products  //[][🧑‍💻][🧪] //🚧✅ 🆗
- * 
- * ********** */
+//---------------------------------
+// ( Landing Page ) |  get-product-details-with-related-products  //[][🧑‍💻][🧪] //🚧✅ 🆗
+//---------------------------------
 router.route('/:productId/related').get(
   controller.getProductDetailsWithRelatedProducts
 )

@@ -28,11 +28,9 @@ const paginationOptions: Array<'sortBy' | 'page' | 'limit' | 'populate'> = [
 
 // const taskService = new TaskService();
 const controller = new DoctorPlanController();
-/*********
- * 
- * Doctor | get own all plan by category 
- * 
- * ******** */
+//---------------------------------
+// Doctor | get own all plan by category 
+//---------------------------------
 //info : pagination route must be before the route with params
 router.route('/paginate').get(
   auth(TRole.doctor),
@@ -45,11 +43,9 @@ router.route('/:id').get(
   controller.getById
 );
 
-/*******
- * 
- * Doctor | Update Own plan ..
- * params :: doctorPlanId
- * ***** */
+//---------------------------------
+// Doctor | Update Own plan .. params :: doctorPlanId
+//---------------------------------
 router.route('/update/:id').put(
   auth(TRole.doctor),
   validateRequest(validation.updateDoctorPlanValidationSchema),
@@ -61,11 +57,9 @@ router.route('/').get(
   auth('commonAdmin'),
   controller.getAll
 );
-/*******
- * 
- * Doctor | Create Own plan .. so that later he can assign these plans to any patient
- * 
- * ***** */
+//---------------------------------
+// Doctor | Create Own plan .. so that later he can assign these plans to any patient
+//---------------------------------
 router.route('/').post(
   auth(TRole.doctor),
   validateRequest(validation.createDoctorPlanValidationSchema),

@@ -36,11 +36,11 @@ router.route('/paginate').get(
   controller.getAllWithPagination
 );
 
-/**********
- * 
- * Patient | Increment or decrement count by type
- * :type: it can be inc or dec
- * ****** */
+//---------------------------------
+// Patient | Increment or decrement count by type
+// :type: it can be inc or dec
+//---------------------------------
+
 router.route('/count-update/:id').put(
   auth(TRole.patient),
   controller.updateCountWithType
@@ -64,12 +64,10 @@ router.route('/').get(
   controller.getAll
 );
 
-//[🚧][🧑‍💻✅][🧪] // 🆗 //suplify
-/*********
- * 
- * Patient | Dashboard | add to cart 
- * 
- * ******* */
+
+//---------------------------------
+// Patient | Dashboard | add to cart 
+//---------------------------------
 router.route('/create').post(
   auth(TRole.patient),
   validateRequest(validation.addToCartValidationSchema),
@@ -81,12 +79,11 @@ router.route('/delete/:id').delete(
   controller.deleteById
 ); // FIXME : change to admin
 
-/*********
- * 
- * Patient | Remove an cartItem by cartItemId 
- * also decrease itemCount in cart 
- * 
- * ******** */
+//---------------------------------
+// Patient | Remove an cartItem by cartItemId 
+// also decrease itemCount in cart 
+//---------------------------------
+
 router.route('/softDelete/:id').put(
   //auth('common'),
   controller.softDeleteById

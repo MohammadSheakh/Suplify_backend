@@ -30,11 +30,9 @@ export class ConversationParticipentsService extends GenericService<
     return object;
   }
 
-  /*************
-   * 
-   * ( Dashboard ) | Admin :: getAllConversationAndItsParticipantsBySiteId
-   * 
-   * *********** */
+  //---------------------------------
+  // ( Dashboard ) | Admin :: getAllConversationAndItsParticipantsBySiteId
+  //---------------------------------
   async getByConversationIdForAdminDashboard(conversationId: any) {
     const object = await this.model.find({ conversationId }).select('-joinedAt -createdAt -updatedAt -__v')
     .populate({

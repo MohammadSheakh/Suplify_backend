@@ -54,25 +54,22 @@ const LabTestBookingSchema = new Schema<ILabTestBooking>(
               ', '
             )}`],
       default: TLabTestBookingStatus.pending,
-      /***********
-       * 
-       * Initially status should be pending .. 
-       * 
-       * In webhook .. update the status based on the payment status
-       * 
-       * ********* */
+      //---------------------------------
+      // Initially status should be pending .. 
+      // In webhook .. update the status based on the payment status
+      //---------------------------------
+
     },
     paymentTransactionId: { //🔗 Same as PaymentId of kappes
       type: Schema.Types.ObjectId,
       ref: 'PaymentTransaction',
       default: null,
 
-      /*********
-       * 
-       * In webhook we update this .. 
-       * Initially this should be null 
-       * 
-       * ********* */
+      //---------------------------------
+      // In webhook we update this .. 
+      // Initially this should be null 
+      //---------------------------------
+
     },
     paymentMethod: {
       type: String,
@@ -91,13 +88,9 @@ const LabTestBookingSchema = new Schema<ILabTestBooking>(
       required: [true, `paymentStatus is required .. it can be  ${Object.values(TPaymentStatus).join(
               ', '
             )}`],
-      /********
-       * 
-       * Initially This should be unpaid .. 
-       * 
-       * In webhook we update this as paid .. 
-       * 
-       * ******** */
+      //---------------------------------
+      // Initially This should be unpaid .. In webhook we update this as paid .. 
+      //---------------------------------
     },
     
     isDeleted: {

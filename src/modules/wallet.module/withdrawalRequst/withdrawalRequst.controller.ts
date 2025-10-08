@@ -30,11 +30,9 @@ export class WithdrawalRequstController extends GenericController<
     super(new WithdrawalRequstService(), 'WithdrawalRequst');
   }
 
-  /***********
-   * 
-   * Specialist / Doctor  | Wallet | Create withdrawal request
-   * TODO : MUST : NEED_TO_TEST
-   * ******** */
+//---------------------------------
+// Specialist / Doctor  | Wallet | Create withdrawal request TODO : MUST : NEED_TO_TEST
+//---------------------------------
   create = catchAsync(async (req: Request, res: Response) => {
     
     const data:IWithdrawalRequst = req.body;
@@ -138,11 +136,9 @@ export class WithdrawalRequstController extends GenericController<
     });
   });
 
-  /************
-   * 
-   *  Admin | Upload receipt And Update status 
-   * 
-   * ********** */
+  //---------------------------------
+  //  Admin | Upload receipt And Update status 
+  //---------------------------------
   uploadReceiptAndUpdateStatus = catchAsync(async (req: Request, res: Response) => {
     /*******
      * 📝

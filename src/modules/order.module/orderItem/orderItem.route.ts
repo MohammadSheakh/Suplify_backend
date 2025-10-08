@@ -29,11 +29,9 @@ const paginationOptions: Array<'sortBy' | 'page' | 'limit' | 'populate'> = [
 // const taskService = new TaskService();
 const controller = new OrderItemController();
 
-/*********
- * 
- * Admin | Get all order item for a order
- * 
- * ******** */
+//---------------------------------
+// Admin | Get all order item for a order
+//---------------------------------
 //info : pagination route must be before the route with params
 router.route('/paginate').get(
   //auth('common'),
@@ -41,12 +39,10 @@ router.route('/paginate').get(
   controller.getAllWithPagination 
 );
 
-/*********
- * 
- * Patient | Get all order item for a order
- * with order information
- * 
- * ******** */
+//---------------------------------
+// Patient | Get all order item for a order
+// with order information
+//---------------------------------
 router.route('/paginate/for-patient').get(
   auth(TRole.patient),
   validateFiltersForQuery(optionValidationChecking(['_id', 'orderId', ...paginationOptions])),

@@ -76,12 +76,10 @@ router.route('/').get(
   controller.getAll 
 );
 
-/*************
- * 
- * postman | create subscription plan .. 
- * this api is for creating subscription plan form admin dashboard .. 
- *
- **********/
+//---------------------------------
+// postman | create subscription plan .. 
+// this api is for creating subscription plan form admin dashboard .. 
+//---------------------------------
 //[🚧][🧑‍💻✅][🧪] // 🆗
 router.route('/').post(
   //auth('common'),
@@ -89,11 +87,9 @@ router.route('/').post(
   controller.create
 );
 
-/********
- * 
- * Patient | Landing Page | Purchase Subscription by subscriptionPlanId 
- * 
- * ********* */
+//---------------------------------
+// Patient | Landing Page | Purchase Subscription by subscriptionPlanId 
+//---------------------------------
 
 router.route('/purchase/:subscriptionPlanId').post(
   auth(TRole.patient),

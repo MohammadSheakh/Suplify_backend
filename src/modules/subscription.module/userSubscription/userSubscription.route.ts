@@ -70,11 +70,9 @@ router
   //auth('common'),
   controller.softDeleteById);
 
-/*********
- * 
- * Patient  | Landing Page | Start Free Trial
- * 
- * ****** */  
+//---------------------------------
+// Patient  | Landing Page | Start Free Trial
+//--------------------------------- 
 router.route('/free-trial/start').post(
   auth(TRole.patient),
   controller.startFreeTrial

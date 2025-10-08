@@ -28,11 +28,9 @@ export class DoctorPlanController extends GenericController<
     super(new DoctorPlanService(), 'DoctorPlan');
   }
 
-  /*******
-   * 
-   * Doctor | Create Own plan .. so that later he can assign these plans to any patient
-   * 
-   * ***** */
+  //---------------------------------
+  // Doctor | Create Own plan .. so that later he can assign these plans to any patient
+  //---------------------------------
   create = catchAsync(async (req: Request, res: Response) => {
     
     const data: IDoctorPlan = req.body;
@@ -74,11 +72,9 @@ export class DoctorPlanController extends GenericController<
         query[key] = { $regex: mainFilter[key], $options: 'i' }; // Case-insensitive regex search for name
       // } else {
       } else if (mainFilter[key] !== '' && mainFilter[key] !== null && mainFilter[key] !== undefined){
-        /*********
-         * 
-         * In pagination in filters when we pass empty string  it retuns all data
-         * 
-         * ********* */
+        //---------------------------------
+        // In pagination in filters when we pass empty string  it retuns all data
+        //---------------------------------
         query[key] = mainFilter[key];
       }
     }
@@ -115,10 +111,10 @@ export class DoctorPlanController extends GenericController<
       throw new Error('No Doctor Plan found with this id');
     }
 
-    /*****
-     *  TODO :  check already this plan is assigned or not ...  
-     *  Not Possible .. 
-     * ****** */
+    //---------------------------------
+    //  TODO :  check already this plan is assigned or not ...  
+    //  Not Possible .. 
+    //---------------------------------
 
     const newPlanData: IPlanByDoctor = {
       planType : doctorPlan.planType,

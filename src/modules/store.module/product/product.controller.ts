@@ -23,11 +23,9 @@ export class ProductController extends GenericController<
     super(new ProductService(), 'Product');
   }
 
-  /***********
-   * 
-   * (Admin) : E-Commerce
-   * 
-   * ******** */
+  //---------------------------------
+  // (Admin) : E-Commerce
+  //---------------------------------
   create = catchAsync(async (req: Request, res: Response) => {
     const data: IProduct = req.body;
 
@@ -136,11 +134,9 @@ export class ProductController extends GenericController<
   });
 
 
-  /*******
-   * 
-   * (Landing Page) : E-Commerce 
-   * 
-   * ****** */
+  //---------------------------------
+  // (Landing Page) : E-Commerce 
+  //---------------------------------
   showAllCategoryAndItsLimitedProducts = catchAsync(async (req: Request, res: Response) => {
     // const result = await this.productService.showAllCategoryAndItsLimitedProducts();
 
@@ -162,11 +158,9 @@ export class ProductController extends GenericController<
   });
 
 
-  /***********
- * 
- * ( Landing Page ) |  get-product-details-with-related-products  //[][🧑‍💻][🧪] //🚧✅ 🆗
- * 
- * ********** */
+//---------------------------------
+// ( Landing Page ) |  get-product-details-with-related-products  //[][🧑‍💻][🧪] //🚧✅ 🆗
+//---------------------------------
   getProductDetailsWithRelatedProducts = catchAsync(async (req: Request, res: Response) => {
     const { productId } = req.params;
     // const result = await this.productService.getProductDetailsWithRelatedProducts(productId);

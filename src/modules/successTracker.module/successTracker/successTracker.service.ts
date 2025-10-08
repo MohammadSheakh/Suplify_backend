@@ -199,11 +199,9 @@ export class SuccessTrackerService extends GenericService<
     }
   }
 
-  /*******************
-   * 
-   * Claude
-   * 
-   * ************ */
+  //--------------------------------- 
+  // Claude
+  //---------------------------------
 
   async getSuccessTrackerOverview(userId) {
       try {

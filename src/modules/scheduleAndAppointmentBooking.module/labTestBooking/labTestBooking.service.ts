@@ -44,11 +44,9 @@ export class LabTestBookingService extends GenericService<
     let stripeResult ;
     
     try {
-    /*****
-     * 
-     * If stripeCustomerId found .. we dont need to create that .. 
-     * 
-     * ***** */    
+    //---------------------------------
+    // If stripeCustomerId found .. we dont need to create that .. 
+    //---------------------------------   
 
     let stripeCustomer;
     if(!user.stripe_customer_id){

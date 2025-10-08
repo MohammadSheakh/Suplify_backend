@@ -68,11 +68,9 @@ router.route('/').get(
   controller.getAll
 );
 
-/*********
- * 
- *  Doctor | Schedule | Create Doctor Appointment 
- *  must send X-Time-Zone in header
- * ******** */
+//---------------------------------
+// Doctor | Schedule | Create Doctor Appointment must send X-Time-Zone in header
+//---------------------------------
 router.route('/').post(
   auth(TRole.doctor),
   validateRequest(validation.createDoctorAppointmentScheduleValidationSchema),

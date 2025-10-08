@@ -28,11 +28,10 @@ const paginationOptions: Array<'sortBy' | 'page' | 'limit' | 'populate'> = [
 ];
 // const taskService = new TaskService();
 const controller = new OrderController();
-/*********
- * 
- * Admin | Get All Order with pagination 
- * 
- * ***** */
+
+//---------------------------------
+// Admin | Get All Order with pagination 
+//---------------------------------
 //info : pagination route must be before the route with params
 router.route('/paginate').get(
   auth(TRole.admin, TRole.patient),
@@ -65,11 +64,9 @@ router.route('/').get(
   controller.getAll 
 );
 
-/*******
- * 
- * Patient | Dashboard | Create Order  
- * 
- * ******* */
+//---------------------------------
+// Patient | Dashboard | Create Order  
+//---------------------------------
 router.route('/').post(
   auth(TRole.common), // actually patient can create order
   validateRequest(validation.createOrderOfAOrderValidationSchema),

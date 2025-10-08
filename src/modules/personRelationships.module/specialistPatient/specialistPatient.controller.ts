@@ -21,11 +21,9 @@ export class SpecialistPatientController extends GenericController<
     super(new SpecialistPatientService(), 'specialistPatient');
   }
 
-  /**********
-   * 
-   * Specialist | Members And Protocol | Show all patient and their doctors, subscriptionPlan
-   * 
-   * ********** */
+  //---------------------------------
+  // Specialist | Members And Protocol | Show all patient and their doctors, subscriptionPlan
+  //---------------------------------
 
   showAllPatientsAndTheirDoctors = catchAsync(async (req: Request, res: Response) => {
     const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']); ;
@@ -46,11 +44,10 @@ export class SpecialistPatientController extends GenericController<
 
 
 
-  /**********
-   * 
-   * Doctor | Protocol Section | Assign Specialist for a patient
-   * Admin | User Management | Assign Specialist for a patient
-   * ********** */
+  //---------------------------------
+  // Doctor | Protocol Section | Assign Specialist for a patient
+  // Admin | User Management | Assign Specialist for a patient
+  //---------------------------------
   create = catchAsync(async (req: Request, res: Response) => {
     const data :ISpecialistPatient = req.body;
 
@@ -80,17 +77,13 @@ export class SpecialistPatientController extends GenericController<
   });
 
 
-  /**********
-   * 
-   * Doctor | Protocol Section | Show all Specialist for assign to a patient
-   * 
-   * ********** */
+  //---------------------------------
+  // Doctor | Protocol Section | Show all Specialist for assign to a patient
+  //---------------------------------
   showAllSpecialist = catchAsync(async (req: Request, res: Response) => {
-    /********
-     * 
-     * TODO : get all specialist .. who are approved .. and not connected with this patient  
-     * 
-     * ***** */
+    //---------------------------------
+    // TODO : get all specialist .. who are approved .. and not connected with this patient  
+    //---------------------------------
 
     const result = await this.specialistPatientService.
     getUnknownSpecialistsForPatientForAssign(req.params.patientId,
@@ -110,11 +103,9 @@ export class SpecialistPatientController extends GenericController<
 
   
 
-  /**********
-   * 
-   * Patient | Get all Patients Specialist .. 
-   * 
-   * ******** */
+  //---------------------------------
+  // Patient | Get all Patients Specialist .. 
+  //---------------------------------
   getAllWithPagination = catchAsync(async (req: Request, res: Response) => {
     //const filters = pick(req.query, ['_id', 'title']); // now this comes from middleware in router
     const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']); ;
@@ -144,11 +135,9 @@ export class SpecialistPatientController extends GenericController<
     });
   });
 
-/**********
- * 
- * Patient | Get all Unknown Specialist .. 
- * 
- * ******** */
+//--------------------------------- 
+// Patient | Get all Unknown Specialist .. 
+//---------------------------------
   getUnknownSpecialist = catchAsync(async (req: Request, res: Response) => {
     //const filters = pick(req.query, ['_id', 'title']); // now this comes from middleware in router
     const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']); ;

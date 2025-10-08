@@ -97,7 +97,7 @@ class PaginationService {
   }
 
 
-  /************* 🟢
+  /******** 🟢
   // Generic pagination plugin for Mongoose schemas
   static plugin = <T>(schema: Schema<T>) => {
     schema.statics.paginate = async function (
@@ -109,7 +109,7 @@ class PaginationService {
   };
   *********** */
 
-  /*************
+  /********
   // Helper method to validate pagination parameters
   static validatePaginationParams(page?: any, limit?: any) {
     const validatedPage = Math.max(parseInt(page) || 1, 1);
@@ -137,7 +137,7 @@ class PaginationService {
     return { [sortBy]: 1 };
   }
 
-  /*************
+  /********
   // Search helper with pagination 🟢
   static async searchWithPagination<T>(
     model: any,
@@ -159,7 +159,7 @@ class PaginationService {
   }
   *********** */
 
-  /***********************
+  /******************
   // Core pagination method for regular queries 🟢
   static async paginate<T>(
     model: any,

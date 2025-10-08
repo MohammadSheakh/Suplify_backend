@@ -32,11 +32,9 @@ const paginationOptions: Array<'sortBy' | 'page' | 'limit' | 'populate'> = [
 // const taskService = new TaskService();
 const controller = new DoctorPatientController();
 
-/**********
- * 
- * Patient | Get all Patients Related Doctor .. 
- * 
- * ******** */
+//---------------------------------
+// Patient | Get all Patients Related Doctor .. 
+//---------------------------------
 //info : pagination route must be before the route with params
 router.route('/paginate').get(
   auth(TRole.patient),// , TRole.doctor
@@ -45,22 +43,18 @@ router.route('/paginate').get(
   controller.getAllWithPagination
 );
 
-/*********
- * 
- * Admin | Get all patient related doctor for admin section
- * 
- * ******** */
+//---------------------------------
+// Admin | Get all patient related doctor for admin section
+//---------------------------------
 router.route('/paginate/for-admin').get(
   auth(TRole.admin),
   validateFiltersForQuery(optionValidationChecking(['_id', 'patientId', ...paginationOptions])),
   controller.getAllWithPagination
 );
 
-/**********
- * 
- * Patient | Get all Others Doctor .. 
- * 
- * ******** */
+//---------------------------------
+// Patient | Get all Others Doctor .. 
+//---------------------------------
 router.route('/paginate/others').get(
   auth(TRole.patient),
   validateFiltersForQuery(optionValidationChecking(['_id', ...paginationOptions])),
@@ -112,11 +106,9 @@ router.route('/protocols-for-patient').get(
   controller.getAllProtocolForADoctorForPatient
 );
 
-/**********
- * 
- * Doctor | Get all Patients For Provide Protocol 
- * 
- * ******** */
+//---------------------------------
+// Doctor | Get all Patients For Provide Protocol 
+//---------------------------------
 //info : pagination route must be before the route with params
 router.route('/paginate/protocol').get(
   auth(TRole.doctor),
@@ -156,11 +148,9 @@ router.route('/').get(
 
 
 
-/**********
- * 
- * Admin | User Management | Assign Doctor for a patient  🧪 need testing 🧪 
- * 
- * ********** */
+//---------------------------------
+// Admin | User Management | Assign Doctor for a patient  🧪 need testing 🧪 
+//---------------------------------
 router.route('/').post(
   auth(TRole.doctor, TRole.admin),
   validateRequest(validation.assignDoctorForAPatientValidationSchema),

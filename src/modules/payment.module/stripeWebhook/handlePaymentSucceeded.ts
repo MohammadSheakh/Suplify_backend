@@ -139,11 +139,9 @@ export const handlePaymentSucceeded = async (session: Stripe.Checkout.Session) =
           //      throw new ApiError(StatusCodes.NOT_FOUND, `In handlePaymentSucceeded Webhook Handler.. Booking not found 🚫 For '${referenceFor}': Id : ${referenceId}`);
           // }
 
-          /******
-           * 
-           * Notification Send korte hobe .. TODO :
-           * 
-           * ***** */
+          //---------------------------------
+          // Notification Send korte hobe .. TODO :
+          //---------------------------------
 
           return { payment: newPayment, paymentFor: updatedObjectOfReferenceFor };
      } catch (error) {
@@ -167,9 +165,9 @@ async function updateOrderInformation(user: IUser,
           status : OrderStatus.confirmed
      }, { new: true });
 
-     /******
-      * Lets Delete Cart after order creation
-      * ***** */
+     //---------------------------------
+     // Lets Delete Cart after order creation
+     //---------------------------------
      await Cart.findByIdAndUpdate(cartId, 
           {
                $set: { isDeleted: true } 
@@ -177,19 +175,18 @@ async function updateOrderInformation(user: IUser,
           { new: true }
      );
 
-     /********
-     * TODO : MUST
-     * Lets send notification to admin that a order is placed
-     * ***** */
+     //---------------------------------
+     // TODO : MUST Lets send notification to admin that a order is placed
+     //---------------------------------
      await sendInWebNotification(
           `A Patient ${user.userId} ${user.userName} placed new order, OrderId : ${orderId}, TxnId : ${paymentTransactionId} , amount : ${updatedOrder.finalAmount}`,
           user.userId, // senderId
           null, // receiverId 
           TRole.admin, // receiverRole
           TNotificationType.productOrder, // type
-          /**********
-           * In UI there is a details page for order in admin end 
-           * **** */
+          //---------------------------------
+          // In UI there is a details page for order in admin end 
+          //---------------------------------
           '', // linkFor // TODO : MUST add the query params 
           orderId, // linkId
           // TTransactionFor.TrainingProgramPurchase, // referenceFor
@@ -214,28 +211,29 @@ async function updateLabTestBooking(
      }, { new: true });
 
 
-     /********
-     * TODO : MUST
-     * Lets send notification to admin that a lab test is booked
-     * ***** */
+     //---------------------------------
+     // TODO : MUST
+     // Lets send notification to admin that a lab test is booked
+     //---------------------------------
      await sendInWebNotification(
           `Lab Test ${updatedLabTestBooking.labTestId} booked by ${user.userName} . bookingId is ${updatedLabTestBooking._id}`,
           user.userId, // senderId
           null, // receiverId 
           TRole.admin, // receiverRole
           TNotificationType.labTestBooking, // type
-          /**********
-           * In UI there is no details page for specialist's schedule
-           * **** */
+          //---------------------------------
+          // In UI there is no details page for specialist's schedule
+          //---------------------------------
      );
 
      return updatedLabTestBooking;
 }
 
-/**********
-*  const refModel = mongoose.model(result.type);
-*  const isExistRefference = await refModel.findById(result.refferenceId).session(session);
-* ********** */
+//---------------------------------
+// 🥇
+//  const refModel = mongoose.model(result.type);
+//  const isExistRefference = await refModel.findById(result.refferenceId).session(session);
+//---------------------------------
 async function updateDoctorPatientScheduleBooking(
      thisCustomer: TUser,
      doctorPatientScheduleBookingId: string,
@@ -278,9 +276,9 @@ async function updateDoctorPatientScheduleBooking(
           // purchaseTrainingProgram._id // referenceId
      );
 
-     /**********
-      * Now send notification to admin that patient has purchase and booked a workout class schedule
-      * ******* */
+     //---------------------------------
+     // Now send notification to admin that patient has purchase and booked a workout class schedule
+     //---------------------------------
      await sendInWebNotification(
           `${result.scheduleName} Appointment Schedule of doctor ${updatedDoctorPatientScheduleBooking.doctorId} purchased by user ${thisCustomer.name}. appointmentBookingId ${updatedDoctorPatientScheduleBooking._id}`,
           user._id, // senderId
@@ -321,9 +319,9 @@ async function updatePurchaseTrainingProgram(
           { new: true }
      );
 
-     /*******
-      * TODO : MUST .. need to handle this usecase that specialist has no wallet
-      * ******* */
+     //---------------------------------
+     // TODO : MUST .. need to handle this usecase that specialist has no wallet
+     //---------------------------------
      if (!updatedWallet) {
           // Handle missing wallet
           throw new Error('Specialist wallet not found');
@@ -335,9 +333,9 @@ async function updatePurchaseTrainingProgram(
      trainingProgramPurchaseService._handlePersonTrainingSessionCreate(trainingProgramId, user);
 
 
-     /********
-      * Lets send notification to specialist that patient has purchased training program
-      * ***** */
+     //---------------------------------
+     // Lets send notification to specialist that patient has purchased training program
+     //---------------------------------
      await sendInWebNotification(
           `TrainingProgram ${trainingProgramId} purchased by a patient ${user.userName}`,
           user.userId, // senderId
@@ -349,9 +347,9 @@ async function updatePurchaseTrainingProgram(
      );
 
 
-     /**********
-      * Now send notification to admin that patient has purchased training program
-      * ******* */
+     //---------------------------------
+     // Now send notification to admin that patient has purchased training program
+     //---------------------------------
      await sendInWebNotification(
           `${updatedTrainingProgramPurchase.trainingProgramId} Training Program of specialist ${updatedTrainingProgramPurchase.specialistId} purchased by user ${user.userName}. purchaseTrainingProgramId ${updatedTrainingProgramPurchase._id}`,
           user.userId, // senderId
@@ -363,11 +361,10 @@ async function updatePurchaseTrainingProgram(
      );
 
 
-     /******
-      * 
-      * Lets create wallet transaction history for this payment .. 
-      * and update wallet balance
-      * ****** */
+     //---------------------------------
+     // Lets create wallet transaction history for this payment .. 
+     // and update wallet balance
+     //---------------------------------
 
 
      return updatedTrainingProgramPurchase;
@@ -397,25 +394,26 @@ async function updateSpecialistPatientScheduleBooking(
      );
 
 
-     /********
-      * Lets send notification to specialist that patient has booked workout class
-      * ***** */
+     //---------------------------------
+     // Lets send notification to specialist that patient has booked workout class
+     //---------------------------------
      await sendInWebNotification(
           `${specialistWorkoutClassSchedule.scheduleName} purchased by a ${user.subscriptionType} user ${user.name}`,
           user._id, // senderId
           updatedSpecialsitPatientWorkoutClassBooking.specialistId, // receiverId
           TRole.specialist, // receiverRole
           TNotificationType.workoutClassPurchase, // type
-          /**********
-           * In UI there is no details page for specialist's schedule
-           * **** */
+          //---------------------------------
+          // In UI there is no details page for specialist's schedule
+          //---------------------------------
+
           // '', // linkFor
           // existingWorkoutClass._id // linkId
      );
 
-     /**********
-      * Now send notification to admin that patient has purchase and booked a workout class schedule
-      * ******* */
+     //---------------------------------
+     // Now send notification to admin that patient has purchase and booked a workout class schedule
+     //---------------------------------
      await sendInWebNotification(
           `${specialistWorkoutClassSchedule.scheduleName} Workout Class of specialist ${specialistWorkoutClassSchedule.createdBy} purchased by user ${user.name}. purchaseSpecialistWorkoutClassId ${updatedSpecialsitPatientWorkoutClassBooking._id}`,
           user._id, // senderId

@@ -75,9 +75,9 @@ export class SuggestionBySpecialistService extends GenericService<
     );
 
   
-    /*****
-     * lets create specialist suggestion for a plan
-     * ***** */
+    //---------------------------------
+    // lets create specialist suggestion for a plan
+    //---------------------------------
 
     // 3️⃣ Prepare the relations for each inserted suggestion
     const relationsToInsert = insertedSuggestions.map((suggestion : ISuggestionBySpecialist, index : number) => ({

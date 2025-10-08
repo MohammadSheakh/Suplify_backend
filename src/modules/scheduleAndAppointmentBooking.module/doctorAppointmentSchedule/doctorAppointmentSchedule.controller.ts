@@ -26,11 +26,9 @@ export class DoctorAppointmentScheduleController extends GenericController<
     super(new DoctorAppointmentScheduleService(), 'DoctorAppointmentSchedule');
   }
 
-  /**********
-   * 
-   * Doctor | Create Doctor Appointment Schedule 
-   * 
-   * ********* */
+  //---------------------------------
+  // Doctor | Create Doctor Appointment Schedule 
+  //---------------------------------
   create = catchAsync(async (req: Request, res: Response) => {
     const userTimeZone = req.header('X-Time-Zone') || 'Asia/Dhaka'; //TODO: Timezone must from env file
 

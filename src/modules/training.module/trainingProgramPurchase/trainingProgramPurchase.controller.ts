@@ -20,11 +20,9 @@ export class TrainingProgramPurchaseController extends GenericController<
     super(new TrainingProgramPurchaseService(), 'TrainingProgramPurchase');
   }
 
-  /******
-   * 
-   * patient | purchase training program
-   * 
-   * ****** */
+  //---------------------------------
+  // patient | purchase training program
+  //---------------------------------
   create = catchAsync(async (req: Request, res: Response) => {
     
     // const data:ITrainingProgramPurchase = req.body;

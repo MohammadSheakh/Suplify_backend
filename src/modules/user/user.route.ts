@@ -30,11 +30,9 @@ const router = express.Router();
 // const taskService = new TaskService();
 const controller = new UserController();
 
-/*********
-* 
-* Admin : User Management With Statistics
-* 
-* ****** */
+//---------------------------------
+// Admin : User Management With Statistics
+//---------------------------------
 //info : pagination route must be before the route with params
 router.route('/paginate').get(
   auth(TRole.admin),
@@ -48,22 +46,18 @@ router.route('/paginate').get(
   controller.getAllWithPaginationV2
 );
 
-/***********
- * 
- * Specialist | Get Profile Information as logged in user 
- * 
- * ********** */
+//---------------------------------
+// Specialist | Get Profile Information as logged in user 
+//---------------------------------
 router.route('/profile').get(
   auth(TRole.common), // any logged in user can see any user profile ..
   controller.getById
 );
 
 
-/***********
- * 
- * Admin | Get Profile Information by Id  to approve doctor / specialist 
- * 
- * ********** */
+//---------------------------------
+// Admin | Get Profile Information by Id  to approve doctor / specialist 
+//---------------------------------
 router.route('/profile/for-admin').get(
  auth(TRole.admin),
   validateFiltersForQuery(optionValidationChecking(['_id',
@@ -71,11 +65,9 @@ router.route('/profile/for-admin').get(
   controller.getAllWithPagination
 );
 
-/**********
- * 
- * Admin | change approvalStatus of a doctor / specialist profile
- * 
- * ******** */
+//---------------------------------
+// Admin | change approvalStatus of a doctor / specialist profile
+//---------------------------------
 router.route('/change-approval-status').put(
   auth(TRole.admin),
   validateRequest(validation.changeApprovalStatusValidationSchema),

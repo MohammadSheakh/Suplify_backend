@@ -123,12 +123,9 @@ export class PlanByDoctorService extends GenericService<
     return result; 
   }
 
-  /**********
-   * 
-   * Patient |  protocol | Get a plan with suggestions .. 
-   *  :planId: 
-   * 
-   * ********* */
+  //---------------------------------
+  // Patient |  protocol | Get a plan with suggestions .. :planId: 
+  //---------------------------------
   async getAPlanWithSuggestionsByOnlyPlanId(planId: string /* , specialistId: string */ ) {
 
     //📈⚙️ OPTIMIZATION:

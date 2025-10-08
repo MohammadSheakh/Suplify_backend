@@ -50,11 +50,10 @@ router.route('/:id').get(
   // auth('common'),
   controller.getById
 );
-/*********
- * 
- * Doctor | Update Protocol Name 
- * TODO : only specific fields should be updated
- * ******** */
+
+//---------------------------------
+// Doctor | Update Protocol Name TODO : only specific fields should be updated
+//---------------------------------
 router.route('/update/:id').put(
   auth(TRole.doctor),
   // validateRequest(validation.createHelpMessageValidationSchema),
@@ -67,11 +66,10 @@ router.route('/').get(
   controller.getAll
 );
 
-/***********
- * 
- * Doctor  | Create Protocol For Patient
- * 
- * ****** */
+//---------------------------------
+// Doctor  | Create Protocol For Patient
+//---------------------------------
+
 router.route('/').post(
   auth(TRole.doctor),
   validateRequest(validation.createProtocolValidationSchema),

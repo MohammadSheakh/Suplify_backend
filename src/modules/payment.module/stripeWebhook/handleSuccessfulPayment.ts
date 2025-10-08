@@ -5,7 +5,6 @@ import { TUser } from "../../user/user.interface";
 import { User } from "../../user/user.model";
 import { TPaymentGateway, TPaymentStatus } from "../paymentTransaction/paymentTransaction.constant";
 import { PaymentTransaction } from "../paymentTransaction/paymentTransaction.model";
-import { FailedWebhook } from "./failedWebhook.model";
 
 // ✅ Safe date helper
 // const safeDate = (timestamp?: number) => 

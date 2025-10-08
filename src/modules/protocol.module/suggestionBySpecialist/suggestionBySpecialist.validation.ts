@@ -5,12 +5,12 @@ import { z } from 'zod';
 
 export const createSuggestionValidationSchema = z.object({
   body:  
-  /********
-   * 
-   * as we want to recieve an array of suggestions
-   * so that we can perform bulk insertion for better performance
-   * 
-   * ******* */
+  
+  //---------------------------------
+  // as we want to recieve an array of suggestions
+  // so that we can perform bulk insertion for better performance
+  //---------------------------------
+
   z.array( 
     z.object({
       keyPoint: z

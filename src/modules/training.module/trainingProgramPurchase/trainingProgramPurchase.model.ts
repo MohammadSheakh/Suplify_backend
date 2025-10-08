@@ -7,11 +7,11 @@ import { TPaymentStatus } from '../../scheduleAndAppointmentBooking.module/speci
 
 const TrainingProgramPurchaseSchema = new Schema<ITrainingProgramPurchase>(
   {
-    /**********
-     * Here we must keep price .. 
-     * because later training program price can be changed .. 
-     * 
-     * ****** */
+    //---------------------------------
+    // Here we must keep price .. 
+    // because later training program price can be changed .. 
+    //---------------------------------
+
     price: {
       type: Number,
       required: [true, 'price is required'],
@@ -39,13 +39,10 @@ const TrainingProgramPurchaseSchema = new Schema<ITrainingProgramPurchase>(
       type: Schema.Types.ObjectId,
       ref: 'PaymentTransaction',
       default: null, 
-      /*********
-       * 
-       * First This should be null ..
-       * In Webhook Handler .. we will update this paymentTransactionId
-       * 
-       * ********* */
-       
+      //---------------------------------
+      // First This should be null ..
+      // In Webhook Handler .. we will update this paymentTransactionId
+      //---------------------------------
     },
 
     paymentMethod: {
@@ -67,12 +64,10 @@ const TrainingProgramPurchaseSchema = new Schema<ITrainingProgramPurchase>(
                 ', '
               )}`],
 
-      /*********
-       * 
-       * First This should be unpaid ..
-       * In Webhook Handler .. we will update this paid
-       * 
-       * ********* */
+      //---------------------------------
+      // First This should be unpaid ..
+      // In Webhook Handler .. we will update this paid
+      //---------------------------------
 
     },
 

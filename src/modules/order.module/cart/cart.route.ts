@@ -33,11 +33,9 @@ const paginationOptions: Array<'sortBy' | 'page' | 'limit' | 'populate'> = [
 // const taskService = new TaskService();
 const controller = new CartController();
 
-/********
- * 
- * Patient | Landing Page 
- * 
- * ***** */
+//---------------------------------
+// Patient | Landing Page 
+//---------------------------------
 //info : pagination route must be before the route with params
 router.route('/paginate').get(
   auth(TRole.patient),
@@ -46,12 +44,10 @@ router.route('/paginate').get(
   controller.getAllWithPagination
 );
 
-/******
- * 
- *  Patient | Dashboard | View All cartItem And Details
- *  :cartId: // INFO : we try to get cart without cartId .. by logged in userId
- * 
- * ***** */
+//---------------------------------
+//  Patient | Dashboard | View All cartItem And Details
+//  :cartId: // INFO : we try to get cart without cartId .. by logged in userId
+//---------------------------------
 router.route('/view').get(
   auth(TRole.patient),
   validateRequest(validation.viewCartItemsOfACartValidationSchema),

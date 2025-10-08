@@ -1,9 +1,8 @@
 // export type Role = 'super_admin' | 'admin' | 'user';
 
-
-/******** suplify
- * 
- * ****** */
+//---------------------------------
+// suplify
+//---------------------------------
 export enum TStatusType {
   active = 'active',
   inactive = 'inactive',

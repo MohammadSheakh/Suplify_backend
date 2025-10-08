@@ -32,13 +32,11 @@ const paginationOptions: Array<'sortBy' | 'page' | 'limit' | 'populate'> = [
 // const taskService = new TaskService();
 const controller = new informationVideoController();
 
-/********
- * 
- * Specialist  | Information Video | View all infomation video for logged in specialist 
- * 
- * TODO : return only important fields 
- * 
- * ******** */
+//---------------------------------
+// Specialist  | Information Video | View all infomation video for logged in specialist 
+// TODO : return only important fields 
+//---------------------------------
+
 //info : pagination route must be before the route with params
 router.route('/paginate').get(
   auth(TRole.specialist), // can not assign other role here .. 
@@ -47,13 +45,11 @@ router.route('/paginate').get(
   controller.getAllWithPagination
 );
 
-/*******
- * 
- * Patient | Landing Page | Information video 
- * 
- * only subscription -> (standard  + above) patient can view the video
- * 
- * ****** */
+//---------------------------------
+// Patient | Landing Page | Information video 
+// only subscription -> (standard  + above) patient can view the video
+//---------------------------------
+
 router.route('/paginate/patient').get(
   auth(TRole.specialist),
   validateFiltersForQuery(optionValidationChecking(['_id','createdBy', ...paginationOptions])),
@@ -77,11 +73,10 @@ router.route('/').get(
   controller.getAll
 );
 
-/********
- * 
- * Specialist | Information Video | Create Infomation video .. 
- * 
- * ********* */
+//---------------------------------
+// Specialist | Information Video | Create Infomation video .. 
+//---------------------------------
+
 router.route('/').post(
   [
     upload.fields([

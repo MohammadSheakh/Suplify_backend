@@ -10,11 +10,10 @@ export interface IPaymentTransaction {
   userId: Types.ObjectId; //🔗
   referenceFor :  TTransactionFor; //🧩 
   referenceId: Types.ObjectId; //🔗
-  /**********
-     * 
-     * const refModel = mongoose.model(result.type);
-     * const isExistRefference = await refModel.findById(result.refferenceId).session(session);
-     * ********** */
+  //---------------------------------
+  // const refModel = mongoose.model(result.type);
+  // const isExistRefference = await refModel.findById(result.refferenceId).session(session);
+  //---------------------------------
   paymentGateway: TPaymentGateway.none |
                 TPaymentGateway.paypal |
                 TPaymentGateway.stripe;

@@ -13,10 +13,9 @@ const upload = multer({ storage: storage });
 
 const router = express.Router();
 
-/******
- * 📝 
- * we need specilistId to show specialist's information
- * ***** */
+//---------------------------------
+// we need specilistId to show specialist's information
+//---------------------------------
 export const optionValidationChecking = <T extends keyof ITrainingSession | 'specialistId' |  'sortBy' | 'page' | 'limit' | 'populate'>(
   filters: T[]
 ) => {
@@ -63,11 +62,9 @@ router.route('/').get(
   controller.getAll
 );
 
-/*********
- * 
- * Specialist | Create Training Session
- * 
- * ******* */
+//---------------------------------
+// Specialist | Create Training Session
+//---------------------------------
 router.route('/').post(
   [
     upload.fields([

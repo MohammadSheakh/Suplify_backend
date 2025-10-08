@@ -30,11 +30,9 @@ const paginationOptions: Array<'sortBy' | 'page' | 'limit' | 'populate'> = [
 
 const controller = new PlanByDoctorController();
 
-/*******
- * 
- * Doctor | Get All plan by category For a patient
- * 
- * ****** */
+//---------------------------------
+// Doctor | Get All plan by category For a patient
+//---------------------------------
 //info : pagination route must be before the route with params
 router.route('/paginate').get(
   auth(TRole.doctor, TRole.specialist),
@@ -136,10 +134,9 @@ router.route('/').get(
   controller.getAll
 );
 
-/*********
- * 
- * Doctor | Create plan for patient
- * ******** */
+//--------------------------------- 
+// Doctor | Create plan for patient
+//---------------------------------
 router.route('/').post(
   auth(TRole.doctor),
   // validateRequest(validation.createHelpMessageValidationSchema), // TODO: validation add korte hobe 

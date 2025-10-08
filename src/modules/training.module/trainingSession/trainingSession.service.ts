@@ -56,9 +56,9 @@ export class TrainingSessionService extends GenericService<
 
   async create(data: ITrainingSession): Promise<ITrainingSession> {
     
-    /*****
-     * lets calculate this session count
-     * *** */
+    //---------------------------------
+    // lets calculate this session count
+    //---------------------------------
     let sessionCount = await TrainingSession.countDocuments({
       trainingProgramId: data.trainingProgramId,
     });

@@ -2,9 +2,9 @@ import { notificationQueue } from "../helpers/bullmq/bullmq";
 import { TNotificationType } from "../modules/notification/notification.constants";
 import { TTransactionFor } from "../modules/payment.module/paymentTransaction/paymentTransaction.constant";
 
-/********
- *  global method to send notification through bull queue
- * ******** */
+//---------------------------------
+//  global method to send notification through bull queue
+//---------------------------------
 export async function sendInWebNotification(
   // existingTrainingProgram, user: any
   title: string,
@@ -17,9 +17,9 @@ export async function sendInWebNotification(
    * so that in query we can pass linkFor=linkId
    * **** */
   linkFor?: string,
-  /******
-   * value for linkFor query
-   * ***** */ 
+  //---------------------------------
+  // value for linkFor query
+  //---------------------------------
   linkId?: string,
   referenceFor?: TTransactionFor,
   referenceId?: string

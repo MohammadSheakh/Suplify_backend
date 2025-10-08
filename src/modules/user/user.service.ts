@@ -62,11 +62,9 @@ export class UserService extends GenericService<typeof User, IUser> {
     return result;
   }
 
-  /*********
-   * 
-   *  Admin | User Management With Statistics
-   * 
-   * ********* */
+//---------------------------------
+//  Admin | User Management With Statistics
+//---------------------------------
   async getAllWithAggregation(
       filters: any, // Partial<INotification> // FixMe : fix type
       options: PaginateOptions,

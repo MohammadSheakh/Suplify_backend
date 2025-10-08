@@ -153,11 +153,9 @@ export class SpecialistPatientScheduleBookingService extends GenericService<
 
                 addToBullQueueToFreeSpecialistPatientSchedule(existingWorkoutClass)
 
-                /********
-                 * 
-                 * Lets send notification to specialist that patient has booked workout class
-                 * 
-                 * ***** */
+                //--------------------------------- 
+                // Lets send notification to specialist that patient has booked workout class
+                //---------------------------------
                 await sendInWebNotification(
                     `${existingWorkoutClass.scheduleName} purchased by a ${existingUser.subscriptionType} user ${existingUser.name}`,
                     existingUser._id, // senderId
@@ -206,11 +204,9 @@ export class SpecialistPatientScheduleBookingService extends GenericService<
     let bookWorkoutClass : ISpecialistPatientScheduleBooking | null = null;
     
     try {
-    /*****
-     * 
-     * If stripeCustomerId found .. we dont need to create that .. 
-     * 
-     * ***** */    
+    //---------------------------------
+    // If stripeCustomerId found .. we dont need to create that .. 
+    //---------------------------------  
 
     let stripeCustomer;
     if(!user.stripe_customer_id){
@@ -298,13 +294,11 @@ export class SpecialistPatientScheduleBookingService extends GenericService<
             user: JSON.stringify(user), // who created this booking  // as we have to send notification also may be need to send email
             referenceId2: existingWorkoutClass._id.toString(),
             referenceFor2: "SpecialistWorkoutClassSchedule"  
-            /*******
-             *
-             * so that in webhook in handlePaymentSucceeded we can use this collection
-             * await mongoose.model(doctorAppointmentScheduleIdReferenceFor)
-             * 
-             * **** */
-            
+            //---------------------------------
+            // so that in webhook in handlePaymentSucceeded we can use this collection
+            // await mongoose.model(doctorAppointmentScheduleIdReferenceFor)
+            //---------------------------------
+
             /******
              * 
              * With this information .. first we create a 

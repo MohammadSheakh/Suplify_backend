@@ -50,12 +50,11 @@ router.route('/').get(
   controller.getAll 
 );
 
-/*****************
- * 
- * we need this to create a message with attachments
- * or just to upload attachments in chat 
- * 
- * **************** */
+//---------------------------------
+//we need this to create a message with attachments
+// or just to upload attachments in chat 
+//---------------------------------
+
 // [🚧][🧑‍💻✅][🧪] // 🆗
 router.route('/create').post(
   [

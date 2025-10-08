@@ -33,11 +33,10 @@ export class SubscriptionPlanService extends GenericService<typeof SubscriptionP
     getByTSubscription = async (subscriptionType: string) => {
         return await this.model.findOne({ subscriptionType });
     }
-    /*********
-     * 
-     * Patient | Landing Page | Purchase a subscription plan .. 
-     * 
-     * ****** */
+
+    //---------------------------------
+    // Patient | Landing Page | Purchase a subscription plan .. 
+    //---------------------------------
     purchaseSubscriptionForSuplify = async (subscriptionPlanId: string, _user: IUser/*, userId: string | undefined*/) => {
         //  User → Clicks "Buy Plan"
         //        ↓
@@ -84,11 +83,9 @@ export class SubscriptionPlanService extends GenericService<typeof SubscriptionP
             );
         }
 
-        /*****
-         * 
-         * If stripeCustomerId found .. we dont need to create that .. 
-         * 
-         * ***** */    
+        //---------------------------------
+        // If stripeCustomerId found .. we dont need to create that .. 
+        //---------------------------------   
 
         let stripeCustomer;
         if(!user.stripe_customer_id){
@@ -105,11 +102,9 @@ export class SubscriptionPlanService extends GenericService<typeof SubscriptionP
             stripeCustomer = user.stripe_customer_id;
         }
 
-        /*******
-         * 
-         * Lets create a userSubscription // TODO : we have to check already have userSubsription or not .. 
-         * 
-         * ******* */
+        //---------------------------------
+        // Lets create a userSubscription // TODO : we have to check already have userSubsription or not .. 
+        //---------------------------------
 
         const newUserSubscription : IUserSubscription = await UserSubscription.create({
             userId: user._id, //🔗

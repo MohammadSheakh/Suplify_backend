@@ -202,9 +202,9 @@ export class SocketService {
   private setupEventHandlers() {
     if (!this.io) return;
 
-    /*********
-     * 🟢🟢 
-     * ***** */
+    //---------------------------------
+    // 🟢🟢 
+    //---------------------------------
     this.io.on('connection', async (socket: Socket) => {
       const user = socket.data.user; // 🟡 issue  MUST BE RESOLVED
 
@@ -294,11 +294,9 @@ export class SocketService {
 
   // 🔗➡️ setupEventHandlers
   private setupUserEventHandlers(socket: Socket, userId: string, userProfile: IUserProfile) {
-    /***********
-     * 
-     *   Handle Returning all related online users not all online users ..   🟢working perfectly
-     * 
-     * ********** */  
+    //---------------------------------
+    //   Handle Returning all related online users not all online users ..   🟢working perfectly
+    //--------------------------------- 
     // Get related online users
     socket.on('only-related-online-users', async (data: {userId: string}, callback) => {
       try {
@@ -312,11 +310,9 @@ export class SocketService {
       }
     });
 
-    /***********
-     * 
-     *   Handle joining chat rooms  🟢working perfectly
-     * 
-     * ********** */  
+    //---------------------------------
+    //  Handle joining chat rooms  🟢working perfectly
+    //--------------------------------- 
     // Join conversation
     socket.on('join', async (conversationData: {conversationId: string}, callback) => {
       if (!conversationData.conversationId) {
@@ -347,11 +343,9 @@ export class SocketService {
       });
     });
 
-    /*************
-     * 
-     * Handle leaving conversation 🟢working perfectly 
-     * 
-     * ************* */
+    //---------------------------------
+    // Handle leaving conversation 🟢working perfectly 
+    //---------------------------------
     // Leave conversation
     socket.on('leave', async (conversationData: {conversationId: string}, callback) => {
       if (!conversationData.conversationId) {
@@ -377,11 +371,9 @@ export class SocketService {
     });
 
 
-    /***********
-     * 
-     *   Handle fetching all conversations with pagination 🟢 working perfectly 
-     * 
-     * ********** */
+    //---------------------------------
+    //   Handle fetching all conversations with pagination 🟢 working perfectly 
+    //---------------------------------
     socket.on('get-all-conversations-with-pagination', async( conversationData: {page: number, limit: number}, callback) =>{
       try{
         const conversations = await new ConversationParticipentsService().getAllConversationByUserIdWithPagination(userId, conversationData);
@@ -392,11 +384,9 @@ export class SocketService {
       }
     })
 
-    /***********
-     * 
-     *   get all message by conversationId with pagination 🟢 working perfectly 
-     * 
-     * ********** */
+    //---------------------------------
+    //   get all message by conversationId with pagination 🟢 working perfectly 
+    //---------------------------------
     socket.on('get-all-message-by-conversationId', async(conversationData: {
       conversationId: string,
       page: number,
@@ -429,11 +419,9 @@ export class SocketService {
       }
     })
 
-    /***********
-     * 
-     *   Handle new messages  🟢working perfectly
-     * 
-     * ********** */
+    //---------------------------------
+    //   Handle new messages  🟢working perfectly
+    //---------------------------------
 
     socket.on('send-new-message', async (messageData: MessageData, callback) => {
 
@@ -453,12 +441,10 @@ export class SocketService {
         // console.log('Conversation data:', conversationData);
         // console.log('Conversation participants:', conversationParticipants);
 
-        /*************
-         * 
-         * here we will check if the sender is a participant in the conversation or not
-         * if not then we will send an error message
-         * 
-         * ********** */
+        //---------------------------------
+        // here we will check if the sender is a participant in the conversation or not
+        // if not then we will send an error message
+        //---------------------------------
         let isExist = false;
         conversationParticipants.forEach((participant: any) => {
           const participantId = participant.userId?.toString();
@@ -482,12 +468,10 @@ export class SocketService {
           senderId: userId,
         });
 
-      /********
-       * 
-       *  TODO : event emitter er maddhome message create korar por
-       *  conversation er lastMessage update korte hobe ..
-       * 
-       * ******* */
+      //---------------------------------
+      //  TODO : event emitter er maddhome message create korar por
+      //  conversation er lastMessage update korte hobe ..
+      //---------------------------------
         const updatedConversation = await Conversation.findByIdAndUpdate(messageData.conversationId, {
           lastMessage: newMessage._id,
         }); // .populate('lastMessage').exec()

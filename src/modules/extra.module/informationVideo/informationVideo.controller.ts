@@ -59,11 +59,9 @@ export class informationVideoController extends GenericController<
   });
 
 
-  /*************
-   * 
-   * Specialist | 
-   * 
-   * ******** */
+  //---------------------------------
+  // Specialist | 
+  //---------------------------------
   getAllWithPagination = catchAsync(async (req: Request, res: Response) => {
     //const filters = pick(req.query, ['_id', 'title']); // now this comes from middleware in router
     const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']); ;
@@ -98,13 +96,11 @@ export class informationVideoController extends GenericController<
   });
 
 
-  /*******
-   * 
-   * Patient | Landing Page | Information video 
-   * 
-   * only subscription -> (standard  + above) patient can view the video
-   * 
-   * ****** */
+  //---------------------------------
+  // Patient | Landing Page | Information video  
+  // only subscription -> (standard  + above) patient can view the video
+  //---------------------------------
+
   getAllWithPaginationForPatient = catchAsync(async (req: Request, res: Response) => {
     //const filters = pick(req.query, ['_id', 'title']); // now this comes from middleware in router
     const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']); ;

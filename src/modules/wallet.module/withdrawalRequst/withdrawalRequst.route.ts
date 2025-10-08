@@ -30,12 +30,11 @@ const paginationOptions: Array<'sortBy' | 'page' | 'limit' | 'populate'> = [
 // const taskService = new TaskService();
 const controller = new WithdrawalRequstController();
 
-/************
- * 
- * TODO : MUST : NEED_TO_TEST
- * Admin | Show All Withdraw Request 
- * 
- * ******** */
+//---------------------------------
+// TODO : MUST : NEED_TO_TEST
+// Admin | Show All Withdraw Request 
+//---------------------------------
+
 //info : pagination route must be before the route with params
 router.route('/paginate').get(
   //auth('common'),
@@ -48,12 +47,9 @@ router.route('/:id').get(
   controller.getById
 );
 
-/************
- * 
- *  Admin | Upload receipt And Update status 
- * 
- * :id actually withdrawalRequestId
- * ********** */
+//---------------------------------
+//  Admin | Upload receipt And Update status :id actually withdrawalRequestId
+//---------------------------------
 router.route('/:id').put(
   auth(TRole.admin),
   [
@@ -72,11 +68,9 @@ router.route('/').get(
 );
 
 
-/***********
- * 
- * Specialist / Doctor  | Wallet | Create withdrawal request
- * 
- * ******** */
+//--------------------------------- 
+// Specialist / Doctor  | Wallet | Create withdrawal request
+//---------------------------------
 router.route('/').post(
   auth(TRole.doctor, TRole.specialist),
   validateRequest(validation.createWithdrawalRequstValidationSchema),

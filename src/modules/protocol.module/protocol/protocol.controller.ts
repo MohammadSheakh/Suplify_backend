@@ -58,10 +58,9 @@ export class ProtocolController extends GenericController<
 
     const result = await this.service.getAllWithPagination(filters, options, populateOptions/*, select*/);
 
-    /*****
-     * 
-     * Get extraNote from doctorPatient collection
-     * ***** */
+    //---------------------------------
+    // Get extraNote from doctorPatient collection
+    //---------------------------------
     const extraNote = await DoctorPatient.findOne({
       doctorId: (req.user as IUser).userId,
       patientId: filters.patientId
