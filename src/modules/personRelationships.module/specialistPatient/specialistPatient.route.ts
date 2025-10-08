@@ -35,7 +35,7 @@ const controller = new SpecialistPatientController();
 //---------------------------------
 // Patient | Get all Patients Related Specialist .. 
 //---------------------------------
-//info : pagination route must be before the route with params
+//
 router.route('/paginate').get(
   auth(TRole.patient),
   validateFiltersForQuery(optionValidationChecking(['_id', ...paginationOptions])),
@@ -46,7 +46,7 @@ router.route('/paginate').get(
 //---------------------------------
 // Admin | Get all Patients Related Specialist .. 
 //---------------------------------
-//info : pagination route must be before the route with params
+//
 router.route('/paginate/for-admin').get(
   auth(TRole.admin),
   validateFiltersForQuery(optionValidationChecking(['_id', 'patientId', ...paginationOptions])),

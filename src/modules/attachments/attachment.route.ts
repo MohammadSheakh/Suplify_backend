@@ -11,7 +11,7 @@ const multer = require('multer');
 
 const router = express.Router();
 
-//info : pagination route must be before the route with params
+//
 router.route('/paginate').get(
   auth('common'),
   AttachmentController.getAllAttachmentWithPagination

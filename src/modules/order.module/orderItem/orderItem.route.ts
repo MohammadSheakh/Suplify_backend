@@ -32,7 +32,7 @@ const controller = new OrderItemController();
 //---------------------------------
 // Admin | Get all order item for a order
 //---------------------------------
-//info : pagination route must be before the route with params
+//
 router.route('/paginate').get(
   //auth('common'),
   validateFiltersForQuery(optionValidationChecking(['_id', 'orderId', ...paginationOptions])),

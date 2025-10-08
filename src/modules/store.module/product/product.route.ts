@@ -28,7 +28,7 @@ const paginationOptions: Array<'sortBy' | 'page' | 'limit' | 'populate'> = [
   'populate',
 ];
 
-//info : pagination route must be before the route with params
+//
 router.route('/paginate').get(
   //auth('common'),
   validateFiltersForQuery(optionValidationChecking(['_id','category', ...paginationOptions ])),

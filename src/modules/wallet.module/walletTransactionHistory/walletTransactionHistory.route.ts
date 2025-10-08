@@ -33,7 +33,7 @@ const controller = new WalletTransactionHistoryController();
 //---------------------------------
 // Specialist | get all transaction history with wallet balance 
 //---------------------------------
-//info : pagination route must be before the route with params
+//
 router.route('/paginate').get(
   auth(TRole.specialist),
   validateFiltersForQuery(optionValidationChecking(['_id', 'walletId', ...paginationOptions])),

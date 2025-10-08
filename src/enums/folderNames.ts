@@ -8,4 +8,5 @@ export enum TFolderName {
     shop = `${parentFolder}/shop`,
     wallet = `${parentFolder}/wallet`,
     conversation = `${parentFolder}/conversation`,
+    common = `${parentFolder}/common`,
 };

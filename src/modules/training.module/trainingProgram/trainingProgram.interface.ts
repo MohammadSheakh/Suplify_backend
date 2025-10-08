@@ -1,3 +1,4 @@
+//@ts-ignore
 import { Model, Types } from 'mongoose';
 import { PaginateOptions, PaginateResult } from '../../../types/paginate';
 
@@ -10,8 +11,8 @@ export interface ITrainingProgram {
   totalSessionCount : Number;
   price : Number;
   createdBy : Types.ObjectId;  //🔗
-  attachments: Types.ObjectId[];  // Array of attachment IDs
-  trailerContents: Types.ObjectId[];  // Array of trailer content IDs
+  attachments: Types.ObjectId[];  //🔗🖼️
+  trailerContents: Types.ObjectId[];  //🔗🖼️
 
   isDeleted? : Boolean;  
   createdAt?: Date;

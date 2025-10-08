@@ -33,7 +33,7 @@ const controller = new UserController();
 //---------------------------------
 // Admin : User Management With Statistics
 //---------------------------------
-//info : pagination route must be before the route with params
+//
 router.route('/paginate').get(
   auth(TRole.admin),
   validateFiltersForQuery(optionValidationChecking(['_id',

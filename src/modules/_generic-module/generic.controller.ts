@@ -2,12 +2,14 @@ import ApiError from '../../errors/ApiError';
 import catchAsync from '../../shared/catchAsync';
 import pick from '../../shared/pick';
 import sendResponse from '../../shared/sendResponse';
+//@ts-ignore
 import { StatusCodes } from 'http-status-codes';
+//@ts-ignore
 import { Request, Response} from 'express';
 import { GenericService } from './generic.services';
 import omit from '../../shared/omit';
 import { AttachmentService } from '../attachments/attachment.service';
-import { TFolderName } from '../attachments/attachment.constant';
+import { TFolderName } from '../../enums/folderNames';
 
 // Import your generic service
 
@@ -21,7 +23,6 @@ export class GenericController<ModelType, InterfaceType> {
     this.modelName = modelName; // Assign model name
   }
 
-  // Create
   create = catchAsync(async (req: Request, res: Response) => {
     console.log("ℹ️hit generic controller");
     
@@ -99,6 +100,35 @@ export class GenericController<ModelType, InterfaceType> {
     ];
 
     const select = '-isDeleted -createdAt -updatedAt -__v'; 
+
+    const result = await this.service.getAllWithPagination(filters, options, populateOptions , select );
+
+    sendResponse(res, {
+      code: StatusCodes.OK,
+      data: result,
+      message: `All ${this.modelName} with pagination`,
+      success: true,
+    });
+  });
+
+  getAllWithPaginationV2 = catchAsync(async (req: Request, res: Response) => {
+    //const filters = pick(req.query, ['_id', 'title']); // now this comes from middleware in router
+    const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']); ;
+    const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
+
+    // ✅ Default values
+    let populateOptions: (string | { path: string; select: string }[]) = [];
+    let select = '-isDeleted -createdAt -updatedAt -__v';
+
+    // ✅ If middleware provided overrides → use them
+    if (req.queryOptions) {
+      if (req.queryOptions.populate) {
+        populateOptions = req.queryOptions.populate;
+      }
+      if (req.queryOptions.select) {
+        select = req.queryOptions.select;
+      }
+    }
 
     const result = await this.service.getAllWithPagination(filters, options, populateOptions , select );
 

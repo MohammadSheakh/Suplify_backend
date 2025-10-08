@@ -35,7 +35,7 @@ const controller = new DoctorPatientController();
 //---------------------------------
 // Patient | Get all Patients Related Doctor .. 
 //---------------------------------
-//info : pagination route must be before the route with params
+//
 router.route('/paginate').get(
   auth(TRole.patient),// , TRole.doctor
   validateFiltersForQuery(optionValidationChecking(['_id', ...paginationOptions])),
@@ -70,7 +70,7 @@ router.route('/paginate/others').get(
  * 
  * Patient | protocol  
  * ******** */
-//info : pagination route must be before the route with params
+//
 router.route('/paginate/doctor-protocol').get(
   auth(TRole.patient, TRole.doctor, TRole.specialist),
   validateFiltersForQuery(optionValidationChecking(['_id','patientId', ...paginationOptions])),
@@ -109,7 +109,7 @@ router.route('/protocols-for-patient').get(
 //---------------------------------
 // Doctor | Get all Patients For Provide Protocol 
 //---------------------------------
-//info : pagination route must be before the route with params
+//
 router.route('/paginate/protocol').get(
   auth(TRole.doctor),
   validateFiltersForQuery(optionValidationChecking(['_id', ...paginationOptions])),

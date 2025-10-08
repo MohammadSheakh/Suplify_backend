@@ -40,7 +40,7 @@ const controller = new DoctorSpecialistPatientController();
  *   get total plan count by createdBy(doctorId) from planByDoctor collection .. 
  * 
  * ********** */
-//info : pagination route must be before the route with params
+//
 router.route('/paginate').get(
   auth(TRole.patient),
   validateFiltersForQuery(optionValidationChecking(['_id', ...paginationOptions])),

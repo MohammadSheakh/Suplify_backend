@@ -37,7 +37,7 @@ const controller = new ProtocolController();
  * TODO : confusion in total plan calculation 
  * ⚠️    ->  bad code .. Need to optimize
  * ******** */
-//info : pagination route must be before the route with params
+//
 router.route('/paginate').get(
   auth(TRole.doctor),
   validateFiltersForQuery(optionValidationChecking(['_id','patientId', ...paginationOptions])),

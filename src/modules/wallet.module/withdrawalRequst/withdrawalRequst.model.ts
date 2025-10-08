@@ -65,11 +65,19 @@ const WithdrawalRequstSchema = new Schema<IWithdrawalRequst>(
         TWithdrawalRequst.requested,
       ],
     },
-    proofOfPayment: {
-      type: String,
-      required: [false, 'proofOfPayment is not required'],
-      default: null,
-    },
+    proofOfPayment:[//🔗🖼️
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'Attachment',
+        required: [false, 'attachments is not required'],
+      }
+    ],
+    
+    // {
+    //   type: String,
+    //   required: [false, 'proofOfPayment is not required'],
+    //   default: null,
+    // },
     requestedAt: {
       type: Date,
       required: [true, 'requestedAt is required'],

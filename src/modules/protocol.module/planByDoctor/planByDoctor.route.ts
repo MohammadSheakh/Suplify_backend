@@ -33,7 +33,7 @@ const controller = new PlanByDoctorController();
 //---------------------------------
 // Doctor | Get All plan by category For a patient
 //---------------------------------
-//info : pagination route must be before the route with params
+//
 router.route('/paginate').get(
   auth(TRole.doctor, TRole.specialist),
   validateFiltersForQuery(optionValidationChecking(['_id', 'planType','patientId', 'protocolId', ...paginationOptions])),

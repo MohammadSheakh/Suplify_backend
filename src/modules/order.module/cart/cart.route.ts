@@ -36,7 +36,7 @@ const controller = new CartController();
 //---------------------------------
 // Patient | Landing Page 
 //---------------------------------
-//info : pagination route must be before the route with params
+//
 router.route('/paginate').get(
   auth(TRole.patient),
   validateFiltersForQuery(optionValidationChecking(['_id', ...paginationOptions])),

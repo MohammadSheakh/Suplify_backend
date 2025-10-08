@@ -145,7 +145,7 @@ export class WithdrawalRequstController extends GenericController<
      * deduct the amount of wallet and update status to completed
      * without "proofOfPayment" document dont let user to update status 
      * update the "processedAt" date
-     * 
+     * ------TODO : MUST : if already complete we dont want to update again 
      * ***** */
 
     //📈⚙️ OPTIMIZATION: Process both file types in parallel
@@ -164,6 +164,9 @@ export class WithdrawalRequstController extends GenericController<
         success: false,
       });
     }
+
+    // console.log("proofOfPayment 👈", proofOfPayment);
+    // console.log("proofOfPayment 👈 type of :: ", typeof proofOfPayment);
 
     withdrawalRequst.proofOfPayment = proofOfPayment[0];
     withdrawalRequst.status = TWithdrawalRequst.completed;

@@ -9,6 +9,9 @@ import auth from '../../../middlewares/auth';
 //@ts-ignore
 import multer from "multer";
 import { TRole } from '../../../middlewares/roles';
+import { setRequstFilterAndValue } from '../../../middlewares/setRequstFilterAndValue';
+import { TWithdrawalRequst } from './withdrawalRequst.constant';
+import { setQueryOptions } from '../../../middlewares/setQueryOptions';
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
@@ -31,15 +34,20 @@ const paginationOptions: Array<'sortBy' | 'page' | 'limit' | 'populate'> = [
 const controller = new WithdrawalRequstController();
 
 //---------------------------------
-// TODO : MUST : NEED_TO_TEST
 // Admin | Show All Withdraw Request 
 //---------------------------------
 
-//info : pagination route must be before the route with params
 router.route('/paginate').get(
-  //auth('common'),
+  auth(TRole.admin),
   validateFiltersForQuery(optionValidationChecking(['_id', ...paginationOptions])),
-  controller.getAllWithPagination
+  setRequstFilterAndValue('status', TWithdrawalRequst.completed), // requested 
+  setQueryOptions({
+    populate: [
+      { path: 'proofOfPayment', select: 'attachment', /* populate: { path : ""} */ },
+    ],
+    select: '-isDeleted -createdAt -updatedAt -__v'
+  }),
+  controller.getAllWithPaginationV2
 );
 
 router.route('/:id').get(

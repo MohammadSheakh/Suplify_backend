@@ -29,7 +29,7 @@ const controller = new ConversationController();
 
 
 
-//info : pagination route must be before the route with params
+//
 router.route('/paginate').get(
   //auth('common'),
   validateFiltersForQuery(optionValidationChecking(['_id', 'creatorId', 'siteId', ...paginationOptions])),

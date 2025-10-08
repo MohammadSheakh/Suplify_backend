@@ -38,7 +38,7 @@ const controller = new TrainingSessionController();
  * 📝 
  * we need specilistId to show specialist's information
  * ******* */
-//info : pagination route must be before the route with params
+//
 router.route('/paginate').get(
   auth(TRole.patient, TRole.specialist),
   validateFiltersForQuery(optionValidationChecking(['_id', 'trainingProgramId', 'specialistId', ...paginationOptions])),

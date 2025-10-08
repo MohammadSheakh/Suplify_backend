@@ -35,18 +35,17 @@ const controller = new TrainingProgramController();
  *  |-> with isPurchased boolean field 
  * //📈⚙️ OPTIMIZATION:
  * ****** */
-//info : pagination route must be before the route with params
+//
 router.route('/paginate').get(
   auth(TRole.patient),
   validateFiltersForQuery(optionValidationChecking(['_id', 'createdBy', ...paginationOptions])),
   controller.getAllWithAggregation
 );
 
-
 //---------------------------------
 // Specialist | Get all Training Program of a Specialist .. 
 //---------------------------------
-//info : pagination route must be before the route with params
+//
 router.route('/specialist/paginate/').get(
   auth(TRole.specialist),
   validateFiltersForQuery(optionValidationChecking(['_id', ...paginationOptions])),
