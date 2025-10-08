@@ -10,7 +10,10 @@ export async function sendInWebNotification(
   title: string,
   senderId: string,
   receiverId: string,
-  receiverRole: string,
+  /***
+   * receiverRole can be null .. important for admin
+   * ** */
+  receiverRole: string | null, // for admin .. we must need role .. otherwise we dont need role 
   type: TNotificationType,
   /****
    * this linkFor is for navigation in front-end 

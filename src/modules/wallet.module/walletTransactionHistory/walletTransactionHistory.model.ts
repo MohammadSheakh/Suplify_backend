@@ -80,6 +80,7 @@ const WalletTransactionHistorySchema = new Schema<IWalletTransactionHistory>(
      * referenceFor and referenceId are also use in
      * PaymentTransaction model
      * 
+     * But For WithdrawalRequst we dont need this 
      * If you update here please update there also
      * 
      * ******** */
@@ -93,7 +94,7 @@ const WalletTransactionHistorySchema = new Schema<IWalletTransactionHistory>(
         TTransactionFor.TrainingProgramPurchase,
         TTransactionFor.LabTestBooking
       ],
-      required: [true, `referenceFor is required .. it can be  ${Object.values(TTransactionFor).join(
+      required: [false, `referenceFor is not required .. it can be  ${Object.values(TTransactionFor).join(
         ', '
       )}`],
     },

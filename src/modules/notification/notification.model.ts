@@ -30,7 +30,7 @@ const notificationModel = new Schema<INotification>(
     receiverRole: { // fallback for role-based (admin, doctor, specialist, patient)
       type: String,
       enum: Roles,
-      required: true,
+      required: false, // for admin we must need role .. otherwise not required because we have id of that user 
     },
 
     type: {

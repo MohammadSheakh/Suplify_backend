@@ -1,3 +1,5 @@
+//TODO : MUST : use generic service here ..
+//@ts-ignore
 import { StatusCodes } from 'http-status-codes';
 import { INotification } from './notification.interface';
 import { Notification } from './notification.model';
@@ -46,31 +48,7 @@ const getSingleNotification = async (
   return result;
 };
 
-const addCustomNotification = async (
-  eventName: string,
-  notifications: INotification,
-  userId?: string
-) => {
-  const messageEvent = `${eventName}::${userId}`;
-  const result = await addNotification(notifications);
 
-  if (eventName === 'admin-notification' && notifications.role === 'admin') {
-    //@ts-ignore
-    io.emit('admin-notification', {
-      code: StatusCodes.OK,
-      message: 'New notification',
-      data: result,
-    });
-  } else {
-    //@ts-ignore
-    io.emit(messageEvent, {
-      code: StatusCodes.OK,
-      message: 'New notification',
-      data: result,
-    });
-  }
-  return result;
-};
 
 const viewNotification = async (notificationId: string) => {
   const result = await Notification.findByIdAndUpdate(
@@ -103,12 +81,12 @@ const clearAllNotification = async (userId: string) => {
   const result = await Notification.deleteMany({ receiverId: userId });
   return result;
 };
+
 export const NotificationService = {
   addNotification,
   getALLNotification,
   getAdminNotifications,
   getSingleNotification,
-  addCustomNotification,
   viewNotification,
   deleteNotification,
   clearAllNotification,

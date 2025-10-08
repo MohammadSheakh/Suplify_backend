@@ -19,6 +19,12 @@ import { TFolderName } from '../../../enums/folderNames';
 import { User } from '../../user/user.model';
 import { IUser as IUserMain } from '../../user/user.interface';
 import { IUser } from '../../token/token.interface';
+import { sendInWebNotification } from '../../../services/notification.service';
+import { TRole } from '../../../middlewares/roles';
+import { TNotificationType } from '../../notification/notification.constants';
+import { WalletTransactionHistory } from '../walletTransactionHistory/walletTransactionHistory.model';
+import { TWalletTransactionHistory, TWalletTransactionStatus } from '../walletTransactionHistory/walletTransactionHistory.constant';
+import { TCurrency } from '../../../enums/payment';
 
 export class WithdrawalRequstController extends GenericController<
   typeof WithdrawalRequst,
@@ -89,7 +95,7 @@ export class WithdrawalRequstController extends GenericController<
     }
 
     const docToCreate : IWithdrawalRequst = {
-      walletId : data.walletId,
+      walletId : wallet._id, // NEED_TO_TEST : wallet id is coming or not
       userId : data.userId,
       requestedAmount : data.requestedAmount,
       bankAccountNumber : bankInfo.bankAccountNumber,
@@ -121,7 +127,7 @@ export class WithdrawalRequstController extends GenericController<
     }
 
     //------------------------------------
-    // Send Notification to Admin that a withdrawal request is created
+    // TODO : MUST : Send Notification to Admin that a withdrawal request is created
     //------------------------------------
     
 
@@ -174,11 +180,62 @@ export class WithdrawalRequstController extends GenericController<
 
     const updated =  await withdrawalRequst.save();
 
+    //------------------------------------
+    // Deduct amount from  Doctor / Patient's wallet
+    //------------------------------------
+    if(withdrawalRequst.walletId){
+      const wallet = await Wallet.findById(withdrawalRequst.walletId);
+      if(wallet){
+        wallet.amount -= withdrawalRequst.requestedAmount;
+        await wallet.save();
+      }
+    }else if (withdrawalRequst.userId){
+      const wallet = await Wallet.findOne({
+        userId : withdrawalRequst.userId
+      });
+      if(wallet){
+        wallet.amount -= withdrawalRequst.requestedAmount;
+        await wallet.save();
+      }
+    }
+
+    //------------------------------------
+    // Create Wallet transaction History for Doctor / Patient's wallet
+    //------------------------------------
+
+    const walletTransactionHistory = await WalletTransactionHistory.create({
+      walletId : 
+      userId : 
+      paymentTransactionId : null, // as this is withdrawal request
+      withdrawalRequestId : withdrawalRequst._id,
+      type : TWalletTransactionHistory.withdrawal,
+      amount : withdrawalRequst.requestedAmount,
+      currency : TCurrency.usd,
+      balanceBefore : wallet.amount,
+      balanceAfter : wallet.amount - withdrawalRequst.requestedAmount,
+      description : 'withdrawal requst approved by admin',
+      status : TWalletTransactionStatus.completed,
+
+    })
+
+    // TODO : 
+
 
     //------------------------------------
     // Send Notification to Doctor / Patient that a withdrawal request is approved
     //------------------------------------
 
+    await sendInWebNotification(
+      `$${withdrawalRequst.requestedAmount} Withdrawal request is approved by admin`,
+      (req?.user as IUser)?.userId, // senderId
+      withdrawalRequst.userId, // receiverId
+      null, // receiverRole
+      TNotificationType.payment, // type // 🎨 this is for wallet page routing 
+      'trainingProgramId', // linkFor
+      existingTrainingProgram._id // linkId
+      // TTransactionFor.TrainingProgramPurchase, // referenceFor
+      // purchaseTrainingProgram._id // referenceId
+    );
 
     sendResponse(res, {
       code: StatusCodes.OK,

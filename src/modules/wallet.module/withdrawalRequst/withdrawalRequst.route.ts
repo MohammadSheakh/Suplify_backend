@@ -34,13 +34,13 @@ const paginationOptions: Array<'sortBy' | 'page' | 'limit' | 'populate'> = [
 const controller = new WithdrawalRequstController();
 
 //---------------------------------
-// Admin | Show All Withdraw Request 
+// Admin | Show All Withdraw Request .. which status is requested
 //---------------------------------
 
 router.route('/paginate').get(
   auth(TRole.admin),
   validateFiltersForQuery(optionValidationChecking(['_id', ...paginationOptions])),
-  setRequstFilterAndValue('status', TWithdrawalRequst.completed), // requested 
+  setRequstFilterAndValue('status', TWithdrawalRequst.requested), // requested 
   setQueryOptions({
     populate: [
       { path: 'proofOfPayment', select: 'attachment', /* populate: { path : ""} */ },
