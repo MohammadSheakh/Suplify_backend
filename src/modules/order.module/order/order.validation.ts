@@ -1,4 +1,6 @@
+//@ts-ignore
 import mongoose from 'mongoose';
+//@ts-ignore
 import { z } from 'zod';
 
 export const createOrderOfAOrderValidationSchema = z.object({
@@ -51,7 +53,31 @@ export const createOrderOfAOrderValidationSchema = z.object({
 });
 
 
+export const updateOrderStatusValidationSchema = z.object({
+   body: z.object({
+      status: z.string({
+        required_error: 'status is required.',
+        invalid_type_error: 'status must be a string.',
+      }),
+   }),
 
-
+  params: z.object({
+    id: z.string({
+        required_error: 'orderId is required in params.',
+        invalid_type_error: 'orderId must be a mongoose object.',
+      }).refine(value => mongoose.Types.ObjectId.isValid(value), {
+        message: 'orderId must be a valid mongoose ObjectId.',
+      }),
+  }),
+  // query: z.object({
+  //   cartId: z.string({
+  //       required_error: 'cartId is required in query.',
+  //       invalid_type_error: 'cartId must be a mongoose object.',
+  //     }).refine(value => mongoose.Types.ObjectId.isValid(value), {
+  //       message: 'cartId must be a valid mongoose ObjectId.',
+  //     }),
+  // }),
+   
+});
 
 

@@ -52,10 +52,13 @@ router.route('/:id').get(
   // auth('common'),
   controller.getById 
 );
-
+//---------------------------------------
+// Admin | Update Order Status 
+// params :orderId 
+//---------------------------------------
 router.route('/update/:id').put(
   //auth('common'), // FIXME: Change to admin
-  // validateRequest(validation.createHelpMessageValidationSchema),
+  validateRequest(validation.updateOrderStatusValidationSchema),
   controller.updateById
 );
 

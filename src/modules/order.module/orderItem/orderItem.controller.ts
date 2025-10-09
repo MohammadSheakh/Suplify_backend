@@ -18,7 +18,7 @@ export class OrderItemController extends GenericController<typeof OrderItem, IOr
         super(new OrderItemService(), "Order Item")
     }
 
-    getAllWithPaginationForPatient = catchAsync(async (req: Request, res: Response) => {
+  getAllWithPaginationForPatient = catchAsync(async (req: Request, res: Response) => {
     //const filters = pick(req.query, ['_id', 'title']); // now this comes from middleware in router
     const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']);
     const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
@@ -41,6 +41,29 @@ export class OrderItemController extends GenericController<typeof OrderItem, IOr
       code: StatusCodes.OK,
       data: result,
       message: `All ${this.modelName} with pagination`,
+      success: true,
+    });
+  });
+
+  //------------------------------
+  // Admin | Get all order item along with shipping address for a orderId
+  //------------------------------
+  getAll = catchAsync(async (req: Request, res: Response) => {
+    const result = await OrderItem.find({
+      orderId: req.query.orderId
+    }).select('-isDeleted -createdAt -updatedAt -__v').lean();
+
+    const orderInfo = await Order.findOne({
+      _id: req.query.orderId
+    }).select('-isDeleted  -updatedAt -__v').lean(); //-createdAt
+
+    sendResponse(res, {
+      code: StatusCodes.OK,
+      data: {
+        result,
+        orderInfo
+      },
+      message: `All ${this.modelName}s`,
       success: true,
     });
   });

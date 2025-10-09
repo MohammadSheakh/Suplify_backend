@@ -10,6 +10,7 @@ import { TRole } from '../../../middlewares/roles';
 //@ts-ignore
 import multer from 'multer';
 import { getLoggedInUserAndSetReferenceToUser } from '../../../middlewares/getLoggedInUserAndSetReferenceToUser';
+import { setQueryOptions } from '../../../middlewares/setQueryOptions';
 // import multer from "multer";
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
@@ -32,11 +33,20 @@ const paginationOptions: Array<'sortBy' | 'page' | 'limit' | 'populate'> = [
 // const taskService = new TaskService();
 const controller = new DoctorPatientScheduleBookingController();
 
-//
+//------------------------------
+// Doctor |  Appointment History
+//------------------------------
 router.route('/paginate').get(
-  //auth('common'),
+  auth(TRole.doctor),
   validateFiltersForQuery(optionValidationChecking(['_id', ...paginationOptions])),
-  controller.getAllWithPagination
+  getLoggedInUserAndSetReferenceToUser('doctorId'),
+  setQueryOptions({
+    populate: [
+      { path: 'patientId', select: 'name subscriptionType', /* populate: { path : ""} */ },
+    ],
+    select: '-isDeleted  -updatedAt -__v' //-createdAt
+  }),
+  controller.getAllWithPaginationV2
 );
 
 //---------------------------------

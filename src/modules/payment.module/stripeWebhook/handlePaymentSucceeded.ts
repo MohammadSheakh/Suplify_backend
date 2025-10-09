@@ -25,6 +25,8 @@ import { WalletService } from "../../wallet.module/wallet/wallet.service";
 import { TPaymentGateway, TPaymentStatus, TTransactionFor } from "../paymentTransaction/paymentTransaction.constant";
 import { PaymentTransaction } from "../paymentTransaction/paymentTransaction.model";
 //@ts-ignore
+import Stripe from "stripe";
+//@ts-ignore
 import { StatusCodes } from 'http-status-codes';
 //@ts-ignore
 import mongoose from "mongoose";
@@ -266,7 +268,7 @@ async function updateDoctorPatientScheduleBooking(
           updatedDoctorPatientScheduleBooking.doctorId,
           updatedDoctorPatientScheduleBooking.price,
           paymentTransactionId, // for creating wallet transaction history
-          `${updatedDoctorPatientScheduleBooking.price} added to your wallet. Patient ${thisCustomer.name} booked a appointment and Doctor Patient Schedule Booking Id is ${doctorPatientScheduleBookingId} and txnId is ${paymentTransactionId}`, //description 
+          `$${updatedDoctorPatientScheduleBooking.price} added to your wallet. Patient ${thisCustomer.name} booked a appointment and Doctor Patient Schedule Booking Id is ${doctorPatientScheduleBookingId} and txnId is ${paymentTransactionId}`, //description 
           TTransactionFor.DoctorPatientScheduleBooking, // referenceFor
           doctorPatientScheduleBookingId // referenceId
      );
@@ -315,7 +317,7 @@ async function updatePurchaseTrainingProgram(
           {
                paymentTransactionId: paymentTransactionId,
                paymentStatus: PaymentStatus.paid,
-               PaymentMethod: PaymentMethod.online
+               paymentMethod: PaymentMethod.online
           },
           { new: true }
      );
@@ -327,7 +329,7 @@ async function updatePurchaseTrainingProgram(
           updatedTrainingProgramPurchase.specialistId,
           updatedTrainingProgramPurchase.price,
           paymentTransactionId, // for creating wallet transaction history
-          `${updatedTrainingProgramPurchase.price} added to your wallet. Patient ${user.userName} purchased a training program and Training Program Purchase Id is ${trainingProgramPurchaseId} and txnId is ${paymentTransactionId}`, //description 
+          `$${updatedTrainingProgramPurchase.price} added to your wallet. Patient ${user.userName} purchased a training program and Training Program Purchase Id is ${trainingProgramPurchaseId} and txnId is ${paymentTransactionId}`, //description 
           TTransactionFor.TrainingProgramPurchase, // referenceFor
           trainingProgramPurchaseId // referenceId
      );
@@ -404,7 +406,7 @@ async function updateSpecialistPatientScheduleBooking(
           updatedSpecialsitPatientWorkoutClassBooking.specialistId,
           updatedSpecialsitPatientWorkoutClassBooking.price,
           paymentTransactionId, // for creating wallet transaction history
-          `${updatedSpecialsitPatientWorkoutClassBooking.price} added to your wallet. Patient ${user.name} booked a ${specialistWorkoutClassSchedule.sessionType} workout class and Specialist Patient Schedule Booking Id is ${specialistPatientScheduleBookingId} and txnId is ${paymentTransactionId}`, //description 
+          `$${updatedSpecialsitPatientWorkoutClassBooking.price} added to your wallet. Patient ${user.name} booked a ${specialistWorkoutClassSchedule.sessionType} workout class and Specialist Patient Schedule Booking Id is ${specialistPatientScheduleBookingId} and txnId is ${paymentTransactionId}`, //description 
           TTransactionFor.SpecialistPatientScheduleBooking, // referenceFor
           specialistPatientScheduleBookingId // referenceId
      );

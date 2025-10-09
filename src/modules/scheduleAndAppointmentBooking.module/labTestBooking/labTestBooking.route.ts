@@ -7,6 +7,7 @@ import { LabTestBookingController } from './labTestBooking.controller';
 import * as validation from './labTestBooking.validation';
 
 import multer from "multer";
+import { TRole } from '../../../middlewares/roles';
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
@@ -29,7 +30,9 @@ const paginationOptions: Array<'sortBy' | 'page' | 'limit' | 'populate'> = [
 // const taskService = new TaskService();
 const controller = new LabTestBookingController();
 
-//
+//------------------------------
+// Admin | Get all lab test booking .. 
+//-------------------------------
 router.route('/paginate').get(
   //auth('common'),
   validateFiltersForQuery(optionValidationChecking(['_id'])),
@@ -53,14 +56,11 @@ router.route('/').get(
   controller.getAll
 );
 
-//[🚧][🧑‍💻✅][🧪] // 🆗
+//--------------------------------------
+// Patient  | Create Lab Test Booking
+//--------------------------------------
 router.route('/create').post(
-  // [
-  //   upload.fields([
-  //     { name: 'attachments', maxCount: 15 }, // Allow up to 5 cover photos
-  //   ]),
-  // ],
-  auth('common'),
+  auth(TRole.patient),
   validateRequest(validation.createHelpMessageValidationSchema),
   controller.create
 );

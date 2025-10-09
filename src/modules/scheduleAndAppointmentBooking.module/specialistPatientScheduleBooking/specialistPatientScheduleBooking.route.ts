@@ -1,3 +1,4 @@
+//@ts-ignore
 import express from 'express';
 import * as validation from './specialistPatientScheduleBooking.validation';
 import { SpecialistPatientScheduleBookingController} from './specialistPatientScheduleBooking.controller';
@@ -5,7 +6,7 @@ import { ISpecialistPatientScheduleBooking } from './specialistPatientScheduleBo
 import { validateFiltersForQuery } from '../../../middlewares/queryValidation/paginationQueryValidationMiddleware';
 import validateRequest from '../../../shared/validateRequest';
 import auth from '../../../middlewares/auth';
-
+//@ts-ignore
 import multer from "multer";
 import { TRole } from '../../../middlewares/roles';
 const storage = multer.memoryStorage();
@@ -29,10 +30,13 @@ const paginationOptions: Array<'sortBy' | 'page' | 'limit' | 'populate'> = [
 // const taskService = new TaskService();
 const controller = new SpecialistPatientScheduleBookingController();
 
-//
+//-------------------------------
+// Specialist | Workout Class Booking History
+//-------------------------------
 router.route('/paginate').get(
-  //auth('common'),
+  auth(TRole.specialist),
   validateFiltersForQuery(optionValidationChecking(['_id', ...paginationOptions])),
+  
   controller.getAllWithPagination
 );
 

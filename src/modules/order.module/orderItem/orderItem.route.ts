@@ -29,10 +29,7 @@ const paginationOptions: Array<'sortBy' | 'page' | 'limit' | 'populate'> = [
 // const taskService = new TaskService();
 const controller = new OrderItemController();
 
-//---------------------------------
-// Admin | Get all order item for a order
-//---------------------------------
-//
+
 router.route('/paginate').get(
   //auth('common'),
   validateFiltersForQuery(optionValidationChecking(['_id', 'orderId', ...paginationOptions])),
@@ -61,6 +58,10 @@ router.route('/update/:id').put(
   controller.updateById
 );
 
+//----------------------------
+// Admin | Get all order item and shipping address for orderId
+// ?orderId={orderId}
+//----------------------------
 router.route('/').get(
   //auth('common'), // FIXME: maybe authentication lagbe na .. 
   controller.getAll 

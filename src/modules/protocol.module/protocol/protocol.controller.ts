@@ -64,7 +64,10 @@ export class ProtocolController extends GenericController<
     const extraNote = await DoctorPatient.findOne({
       doctorId: (req.user as IUser).userId,
       patientId: filters.patientId
-    }).select('extraNote').lean();
+    }).select('extraNote patientId').populate({
+      path: 'patientId',
+      select: 'name profileImage'
+    }).lean();
 
     result.extraNote = extraNote; // TODO : make sure this works as expected
 
