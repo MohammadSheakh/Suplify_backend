@@ -5,7 +5,7 @@ import { TTransactionFor } from "../modules/payment.module/paymentTransaction/pa
 //---------------------------------
 //  global method to send notification through bull queue
 //---------------------------------
-export async function sendInWebNotification(
+export async function enqueueWebNotification(
   // existingTrainingProgram, user: any
   title: string,
   senderId: string,
@@ -19,11 +19,11 @@ export async function sendInWebNotification(
    * this linkFor is for navigation in front-end 
    * so that in query we can pass linkFor=linkId
    * **** */
-  linkFor?: string,
+  linkFor?: string | null,
   //---------------------------------
   // value for linkFor query
   //---------------------------------
-  linkId?: string,
+  linkId?: string | null,
   referenceFor?: TTransactionFor,
   referenceId?: string
 ) {
@@ -52,5 +52,5 @@ export async function sendInWebNotification(
     }
   );
 
-  console.log("🔔 sendInWebNotification hit :: notifAdded -> ")//notifAdded
+  console.log("🔔 enqueueWebNotification hit :: notifAdded -> ")//notifAdded
 }

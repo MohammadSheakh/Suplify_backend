@@ -88,19 +88,20 @@ const WalletTransactionHistorySchema = new Schema<IWalletTransactionHistory>(
       type: String,
       enum: [
         TTransactionFor.UserSubscription, // previously it was SubscriptionPlan
-        TTransactionFor.Order,
-        TTransactionFor.DoctorPatientScheduleBooking,
-        TTransactionFor.SpecialistPatientScheduleBooking,
-        TTransactionFor.TrainingProgramPurchase,
-        TTransactionFor.LabTestBooking
+        TTransactionFor.Order,  // for paymentTransactionId
+        TTransactionFor.DoctorPatientScheduleBooking, // for paymentTransactionId 
+        TTransactionFor.SpecialistPatientScheduleBooking, // for paymentTransactionId
+        TTransactionFor.TrainingProgramPurchase, // for paymentTransactionId
+        TTransactionFor.LabTestBooking,   // for paymentTransactionId 
+        TTransactionFor.WithdrawalRequst,  // for creating WalletTransactionHistory | admin end
       ],
-      required: [false, `referenceFor is not required .. it can be  ${Object.values(TTransactionFor).join(
+      required: [true, `referenceFor is not required .. it can be  ${Object.values(TTransactionFor).join(
         ', '
       )}`],
     },
 
     referenceId: { type: Schema.Types.ObjectId, refPath: 'referenceFor',
-        required: [true, 'referenceId is required']
+        required: [true, 'referenceId is not required']
     },
 
     isDeleted: {

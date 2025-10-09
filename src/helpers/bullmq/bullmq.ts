@@ -282,8 +282,8 @@ interface IScheduleJobForNotification {
   id: string
 }
 
-// sendInWebNotification() this function is called when we need to send notification
-// 🔎 search for sendInWebNotification to see details   
+// enqueueWebNotification() this function is called when we need to send notification
+// 🔎 search for enqueueWebNotification to see details   
 
 export const startNotificationWorker = () => {
   const worker = new Worker(

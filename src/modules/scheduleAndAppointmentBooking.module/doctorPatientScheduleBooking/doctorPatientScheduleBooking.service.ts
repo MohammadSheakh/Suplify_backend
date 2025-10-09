@@ -27,7 +27,7 @@ import { scheduleQueue } from '../../../helpers/bullmq/bullmq';
 import { logger } from '../../../shared/logger';
 import { formatDelay, formatRemainingTime } from '../../../utils/formatDelay';
 import { TUser } from '../../user/user.interface';
-import { sendInWebNotification } from '../../../services/notification.service';
+import { enqueueWebNotification } from '../../../services/notification.service';
 import { TRole } from '../../../middlewares/roles';
 import { TNotificationType } from '../../notification/notification.constants';
 import { toLocalTime } from '../../../utils/timezone';
@@ -145,7 +145,7 @@ export class DoctorPatientScheduleBookingService extends GenericService<
              * 🎨 GUIDE FOR FRONTEND 
              *  |-> if doctor click on this notification .. redirect him to upcoming schedule... 
              * ***** */
-            await sendInWebNotification(
+            await enqueueWebNotification(
                 `${existingSchedule.scheduleName} purchased by a ${existingUser.subscriptionType} user ${existingUser.name}`,
                 existingUser._id, // senderId
                 existingSchedule.createdBy, // receiverId

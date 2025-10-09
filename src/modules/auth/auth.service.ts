@@ -21,7 +21,7 @@ import { TCurrency } from '../../enums/payment';
 let walletService = new WalletService();
 //@ts-ignore
 import EventEmitter from 'events';
-import { sendInWebNotification } from '../../services/notification.service';
+import { enqueueWebNotification } from '../../services/notification.service';
 import { TRole } from '../../middlewares/roles';
 import { TNotificationType } from '../notification/notification.constants';
 import { SpecialistPatient } from '../personRelationships.module/specialistPatient/specialistPatient.model';
@@ -248,7 +248,7 @@ const createUser = async (userData: TUser, userProfileId:string) => {
      * Lets send notification to admin that new doctor or specialist registered
      * 
      * ***** */
-    await sendInWebNotification(
+    await enqueueWebNotification(
       `A ${userData.role} registered successfully . verify document to activate account`,
       null, // senderId
       null, // receiverId 

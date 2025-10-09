@@ -19,12 +19,13 @@ import { TFolderName } from '../../../enums/folderNames';
 import { User } from '../../user/user.model';
 import { IUser as IUserMain } from '../../user/user.interface';
 import { IUser } from '../../token/token.interface';
-import { sendInWebNotification } from '../../../services/notification.service';
+import { enqueueWebNotification } from '../../../services/notification.service';
 import { TRole } from '../../../middlewares/roles';
 import { TNotificationType } from '../../notification/notification.constants';
 import { WalletTransactionHistory } from '../walletTransactionHistory/walletTransactionHistory.model';
 import { TWalletTransactionHistory, TWalletTransactionStatus } from '../walletTransactionHistory/walletTransactionHistory.constant';
 import { TCurrency } from '../../../enums/payment';
+import { TTransactionFor } from '../../payment.module/paymentTransaction/paymentTransaction.constant';
 
 export class WithdrawalRequstController extends GenericController<
   typeof WithdrawalRequst,
@@ -130,6 +131,15 @@ export class WithdrawalRequstController extends GenericController<
     // TODO : MUST : Send Notification to Admin that a withdrawal request is created
     //------------------------------------
     
+    await enqueueWebNotification(
+      `An withdrawal request is created by ${(req.user as IUser).userId} ${(req.user as IUser).userName} for $${data.requestedAmount}`,
+      (req.user as IUser).userId as string, // senderId
+      null, // receiverId // as we send notification to admin
+      TRole.admin, // receiverRole
+      TNotificationType.withdrawal, // type
+      null, // linkFor
+      null // linkId
+    );
 
 
     const result = await this.service.create(docToCreate);
@@ -152,6 +162,7 @@ export class WithdrawalRequstController extends GenericController<
      * without "proofOfPayment" document dont let user to update status 
      * update the "processedAt" date
      * ------TODO : MUST : if already complete we dont want to update again 
+     * ------TODO : MUST : add mongo db transaction here
      * ***** */
 
     //📈⚙️ OPTIMIZATION: Process both file types in parallel
@@ -180,21 +191,37 @@ export class WithdrawalRequstController extends GenericController<
 
     const updated =  await withdrawalRequst.save();
 
+    let balanceBeforeTransaction : number ;
+    let balanceAfterTransaction : number ; 
+    let wallet;
     //------------------------------------
     // Deduct amount from  Doctor / Patient's wallet
     //------------------------------------
-    if(withdrawalRequst.walletId){
-      const wallet = await Wallet.findById(withdrawalRequst.walletId);
-      if(wallet){
-        wallet.amount -= withdrawalRequst.requestedAmount;
-        await wallet.save();
-      }
-    }else if (withdrawalRequst.userId){
-      const wallet = await Wallet.findOne({
+    // if(withdrawalRequst.walletId){
+    //   const wallet = await Wallet.findById(withdrawalRequst.walletId);
+    //   if(wallet){
+    //     wallet.amount -= withdrawalRequst.requestedAmount;
+    //     await wallet.save();
+    //   }
+    // }else 
+      
+    if (withdrawalRequst.userId){
+      wallet = await Wallet.findOne({
         userId : withdrawalRequst.userId
       });
+
+      console.log("log: wallet.amount => ", typeof wallet.amount,"~~~", wallet.amount);
+      console.log("log: withdrawalRequst.requestedAmount => ", typeof withdrawalRequst.requestedAmount , "~~~", withdrawalRequst.requestedAmount);
+      console.log("log: wallet.amount - withdrawalRequst.requestedAmount  result => ", wallet.amount - withdrawalRequst.requestedAmount);
+
       if(wallet){
+
+        balanceBeforeTransaction = wallet.amount;
+
         wallet.amount -= withdrawalRequst.requestedAmount;
+
+        balanceAfterTransaction = wallet.amount;
+
         await wallet.save();
       }
     }
@@ -204,35 +231,32 @@ export class WithdrawalRequstController extends GenericController<
     //------------------------------------
 
     const walletTransactionHistory = await WalletTransactionHistory.create({
-      walletId : 
-      userId : 
+      walletId : wallet._id,
+      userId : withdrawalRequst.userId,
       paymentTransactionId : null, // as this is withdrawal request
       withdrawalRequestId : withdrawalRequst._id,
       type : TWalletTransactionHistory.withdrawal,
       amount : withdrawalRequst.requestedAmount,
       currency : TCurrency.usd,
-      balanceBefore : wallet.amount,
-      balanceAfter : wallet.amount - withdrawalRequst.requestedAmount,
+      balanceBefore : balanceBeforeTransaction,
+      balanceAfter : balanceAfterTransaction,
       description : 'withdrawal requst approved by admin',
       status : TWalletTransactionStatus.completed,
-
+      referenceFor : TTransactionFor.WithdrawalRequst,
+      referenceId : withdrawalRequst._id
     })
-
-    // TODO : 
-
 
     //------------------------------------
     // Send Notification to Doctor / Patient that a withdrawal request is approved
     //------------------------------------
-
-    await sendInWebNotification(
+    await enqueueWebNotification(
       `$${withdrawalRequst.requestedAmount} Withdrawal request is approved by admin`,
-      (req?.user as IUser)?.userId, // senderId
+      (req?.user as IUser)?.userId as string, // senderId
       withdrawalRequst.userId, // receiverId
       null, // receiverRole
       TNotificationType.payment, // type // 🎨 this is for wallet page routing 
-      'trainingProgramId', // linkFor
-      existingTrainingProgram._id // linkId
+      null, // linkFor // TODO : MUST : need to talk with nirob vai
+      null, // linkId
       // TTransactionFor.TrainingProgramPurchase, // referenceFor
       // purchaseTrainingProgram._id // referenceId
     );

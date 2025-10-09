@@ -30,7 +30,7 @@ import { IPatientTrainingSession } from '../patientTrainingSession/PatientTraini
 import { notificationQueue } from '../../../helpers/bullmq/bullmq';
 import { TRole } from '../../../middlewares/roles';
 import { TNotificationType } from '../../notification/notification.constants';
-import { sendInWebNotification } from '../../../services/notification.service';
+import { enqueueWebNotification } from '../../../services/notification.service';
 import { TRelationCreatedBy } from '../../personRelationships.module/doctorSpecialistPatient/doctorSpecialistPatient.constant';
 
 const patientTrainingSessionService = new PatientTrainingSessionService();
@@ -192,7 +192,7 @@ export class TrainingProgramPurchaseService extends GenericService<
            * 🥇
            * Lets send notification to specialist that patient has purchased training program
            * ******* */
-          await sendInWebNotification(
+          await enqueueWebNotification(
             `${existingTrainingProgram.programName} purchased by a ${existingUser.subscriptionType} user ${existingUser.name} .  purchaseTrainingProgramId ${purchaseTrainingProgram._id}`,
             existingUser._id, // senderId
             existingTrainingProgram.createdBy, // receiverId
@@ -208,7 +208,7 @@ export class TrainingProgramPurchaseService extends GenericService<
           // Now send notification to admin that patient has purchased training program
           //---------------------------------
 
-          await sendInWebNotification(
+          await enqueueWebNotification(
             `${existingTrainingProgram.programName} Training Program of specialist ${existingTrainingProgram.createdBy} purchased by a ${existingUser.subscriptionType} user ${existingUser.name}. purchaseTrainingProgramId ${purchaseTrainingProgram._id}`,
             existingUser._id, // senderId
             null, // receiverId
@@ -381,7 +381,7 @@ export class TrainingProgramPurchaseService extends GenericService<
 // /********
 //  *  global method to send notification through bull queue
 //  * ******** */
-// async function sendInWebNotification(
+// async function enqueueWebNotification(
 //   // existingTrainingProgram, user: any
 //   title: string,
 //   senderId: string,
@@ -423,7 +423,7 @@ export class TrainingProgramPurchaseService extends GenericService<
 //     }
 //   );
 
-//   console.log("🔔 sendInWebNotification hit :: notifAdded -> ", notifAdded)
+//   console.log("🔔 enqueueWebNotification hit :: notifAdded -> ", notifAdded)
 // }
 
 

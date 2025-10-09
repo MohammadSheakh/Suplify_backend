@@ -1,6 +1,6 @@
 import ApiError from "../../../errors/ApiError";
 import { TRole } from "../../../middlewares/roles";
-import { sendInWebNotification } from "../../../services/notification.service";
+import { enqueueWebNotification } from "../../../services/notification.service";
 import { TNotificationType } from "../../notification/notification.constants";
 import { Cart } from "../../order.module/cart/cart.model";
 import { OrderStatus, PaymentMethod, PaymentStatus } from "../../order.module/order/order.constant";
@@ -21,8 +21,7 @@ import { ITrainingProgramPurchase } from "../../training.module/trainingProgramP
 import { TrainingProgramPurchaseService } from "../../training.module/trainingProgramPurchase/trainingProgramPurchase.service";
 import { TUser } from "../../user/user.interface";
 import { User } from "../../user/user.model";
-import { IWallet } from "../../wallet.module/wallet/wallet.interface";
-import { Wallet } from "../../wallet.module/wallet/wallet.model";
+import { WalletService } from "../../wallet.module/wallet/wallet.service";
 import { TPaymentGateway, TPaymentStatus, TTransactionFor } from "../paymentTransaction/paymentTransaction.constant";
 import { PaymentTransaction } from "../paymentTransaction/paymentTransaction.model";
 //@ts-ignore
@@ -31,6 +30,7 @@ import { StatusCodes } from 'http-status-codes';
 import mongoose from "mongoose";
 
 const trainingProgramPurchaseService = new TrainingProgramPurchaseService();
+const walletService = new WalletService();
 
 // Function for handling a successful payment
 export const handlePaymentSucceeded = async (session: Stripe.Checkout.Session) => {
@@ -40,13 +40,13 @@ export const handlePaymentSucceeded = async (session: Stripe.Checkout.Session) =
           console.log("session.metadata 🔎🔎", session.metadata)
 
           const { 
-               referenceId,
+               referenceId, // bookingId
                user,
-               referenceFor,
+               referenceFor, // TTransactionFor .. bookingId related to which model
                currency,
                amount,
-               referenceId2,
-               referenceFor2,
+               referenceId2, // if more data is needed
+               referenceFor2, // if more data is needed .. referenceId2 related to which model
                ...rest  // 👈 This captures everything else
           }: any = session.metadata;
           // userId // for sending notification .. 
@@ -178,7 +178,7 @@ async function updateOrderInformation(user: IUser,
      //---------------------------------
      // TODO : MUST Lets send notification to admin that a order is placed
      //---------------------------------
-     await sendInWebNotification(
+     await enqueueWebNotification(
           `A Patient ${user.userId} ${user.userName} placed new order, OrderId : ${orderId}, TxnId : ${paymentTransactionId} , amount : ${updatedOrder.finalAmount}`,
           user.userId, // senderId
           null, // receiverId 
@@ -215,7 +215,7 @@ async function updateLabTestBooking(
      // TODO : MUST
      // Lets send notification to admin that a lab test is booked
      //---------------------------------
-     await sendInWebNotification(
+     await enqueueWebNotification(
           `Lab Test ${updatedLabTestBooking.labTestId} booked by ${user.userName} . bookingId is ${updatedLabTestBooking._id}`,
           user.userId, // senderId
           null, // receiverId 
@@ -259,12 +259,24 @@ async function updateDoctorPatientScheduleBooking(
           { new: true }
      );
 
+     // -------------------------------
+     // add amount to specialist wallet
+     // -------------------------------
+     await walletService.addAmountToWalletAndCreateTransactionHistory(
+          updatedDoctorPatientScheduleBooking.doctorId,
+          updatedDoctorPatientScheduleBooking.price,
+          paymentTransactionId, // for creating wallet transaction history
+          `${updatedDoctorPatientScheduleBooking.price} added to your wallet. Patient ${thisCustomer.name} booked a appointment and Doctor Patient Schedule Booking Id is ${doctorPatientScheduleBookingId} and txnId is ${paymentTransactionId}`, //description 
+          TTransactionFor.DoctorPatientScheduleBooking, // referenceFor
+          doctorPatientScheduleBookingId // referenceId
+     );
+
      /********
       * Lets send notification to specialist that patient has booked workout class
       * 🎨 GUIDE FOR FRONTEND 
       *  |-> if doctor click on this notification .. redirect him to upcoming schedule... 
       * ***** */
-     await sendInWebNotification(
+     await enqueueWebNotification(
           `${result.scheduleName} purchased by a ${thisCustomer.subscriptionType} user ${thisCustomer.name} . appointmentBookingId ${updatedDoctorPatientScheduleBooking._id}`,
           thisCustomer._id, // senderId
           result.createdBy, // receiverId
@@ -279,7 +291,7 @@ async function updateDoctorPatientScheduleBooking(
      //---------------------------------
      // Now send notification to admin that patient has purchase and booked a workout class schedule
      //---------------------------------
-     await sendInWebNotification(
+     await enqueueWebNotification(
           `${result.scheduleName} Appointment Schedule of doctor ${updatedDoctorPatientScheduleBooking.doctorId} purchased by user ${thisCustomer.name}. appointmentBookingId ${updatedDoctorPatientScheduleBooking._id}`,
           user._id, // senderId
           null, // receiverId
@@ -291,7 +303,6 @@ async function updateDoctorPatientScheduleBooking(
 
      return updatedDoctorPatientScheduleBooking;
 }
-
 
 async function updatePurchaseTrainingProgram(
      user: IUser,
@@ -312,20 +323,15 @@ async function updatePurchaseTrainingProgram(
      // -------------------------------
      // add amount to specialist wallet
      // -------------------------------
-
-     const updatedWallet = await Wallet.findOneAndUpdate(
-          { userId: updatedTrainingProgramPurchase.specialistId },
-          { $inc: { amount: updatedTrainingProgramPurchase.price } },
-          { new: true }
+     await walletService.addAmountToWalletAndCreateTransactionHistory(
+          updatedTrainingProgramPurchase.specialistId,
+          updatedTrainingProgramPurchase.price,
+          paymentTransactionId, // for creating wallet transaction history
+          `${updatedTrainingProgramPurchase.price} added to your wallet. Patient ${user.userName} purchased a training program and Training Program Purchase Id is ${trainingProgramPurchaseId} and txnId is ${paymentTransactionId}`, //description 
+          TTransactionFor.TrainingProgramPurchase, // referenceFor
+          trainingProgramPurchaseId // referenceId
      );
 
-     //---------------------------------
-     // TODO : MUST .. need to handle this usecase that specialist has no wallet
-     //---------------------------------
-     if (!updatedWallet) {
-          // Handle missing wallet
-          throw new Error('Specialist wallet not found');
-     }
 
      console.log("♻️updatedTrainingProgramPurchase from webhook 🪝 🪝  ", updatedTrainingProgramPurchase)
 
@@ -336,7 +342,7 @@ async function updatePurchaseTrainingProgram(
      //---------------------------------
      // Lets send notification to specialist that patient has purchased training program
      //---------------------------------
-     await sendInWebNotification(
+     await enqueueWebNotification(
           `TrainingProgram ${trainingProgramId} purchased by a patient ${user.userName}`,
           user.userId, // senderId
           updatedTrainingProgramPurchase.specialistId, // receiverId
@@ -350,7 +356,7 @@ async function updatePurchaseTrainingProgram(
      //---------------------------------
      // Now send notification to admin that patient has purchased training program
      //---------------------------------
-     await sendInWebNotification(
+     await enqueueWebNotification(
           `${updatedTrainingProgramPurchase.trainingProgramId} Training Program of specialist ${updatedTrainingProgramPurchase.specialistId} purchased by user ${user.userName}. purchaseTrainingProgramId ${updatedTrainingProgramPurchase._id}`,
           user.userId, // senderId
           null, // receiverId
@@ -366,10 +372,8 @@ async function updatePurchaseTrainingProgram(
      // and update wallet balance
      //---------------------------------
 
-
      return updatedTrainingProgramPurchase;
 }
-
 
 async function updateSpecialistPatientScheduleBooking(
      user: TUser,
@@ -393,11 +397,22 @@ async function updateSpecialistPatientScheduleBooking(
           specialistWorkoutClassScheduleId
      );
 
+     // -------------------------------
+     // add amount to specialist wallet
+     // -------------------------------
+     await walletService.addAmountToWalletAndCreateTransactionHistory(
+          updatedSpecialsitPatientWorkoutClassBooking.specialistId,
+          updatedSpecialsitPatientWorkoutClassBooking.price,
+          paymentTransactionId, // for creating wallet transaction history
+          `${updatedSpecialsitPatientWorkoutClassBooking.price} added to your wallet. Patient ${user.name} booked a ${specialistWorkoutClassSchedule.sessionType} workout class and Specialist Patient Schedule Booking Id is ${specialistPatientScheduleBookingId} and txnId is ${paymentTransactionId}`, //description 
+          TTransactionFor.SpecialistPatientScheduleBooking, // referenceFor
+          specialistPatientScheduleBookingId // referenceId
+     );
 
      //---------------------------------
      // Lets send notification to specialist that patient has booked workout class
      //---------------------------------
-     await sendInWebNotification(
+     await enqueueWebNotification(
           `${specialistWorkoutClassSchedule.scheduleName} purchased by a ${user.subscriptionType} user ${user.name}`,
           user._id, // senderId
           updatedSpecialsitPatientWorkoutClassBooking.specialistId, // receiverId
@@ -414,7 +429,7 @@ async function updateSpecialistPatientScheduleBooking(
      //---------------------------------
      // Now send notification to admin that patient has purchase and booked a workout class schedule
      //---------------------------------
-     await sendInWebNotification(
+     await enqueueWebNotification(
           `${specialistWorkoutClassSchedule.scheduleName} Workout Class of specialist ${specialistWorkoutClassSchedule.createdBy} purchased by user ${user.name}. purchaseSpecialistWorkoutClassId ${updatedSpecialsitPatientWorkoutClassBooking._id}`,
           user._id, // senderId
           null, // receiverId

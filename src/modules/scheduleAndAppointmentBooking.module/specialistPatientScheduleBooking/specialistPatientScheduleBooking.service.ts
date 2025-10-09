@@ -25,7 +25,7 @@ import { logger } from '../../../shared/logger';
 //@ts-ignore
 import colors from 'colors';
 import { formatDelay } from '../../../utils/formatDelay';
-import { sendInWebNotification } from '../../../services/notification.service';
+import { enqueueWebNotification } from '../../../services/notification.service';
 import { TRole } from '../../../middlewares/roles';
 import { TNotificationType } from '../../notification/notification.constants';
 import { TRelationCreatedBy } from '../../personRelationships.module/doctorSpecialistPatient/doctorSpecialistPatient.constant';
@@ -156,7 +156,7 @@ export class SpecialistPatientScheduleBookingService extends GenericService<
                 //--------------------------------- 
                 // Lets send notification to specialist that patient has booked workout class
                 //---------------------------------
-                await sendInWebNotification(
+                await enqueueWebNotification(
                     `${existingWorkoutClass.scheduleName} purchased by a ${existingUser.subscriptionType} user ${existingUser.name}`,
                     existingUser._id, // senderId
                     existingWorkoutClass.createdBy, // receiverId

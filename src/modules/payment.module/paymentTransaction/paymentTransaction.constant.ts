@@ -15,6 +15,7 @@ export enum TTransactionFor {
     SpecialistPatientScheduleBooking = 'SpecialistPatientScheduleBooking',
     TrainingProgramPurchase = 'TrainingProgramPurchase',
     LabTestBooking = 'LabTestBooking',
+    WithdrawalRequst = 'WithdrawalRequst' // for creating WalletTransactionHistory | admin end
 }
 export enum TPaymentGateway {
     stripe = 'stripe',
