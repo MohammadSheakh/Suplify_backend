@@ -6,20 +6,26 @@ import { ISettings } from './settings.interface';
 import { Settings } from './settings.model';
 import { GenericService } from '../_generic-module/generic.services';
 
-
 const allowedTypes = [
   settingsType.aboutUs,
   settingsType.contactUs,
   settingsType.privacyPolicy,
   settingsType.termsAndConditions,
+  settingsType.introductionVideo,
 ];
 
 //TODO: Must Fix korte hobe 
-export class SettingsService extends GenericService<typeof Settings> {
+export class SettingsService extends GenericService<
+  typeof Settings,
+  ISettings
+> {
   constructor() {
     super(Settings);
   }
 
+  //----------------------------------
+  // Admin | Upload Introduction video
+  //----------------------------------
   async createOrUpdateSettings(type: any, payload: any) {
     
     if (!allowedTypes.includes(type)) {

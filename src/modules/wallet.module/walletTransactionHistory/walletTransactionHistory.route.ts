@@ -33,11 +33,18 @@ const controller = new WalletTransactionHistoryController();
 //---------------------------------
 // Specialist | get all transaction history with wallet balance 
 //---------------------------------
-//
 router.route('/paginate').get(
   auth(TRole.specialist),
   validateFiltersForQuery(optionValidationChecking(['_id', 'walletId', ...paginationOptions])),
   controller.getAllWithPagination
+);
+
+//--------------------------------
+// Specialist | Get Overview of Earnings
+//---------------------------------
+router.route('/overview').get(
+  auth(TRole.admin),
+  controller.getMyEarningsOverview
 );
 
 router.route('/:id').get(

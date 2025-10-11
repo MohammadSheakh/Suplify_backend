@@ -1,7 +1,5 @@
 import express from 'express';
-
 import { PaymentTransactionController} from './paymentTransaction.controller';
-
 import { validateFiltersForQuery } from '../../../middlewares/queryValidation/paginationQueryValidationMiddleware';
 import validateRequest from '../../../shared/validateRequest';
 import auth from '../../../middlewares/auth';
@@ -10,6 +8,7 @@ import { IPaymentTransaction } from './paymentTransaction.interface';
 import * as validation from './paymentTransaction.validation';
 
 import multer from "multer";
+import { TRole } from '../../../middlewares/roles';
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
@@ -56,6 +55,7 @@ router.route('/paginate').get(
   controller.getAllWithPagination
 );
 
+
 router.route('/paginate/dev').get(
   //auth('common'),
   validateFiltersForQuery(optionValidationChecking([
@@ -73,11 +73,17 @@ router.route('/paginate/dev').get(
   controller.getAllWithPaginationForDev
 );
 
+//--------------------------------
+// Admin | Get Overview of Earnings
+//---------------------------------
+router.route('/overview/admin').get(
+  auth(TRole.admin),
+  controller.getEarningsOverview
+);
 
 //---------------------------------
 // From kappes Backend
 //---------------------------------
-
 router.route('/success').get(controller.successPage)
 router.route('/cancel').get(controller.cancelPage);
 

@@ -71,7 +71,9 @@ export class PaymentTransactionController extends GenericController<
     res.render('cancel.ejs', { frontEndHomePageUrl: config.client.url });
   });
 
-
+  //---------------------------
+  // Admin | Get all payment transactions
+  //----------------------------
   getAllWithPagination = catchAsync(async (req: Request, res: Response) => {
     //const filters = pick(req.query, ['_id', 'title']); // now this comes from middleware in router
     const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']); ;
@@ -104,7 +106,9 @@ export class PaymentTransactionController extends GenericController<
     });
   });
 
-
+  //---------------------------
+  // Dev | Get all payment transactions with Gateway Response for debug
+  //----------------------------
   getAllWithPaginationForDev = catchAsync(async (req: Request, res: Response) => {
     //const filters = pick(req.query, ['_id', 'title']); // now this comes from middleware in router
     const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']); ;
@@ -137,6 +141,19 @@ export class PaymentTransactionController extends GenericController<
     });
   });
 
+  //---------------------------
+  // Admin | Get comprehensive earnings overview
+  //----------------------------
+  getEarningsOverview = catchAsync(async (req: Request, res: Response) => {
+    const result = await this.paymentTransactionService.getEarningsOverview();
+
+    sendResponse(res, {
+      code: StatusCodes.OK,
+      data: result,
+      message: 'Earnings overview retrieved successfully',
+      success: true,
+    });
+  });
 
   // add more methods here if needed or override the existing ones 
 }

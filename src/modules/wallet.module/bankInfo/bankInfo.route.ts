@@ -9,6 +9,7 @@ import auth from '../../../middlewares/auth';
 //@ts-ignore
 import multer from "multer";
 import { TRole } from '../../../middlewares/roles';
+import { getLoggedInUserAndSetReferenceToUser } from '../../../middlewares/getLoggedInUserAndSetReferenceToUser';
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
@@ -30,10 +31,10 @@ const paginationOptions: Array<'sortBy' | 'page' | 'limit' | 'populate'> = [
 // const taskService = new TaskService();
 const controller = new BankInfoController();
 
-//
 router.route('/paginate').get(
-  //auth('common'),
-  validateFiltersForQuery(optionValidationChecking(['_id', ...paginationOptions])),
+  auth(TRole.doctor, TRole.specialist),
+  validateFiltersForQuery(optionValidationChecking(['_id',...paginationOptions])),
+  getLoggedInUserAndSetReferenceToUser("userId"),
   controller.getAllWithPagination
 );
 
@@ -64,7 +65,6 @@ router.route('/').get(
   auth('commonAdmin'),
   controller.getAll
 );
-
 
 router.route('/').post(
   

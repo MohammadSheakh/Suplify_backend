@@ -26,6 +26,8 @@ import { WalletTransactionHistory } from '../walletTransactionHistory/walletTran
 import { TWalletTransactionHistory, TWalletTransactionStatus } from '../walletTransactionHistory/walletTransactionHistory.constant';
 import { TCurrency } from '../../../enums/payment';
 import { TTransactionFor } from '../../payment.module/paymentTransaction/paymentTransaction.constant';
+import omit from '../../../shared/omit';
+import pick from '../../../shared/pick';
 
 export class WithdrawalRequstController extends GenericController<
   typeof WithdrawalRequst,
@@ -117,6 +119,7 @@ export class WithdrawalRequstController extends GenericController<
     }) // TODO : MUST : add logic 
 
     // if last Withdrawal request is in week then we can not create withdrawal request
+    /************** TODO : MUST .. uncomment this part
     if (lastWithdrawalRequest && 
       lastWithdrawalRequest.createdAt > new Date(new Date().getTime() - 7 * 24 * 60 * 60 * 1000)
     ) {
@@ -126,6 +129,7 @@ export class WithdrawalRequstController extends GenericController<
         success: false,
       });
     }
+    ************* */
 
     //------------------------------------
     // TODO : MUST : Send Notification to Admin that a withdrawal request is created
@@ -268,6 +272,46 @@ export class WithdrawalRequstController extends GenericController<
       success: true,
     });
   })
+
+  //---------------------------------
+  //  Doctor / Specialist | Get all withdrawal Requst With Wallet Amount  
+  //---------------------------------
+  getAllWithPaginationV2WithWalletAmount = catchAsync(async (req: Request, res: Response) => {
+    //const filters = pick(req.query, ['_id', 'title']); // now this comes from middleware in router
+    const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']);
+    const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
+
+    // ✅ Default values
+    let populateOptions: (string | { path: string; select: string }[]) = [];
+    let select = '-isDeleted -createdAt -updatedAt -__v';
+
+    // ✅ If middleware provided overrides → use them
+    if (req.queryOptions) {
+      if (req.queryOptions.populate) {
+        populateOptions = req.queryOptions.populate;
+      }
+      if (req.queryOptions.select) {
+        select = req.queryOptions.select;
+      }
+    }
+
+    // ⚠️ NEED_OPTIMIZATION : TODO : with parallal processing
+    const result = await this.service.getAllWithPagination(filters, options, populateOptions , select );
+
+    const walletAmount = await Wallet.findOne({
+      userId: req.user?.userId
+    }).select('amount').lean();
+
+    sendResponse(res, {
+      code: StatusCodes.OK,
+      data: {
+        result,
+        walletAmount
+      },
+      message: `All ${this.modelName} with pagination`,
+      success: true,
+    });
+  });
 
 
   // add more methods here if needed or override the existing ones 

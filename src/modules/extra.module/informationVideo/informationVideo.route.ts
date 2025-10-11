@@ -3,7 +3,6 @@ import express from 'express';
 import * as validation from './informationVideo.validation';
 import { informationVideoController} from './informationVideo.controller';
 import { IinformationVideo } from './informationVideo.interface';
-
 import { TRole } from '../../../middlewares/roles';
 import { validateFiltersForQuery } from '../../../middlewares/queryValidation/paginationQueryValidationMiddleware';
 import auth from '../../../middlewares/auth';
@@ -36,8 +35,6 @@ const controller = new informationVideoController();
 // Specialist  | Information Video | View all infomation video for logged in specialist 
 // TODO : return only important fields 
 //---------------------------------
-
-//
 router.route('/paginate').get(
   auth(TRole.specialist), // can not assign other role here .. 
   validateFiltersForQuery(optionValidationChecking(['_id', ...paginationOptions])),
@@ -49,9 +46,8 @@ router.route('/paginate').get(
 // Patient | Landing Page | Information video 
 // only subscription -> (standard  + above) patient can view the video
 //---------------------------------
-
 router.route('/paginate/patient').get(
-  auth(TRole.specialist),
+  auth(TRole.patient),
   validateFiltersForQuery(optionValidationChecking(['_id','createdBy', ...paginationOptions])),
   controller.getAllWithPaginationForPatient
 );
@@ -76,7 +72,6 @@ router.route('/').get(
 //---------------------------------
 // Specialist | Information Video | Create Infomation video .. 
 //---------------------------------
-
 router.route('/').post(
   [
     upload.fields([

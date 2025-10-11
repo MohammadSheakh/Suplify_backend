@@ -18,6 +18,9 @@ const allowedTypes = [
   settingsType.introductionVideo
 ];
 
+//----------------------------------
+// Admin | Upload Introduction video
+//----------------------------------
 const createOrUpdateSettings = catchAsync(async (req, res, next) => {
  
   if (!req.query.type) {
@@ -42,19 +45,25 @@ const createOrUpdateSettings = catchAsync(async (req, res, next) => {
         TFolderName.informationVideo,
       )
     );
+
+    req.body.introductionVideo = attachments[0];
+  }else{
+    https://www.youtube.com/watch?v=p3qvj9hO_Bo&t=2525s
+    req.body.introductionVideo = req.body.link;
   }
 
-  console.log("🧪", attachments);
   
-    // const result = await settingsService.createOrUpdateSettings(
-    //   req.query.type,
-    //   req.body
-    // );
+  console.log("🧪attachments[0]🧪", attachments[0]);
+  
+  const result = await settingsService.createOrUpdateSettings(
+    req.query.type,
+    req.body
+  );
 
   sendResponse(res, {
     code: StatusCodes.OK,
     message: `${capitalizeFirstLetter(req.query.type?.toString())} updated successfully`,
-    data: null//result,
+    data: result
   });
 });
 
@@ -69,20 +78,12 @@ const getDetailsByType = catchAsync(async (req, res, next) => {
     throw new ApiError(StatusCodes.BAD_REQUEST, `Invalid type .. Allowed types are ${allowedTypes.join(', ')}`);
   }
 
-  // if (req.file) {
-  //   req.body.introductionVideo = {
-  //     videoUrl: '/uploads/users/' + req.file.filename,
-  //     file: req.file,
-  //   };
-  // }
-
-  
-  // const result = await settingsService.getDetailsByType(req.query.type);
+  const result = await settingsService.getDetailsByType(req.query.type);
 
   sendResponse(res, {
     code: StatusCodes.OK,
     message: `${capitalizeFirstLetter(req.query.type?.toString())} fetched successfully`,
-    data: null //result,
+    data: result,
   });
 });
 

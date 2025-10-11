@@ -12,6 +12,7 @@ import { TRole } from '../../../middlewares/roles';
 import { setRequstFilterAndValue } from '../../../middlewares/setRequstFilterAndValue';
 import { TWithdrawalRequst } from './withdrawalRequst.constant';
 import { setQueryOptions } from '../../../middlewares/setQueryOptions';
+import { getLoggedInUserAndSetReferenceToUser } from '../../../middlewares/getLoggedInUserAndSetReferenceToUser';
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
@@ -38,6 +39,21 @@ const controller = new WithdrawalRequstController();
 //---------------------------------
 
 router.route('/paginate').get(
+  auth(TRole.specialist , TRole.doctor),
+  validateFiltersForQuery(optionValidationChecking(['_id', ...paginationOptions])),
+  getLoggedInUserAndSetReferenceToUser('userId'),
+  // setRequstFilterAndValue('status', TWithdrawalRequst.requested), // requested 
+  setQueryOptions({
+    populate: [
+      { path: 'proofOfPayment', select: 'attachment', /* populate: { path : ""} */ },
+      { path : "walletId", select: "amount"}
+    ],
+    select: '-isDeleted -createdAt -updatedAt -__v'
+  }),
+  controller.getAllWithPaginationV2WithWalletAmount
+);
+
+router.route('/paginate/for-admin').get(
   auth(TRole.admin),
   validateFiltersForQuery(optionValidationChecking(['_id', ...paginationOptions])),
   setRequstFilterAndValue('status', TWithdrawalRequst.requested), // requested 

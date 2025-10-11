@@ -20,7 +20,7 @@ const settingsSchema = new Schema<ISettings>(
     },
     details: {
       type: String,
-      required: true,
+      required: false,
     },
     introductionVideo:{
       type: Object,
