@@ -1,3 +1,4 @@
+//@ts-ignore
 import { model, Schema } from 'mongoose';
 import { ILabTestBooking, ILabTestBookingModel } from './labTestBooking.interface';
 import { PaymentMethod } from '../../order.module/order/order.constant';
@@ -30,7 +31,6 @@ const LabTestBookingSchema = new Schema<ILabTestBooking>(
       type : Date,
       required: [true, 'endTime is required'],
     },
-
     address: {
       type:String,
       required: [true, 'address is required'],
@@ -49,10 +49,15 @@ const LabTestBookingSchema = new Schema<ILabTestBooking>(
     },
     status:{ // 🟢🟢 need to think about this .. with UI
       type: String,
-      enum: [TLabTestBookingStatus.pending, TLabTestBookingStatus.confirmed, TLabTestBookingStatus.canceled],
+      enum: [
+        TLabTestBookingStatus.pending,
+        TLabTestBookingStatus.confirmed,
+        TLabTestBookingStatus.canceled,
+        TLabTestBookingStatus.completed
+      ],
       required: [true, `status is required .. it can be  ${Object.values(TLabTestBookingStatus).join(
-              ', '
-            )}`],
+        ', '
+      )}`],
       default: TLabTestBookingStatus.pending,
       //---------------------------------
       // Initially status should be pending .. 

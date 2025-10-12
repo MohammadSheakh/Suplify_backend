@@ -119,7 +119,7 @@ eventEmitterForAssignSpecialistAutomatically.on('eventEmitterForAssignSpecialist
 
       // Step 2️⃣ Create the relation
       const existingRelation = await SpecialistPatient.findOne({
-        userId,
+        patientId:userId,
         specialistId,
         isDeleted: false,
       });
@@ -130,7 +130,7 @@ eventEmitterForAssignSpecialistAutomatically.on('eventEmitterForAssignSpecialist
       }
 
       const relation = await SpecialistPatient.create({
-        userId,
+        patientId : userId,
         specialistId,
         relationCreatedBy: 'system', // optional: can also be 'admin' or 'patient'
       });

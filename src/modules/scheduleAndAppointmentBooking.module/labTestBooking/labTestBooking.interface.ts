@@ -1,9 +1,9 @@
+//@ts-ignore
 import { Model, Types } from 'mongoose';
 import { PaginateOptions, PaginateResult } from '../../../types/paginate';
 import { TLabTestBookingStatus } from './labTestBooking.constant';
 import { PaymentMethod } from '../../order.module/order/order.constant';
 import { TPaymentStatus } from '../specialistPatientScheduleBooking/specialistPatientScheduleBooking.constant';
-
 
 export interface ILabTestBooking {
   // _taskId: undefined | Types.ObjectId;
@@ -19,7 +19,10 @@ export interface ILabTestBooking {
   state: string;
   zipCode: string;
 
-  status: TLabTestBookingStatus.pending | TLabTestBookingStatus.confirmed | TLabTestBookingStatus.canceled;
+  status: TLabTestBookingStatus.pending |
+    TLabTestBookingStatus.confirmed |
+    TLabTestBookingStatus.canceled |
+    TLabTestBookingStatus.completed ;
 
   paymentTransactionId: Types.ObjectId | null;
   paymentMethod: PaymentMethod;

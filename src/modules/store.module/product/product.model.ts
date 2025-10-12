@@ -42,9 +42,9 @@ const ProductSchema = new Schema<IProduct>(
                 ', '
               )}`],
     },
-    stockQuantity:{
+    stockQuantity:{ // as lab test has no stock
       type: Number,
-      required: [true, 'stockQuantity is required'],
+      required: [false, 'stockQuantity is not required'],
     },
 
     //---------------------------------

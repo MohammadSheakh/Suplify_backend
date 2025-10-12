@@ -5,8 +5,10 @@ import { GenericController } from "../../_generic-module/generic.controller";
 import { ICreateOrder, IOrder } from "./order.interface";
 import { Order } from "./order.model";
 import { OrderService } from "./order.service";
+//@ts-ignore
 import {StatusCodes} from 'http-status-codes' 
-
+//@ts-ignore
+import { Request, Response} from 'express';
 let orderService = new OrderService();
 
 export class OrderController extends GenericController<typeof Order, IOrder> {

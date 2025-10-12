@@ -36,6 +36,7 @@ import { SuccessTrackerRoute } from '../modules/successTracker.module/successTra
 import { WalletTransactionHistoryRoute } from '../modules/wallet.module/walletTransactionHistory/walletTransactionHistory.route';
 import { BankInfoRoute } from '../modules/wallet.module/bankInfo/bankInfo.route';
 import { WithdrawalRequstRoute } from '../modules/wallet.module/withdrawalRequst/withdrawalRequst.route';
+import { LabTestBookingRoute } from '../modules/scheduleAndAppointmentBooking.module/labTestBooking/labTestBooking.route';
 
 // import { ChatRoutes } from '../modules/chat/chat.routes';
 // import { MessageRoutes } from '../modules/message/message.routes';
@@ -101,6 +102,11 @@ const apiRoutes = [
   { // 🟢
     path: '/order-items',
     route: OrderItemRoute,
+  },
+
+  { // 🟢
+    path: '/labTest-bookings',
+    route: LabTestBookingRoute,
   },
 
   ///////////////////////////////////////// Payment Transaction

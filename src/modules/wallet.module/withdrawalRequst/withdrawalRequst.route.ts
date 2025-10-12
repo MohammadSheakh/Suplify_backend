@@ -55,8 +55,8 @@ router.route('/paginate').get(
 
 router.route('/paginate/for-admin').get(
   auth(TRole.admin),
-  validateFiltersForQuery(optionValidationChecking(['_id', ...paginationOptions])),
-  setRequstFilterAndValue('status', TWithdrawalRequst.requested), // requested 
+  validateFiltersForQuery(optionValidationChecking(['_id', 'status', ...paginationOptions])),
+  // setRequstFilterAndValue('status', TWithdrawalRequst.requested), // requested 
   setQueryOptions({
     populate: [
       { path: 'proofOfPayment', select: 'attachment', /* populate: { path : ""} */ },

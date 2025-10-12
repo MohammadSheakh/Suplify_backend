@@ -17,6 +17,11 @@ import { IProduct } from '../../store.module/product/product.interface';
 import { TTransactionFor } from '../../payment.module/paymentTransaction/paymentTransaction.constant';
 import { TCurrency } from '../../../enums/payment';
 import { config } from '../../../config';
+import { toUTCTime } from '../../../utils/timezone';
+import { TSubscription } from '../../../enums/subscription';
+import { enqueueWebNotification } from '../../../services/notification.service';
+import { TRole } from '../../../middlewares/roles';
+import { TNotificationType } from '../../notification/notification.constants';
 
 export class LabTestBookingService extends GenericService<
   typeof LabTestBooking,
@@ -28,7 +33,124 @@ export class LabTestBookingService extends GenericService<
     this.stripe = stripe;
   }
 
-  async createV2(data:Partial<IBookLabTest>, user: IUser) : Promise<ILabTestBooking> {
+  async createV2(data:Partial<IBookLabTest>, user: IUser, userTimeZone: string) : Promise<ILabTestBooking> {
+
+    /********
+     * 📝
+     * Here first we have to check 
+     * appointmentDate , startTime , endTime
+     * -------------------------------
+     * date time valid or not 
+     * ****** */
+    if(data.appointmentDate && data.startTime && data.endTime) {
+        const appointmentDate = new Date(data.appointmentDate);
+        
+        data.startTime = toUTCTime(data.startTime, userTimeZone); // we need to convert to UTC before saving in DB
+        data.endTime = toUTCTime(data.endTime, userTimeZone);
+
+        if(isNaN(appointmentDate.getTime()) || isNaN(data.startTime.getTime()) || isNaN(data.endTime.getTime())) {
+            throw new Error('Invalid date or time format');
+        }
+
+        if(data.startTime >= data.endTime) {
+            throw new Error('Start time must be before end time');
+        }
+        const now = new Date();
+        if(data.startTime < now) {
+            throw new Error('Start time must be in the future');
+        }
+
+    } else {
+        throw new Error('appointmentDate, startTime and endTime are required');
+    }
+
+    /******
+     * 📝
+     * First We have to check user's subscriptionPlan
+     * 1. if "none".. we dont let him to book appointment
+     * 2. if "freeTrial" .. need to pay // TODO : need to talk with client about this feature
+     * 3. if "standard" or "standardPlus" .. they need to pay to book appointment
+     * 4. if "vise" ... no payment required to book appointment
+     * ******* */
+
+    const existingUser = await User.findById(user.userId).select('+subscriptionPlan +stripe_customer_id');
+    
+    // TODO : Need to test
+    if(existingUser.subscriptionPlan === TSubscription.none){
+        throw new ApiError(StatusCodes.FORBIDDEN, 'You need to subscribe a plan to book a lab test');
+    }
+
+    if(existingUser.subscriptionType == TSubscription.vise){
+        // ⚠️    ->  bad code .. Need to optimize .. need to use insertMany for bulk insert
+        // no payment required ..
+        /******
+         * 📝  
+         * ++++++ create specialistPatientScheduleBooking for workout class  
+         * **** */
+        const session = await mongoose.startSession();
+
+        let bookedLabTest : ILabTestBooking | null = null;
+        try {
+            await session.withTransaction(async () => {
+
+                // Lets check lab test exist or not
+                let isLabTestExist:IProduct = await Product.findById(data.labTestId).session(session);
+                if(!isLabTestExist){
+                    throw new ApiError(StatusCodes.NOT_FOUND, "Lab Test not found");
+                }
+
+                bookedLabTest = new LabTestBooking({
+                    patientId: user?.userId, // logged in user
+                    labTestId : data.labTestId,
+                    appointmentDate : data?.appointmentDate,
+                    startTime: data?.startTime,
+                    endTime: data?.endTime,
+                    
+                    address: data.address,
+                    city: data.city,
+                    state: data.state,
+                    zipCode: data.zipCode,
+                    country: data.country,
+                    
+                    paymentTransactionId : null,
+                    paymentStatus : PaymentStatus.unpaid,
+                    paymentMethod: null,
+                    finalAmount: isLabTestExist.price
+                })
+
+                bookedLabTest = await bookedLabTest.save({ session });
+
+            
+                //--------------------------------- 
+                // Lets send notification to admin that patient has booked lab test
+                //---------------------------------
+                await enqueueWebNotification(
+                    `${isLabTestExist.name} booked by a ${existingUser.subscriptionType} user ${existingUser.name} , userId is ${existingUser._id}`,
+                    existingUser._id, // senderId
+                    null , // receiverId // as reciever is admin .. so null
+                    TRole.admin, // receiverRole
+                    TNotificationType.labTestBooking, // type
+                    /**********
+                     * In UI there is no details page for booked lab test
+                     * **** */
+                    'labTestId', // linkFor
+                    bookedLabTest?._id // linkId
+                    // TTransactionFor.TrainingProgramPurchase, // referenceFor
+                    // purchaseTrainingProgram._id // referenceId
+                );
+
+
+            });
+        } catch (error) {
+            console.error("Transaction failed:", error);
+            throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Workout class Booking failed');
+        // handle/log/throw depending on your app logic
+        } finally {
+            await session.endSession();
+        }
+
+        return bookedLabTest
+    }
 
     /*********
      * 📝🥇
@@ -185,5 +307,6 @@ export class LabTestBookingService extends GenericService<
     }
 
     return stripeResult; // result ;//session.url;
+
     }
 }

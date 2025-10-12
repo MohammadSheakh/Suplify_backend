@@ -1,4 +1,6 @@
+//@ts-ignore
 import { Request, Response } from 'express';
+//@ts-ignore
 import { StatusCodes } from 'http-status-codes';
 import { GenericController } from '../../_generic-module/generic.controller';
 import { LabTestBooking } from './labTestBooking.model';
@@ -22,9 +24,10 @@ export class LabTestBookingController extends GenericController<
   }
 
   create = catchAsync(async (req: Request, res: Response) => {
+    const userTimeZone = req.header('X-Time-Zone') || 'Asia/Dhaka'; //TODO: Timezone must from env file
 
     const data = req.body as Partial<IBookLabTest>;
-    const result = await labTestBookingService.createV2(data, req.user);
+    const result = await labTestBookingService.createV2(data, req.user, userTimeZone);
 
     sendResponse(res, {
     code: StatusCodes.OK,

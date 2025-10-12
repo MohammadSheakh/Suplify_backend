@@ -1,11 +1,12 @@
+//@ts-ignore
 import express from 'express';
-import { ILabTestBooking } from './LabTestBooking.interface';
+import { ILabTestBooking } from './labTestBooking.interface';
 import { validateFiltersForQuery } from '../../../middlewares/queryValidation/paginationQueryValidationMiddleware';
 import validateRequest from '../../../shared/validateRequest';
 import auth from '../../../middlewares/auth';
 import { LabTestBookingController } from './labTestBooking.controller';
 import * as validation from './labTestBooking.validation';
-
+//@ts-ignore
 import multer from "multer";
 import { TRole } from '../../../middlewares/roles';
 const storage = multer.memoryStorage();
@@ -26,7 +27,6 @@ const paginationOptions: Array<'sortBy' | 'page' | 'limit' | 'populate'> = [
   'populate',
 ];
 
-
 // const taskService = new TaskService();
 const controller = new LabTestBookingController();
 
@@ -35,7 +35,7 @@ const controller = new LabTestBookingController();
 //-------------------------------
 router.route('/paginate').get(
   //auth('common'),
-  validateFiltersForQuery(optionValidationChecking(['_id'])),
+  validateFiltersForQuery(optionValidationChecking(['_id', 'status', ...paginationOptions])),
   controller.getAllWithPagination
 );
 
@@ -59,9 +59,9 @@ router.route('/').get(
 //--------------------------------------
 // Patient  | Create Lab Test Booking
 //--------------------------------------
-router.route('/create').post(
+router.route('/').post(
   auth(TRole.patient),
-  validateRequest(validation.createHelpMessageValidationSchema),
+  // validateRequest(validation.createLabTestBookingValidationSchema),
   controller.create
 );
 

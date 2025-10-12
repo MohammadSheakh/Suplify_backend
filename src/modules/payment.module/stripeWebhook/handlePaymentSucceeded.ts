@@ -102,10 +102,10 @@ export const handlePaymentSucceeded = async (session: Stripe.Checkout.Session) =
                updatedObjectOfReferenceFor = 
                updateOrderInformation(
                     _user,
-                    referenceId,
-                    newPayment._id,
-                    referenceId2,
-                    referenceFor2
+                    referenceId, // orderId
+                    newPayment._id, 
+                    referenceId2, // cartId
+                    referenceFor2 // Cart
                );
           } 
           // else if (referenceFor === TTransactionFor.SubscriptionPlan) {
@@ -169,6 +169,7 @@ async function updateOrderInformation(user: IUser,
 
      //---------------------------------
      // Lets Delete Cart after order creation
+     // TODO : Before delete .. we need to deduct the stock quantity of each product 
      //---------------------------------
      await Cart.findByIdAndUpdate(cartId, 
           {
