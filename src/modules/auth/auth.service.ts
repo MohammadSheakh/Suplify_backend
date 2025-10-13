@@ -390,10 +390,10 @@ const forgotPassword = async (email: string) => {
   }
   //create reset password token
   const resetPasswordToken = await TokenService.createResetPasswordToken(user);
-  await OtpService.createResetPasswordOtp(user.email);
+  const otp = await OtpService.createResetPasswordOtp(user.email);
   user.isResetPassword = true;
   await user.save();
-  return { resetPasswordToken };
+  return { resetPasswordToken, otp }; // TODO : MUST : REMOVE THIS
 };
 
 const resendOtp = async (email: string) => {

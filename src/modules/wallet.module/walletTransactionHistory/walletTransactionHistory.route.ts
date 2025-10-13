@@ -43,7 +43,7 @@ router.route('/paginate').get(
 // Specialist | Get Overview of Earnings
 //---------------------------------
 router.route('/overview').get(
-  auth(TRole.admin),
+  auth(TRole.common),
   controller.getMyEarningsOverview
 );
 

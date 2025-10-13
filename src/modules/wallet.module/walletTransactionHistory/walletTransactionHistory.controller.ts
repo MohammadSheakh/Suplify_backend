@@ -8,6 +8,7 @@ import { IWalletTransactionHistory } from './walletTransactionHistory.interface'
 import { WalletTransactionHistoryService } from './walletTransactionHistory.service';
 import catchAsync from '../../../shared/catchAsync';
 import sendResponse from '../../../shared/sendResponse';
+import { IUser } from '../../token/token.interface';
 
 export class WalletTransactionHistoryController extends GenericController<
   typeof WalletTransactionHistory,
@@ -21,7 +22,7 @@ export class WalletTransactionHistoryController extends GenericController<
 
   // Get specialist's own earnings overview
   getMyEarningsOverview = catchAsync(async (req: Request, res: Response) => {
-    const userId = req.user._id;
+    const userId = (req.user as IUser).userId;
     const result = await this.WalletTransactionHistoryService.getSpecialistEarningsOverview(userId);
 
     sendResponse(res, {

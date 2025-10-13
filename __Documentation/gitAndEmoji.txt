@@ -24,7 +24,8 @@
 // 🔍      -> need to check this code
 // ⚔️💪🏔️ -> problem solving 
 // ⭕      -> not needed this function
-
+// 🎲📊📈 -> calculation
+// 🔁      -> re check for learning 
 
 // =============================================
 // 

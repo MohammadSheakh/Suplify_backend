@@ -16,6 +16,10 @@ import {
   subMonths,
   subDays,
 } from 'date-fns';
+import { TWalletTransactionHistory, TWalletTransactionStatus } from './walletTransactionHistory.constant';
+import { TCurrency } from '../../../enums/payment';
+import mongoose from 'mongoose';
+import { Wallet } from '../wallet/wallet.model';
 
 export class WalletTransactionHistoryService extends GenericService<
   typeof WalletTransactionHistory,
@@ -25,26 +29,64 @@ export class WalletTransactionHistoryService extends GenericService<
     super(WalletTransactionHistory);
   }
 
+  /********
+   * 
+   * By Claude |  Working .. 
+   * 🎲📊📈🔁 
+   * ********* */
   // Get specialist's comprehensive earnings overview
   async getSpecialistEarningsOverview(userId: string) {
+    
+    /*------------------------------------------
+    {
+      "_id": {
+        "$oid": "68e746428142ea847c758c6a"
+      },
+      "walletId": {
+        "$oid": "68e4a18736109ffa825e55df"
+      },
+      "userId": {
+        "$oid": "68e4a18736109ffa825e55dd"
+      },
+      "paymentTransactionId": {
+        "$oid": "68e746418142ea847c758c65"
+      },
+      "withdrawalRequestId": null,
+      "type": "credit",
+      "amount": 40,
+      "currency": "usd",
+      "status": "completed",
+      "referenceFor": "TrainingProgramPurchase",  // it can be  DoctorPatientScheduleBooking | SpecialistPatientScheduleBooking | TrainingProgramPurchase .. so that we can get .. earning categorically .. 
+      "referenceId": {
+        "$oid": "68e7462f8142ea847c758c60"
+      },
+      "isDeleted": false,
+      "createdAt": {
+        "$date": "2025-10-09T05:21:06.255Z"
+      }
+    }
+
+    ------------------------------------------*/
     const now = new Date();
     const todayStart = startOfDay(now);
-    const weekStart = startOfWeek(now);
+    const weekStart = startOfWeek(now, { weekStartsOn: 1 }); // Monday
     const monthStart = startOfMonth(now);
-    const lastWeekStart = startOfWeek(subWeeks(now, 1));
-    const lastWeekEnd = endOfWeek(subWeeks(now, 1));
+    const lastWeekStart = startOfWeek(subWeeks(now, 1), { weekStartsOn: 1 });
+    const lastWeekEnd = endOfWeek(subWeeks(now, 1), { weekStartsOn: 1 });
     const lastMonthStart = startOfMonth(subMonths(now, 1));
     const lastMonthEnd = endOfMonth(subMonths(now, 1));
     const yearStart = startOfYear(now);
     const quarterStart = startOfQuarter(now);
 
-    // Base query for completed credit transactions (earnings)
+    // Base query for completed credit transactions (earnings only)
     const baseQuery = {
-      userId,
+      userId: new mongoose.Types.ObjectId(userId),
       isDeleted: false,
       type: TWalletTransactionHistory.credit,
       status: TWalletTransactionStatus.completed,
     };
+
+    console.log("baseQuery ::", baseQuery)
 
     const [
       totalEarnings,
@@ -56,95 +98,58 @@ export class WalletTransactionHistoryService extends GenericService<
       thisQuarterEarnings,
       thisYearEarnings,
       totalTransactions,
-      pendingEarnings,
-      totalWithdrawals,
       currentBalance,
     ] = await Promise.all([
       // Total lifetime earnings
-      this.walletTransactionModel.aggregate([
+      this.model.aggregate([
         { $match: baseQuery },
         {
           $group: {
             _id: null,
-            usd: {
-              $sum: {
-                $cond: [{ $eq: ['$currency', TCurrency.usd] }, '$amount', 0],
-              },
-            },
-            token: {
-              $sum: {
-                $cond: [{ $eq: ['$currency', TCurrency.token] }, '$amount', 0],
-              },
-            },
+            total: { $sum: '$amount' },
+            count: { $sum: 1 },
           },
         },
       ]),
 
       // Today's earnings
-      this.walletTransactionModel.aggregate([
+      this.model.aggregate([
         { $match: { ...baseQuery, createdAt: { $gte: todayStart } } },
         {
           $group: {
             _id: null,
-            usd: {
-              $sum: {
-                $cond: [{ $eq: ['$currency', TCurrency.usd] }, '$amount', 0],
-              },
-            },
-            token: {
-              $sum: {
-                $cond: [{ $eq: ['$currency', TCurrency.token] }, '$amount', 0],
-              },
-            },
+            total: { $sum: '$amount' },
             count: { $sum: 1 },
           },
         },
       ]),
 
       // This week earnings
-      this.walletTransactionModel.aggregate([
+      this.model.aggregate([
         { $match: { ...baseQuery, createdAt: { $gte: weekStart } } },
         {
           $group: {
             _id: null,
-            usd: {
-              $sum: {
-                $cond: [{ $eq: ['$currency', TCurrency.usd] }, '$amount', 0],
-              },
-            },
-            token: {
-              $sum: {
-                $cond: [{ $eq: ['$currency', TCurrency.token] }, '$amount', 0],
-              },
-            },
+            total: { $sum: '$amount' },
             count: { $sum: 1 },
           },
         },
       ]),
 
       // This month earnings
-      this.walletTransactionModel.aggregate([
+      this.model.aggregate([
         { $match: { ...baseQuery, createdAt: { $gte: monthStart } } },
         {
           $group: {
             _id: null,
-            usd: {
-              $sum: {
-                $cond: [{ $eq: ['$currency', TCurrency.usd] }, '$amount', 0],
-              },
-            },
-            token: {
-              $sum: {
-                $cond: [{ $eq: ['$currency', TCurrency.token] }, '$amount', 0],
-              },
-            },
+            total: { $sum: '$amount' },
             count: { $sum: 1 },
           },
         },
       ]),
 
       // Last week earnings
-      this.walletTransactionModel.aggregate([
+      this.model.aggregate([
         {
           $match: {
             ...baseQuery,
@@ -154,23 +159,14 @@ export class WalletTransactionHistoryService extends GenericService<
         {
           $group: {
             _id: null,
-            usd: {
-              $sum: {
-                $cond: [{ $eq: ['$currency', TCurrency.usd] }, '$amount', 0],
-              },
-            },
-            token: {
-              $sum: {
-                $cond: [{ $eq: ['$currency', TCurrency.token] }, '$amount', 0],
-              },
-            },
+            total: { $sum: '$amount' },
             count: { $sum: 1 },
           },
         },
       ]),
 
       // Last month earnings
-      this.walletTransactionModel.aggregate([
+      this.model.aggregate([
         {
           $match: {
             ...baseQuery,
@@ -180,201 +176,125 @@ export class WalletTransactionHistoryService extends GenericService<
         {
           $group: {
             _id: null,
-            usd: {
-              $sum: {
-                $cond: [{ $eq: ['$currency', TCurrency.usd] }, '$amount', 0],
-              },
-            },
-            token: {
-              $sum: {
-                $cond: [{ $eq: ['$currency', TCurrency.token] }, '$amount', 0],
-              },
-            },
+            total: { $sum: '$amount' },
             count: { $sum: 1 },
           },
         },
       ]),
 
       // This quarter earnings
-      this.walletTransactionModel.aggregate([
+      this.model.aggregate([
         { $match: { ...baseQuery, createdAt: { $gte: quarterStart } } },
         {
           $group: {
             _id: null,
-            usd: {
-              $sum: {
-                $cond: [{ $eq: ['$currency', TCurrency.usd] }, '$amount', 0],
-              },
-            },
-            token: {
-              $sum: {
-                $cond: [{ $eq: ['$currency', TCurrency.token] }, '$amount', 0],
-              },
-            },
+            total: { $sum: '$amount' },
             count: { $sum: 1 },
           },
         },
       ]),
 
       // This year earnings
-      this.walletTransactionModel.aggregate([
+      this.model.aggregate([
         { $match: { ...baseQuery, createdAt: { $gte: yearStart } } },
         {
           $group: {
             _id: null,
-            usd: {
-              $sum: {
-                $cond: [{ $eq: ['$currency', TCurrency.usd] }, '$amount', 0],
-              },
-            },
-            token: {
-              $sum: {
-                $cond: [{ $eq: ['$currency', TCurrency.token] }, '$amount', 0],
-              },
-            },
+            total: { $sum: '$amount' },
             count: { $sum: 1 },
           },
         },
       ]),
 
       // Total transactions count
-      this.walletTransactionModel.countDocuments(baseQuery),
+      this.model.countDocuments(baseQuery),
 
-      // Pending earnings
-      this.walletTransactionModel.aggregate([
-        {
-          $match: {
-            userId,
-            isDeleted: false,
-            type: TWalletTransactionHistory.credit,
-            status: TWalletTransactionStatus.pending,
-          },
-        },
-        {
-          $group: {
-            _id: null,
-            usd: {
-              $sum: {
-                $cond: [{ $eq: ['$currency', TCurrency.usd] }, '$amount', 0],
-              },
-            },
-            token: {
-              $sum: {
-                $cond: [{ $eq: ['$currency', TCurrency.token] }, '$amount', 0],
-              },
-            },
-            count: { $sum: 1 },
-          },
-        },
-      ]),
-
-      // Total withdrawals
-      this.walletTransactionModel.aggregate([
-        {
-          $match: {
-            userId,
-            isDeleted: false,
-            type: TWalletTransactionHistory.withdrawal,
-            status: TWalletTransactionStatus.completed,
-          },
-        },
-        {
-          $group: {
-            _id: null,
-            usd: {
-              $sum: {
-                $cond: [{ $eq: ['$currency', TCurrency.usd] }, '$amount', 0],
-              },
-            },
-            token: {
-              $sum: {
-                $cond: [{ $eq: ['$currency', TCurrency.token] }, '$amount', 0],
-              },
-            },
-            count: { $sum: 1 },
-          },
-        },
-      ]),
-
-      // Current wallet balance
-      this.walletModel.findOne({ userId, isDeleted: false }),
+      // Get current wallet balance
+      await Wallet.findOne({ 
+        userId: new mongoose.Types.ObjectId(userId), 
+        isDeleted: false 
+      }),
     ]);
 
     // Calculate growth percentages
-    const thisWeekUSD = thisWeekEarnings[0]?.usd || 0;
-    const lastWeekUSD = lastWeekEarnings[0]?.usd || 0;
+    const thisWeekTotal = thisWeekEarnings[0]?.total || 0;
+    const lastWeekTotal = lastWeekEarnings[0]?.total || 0;
     const weeklyGrowth =
-      lastWeekUSD > 0 ? ((thisWeekUSD - lastWeekUSD) / lastWeekUSD) * 100 : 0;
+      lastWeekTotal > 0
+        ? ((thisWeekTotal - lastWeekTotal) / lastWeekTotal) * 100
+        : thisWeekTotal > 0 ? 100 : 0;
 
-    const thisMonthUSD = thisMonthEarnings[0]?.usd || 0;
-    const lastMonthUSD = lastMonthEarnings[0]?.usd || 0;
+    const thisMonthTotal = thisMonthEarnings[0]?.total || 0;
+    const lastMonthTotal = lastMonthEarnings[0]?.total || 0;
     const monthlyGrowth =
-      lastMonthUSD > 0
-        ? ((thisMonthUSD - lastMonthUSD) / lastMonthUSD) * 100
-        : 0;
+      lastMonthTotal > 0
+        ? ((thisMonthTotal - lastMonthTotal) / lastMonthTotal) * 100
+        : thisMonthTotal > 0 ? 100 : 0;
+
+    // Get month name
+    const monthNames = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    const currentMonth = monthNames[now.getMonth()];
+    const lastMonth = monthNames[lastMonthStart.getMonth()];
+
+    // Format date range for last week
+    const formatDate = (date: Date) => {
+      return `${date.getDate()} ${monthNames[date.getMonth()].slice(0, 3)}`;
+    };
 
     return {
       totalEarnings: {
-        usd: totalEarnings[0]?.usd || 0,
-        token: totalEarnings[0]?.token || 0,
+        amount: totalEarnings[0]?.total || 0,
+        count: totalEarnings[0]?.count || 0,
+        label: 'Total Program',
       },
       todayEarnings: {
-        usd: todayEarnings[0]?.usd || 0,
-        token: todayEarnings[0]?.token || 0,
+        amount: todayEarnings[0]?.total || 0,
         count: todayEarnings[0]?.count || 0,
+        label: 'Today Program',
       },
       thisWeekEarnings: {
-        usd: thisWeekUSD,
-        token: thisWeekEarnings[0]?.token || 0,
+        amount: thisWeekTotal,
         count: thisWeekEarnings[0]?.count || 0,
-        growth: weeklyGrowth.toFixed(2),
+        growth: parseFloat(weeklyGrowth.toFixed(2)),
+        label: 'Last week Program',
+        dateRange: `${formatDate(weekStart)} - ${formatDate(now)}`,
       },
       thisMonthEarnings: {
-        usd: thisMonthUSD,
-        token: thisMonthEarnings[0]?.token || 0,
+        amount: thisMonthTotal,
         count: thisMonthEarnings[0]?.count || 0,
-        growth: monthlyGrowth.toFixed(2),
+        growth: parseFloat(monthlyGrowth.toFixed(2)),
+        label: 'This month Program',
+        month: currentMonth,
       },
       lastWeekEarnings: {
-        usd: lastWeekUSD,
-        token: lastWeekEarnings[0]?.token || 0,
+        amount: lastWeekTotal,
         count: lastWeekEarnings[0]?.count || 0,
+        label: 'Last week Program',
+        dateRange: `${formatDate(lastWeekStart)} - ${formatDate(lastWeekEnd)}`,
       },
       lastMonthEarnings: {
-        usd: lastMonthUSD,
-        token: lastMonthEarnings[0]?.token || 0,
+        amount: lastMonthTotal,
         count: lastMonthEarnings[0]?.count || 0,
+        label: 'Previous month Program',
+        month: lastMonth,
       },
       thisQuarterEarnings: {
-        usd: thisQuarterEarnings[0]?.usd || 0,
-        token: thisQuarterEarnings[0]?.token || 0,
+        amount: thisQuarterEarnings[0]?.total || 0,
         count: thisQuarterEarnings[0]?.count || 0,
+        label: 'This Quarter',
       },
       thisYearEarnings: {
-        usd: thisYearEarnings[0]?.usd || 0,
-        token: thisYearEarnings[0]?.token || 0,
+        amount: thisYearEarnings[0]?.total || 0,
         count: thisYearEarnings[0]?.count || 0,
+        label: 'This Year',
       },
       totalTransactions,
-      pendingEarnings: {
-        usd: pendingEarnings[0]?.usd || 0,
-        token: pendingEarnings[0]?.token || 0,
-        count: pendingEarnings[0]?.count || 0,
-      },
-      totalWithdrawals: {
-        usd: totalWithdrawals[0]?.usd || 0,
-        token: totalWithdrawals[0]?.token || 0,
-        count: totalWithdrawals[0]?.count || 0,
-      },
       currentBalance: {
-        usd: currentBalance?.balance || 0,
-        token: currentBalance?.tokenBalance || 0,
-        availableForWithdrawal: currentBalance?.balance || 0,
-      },
-      netEarnings: {
-        usd: (totalEarnings[0]?.usd || 0) - (totalWithdrawals[0]?.usd || 0),
-        token:
-          (totalEarnings[0]?.token || 0) - (totalWithdrawals[0]?.token || 0),
+        amount: currentBalance?.balance || 0,
+        tokenBalance: currentBalance?.tokenBalance || 0,
       },
     };
   }
