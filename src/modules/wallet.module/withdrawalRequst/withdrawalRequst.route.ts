@@ -42,8 +42,8 @@ router.route('/paginate').get(
   auth(TRole.specialist , TRole.doctor),
   validateFiltersForQuery(optionValidationChecking(['_id', ...paginationOptions])),
   getLoggedInUserAndSetReferenceToUser('userId'),
-  // setRequstFilterAndValue('status', TWithdrawalRequst.requested), // requested 
-  setQueryOptions({
+  // setRequstFilterAndValue('status', TWithdrawalRequst.requested), // requested  //🔁
+  setQueryOptions({ // 🔁
     populate: [
       { path: 'proofOfPayment', select: 'attachment', /* populate: { path : ""} */ },
       { path : "walletId", select: "amount"}

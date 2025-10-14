@@ -9,6 +9,8 @@ import auth from '../../../middlewares/auth';
 import { TRole } from '../../../middlewares/roles';
 //@ts-ignore
 import multer from "multer";
+import { processUploadedFiles } from '../../../middlewares/processUploadedFiles';
+import { TFolderName } from '../../../enums/folderNames';
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
@@ -35,7 +37,6 @@ const controller = new TrainingProgramController();
  *  |-> with isPurchased boolean field 
  * //📈⚙️ OPTIMIZATION:
  * ****** */
-//
 router.route('/paginate').get(
   auth(TRole.patient),
   validateFiltersForQuery(optionValidationChecking(['_id', 'createdBy', ...paginationOptions])),
@@ -56,10 +57,35 @@ router.route('/:id').get(
   // auth('common'),
   controller.getById
 );
-
-router.route('/update/:id').put(
+//--------------------------------------
+// 🔁-🧱💪-🥇
+// Lets build a way .. by that we can create a general update route .. 
+// where all image upload + and upload logic .. like .. does that upload change the previous image ..
+// or add image with previous images .. 
+//--------------------------------------
+router.route('/:id').put( // update/
   //auth('common'),
+  [
+    upload.fields([
+      { name: 'attachments', maxCount: 1 }, // Allow up to 1 cover photo
+      { name: 'trailerContents', maxCount: 1 }, // Allow up to 1 trailer video
+    ]),
+  ],
   // validateRequest(validation.createHelpMessageValidationSchema),
+  processUploadedFiles([ // middleware
+    {
+      name: 'attachments',
+      folder: TFolderName.trainingProgram,
+      required: true,
+      allowedMimeTypes: ['image/jpeg', 'image/png', 'application/pdf'],
+    },
+    {
+      name: 'trailerContents',
+      folder: TFolderName.trainingProgram,
+      allowedMimeTypes: ['video/mp4', 'video/mov'],
+    },
+  ]),
+  validateRequest(validation.updateTrainingProgramValidationSchema),
   controller.updateById
 );
 
