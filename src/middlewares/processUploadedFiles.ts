@@ -27,7 +27,7 @@ declare global {
 //-------------------------------------
 // middleware 
 //-------------------------------------
-export const processUploadedFiles = (configs: FileFieldConfig[]) => {
+export const processUploadedFilesForCreate = (configs: FileFieldConfig[]) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       const uploadedFiles: UploadedFiles = {};
@@ -68,4 +68,48 @@ export const processUploadedFiles = (configs: FileFieldConfig[]) => {
   };
 };
 
+export const processUploadedFilesForUpdate = (configs: FileFieldConfig[]) => {
+  return async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const uploadedFiles: UploadedFiles = {};
+
+      for (const config of configs) {
+        const files = req.files?.[config.name] as Express.Multer.File[] | undefined;
+
+        // ✅ 1. Required field check
+        if (config.required && (!files || files.length === 0)) {
+          throw new Error(`Missing required file field: ${config.name}`);
+        }
+
+        // ✅ 2. MIME type validation
+        if (config.allowedMimeTypes && files?.length) {
+          const invalid = files.some(
+            (f) => !config.allowedMimeTypes!.includes(f.mimetype)
+          );
+          if (invalid) {
+            throw new Error(`Invalid file type for field: ${config.name}`);
+          }
+        }
+
+        // ✅ 3. Process (upload) files
+        uploadedFiles[config.name] = await processFilesV2(files, config.folder);
+        //--------------------------------
+        // 📝🥇🔁 
+        // as this middleware for update route now .. we do the 
+        // upload things based on condition .. if image uploaded then 
+        // we use that uploaded image url otherwise we use previous one
+        //
+        //--------------------------------
+        // req.body[config.name] = uploadedFiles[config.name];
+      }
+
+      console.log("uploadedFiles: ", uploadedFiles);
+
+      req.uploadedFiles = uploadedFiles;
+      next();
+    } catch (error) {
+      next(error);
+    }
+  };
+};
 

@@ -11,7 +11,7 @@ import { TRole } from '../../../middlewares/roles';
 import multer from "multer";
 import { processUploadedFiles } from '../../../middlewares/processUploadedFiles';
 import { TFolderName } from '../../../enums/folderNames';
-import { imageUploadPipelineForTrainingProgram } from './trainingProgram.middleware';
+import { imageUploadPipelineForUpdateTrainingProgram } from './trainingProgram.middleware';
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
@@ -88,7 +88,7 @@ router.route('/:id').put( // update/
     },
   ]),
   --------------------------*/
-  ...imageUploadPipelineForTrainingProgram, //🥇
+  ...imageUploadPipelineForUpdateTrainingProgram, //🥇
   validateRequest(validation.updateTrainingProgramValidationSchema),
   controller.updateById
 );

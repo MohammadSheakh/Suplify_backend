@@ -140,7 +140,9 @@ export class TrainingProgramController extends GenericController<
     });
   });
 
-  // Update by ID
+  //---------------------------------
+  // Specialist | Update Training Program with attachments
+  //---------------------------------
   updateById = catchAsync(async (req: Request, res: Response) => {
     if (!req.params.id) {
       throw new ApiError(
@@ -151,7 +153,24 @@ export class TrainingProgramController extends GenericController<
     
     const id = req.params.id;
 
-    // ✅ Use preprocessed uploaded file URLs //🥇🔁 this task we do in middleware level
+    const obj = await this.service.getById(id);
+    if (!obj) {
+      throw new ApiError(
+        StatusCodes.NOT_FOUND,
+        `Object with ID ${id} not found`
+      );
+    }
+   
+    // for update cases .. if image uploaded then we use that uploaded image url otherwise we use previous one
+    if(req.uploadedFiles?.attachments.length > 0){
+      console.log('req.uploadedFiles?.attachments.length > 0 .. replace prev image with the new one');
+      req.body.attachments = req.uploadedFiles?.attachments;
+    }else{
+      console.log('req.uploadedFiles?.attachments.length == 0 .. keep prev image');
+      req.body.attachments = obj.attachments;
+    }
+
+    // ✅ Use preprocessed uploaded file URLs //🥇🔁 this task we do in middleware level for create API not for update API
     // req.body.attachments = req.uploadedFiles?.attachments || [];
     // req.body.trailerContents = req.uploadedFiles?.trailerContents || [];
 
@@ -162,6 +181,7 @@ export class TrainingProgramController extends GenericController<
         `Object with ID ${id} not found`
       );
     }
+
     //   return res.status(StatusCodes.OK).json(updatedObject);
     sendResponse(res, {
       code: StatusCodes.OK,
