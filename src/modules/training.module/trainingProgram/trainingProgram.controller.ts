@@ -14,6 +14,7 @@ import { processFiles } from '../../../helpers/processFilesToUpload';
 import omit from '../../../shared/omit';
 import pick from '../../../shared/pick';
 import { User } from '../../user/user.model';
+import ApiError from '../../../errors/ApiError';
 
 
 export class TrainingProgramController extends GenericController<
@@ -139,6 +140,35 @@ export class TrainingProgramController extends GenericController<
     });
   });
 
+  // Update by ID
+  updateById = catchAsync(async (req: Request, res: Response) => {
+    if (!req.params.id) {
+      throw new ApiError(
+        StatusCodes.BAD_REQUEST,
+        `id is required for update ${this.modelName}`
+      );
+    }
+    
+    const id = req.params.id;
+
+    // ✅ Use preprocessed uploaded file URLs //🥇🔁 this task we do in middleware level
+    // req.body.attachments = req.uploadedFiles?.attachments || [];
+    // req.body.trailerContents = req.uploadedFiles?.trailerContents || [];
+
+    const updatedObject = await this.service.updateById(id, req.body);
+    if (!updatedObject) {
+      throw new ApiError(
+        StatusCodes.NOT_FOUND,
+        `Object with ID ${id} not found`
+      );
+    }
+    //   return res.status(StatusCodes.OK).json(updatedObject);
+    sendResponse(res, {
+      code: StatusCodes.OK,
+      data: updatedObject,
+      message: `${this.modelName} updated successfully`,
+    });
+  });
 
   // add more methods here if needed or override the existing ones 
 }

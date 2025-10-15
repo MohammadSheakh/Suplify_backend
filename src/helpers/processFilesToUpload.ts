@@ -39,12 +39,14 @@ export const processFilesV2 = async (
   // Example: upload each file (can be Cloudinary, S3, or local storage)
   const uploadedUrls = await Promise.all(
     files.map(async (file) => {
-      const uploadedUrl = await 
+      const uploadedUrl = await new AttachmentService().uploadSingleAttachment(file, folderName as TFolderName)
       //uploadToCloudOrLocal(file, folderName);
-      new AttachmentService().uploadSingleAttachment(file, folderName as TFolderName)
       return uploadedUrl;
     })
   );
 
   return uploadedUrls;
 };
+
+
+

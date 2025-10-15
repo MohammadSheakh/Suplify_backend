@@ -11,6 +11,7 @@ import { TRole } from '../../../middlewares/roles';
 import multer from "multer";
 import { processUploadedFiles } from '../../../middlewares/processUploadedFiles';
 import { TFolderName } from '../../../enums/folderNames';
+import { imageUploadPipelineForTrainingProgram } from './trainingProgram.middleware';
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
@@ -64,7 +65,8 @@ router.route('/:id').get(
 // or add image with previous images .. 
 //--------------------------------------
 router.route('/:id').put( // update/
-  //auth('common'),
+  auth(TRole.specialist),
+  /*-------------------------- 🥇
   [
     upload.fields([
       { name: 'attachments', maxCount: 1 }, // Allow up to 1 cover photo
@@ -85,6 +87,8 @@ router.route('/:id').put( // update/
       allowedMimeTypes: ['video/mp4', 'video/mov'],
     },
   ]),
+  --------------------------*/
+  ...imageUploadPipelineForTrainingProgram, //🥇
   validateRequest(validation.updateTrainingProgramValidationSchema),
   controller.updateById
 );
@@ -125,3 +129,5 @@ router.route('/softDelete/:id').put(
 
 
 export const TrainingProgramRoute = router;
+
+//--------------- All Pipelines

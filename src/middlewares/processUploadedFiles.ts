@@ -52,6 +52,12 @@ export const processUploadedFiles = (configs: FileFieldConfig[]) => {
 
         // ✅ 3. Process (upload) files
         uploadedFiles[config.name] = await processFilesV2(files, config.folder);
+        //--------------------------------
+        // 📝🥇🔁 assign file urls in req.body[specific property name] directly 
+        // so that we can pass this to controller to pass to service to save in DB
+        // and in controller we dont have to do these upload things
+        //--------------------------------
+        req.body[config.name] = uploadedFiles[config.name];
       }
 
       req.uploadedFiles = uploadedFiles;

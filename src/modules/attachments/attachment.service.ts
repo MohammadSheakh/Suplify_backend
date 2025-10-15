@@ -32,7 +32,6 @@ export class AttachmentService extends GenericService<typeof Attachment, IAttach
       'video/3gpp'
     ];
 
-
     let fileType :AttachmentType.video | AttachmentType.image | AttachmentType.unknown | AttachmentType.document;
     if (file.mimetype.includes('image')) {
       fileType = AttachmentType.image;
