@@ -15,6 +15,7 @@ interface UserConnectionInfo {
 }
 
 const conversationParticipentsService = new ConversationParticipentsService();
+
 export class RedisStateManager {
   private redis: RedisClientType;
   private readonly KEYS = {
@@ -107,6 +108,56 @@ export class RedisStateManager {
 
     logger.info(colors.green(`✅ User ${userId} added to Redis state (Worker: ${workerId})`));
   }
+
+  // =============================================
+  // Related Users
+  // =============================================
+
+  //🔗➡️ socketForChatV3.ts -> notifyRelatedUsersOnlineStatus
+  // 🔗➡️ socketForChatV3.ts ->  setupUserEventHandlers -> socket.on('only-related-online-users'
+  async getRelatedOnlineUsers(userId: string): Promise<string[]> {
+    try {
+      const allOnlineUsers = await this.getAllOnlineUsers();
+
+    //🔎 need to check these codes 
+      const usersWithConversations = await conversationParticipentsService
+        .getAllConversationsOnlyPersonInformationByUserId(userId);
+
+      const relatedOnlineUsers = allOnlineUsers.filter((onlineUserId) =>
+        usersWithConversations.some(
+          (conversationUser: any) =>
+            conversationUser?._id?.toString() === onlineUserId ||
+            conversationUser?.toString() === onlineUserId
+        )
+      );
+
+      return relatedOnlineUsers;
+    } catch (error) {
+      logger.error('Error getting related online users:', error);
+      return [];
+    }
+  }
+
+  // =============================================
+  // Cleanup & Maintenance
+  // =============================================
+
+  // 🔗➡️ socketForChatV3.ts -> startCleanupJob
+  async cleanupStaleConnections(): Promise<void> {
+    const onlineUsers = await this.getAllOnlineUsers();
+    const staleThreshold = Date.now() - 5 * 60 * 1000; // 5 minutes
+
+    for (const userId of onlineUsers) {
+      const connectionInfo = await this.getUserConnectionInfo(userId);
+
+      if (connectionInfo && connectionInfo.connectedAt < staleThreshold) {
+        logger.warn(`🧹 Cleaning up stale connection for user ${userId}`);
+        await this.removeOnlineUser(userId, connectionInfo.socketId);
+      }
+    }
+  }
+
+
 
   // 🔗➡️ cleanupStaleConnections
   async removeOnlineUser(userId: string, socketId: string): Promise<void> {
@@ -232,54 +283,7 @@ export class RedisStateManager {
     logger.info(`🧹 Removed user ${userId} from ${userRooms.length} rooms`);
   }
 
-  // =============================================
-  // Related Users
-  // =============================================
-
-  //🔗➡️ socketForChatV3.ts -> notifyRelatedUsersOnlineStatus
-  // 🔗➡️ socketForChatV3.ts ->  setupUserEventHandlers -> socket.on('only-related-online-users'
-  async getRelatedOnlineUsers(userId: string): Promise<string[]> {
-    try {
-      const allOnlineUsers = await this.getAllOnlineUsers();
-
-    //🔎 need to check these codes 
-      const usersWithConversations = await conversationParticipentsService
-        .getAllConversationsOnlyPersonInformationByUserId(userId);
-
-      const relatedOnlineUsers = allOnlineUsers.filter((onlineUserId) =>
-        usersWithConversations.some(
-          (conversationUser: any) =>
-            conversationUser?._id?.toString() === onlineUserId ||
-            conversationUser?.toString() === onlineUserId
-        )
-      );
-
-      return relatedOnlineUsers;
-    } catch (error) {
-      logger.error('Error getting related online users:', error);
-      return [];
-    }
-  }
-
-  // =============================================
-  // Cleanup & Maintenance
-  // =============================================
-
-  // 🔗➡️ socketForChatV3.ts -> startCleanupJob
-  async cleanupStaleConnections(): Promise<void> {
-    const onlineUsers = await this.getAllOnlineUsers();
-    const staleThreshold = Date.now() - 5 * 60 * 1000; // 5 minutes
-
-    for (const userId of onlineUsers) {
-      const connectionInfo = await this.getUserConnectionInfo(userId);
-
-      if (connectionInfo && connectionInfo.connectedAt < staleThreshold) {
-        logger.warn(`🧹 Cleaning up stale connection for user ${userId}`);
-        await this.removeOnlineUser(userId, connectionInfo.socketId);
-      }
-    }
-  }
-
+  
   // 🔗➡️ socketForChatV3.ts -> getSystemStats
   async getSystemStats(): Promise<any> {
     return {
