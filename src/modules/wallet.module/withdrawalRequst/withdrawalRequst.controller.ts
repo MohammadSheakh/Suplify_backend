@@ -265,9 +265,11 @@ export class WithdrawalRequstController extends GenericController<
       // purchaseTrainingProgram._id // referenceId
     );
 
+    const withdrawalRequstAfterUpdate : IWithdrawalRequst = await WithdrawalRequst.findById(withdrawalRequstId);
+
     sendResponse(res, {
       code: StatusCodes.OK,
-      data: updated,
+      data: withdrawalRequstAfterUpdate, //updated,
       message: `${this.modelName} updated successfully`,
       success: true,
     });

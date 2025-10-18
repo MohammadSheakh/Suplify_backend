@@ -61,6 +61,7 @@ router.route('/paginate/for-admin').get(
     populate: [
       { path: 'proofOfPayment', select: 'attachment', /* populate: { path : ""} */ },
       { path: 'walletId', select: 'amount', /* populate: { path : ""} */ },
+      { path: 'userId', select: 'profileImage name', /* populate: { path : ""} */ },
     ],
     select: '-isDeleted -createdAt -updatedAt -__v'
   }),
