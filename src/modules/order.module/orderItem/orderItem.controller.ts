@@ -25,6 +25,14 @@ export class OrderItemController extends GenericController<typeof OrderItem, IOr
     
 
     const populateOptions: (string | {path: string, select: string}[]) = [
+      {
+        path: 'itemId',
+        select: 'name attachments',
+        populate: {
+          path: 'attachments',
+          select: 'attachment'
+        }
+      },
     ];
 
     const select = '-isDeleted -createdAt -updatedAt -__v'; 
@@ -51,11 +59,21 @@ export class OrderItemController extends GenericController<typeof OrderItem, IOr
   getAll = catchAsync(async (req: Request, res: Response) => {
     const result = await OrderItem.find({
       orderId: req.query.orderId
-    }).select('-isDeleted -createdAt -updatedAt -__v').lean();
+    }).select('-isDeleted -createdAt -updatedAt -__v').populate({
+        path: 'itemId',
+        select: 'name attachments',
+        populate: {
+          path: 'attachments',
+          select: 'attachment'
+        }
+      }).lean();
 
     const orderInfo = await Order.findOne({
       _id: req.query.orderId
-    }).select('-isDeleted  -updatedAt -__v').lean(); //-createdAt
+    }).select('-isDeleted  -updatedAt -__v').populate({
+      path: 'userId',
+      select: 'name'
+    }).lean(); //-createdAt
 
     sendResponse(res, {
       code: StatusCodes.OK,

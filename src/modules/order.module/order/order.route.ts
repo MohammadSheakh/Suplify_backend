@@ -9,6 +9,7 @@ import auth from '../../../middlewares/auth';
 import { TRole } from '../../../middlewares/roles';
 //@ts-ignore
 import multer from "multer";
+import { setQueryOptions } from '../../../middlewares/setQueryOptions';
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
@@ -45,7 +46,13 @@ router.route('/paginate').get(
     'paymentStatus', // unpaid-paid-refunded
     'isDeleted',
     ...paginationOptions])),
-  controller.getAllWithPagination 
+    setQueryOptions({
+        populate: [
+          { path: 'userId', select: 'name', /* populate: { path : ""} */ },
+        ],
+        select: '-isDeleted  -updatedAt -__v' //-createdAt
+      }),
+  controller.getAllWithPaginationV2//getAllWithPagination 
 );
 
 router.route('/:id').get(

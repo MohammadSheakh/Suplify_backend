@@ -33,10 +33,11 @@ app.use(Morgan.errorHandler);
 app.use(
   cors({
     origin:
-         "*",
-    // [
-    //   'http://localhost:8084',
-    // ],
+        //  "*",
+    [
+      'http://localhost:3000',
+      'http://10.10.11.74:3000'
+    ],
     credentials: true,
   })
 );
