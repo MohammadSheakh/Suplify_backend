@@ -89,7 +89,7 @@ export class ProductController extends GenericController<
           return this.service.getAllWithPagination(filters, options, populateOptions, select);
         },
         1800, // 30 minutes TTL
-        true
+        false
       );
       
       return sendResponse(res, {
