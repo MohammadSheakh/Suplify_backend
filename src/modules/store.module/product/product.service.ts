@@ -26,6 +26,7 @@ export class ProductService extends GenericService<
     //---------------------------------
 
     const counts = await this.model.aggregate([
+      { $match: { isDeleted: false } },
       { $group: { _id: "$category", count: { $sum: 1 } } }
     ]);
 

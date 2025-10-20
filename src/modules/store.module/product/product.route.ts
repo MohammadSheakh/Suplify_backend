@@ -7,6 +7,8 @@ import validateRequest from '../../../shared/validateRequest';
 import auth from '../../../middlewares/auth';
 
 import multer from "multer";
+import { setRequestFiltersV2 } from '../../../middlewares/setRequstFilterAndValue';
+import { TRole } from '../../../middlewares/roles';
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
@@ -30,8 +32,11 @@ const paginationOptions: Array<'sortBy' | 'page' | 'limit' | 'populate'> = [
 
 //
 router.route('/paginate').get(
-  //auth('common'),
+  auth(TRole.common),
   validateFiltersForQuery(optionValidationChecking(['_id','category', ...paginationOptions ])),
+  setRequestFiltersV2({
+    isDeleted: false,
+  }),
   controller.getAllWithPagination
 );
 

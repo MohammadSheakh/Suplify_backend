@@ -6,6 +6,7 @@ import handleZodError from '../errors/handleZodError';
 import { errorLogger } from '../shared/logger';
 import { IErrorMessage } from '../types/errors.types';
 import { config } from '../config';
+import handleCastError from '../errors/handleCastError';
 
 const globalErrorHandler: ErrorRequestHandler = (error, req, res, next) => {
   // Log error
@@ -38,6 +39,13 @@ const globalErrorHandler: ErrorRequestHandler = (error, req, res, next) => {
    * duplicate field value entered
    * 
    * ********** */
+  // Handle CastError (Invalid MongoDB ObjectId)
+  if (error.name === 'CastError') {
+    const simplifiedError = handleCastError(error);
+    code = simplifiedError.code;
+    message = simplifiedError.message;
+    errorMessages = simplifiedError.errorMessages;
+  }
   // Handle ValidationError (e.g., Mongoose)
   else if (error.name === 'ValidationError') {
     const simplifiedError = handleValidationError(error);

@@ -1,3 +1,4 @@
+//@ts-ignore
 import { Error } from 'mongoose';
 import { IErrorMessage } from '../types/errors.types';
 

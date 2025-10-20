@@ -64,6 +64,8 @@ export class ProductController extends GenericController<
     const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']); ;
     const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
 
+    filters.isDeleted = false;
+
     const populateOptions: (string | {path: string, select: string}[]) = [
       {
         path: 'attachments',
@@ -72,8 +74,6 @@ export class ProductController extends GenericController<
     ];
 
     const select = '-createdAt -updatedAt -__v'; 
-
-
 
     // Only cache page 1 with standard limit
     const shouldCache = (!options.page || options.page === '1') && 

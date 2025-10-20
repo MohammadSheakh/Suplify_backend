@@ -116,6 +116,7 @@ export class UserService extends GenericService<typeof User, IUser> {
                 name: 1,
                 email: 1,
                 role: 1,
+                profileImage : 1,
                 subscriptionType: 1,
                 profileId: 1,
                 createdAt: 1,
