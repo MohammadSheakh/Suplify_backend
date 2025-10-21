@@ -84,12 +84,33 @@ export class ProductService extends GenericService<
         },
       },
       ********* */
+     // 🪄 Populate attachments (from Attachment collection)
+      {
+        $lookup: {
+          from: "attachments", // name of the collection (not model)
+          localField: "attachments",
+          foreignField: "_id",
+          as: "attachments",
+        //   pipeline: [  // ⚡ For Populate specific fields from this attachments .. and it works
+        //   {
+        //     $project: {
+        //       _id: 1,
+        //       attachment: 1,
+        //       attachmentType: 1,
+        //       // ❌ Exclude createdAt, updatedAt, __v
+        //     },
+        //   },
+        // ],
+        },
+      },
+     // 🧱 Group by category
       {
         $group: {
           _id: "$category",
           products: { $push: "$$ROOT" },
         },
       },
+      // ✂️ Limit to 5 products per category
       {
         $project: {
           category: "$_id",
