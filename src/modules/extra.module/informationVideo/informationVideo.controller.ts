@@ -14,6 +14,7 @@ import pick from '../../../shared/pick';
 import { TUser } from '../../user/user.interface';
 import { IUser } from '../../token/token.interface';
 import { TSubscription } from '../../../enums/subscription';
+import ApiError from '../../../errors/ApiError';
 
 
 export class informationVideoController extends GenericController<
@@ -55,6 +56,60 @@ export class informationVideoController extends GenericController<
       data: result,
       message: `${this.modelName} created successfully`,
       success: true,
+    });
+  });
+
+  //---------------------------------
+  // Specialist | Update Information Video with attachments
+  //---------------------------------
+  updateById = catchAsync(async (req: Request, res: Response) => {
+    if (!req.params.id) {
+      throw new ApiError(
+        StatusCodes.BAD_REQUEST,
+        `id is required for update ${this.modelName}`
+      );
+    }
+    
+    const id = req.params.id;
+
+    const obj:IinformationVideo | null = await this.service.getById(id);
+    if (!obj) {
+      throw new ApiError(
+        StatusCodes.NOT_FOUND,
+        `Object with ID ${id} not found`
+      );
+    }
+   
+    // for update cases .. if image uploaded then we use that uploaded image url otherwise we use previous one
+    if(req.uploadedFiles?.thumbnail.length > 0){
+      console.log('req.uploadedFiles?.attachments.length > 0 .. replace prev image with the new one');
+      req.body.thumbnail = req.uploadedFiles?.thumbnail;
+    }else{
+      console.log('req.uploadedFiles?.attachments.length == 0 .. keep prev image');
+      req.body.thumbnail = obj.thumbnail;
+    }
+
+    if(req.uploadedFiles?.video.length > 0){
+      req.body.video = req.uploadedFiles?.video;
+    }else{
+      console.log('req.uploadedFiles?.attachments.length == 0 .. keep prev image');
+      req.body.video = obj.video;
+    }
+
+    
+    const updatedObject = await this.service.updateById(id, req.body);
+    if (!updatedObject) {
+      throw new ApiError(
+        StatusCodes.NOT_FOUND,
+        `Object with ID ${id} not found`
+      );
+    }
+
+    //   return res.status(StatusCodes.OK).json(updatedObject);
+    sendResponse(res, {
+      code: StatusCodes.OK,
+      data: updatedObject,
+      message: `${this.modelName} updated successfully`,
     });
   });
 

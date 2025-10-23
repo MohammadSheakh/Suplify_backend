@@ -153,7 +153,7 @@ export class TrainingProgramController extends GenericController<
     
     const id = req.params.id;
 
-    const obj = await this.service.getById(id);
+    const obj : ITrainingProgram | null = await this.service.getById(id);
     if (!obj) {
       throw new ApiError(
         StatusCodes.NOT_FOUND,

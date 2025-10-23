@@ -55,10 +55,12 @@ router.route('/:id').get(
   // auth('common'),
   controller.getById
 );
-
-router.route('/update/:id').put(
-  //auth('common'),
-  // validateRequest(validation.createHelpMessageValidationSchema),
+//----------------------------------
+// Doctor | Update A Schedule
+//----------------------------------
+router.route('/:id').put(
+  auth(TRole.doctor),
+  // validateRequest(validation.createHelpMessageValidationSchema), // TODO : MUST
   controller.updateById
 );
 

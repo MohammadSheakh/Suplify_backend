@@ -60,10 +60,13 @@ router.route('/:id').get(
   // auth('common'),
   controller.getById
 );
-
-router.route('/update/:id').put(
-  //auth('common'),
-  // validateRequest(validation.createHelpMessageValidationSchema),
+//------------------------------
+// Specialist | Update Workout Class
+//-------------------------------
+router.route('/:id').put(
+  auth(TRole.specialist),
+  //  ...imageUploadPipelineForUpdateWorkoutClass, // no image upload needed for workout class
+  // validateRequest(validation.updateTrainingProgramValidationSchema), // TODO : MUST validation add korte hobe
   controller.updateById
 );
 

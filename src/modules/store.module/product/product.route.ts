@@ -53,9 +53,13 @@ router.route('/:id').get(
   controller.getById
 );
 
-router.route('/update/:id').put(
-  //auth('common'),
-  // validateRequest(validation.createHelpMessageValidationSchema),
+//------------------------------------
+// Admin | Update Product By Id 
+//------------------------------------
+router.route('/:id').put(
+  auth(TRole.admin),
+  ...imageUploadPipelineForUpdateTrainingProgram,
+  // validateRequest(validation.createHelpMessageValidationSchema), // TODO : MUST
   controller.updateById
 );
 
@@ -76,9 +80,6 @@ router.route('/create').post(
   validateRequest(validation.createHelpMessageValidationSchema),
   controller.create
 );
-
-
-
 
 router.route('/delete/:id').delete(
   //auth('common'),

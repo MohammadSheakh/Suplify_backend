@@ -122,13 +122,16 @@ router.route('/:id').get(
   controller.getById
 );
 
-router.route('/update/:id').put(
-  //auth('common'),
-  // validateRequest(validation.createHelpMessageValidationSchema),
+//--------------------------------- 
+// Doctor | Update plan for patient
+//---------------------------------
+router.route('/:id').put(
+  auth(TRole.doctor),
+  // validateRequest(validation.createHelpMessageValidationSchema), // TODO :  MUST add validation
   controller.updateById
 );
 
-//[🚧][🧑‍💻✅][🧪] // 🆗
+//[🚧][🧑‍💻✅][🧪] //🆗
 router.route('/').get(
   auth('commonAdmin'),
   controller.getAll

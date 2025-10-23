@@ -10,6 +10,7 @@ import validateRequest from '../../../shared/validateRequest';
 //@ts-ignore
 import multer from "multer";
 import { getLoggedInUserAndSetReferenceToUser } from '../../../middlewares/getLoggedInUserAndSetReferenceToUser';
+import { imageUploadPipelineForUpdateInformationVideo } from './informationVideo.middleware';
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
@@ -57,9 +58,13 @@ router.route('/:id').get(
   controller.getById
 );
 
-router.route('/update/:id').put(
-  //auth('common'),
-  // validateRequest(validation.createHelpMessageValidationSchema),
+//------------------------------
+// Specialist | Update Information Video
+//-------------------------------
+router.route('/:id').put(
+  auth(TRole.specialist),
+  ...imageUploadPipelineForUpdateInformationVideo,
+  // validateRequest(validation.createHelpMessageValidationSchema), // TODO : MUST 
   controller.updateById
 );
 

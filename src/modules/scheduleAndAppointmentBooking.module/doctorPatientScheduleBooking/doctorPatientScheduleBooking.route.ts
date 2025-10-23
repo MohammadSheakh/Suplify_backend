@@ -51,6 +51,9 @@ router.route('/paginate').get(
 
 //---------------------------------
 // Doctor | Upcoming Schedule | 
+// FUTURE_PLAN : TODO : Need to think about the change status of a booked schedule .. 
+// -------------------- that doctor can change status of a booked schedule that he want 
+// to cancel or to pospond this schedule .. later he will do that meeting 
 //---------------------------------
 router.route('/upcoming').get(
   auth(TRole.doctor),

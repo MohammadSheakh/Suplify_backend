@@ -11,6 +11,7 @@ import { IUser } from '../../token/token.interface';
 import sendResponse from '../../../shared/sendResponse';
 import omit from '../../../shared/omit';
 import pick from '../../../shared/pick';
+import ApiError from '../../../errors/ApiError';
 
 
 export class PlanByDoctorController extends GenericController<
@@ -23,9 +24,9 @@ export class PlanByDoctorController extends GenericController<
     super(new PlanByDoctorService(), 'PlanByDoctor');
   }
 
-//---------------------------------
-// Doctor | Create plan for patient .. 
-//---------------------------------
+  //---------------------------------
+  // Doctor | Create plan for patient .. 
+  //---------------------------------
   create = catchAsync(async (req: Request, res: Response) => {
     
     const data: IPlanByDoctor = req.body;
@@ -44,6 +45,33 @@ export class PlanByDoctorController extends GenericController<
     });
   });
 
+  //---------------------------------
+  // Doctor | Update plan for patient .. 
+  //---------------------------------
+  updateById = catchAsync(async (req: Request, res: Response) => {
+    if (!req.params.id) {
+      throw new ApiError(
+        StatusCodes.BAD_REQUEST,
+        `id is required for update ${this.modelName}`
+      );
+    }
+    
+    const id = req.params.id;
+
+    const updatedObject = await this.service.updateById(id, req.body);
+    if (!updatedObject) {
+      throw new ApiError(
+        StatusCodes.NOT_FOUND,
+        `Object with ID ${id} not found`
+      );
+    }
+    //   return res.status(StatusCodes.OK).json(updatedObject);
+    sendResponse(res, {
+      code: StatusCodes.OK,
+      data: updatedObject,
+      message: `${this.modelName} updated successfully`,
+    });
+  });
 
   //---------------------------------
   // Specialist | Members and protocol 

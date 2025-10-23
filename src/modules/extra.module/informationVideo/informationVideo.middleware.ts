@@ -5,25 +5,22 @@ import multer from "multer";
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
-//---------------------------
-// 🥇 we move image upload thing to controller to middleware level
-//---------------------------
-export const imageUploadPipelineForUpdateTrainingProgram = [
+export const imageUploadPipelineForUpdateInformationVideo = [
   [
     upload.fields([
-      { name: 'attachments', maxCount: 1 }, // Allow up to 1 
-      { name: 'trailerContents', maxCount: 1 }, // Allow up to 1 
+      { name: 'thumbnail', maxCount: 1 }, // Allow up to 1 
+      { name: 'video', maxCount: 1 }, // Allow up to 1 
     ]),
   ],
   processUploadedFilesForUpdate([
     {
-      name: 'attachments',
+      name: 'thumbnail',
       folder: TFolderName.trainingProgram,
       required: false, // optional
       allowedMimeTypes: ['image/jpeg', 'image/png', 'application/pdf'], // optional
     },
     {
-      name: 'trailerContents',
+      name: 'video',
       folder: TFolderName.trainingProgram,
       allowedMimeTypes: ['video/mp4', 'video/mov'],
     },
