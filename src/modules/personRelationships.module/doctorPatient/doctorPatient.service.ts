@@ -86,6 +86,13 @@ export class DoctorPatientService extends GenericService<
       }
     },
 
+    // Filter for only approved specialists
+      {
+        $match: {
+          'profile.approvalStatus': 'approved'
+        }
+      },
+
       /********************************* */
       // Project only needed fields
       {

@@ -9,6 +9,7 @@ import auth from '../../../middlewares/auth';
 import multer from "multer";
 import { setRequestFiltersV2 } from '../../../middlewares/setRequstFilterAndValue';
 import { TRole } from '../../../middlewares/roles';
+import { imageUploadPipelineForUpdateTrainingProgram } from '../../training.module/trainingProgram/trainingProgram.middleware';
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 

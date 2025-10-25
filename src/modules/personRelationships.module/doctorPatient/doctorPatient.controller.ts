@@ -118,6 +118,32 @@ export class DoctorPatientController extends GenericController<
   });
 
   //---------------------------------
+  // Admin | Users Section | Get All Unknown Doctor For A Patient 
+  //---------------------------------
+  getUnknownDoctorsForAPatient = catchAsync(async (req: Request, res: Response) => {
+    
+    const result = await this.doctorPatientService.getUnknownDoctorsForPatient(req.params.patientId,
+      // {
+      //   page: options.page,
+      //   limit: options.limit
+      // }
+      [], // filters
+      [] // options
+    );
+
+    // data: {
+    //     doctors: result.results,
+    //     pagination: result.pagination
+    //   }
+    sendResponse(res, {
+      code: StatusCodes.OK,
+      data: result,
+      message: `All ${this.modelName} with pagination`,
+      success: true,
+    });
+  });
+
+  //---------------------------------
   // Doctor | Get all Patients For Provide Protocol 
   //---------------------------------
   getAllWithPaginationForDoctorProtocolSection = catchAsync(async (req: Request, res: Response) => {

@@ -141,10 +141,10 @@ router.route('/').get(
  *  /////// TODO : MUST :  need to fix this 
  * :patientId:
  * ********** */
-// router.route('/doctor/:patientId').get(
-//   auth(TRole.doctor, TRole.admin),
-//   controller.showAllDoctor
-// );
+router.route('/doctor/:patientId').get(
+  auth(TRole.doctor, TRole.admin),
+  controller.getUnknownDoctorsForAPatient
+);
 
 
 
