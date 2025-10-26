@@ -126,55 +126,69 @@ export const handleSuccessfulPayment = async (invoice) => {
    
 
     if(invoice.billing_reason === 'subscription_create'){
-        console.log("⚡ This is first payment after trial or immediate payment without trial");
+      console.log("⚡ This is first payment after trial or immediate payment without trial");
 
-        // ⭕ these dates are undifind ⭕ ⭕ ⭕  
-        // const { current_period_start, current_period_end } = subscription;
-        // console.log("⚡⚡ current_period_start :: current_period_end -> ", current_period_start, current_period_end)
+      // ⭕ these dates are undifind ⭕ ⭕ ⭕  
+      // const { current_period_start, current_period_end } = subscription;
+      // console.log("⚡⚡ current_period_start :: current_period_end -> ", current_period_start, current_period_end)
 
 
-        const newPayment = await PaymentTransaction.create({
-          userId: user._id,
-          referenceFor : invoiceInfo.subscription_metadata.referenceFor, // If this is for Order .. we pass "Order" here
-          referenceId :  invoiceInfo.subscription_metadata.referenceId, // If this is for Order .. then we pass OrderId here
-          paymentGateway: TPaymentGateway.stripe,
-          transactionId: invoiceInfo.charge,
-          paymentIntent: invoiceInfo.payment_intent,
-          amount: invoiceInfo.subscription_metadata.amount,
-          currency : invoiceInfo.subscription_metadata.currency,
-          paymentStatus: TPaymentStatus.completed,
-          gatewayResponse: invoiceInfo,
-        });
+      /*********
+       * 
+       * 5. Missing Idempotency & Duplicate Handling
+        Webhooks can be delivered multiple times. You must:
 
-        // 1. Update UserSubscription with Stripe IDs
-        await UserSubscription.findByIdAndUpdate(metadata.referenceId, {
-          $set: {
-            stripe_subscription_id: subscriptionId,
-            stripe_transaction_id: invoice.payment_intent,
-            subscriptionPlanId: metadata.subscriptionPlanId, // You'll need to fetch this
-            status: UserSubscriptionStatusType.active,
-            subscriptionStartDate :  new Date(invoice.period_start * 1000),   // when user first subscribed
-            // currentPeriodStartDate: null, // THIS billing cycle start
-            // expirationDate: null,                 // end of trial or billing cycle
-            // billingCycle : 1 , // TODO : we have to check already how many billing cycle passed .. 
-            isAutoRenewed : true,
-            // renewalDate:  null, // 
-            // Add other fields as needed
+        Check if you’ve already processed this invoice.payment_succeeded (e.g., by invoice.id)
+        Use database transactions or atomic updates
+        ✅ Add a check:
+       * 
+       * ****** */
+      const existingPayment = await PaymentTransaction.findOne({
+        paymentIntent: invoice.payment_intent
+      });
+      if (existingPayment) return; // already processed
+
+      const newPayment = await PaymentTransaction.create({
+        userId: user._id,
+        referenceFor : invoiceInfo.subscription_metadata.referenceFor, // If this is for Order .. we pass "Order" here
+        referenceId :  invoiceInfo.subscription_metadata.referenceId, // If this is for Order .. then we pass OrderId here
+        paymentGateway: TPaymentGateway.stripe,
+        transactionId: invoiceInfo.charge,
+        paymentIntent: invoiceInfo.payment_intent,
+        amount: invoiceInfo.subscription_metadata.amount,
+        currency : invoiceInfo.subscription_metadata.currency,
+        paymentStatus: TPaymentStatus.completed,
+        gatewayResponse: invoiceInfo,
+      });
+
+      // 1. Update UserSubscription with Stripe IDs
+      await UserSubscription.findByIdAndUpdate(metadata.referenceId, {
+        $set: {
+          stripe_subscription_id: subscriptionId,
+          stripe_transaction_id: invoice.payment_intent,
+          subscriptionPlanId: metadata.subscriptionPlanId, // You'll need to fetch this
+          status: UserSubscriptionStatusType.active,
+          subscriptionStartDate :  new Date(invoice.period_start * 1000),   // when user first subscribed
+          // currentPeriodStartDate: null, // THIS billing cycle start
+          // expirationDate: null,                 // end of trial or billing cycle
+          // billingCycle : 1 , // TODO : we have to check already how many billing cycle passed .. 
+          isAutoRenewed : true,
+          // renewalDate:  null, // 
+          // Add other fields as needed
+        }
+      });
+
+      // 2. Mark user as having used free trial (option 2: after first payment)
+      await User.findByIdAndUpdate(metadata.userId, {
+        $set: { 
+          hasUsedFreeTrial: true,
+          subscriptionType: metadata.subscriptionType 
           }
-        });
-
-        // 2. Mark user as having used free trial (option 2: after first payment)
-        await User.findByIdAndUpdate(metadata.userId, {
-          $set: { 
-            hasUsedFreeTrial: true,
-            subscriptionType: metadata.subscriptionType 
-           }
-        });
-
+      });
 
     }else if(invoice.billing_reason === 'subscription_cycle'){
         console.log("⚡ This is recurring subscription payment");
-/*
+      /*
         {
           customer: 'cus_SzzhhEPsNynY9B',
           payment_intent: 'pi_3SEvpURw9NX4Ne6p19BCN1jV',
@@ -193,7 +207,7 @@ export const handleSuccessfulPayment = async (invoice) => {
             amount: '350'
           }
         }
-*/
+      */
         const { current_period_start, current_period_end } = subscription;
 
         const newPayment = await PaymentTransaction.create({

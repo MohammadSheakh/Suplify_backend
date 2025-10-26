@@ -75,6 +75,38 @@ export class SubscriptionController extends GenericController<
     });
   });
 
+
+  //-----------------------------------------
+  // Cancel subscription 
+  //-----------------------------------------
+  // POST /api/subscription/cancel
+  cancelSubscription = async (req: Request, res: Response) => {
+    const user = req.user as IUser;
+    const userSub:IUserSubscription = await UserSubscription.findOne({ userId: user.userId });
+
+    if (!userSub || !userSub.stripe_subscription_id) {
+        throw new ApiError(StatusCodes.BAD_REQUEST, 'No active subscription found');
+    }
+
+    const canceledSub = await stripe.subscriptions.update(userSub.stripe_subscription_id, {
+        cancel_at_period_end: true,
+    });
+
+    // it will cancel the subscription at the end of the billing cycle
+    await UserSubscription.findByIdAndUpdate(userSub._id, {
+        $set: { 
+          cancelledAtPeriodEnd: true, 
+          status: UserSubscriptionStatusType.cancelling 
+        },
+    });
+
+    sendResponse(res, {
+        code: StatusCodes.OK,
+        success: true,
+        message: 'Subscription will cancel at the end of the billing cycle',
+        data: canceledSub,
+    });
+  };
   
   // ⚡⚡ For Fertie Project to suplify project
   /*
@@ -147,6 +179,7 @@ export class SubscriptionController extends GenericController<
     lets see how it goes .. we can modify it later if needed
   */  
 
+    /*
   updateById = catchAsync(async (req: Request, res: Response) => {
     const data : ISubscriptionPlan = req.body;
     
@@ -194,6 +227,7 @@ export class SubscriptionController extends GenericController<
       success: true,
     });
   });
+  */
 
 
 

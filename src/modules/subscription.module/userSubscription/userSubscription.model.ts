@@ -1,3 +1,4 @@
+//@ts-ignore
 import { model, Schema } from 'mongoose';
 import paginate from '../../../common/plugins/paginate';
 import { UserSubscriptionStatusType } from './userSubscription.constant';
@@ -124,7 +125,7 @@ const userSubscriptionSchema = new Schema<IUserSubscription>(
   },
   { 
     timestamps: true,
-   }
+  }
 );
 
 userSubscriptionSchema.plugin(paginate);

@@ -3,6 +3,7 @@ export enum UserSubscriptionStatusType {
     active = 'active',
     past_due = 'past_due',
     cancelled = 'cancelled',
+    cancelling = 'cancelling', // From Qwen chat .. for cancel subscription
     unpaid = 'unpaid',
     incomplete = 'incomplete',
     incomplete_expired = 'incomplete_expired',

@@ -38,15 +38,18 @@ const webhookHandler = async (req: Request, res: Response): Promise<void> => {
      console.log('event.type', event.type);
      try {
           switch (event.type) {
-               case 'checkout.session.completed': // THIS IS FOR ORDER ... ONE TIME PAYMENT
-                    // 2️⃣ for subscription 
-                    // console.log('🟢checkout.session.completed🟢', event.data.object);
-                    console.log(`
-                         ////////////////////////////////////////
-                         🪝🪝checkout.session.completed
-                         ////////////////////////////////////////
-                         `)
-                    // console.log("🪝checkout.session.completed")
+               case 'checkout.session.completed': 
+          
+                    /***** //  ONE TIME PAYMENT
+                     * 
+                     * this is for ------ 
+                     * Order
+                     * LabTestBooking
+                     * DoctorPatientScheduleBooking
+                     * TrainingProgramPurchase
+                     * SpecialistPatientScheduleBooking
+                     * 
+                     * ***** */
                     await handlePaymentSucceeded(event.data.object);
                     break;
                case 'payment_intent.payment_failed':
@@ -67,16 +70,14 @@ const webhookHandler = async (req: Request, res: Response): Promise<void> => {
                case 'invoice.payment_succeeded': // TODO :  we have to use  invoice.paid
                     console.log(`
                          ////////////////////////////////////////
-                         🪝🪝invoice.payment_succeeded
+                         🪝🪝invoice.payment_succeeded 🎯 AUTOMATIC BILLING AFTER TRIAL
                          ////////////////////////////////////////
-                         `)
-                    // console.log("🪝invoice.payment_succeeded")
+                    `)
+               
                     /***
                      * here we create userSubscription
-                     * 
                      * Trial converted to paid / renewal succeeded
                      * *** */
-                    // console.log('🟢invoice.payment_succeeded🟢', event.data.object);
                     await handleSuccessfulPayment(event.data.object);
                     break;
                // ✅ TRY TO GET ACURATE DATE FROM HERE ..  AFTER PAYMENT FOR SUBSCRIPTION
@@ -85,7 +86,7 @@ const webhookHandler = async (req: Request, res: Response): Promise<void> => {
                          ////////////////////////////////////////
                          🪝customer.subscription.created
                          ////////////////////////////////////////
-                         `)
+                    `)
                     /******
                      * 
                      * when a subscription is purchased ..this event will be fired at 1️⃣ first ..
@@ -115,7 +116,9 @@ const webhookHandler = async (req: Request, res: Response): Promise<void> => {
                     console.log("🪝invoice.payment_failed")
                     await handleFailedPayment(event.data.object);
                     break;
-               // 🔄 SUBSCRIPTION CANCELLED
+               
+               
+                    // 🔄 SUBSCRIPTION CANCELLED
                case 'customer.subscription.deleted':
                     console.log('🪝customer.subscription.deleted')
                     await handleSubscriptionCancellation(event.data.object);

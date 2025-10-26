@@ -8,6 +8,7 @@ import * as validation from './subscriptionPlan.validation';
 import { TRole } from '../../../middlewares/roles';
 
 import multer from "multer";
+import { setRequestFiltersV2 } from '../../../middlewares/setRequstFilterAndValue';
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
@@ -30,11 +31,21 @@ const paginationOptions: Array<'sortBy' | 'page' | 'limit' | 'populate'> = [
 // const taskService = new TaskService();
 const controller = new SubscriptionController();
 
-//
+/** ----------------------------------------------
+ * @role Admin
+ * @Section Subscription
+ * @module |
+ * @figmaIndex 0-0
+ * @desc get all subscription plan which isActive is true 
+ * 
+ *----------------------------------------------*/
 router.route('/paginate').get(
   //auth('common'),
   validateFiltersForQuery(optionValidationChecking(['_id', ...paginationOptions])),
-  controller.getAllWithPagination 
+  setRequestFiltersV2({
+    isActive: true,
+  }),
+  controller.getAllWithPaginationV2 
 );
 
 //[🚧][🧑‍💻✅][🧪] // 🆗
@@ -65,7 +76,7 @@ router.route('/:id').get(
   controller.getById 
 );
 
-router.route('/update/:id').put(
+router.route('/:id').put(
   //auth('common'), // FIXME: Change to admin
   // validateRequest(validation.createHelpMessageValidationSchema),
   controller.updateById
@@ -94,6 +105,14 @@ router.route('/').post(
 router.route('/purchase/:subscriptionPlanId').post(
   auth(TRole.patient),
   controller.purchaseSubscriptionForSuplify
+);
+
+//-----------------------------------------
+// Cancel subscription 
+//-----------------------------------------
+router.route('/cancel').post(
+  auth(TRole.patient),
+  controller.cancelSubscription
 );
 
 router
