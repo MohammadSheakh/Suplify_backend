@@ -41,8 +41,14 @@ export class UserSubscriptionService extends GenericService<typeof UserSubscript
         const user:TUser = await User.findById(userId);
 
         if(user.hasUsedFreeTrial){
-            return new ApiError(StatusCodes.FORBIDDEN, 'User is not eligible for free trial');
+            
+            throw new ApiError(
+                StatusCodes.BAD_REQUEST,
+                `User is not eligible for free trial`
+            );
         }
+
+        
 
         // Start the free trial // TODO:
         // user.hasUsedFreeTrial = true;
@@ -74,7 +80,10 @@ export class UserSubscriptionService extends GenericService<typeof UserSubscript
         // console.log("⚡ standardPlan :: ", standardPlan);
 
         if(!standardPlan){
-            return new ApiError(StatusCodes.NOT_FOUND, 'No active standard plan found');
+            throw new ApiError(
+                StatusCodes.NOT_FOUND,
+                `No active standard plan found`
+            );
         }
         //---------------------------------
         // Lets create a userSubscription // TODO : we have to check already have userSubsription or not .. 
