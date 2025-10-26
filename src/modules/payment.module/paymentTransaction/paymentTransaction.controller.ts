@@ -53,6 +53,7 @@ export class PaymentTransactionController extends GenericController<
       subscriptionType: session.metadata?.subscriptionType || 'N/A',
       customerEmail: session.customer_details?.email || 'N/A',
       customerName: session.customer_details?.name || 'N/A',
+      frontEndHomePageUrl: config.client.url
     };
     
     res.render('success.ejs', { frontEndHomePageUrl: config.client.url,

@@ -39,7 +39,11 @@ export class CartService extends GenericService<
 
     const cartItems = await CartItem.find({ cartId: cart._id, isDeleted: false }, { __v: 0, updatedAt:0 }).populate({
       path: 'itemId',
-      select: 'name attachments price stockQuantity'
+      select: 'name attachments price stockQuantity',
+      populate:{
+        path: 'attachments',
+        select: 'attachment'
+      }
     });
 
     console.log("cartItems ", cartItems);

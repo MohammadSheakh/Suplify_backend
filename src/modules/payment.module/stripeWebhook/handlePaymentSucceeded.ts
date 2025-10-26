@@ -53,6 +53,10 @@ export const handlePaymentSucceeded = async (session: Stripe.Checkout.Session) =
           }: any = session.metadata;
           // userId // for sending notification .. 
 
+          if(!session.metadata){
+               return
+          }
+
           let _user:IUser = JSON.parse(user);
 
           const thisCustomer = await User.findOne({ _id: _user.userId });

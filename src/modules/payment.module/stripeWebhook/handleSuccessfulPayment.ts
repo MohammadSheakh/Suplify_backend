@@ -179,12 +179,14 @@ export const handleSuccessfulPayment = async (invoice) => {
       });
 
       // 2. Mark user as having used free trial (option 2: after first payment)
-      await User.findByIdAndUpdate(metadata.userId, {
+      const updatedUser = await User.findByIdAndUpdate(metadata.userId, {
         $set: { 
           hasUsedFreeTrial: true,
           subscriptionType: metadata.subscriptionType 
           }
       });
+
+      console.log("Updated User =>>> ", updatedUser);
 
     }else if(invoice.billing_reason === 'subscription_cycle'){
         console.log("⚡ This is recurring subscription payment");
