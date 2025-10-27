@@ -46,7 +46,6 @@ export class SpecialistWorkoutClassScheduleService extends GenericService<
             throw new Error('Invalid schedule date format');
         }
 
-        
         if(isNaN(data.startTime.getTime()) ) {
             throw new Error('Invalid startTime format');
         }
@@ -54,9 +53,6 @@ export class SpecialistWorkoutClassScheduleService extends GenericService<
         if(isNaN(data.endTime.getTime()) ) {
             throw new Error('Invalid endTime format');
         }
-
-    
-
 
         if(data.startTime >= data.endTime) {
             throw new Error('Start time must be before end time');

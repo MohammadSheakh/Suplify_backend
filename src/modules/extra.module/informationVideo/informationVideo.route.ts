@@ -11,6 +11,7 @@ import validateRequest from '../../../shared/validateRequest';
 import multer from "multer";
 import { getLoggedInUserAndSetReferenceToUser } from '../../../middlewares/getLoggedInUserAndSetReferenceToUser';
 import { imageUploadPipelineForUpdateInformationVideo } from './informationVideo.middleware';
+import { patchWithDefaults } from '../../../middlewares/updateSomeFieldIfProvideInAModelOtherwiseKeepTheOriginalValue';
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
@@ -64,6 +65,14 @@ router.route('/:id').get(
 router.route('/:id').put(
   auth(TRole.specialist),
   ...imageUploadPipelineForUpdateInformationVideo,
+
+  patchWithDefaults( //🥇
+    'informationVideo', 
+    optionValidationChecking([ // pass array of fields that we want to update if provide in request body
+      'title',
+      'description',
+    ])
+  ),
   // validateRequest(validation.createHelpMessageValidationSchema), // TODO : MUST 
   controller.updateById
 );

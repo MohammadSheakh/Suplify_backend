@@ -72,7 +72,7 @@ export class informationVideoController extends GenericController<
     
     const id = req.params.id;
 
-    const obj:IinformationVideo | null = await this.service.getById(id);
+    const obj:IinformationVideo | null =  req.existingDocument ||  await this.service.getById(id);
     if (!obj) {
       throw new ApiError(
         StatusCodes.NOT_FOUND,

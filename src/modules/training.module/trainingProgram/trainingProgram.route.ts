@@ -9,12 +9,10 @@ import auth from '../../../middlewares/auth';
 import { TRole } from '../../../middlewares/roles';
 //@ts-ignore
 import multer from "multer";
-import { processUploadedFiles } from '../../../middlewares/processUploadedFiles';
-import { TFolderName } from '../../../enums/folderNames';
 import { imageUploadPipelineForUpdateTrainingProgram } from './trainingProgram.middleware';
 import { setQueryOptions } from '../../../middlewares/setQueryOptions';
 import { defaultExcludes } from '../../../constants/queryOptions';
-import { updateSomeFieldIfProvideInAModelOtherwiseKeepTheOriginalValue } from '../../../middlewares/updateSomeFieldIfProvideInAModelOtherwiseKeepTheOriginalValue';
+import { patchWithDefaults } from '../../../middlewares/updateSomeFieldIfProvideInAModelOtherwiseKeepTheOriginalValue';
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
@@ -110,7 +108,7 @@ router.route('/:id').put( // update/
   
   ...imageUploadPipelineForUpdateTrainingProgram, //🥇
 
-  updateSomeFieldIfProvideInAModelOtherwiseKeepTheOriginalValue( //🥇
+  patchWithDefaults( //🥇
     'TrainingProgram', // pass model name .. if you provide wrong model name then it will show an ERROR : UnhandledRejection Detected Schema hasn't been registered for model "ServiceBooking".
     [ // pass array of fields that we want to update if provide in request body
       'durationInMonths',

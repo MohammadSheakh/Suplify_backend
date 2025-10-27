@@ -162,6 +162,7 @@ export class DoctorAppointmentScheduleService extends GenericService<
                 endTime: 1,
                 scheduleStatus: 1,
                 booked_by: 1,
+                price: 1,
 
                 // ✅ Include meeting info
                 // meetingLink: 1,

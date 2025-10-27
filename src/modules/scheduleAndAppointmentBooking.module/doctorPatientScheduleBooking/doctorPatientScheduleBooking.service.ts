@@ -64,10 +64,15 @@ export class DoctorPatientScheduleBookingService extends GenericService<
         const existingSchedule:IDoctorAppointmentSchedule = await DoctorAppointmentSchedule.findOne(
             {
                 _id: doctorScheduleId,
-               scheduleStatus: TDoctorAppointmentScheduleStatus.available 
-            // { $in: [TDoctorAppointmentScheduleStatus.available] } // Check for both pending and scheduled statuses
+               scheduleStatus:// TDoctorAppointmentScheduleStatus.available 
+            { $in: [
+                TDoctorAppointmentScheduleStatus.available,
+                TDoctorAppointmentScheduleStatus.booked
+            ] } // Check for both pending and scheduled statuses
             }
         );
+
+        // const existingBookedSchedule = await DoctorPatientScheduleBooking.
 
         if (!existingSchedule) {
             throw new ApiError(StatusCodes.NOT_FOUND, 'Doctor schedule not found');
@@ -94,7 +99,12 @@ export class DoctorPatientScheduleBookingService extends GenericService<
             await newRelation.save();
         }
 
-        existingSchedule.scheduleStatus = TDoctorAppointmentScheduleStatus.booked;
+        /****** as per nirob vai's suggestion 
+         * previously we make this schedule booked here ..
+         * but now we do this in webhook .. 
+         * ****** */
+        // existingSchedule.scheduleStatus = TDoctorAppointmentScheduleStatus.booked;
+
         // existingSchedule.booked_by = user.userId; // we update this in webhook
 
         if(existingUser.subscriptionType == TSubscription.vise){

@@ -30,6 +30,7 @@ import Stripe from "stripe";
 import { StatusCodes } from 'http-status-codes';
 //@ts-ignore
 import mongoose from "mongoose";
+import { TDoctorAppointmentScheduleStatus } from "../../scheduleAndAppointmentBooking.module/doctorAppointmentSchedule/doctorAppointmentSchedule.constant";
 
 const trainingProgramPurchaseService = new TrainingProgramPurchaseService();
 const walletService = new WalletService();
@@ -262,6 +263,7 @@ async function updateDoctorPatientScheduleBooking(
           {
                /* update fields */
                booked_by: thisCustomer._id, // this is patientId
+               scheduleStatus : TDoctorAppointmentScheduleStatus.booked,
           },
           { new: true }
      );

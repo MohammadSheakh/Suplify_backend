@@ -6,12 +6,19 @@ import { StatusCodes } from 'http-status-codes';
 //@ts-ignore
 import mongoose from 'mongoose';
 
-//------------------------------
-// this method helps us to verify logged in user have connection with 
-// this document or not .. that he want to manipulate .. 
-//------------------------------
-export const updateSomeFieldIfProvideInAModelOtherwiseKeepTheOriginalValue = (
+/** ----------------------------------------------
+ *
+ * @desc this method helps us to update some field if provide in a model otherwise keep the original value 
+ * 
+*----------------------------------------------*/
+export const patchWithDefaults = (
+    /**
+     * in which model you want to update ..so, pass model name .. if you provide wrong model name then it will show an ERROR : UnhandledRejection Detected Schema hasn't been registered for model "ServiceBooking".
+     */
     modelName : string,
+    /**
+     * what are the fields that you want to update
+     */
     updatableFields: string[] // e.g., ['name', 'email', 'status']
 ) => {
     return async (req: Request, res:Response, next:NextFunction) => {

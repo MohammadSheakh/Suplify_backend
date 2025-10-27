@@ -14,6 +14,7 @@ import omit from '../../../shared/omit';
 import pick from '../../../shared/pick';
 import { TRole } from '../../../middlewares/roles';
 import { toLocalTime } from '../../../utils/timezone';
+import { User } from '../../user/user.model';
 
 
 export class DoctorAppointmentScheduleController extends GenericController<
@@ -126,9 +127,21 @@ export class DoctorAppointmentScheduleController extends GenericController<
     //@ts-ignore
     result.results = convertedResults;
 
+    // get doctor profile
+
+    const doctorProfile = await User.findById(
+      filters.createdBy,
+      
+    ).select('name profileImage profileId').populate({
+      path: 'profileId',
+      select: 'description',
+    });
+    
     sendResponse(res, {
       code: StatusCodes.OK,
-      data: result,
+      data: {result,
+        doctorProfile: doctorProfile
+      },
       message: `All ${this.modelName} with pagination`,
       success: true,
     });
