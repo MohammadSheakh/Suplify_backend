@@ -25,7 +25,7 @@ export const imageUploadPipelineForUpdateTrainingProgram = [
     {
       name: 'trailerContents',
       folder: TFolderName.trainingProgram,
-      allowedMimeTypes: ['video/mp4', 'video/mov'],
+      allowedMimeTypes: ['image/jpeg',  'image/png', 'video/mp4', 'video/mov'], // TODO : MUST : remove this image/jpeg
     },
   ]),
 ];

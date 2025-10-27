@@ -153,7 +153,7 @@ export class TrainingProgramController extends GenericController<
     
     const id = req.params.id;
 
-    const obj : ITrainingProgram | null = await this.service.getById(id);
+    const obj : ITrainingProgram | null = req.existingDocument || await this.service.getById(id);
     if (!obj) {
       throw new ApiError(
         StatusCodes.NOT_FOUND,
@@ -173,6 +173,8 @@ export class TrainingProgramController extends GenericController<
     // ✅ Use preprocessed uploaded file URLs //🥇🔁 this task we do in middleware level for create API not for update API
     // req.body.attachments = req.uploadedFiles?.attachments || [];
     // req.body.trailerContents = req.uploadedFiles?.trailerContents || [];
+
+
 
     const updatedObject = await this.service.updateById(id, req.body);
     if (!updatedObject) {

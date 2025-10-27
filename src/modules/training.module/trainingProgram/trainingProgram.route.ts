@@ -14,6 +14,7 @@ import { TFolderName } from '../../../enums/folderNames';
 import { imageUploadPipelineForUpdateTrainingProgram } from './trainingProgram.middleware';
 import { setQueryOptions } from '../../../middlewares/setQueryOptions';
 import { defaultExcludes } from '../../../constants/queryOptions';
+import { updateSomeFieldIfProvideInAModelOtherwiseKeepTheOriginalValue } from '../../../middlewares/updateSomeFieldIfProvideInAModelOtherwiseKeepTheOriginalValue';
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
@@ -72,15 +73,9 @@ router.route('/:id').get(
   }),
   controller.getByIdV2
 );
-//--------------------------------------
-// 🔁-🧱💪-🥇
-// Lets build a way .. by that we can create a general update route .. 
-// where all image upload + and upload logic .. like .. does that upload change the previous image ..
-// or add image with previous images .. 
-//--------------------------------------
-router.route('/:id').put( // update/
-  auth(TRole.specialist),
-  /*-------------------------- 🥇
+
+
+/*-------------------------- for router.route('/:id').put( 🥇
   [
     upload.fields([
       { name: 'attachments', maxCount: 1 }, // Allow up to 1 cover photo
@@ -102,8 +97,33 @@ router.route('/:id').put( // update/
     },
   ]),
   --------------------------*/
+
+
+//--------------------------------------
+// 🔁-🧱💪-🥇
+// Lets build a way .. by that we can create a general update route .. 
+// where all image upload + and upload logic .. like .. does that upload change the previous image ..
+// or add image with previous images .. 
+//--------------------------------------
+router.route('/:id').put( // update/
+  auth(TRole.specialist),
+  
   ...imageUploadPipelineForUpdateTrainingProgram, //🥇
-  validateRequest(validation.updateTrainingProgramValidationSchema),
+
+  updateSomeFieldIfProvideInAModelOtherwiseKeepTheOriginalValue( //🥇
+    'TrainingProgram', // pass model name .. if you provide wrong model name then it will show an ERROR : UnhandledRejection Detected Schema hasn't been registered for model "ServiceBooking".
+    [ // pass array of fields that we want to update if provide in request body
+      'durationInMonths',
+      'price',
+      'totalSessionCount',
+      'description',
+      'programName',
+    ]
+  ),
+  // validateRequest(validation.updateTrainingProgramValidationSchema), 
+  /**
+   * FiXED FOR NOW .. but validation must be added later 
+   * ** */
   controller.updateById
 );
 
