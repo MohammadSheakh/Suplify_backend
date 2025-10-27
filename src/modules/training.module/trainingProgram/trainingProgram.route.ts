@@ -12,6 +12,8 @@ import multer from "multer";
 import { processUploadedFiles } from '../../../middlewares/processUploadedFiles';
 import { TFolderName } from '../../../enums/folderNames';
 import { imageUploadPipelineForUpdateTrainingProgram } from './trainingProgram.middleware';
+import { setQueryOptions } from '../../../middlewares/setQueryOptions';
+import { defaultExcludes } from '../../../constants/queryOptions';
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
@@ -54,9 +56,21 @@ router.route('/specialist/paginate/').get(
   controller.getAllWithPagination
 );
 
+//---------------------------------
+// Specialist | Get a Training Program for Specialist .. for update 
+//---------------------------------
 router.route('/:id').get(
-  // auth('common'),
-  controller.getById
+  auth(TRole.common),
+  setQueryOptions({
+    populate: [ { 
+      path: 'attachments trailerContents', 
+      select: 'attachment',
+      // populate: { path: 'profileId', select: 'gender location' }
+    }],
+    select: `${defaultExcludes}`
+    // // ${defaultExcludes}
+  }),
+  controller.getByIdV2
 );
 //--------------------------------------
 // 🔁-🧱💪-🥇

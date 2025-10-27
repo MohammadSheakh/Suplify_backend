@@ -1,3 +1,4 @@
+//@ts-ignore
 import { StatusCodes } from 'http-status-codes';
 import { Cart } from './cart.model';
 import { ICart } from './cart.interface';
