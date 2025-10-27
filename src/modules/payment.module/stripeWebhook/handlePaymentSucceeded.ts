@@ -120,6 +120,7 @@ export const handlePaymentSucceeded = async (session: Stripe.Checkout.Session) =
                updatedObjectOfReferenceFor = updateLabTestBooking(_user, referenceId, newPayment._id);
           
           }else if (referenceFor === TTransactionFor.DoctorPatientScheduleBooking) {
+               console.log("")
                updatedObjectOfReferenceFor = 
                updateDoctorPatientScheduleBooking(thisCustomer, referenceId, newPayment._id, referenceId2, referenceFor2);
           }else if (referenceFor === TTransactionFor.TrainingProgramPurchase){

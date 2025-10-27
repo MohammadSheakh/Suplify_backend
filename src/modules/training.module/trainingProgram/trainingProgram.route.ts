@@ -110,13 +110,13 @@ router.route('/:id').put( // update/
 
   patchWithDefaults( //🥇
     'TrainingProgram', // pass model name .. if you provide wrong model name then it will show an ERROR : UnhandledRejection Detected Schema hasn't been registered for model "ServiceBooking".
-    [ // pass array of fields that we want to update if provide in request body
+    optionValidationChecking([ // pass array of fields that we want to update if provide in request body
       'durationInMonths',
       'price',
       'totalSessionCount',
       'description',
       'programName',
-    ]
+    ])
   ),
   // validateRequest(validation.updateTrainingProgramValidationSchema), 
   /**

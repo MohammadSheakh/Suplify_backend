@@ -7,6 +7,7 @@ export interface ITrainingProgram {
   // _taskId: undefined | Types.ObjectId;
   _id?: Types.ObjectId; // undefined |  Types.ObjectId |
   programName : String;
+  description: String;
   durationInMonths : Number;
   totalSessionCount : Number;
   price : Number;
