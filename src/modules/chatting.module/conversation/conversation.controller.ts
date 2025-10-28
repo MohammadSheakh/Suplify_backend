@@ -61,48 +61,6 @@ export class ConversationController extends GenericController<typeof Conversatio
   });
 
   //---------------------------------
-  // ( Dashboard ) | Admin :: getAllConversationAndItsParticipantsBySiteId
-  //---------------------------------
-  getAllConversationAndItsParticipantsBySiteId = catchAsync(
-    async (req: Request, res: Response) => {
-      const { siteId } = req.query;
-
-      const conversations = await Conversation.find({
-        siteId: siteId,
-        isDeleted: false, 
-      }).select('-__v -type -updatedAt -lastMessage -deletedFor -groupAdmins -blockedUsers -groupBio -groupProfilePicture -groupName').populate(
-        {
-          path: 'siteId',
-          select: 'name'
-        }
-      )
-
-      // now we have to get all participants of each conversation
-
-      const conversationsWithParticipants = await Promise.all(
-        conversations.map(async (conversation) => {
-          const participants = await conversationParticipantsService.getByConversationIdForAdminDashboard(
-            conversation._id
-          );
-          
-          return {
-            ...conversation.toObject(),
-            participants,
-          };
-        })
-      );
-
-      sendResponse(res, {
-        code: StatusCodes.OK,
-        data: conversationsWithParticipants,
-        message: `All conversations with participants for siteId: ${siteId}`,
-        success: true,
-      });
-    }
-  );
-
-
-  //---------------------------------
   // Claude 
   //---------------------------------
   create = catchAsync(async (req: Request, res: Response) => {
@@ -241,7 +199,7 @@ export class ConversationController extends GenericController<typeof Conversatio
 
       // Add participants
       for (const participant of participants) {
-        const user = await User.findById(participant).select('role');
+        const user = await User.findById(participant).select('role name');
 
         if (!user) {
           throw new ApiError(
@@ -253,6 +211,7 @@ export class ConversationController extends GenericController<typeof Conversatio
         const participantResult: IConversationParticipents =
           await conversationParticipantsService.create({
             userId: participant,
+            userName : user.name,
             conversationId: result._id,
             role: user.role === TParticipants.admin ? TParticipants.admin : TParticipants.member,
             joinedAt: new Date(),
@@ -342,6 +301,15 @@ export class ConversationController extends GenericController<typeof Conversatio
       if (participants.length > 0) {
         for (const participantId of participants) {
           if (participantId !== req.user.userId) {
+
+            const user = await User.findById(participantId).select('role name');
+            if (!user) {
+              throw new ApiError(
+                StatusCodes.NOT_FOUND,
+                `User with id ${participantId} not found`
+              );
+            }
+
             const existingParticipant =
             await conversationParticipantsService.getByUserIdAndConversationId(
               participantId,
@@ -357,6 +325,7 @@ export class ConversationController extends GenericController<typeof Conversatio
             if (existingParticipant.length == 0) {
               await conversationParticipantsService.create({
                 userId: participantId,
+                userName : user.name,
                 conversationId: conversation?._id,
                 role: req.user.role === TParticipants.admin ? TParticipants.admin : TParticipants.member,
                 joinedAt: new Date(),

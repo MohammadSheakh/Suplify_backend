@@ -19,6 +19,7 @@ router
    * 
    * ********** */
   .get(SettingsController.getDetailsByType)
+  
   // FIXME : FormData te details send korle kaj hocche na .. raw kaj kortese
   //----------------------------------
   // Admin | Upload Introduction video

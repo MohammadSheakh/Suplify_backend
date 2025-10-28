@@ -1,3 +1,4 @@
+//@ts-ignore
 import express from 'express';
 import { PaymentTransactionController} from './paymentTransaction.controller';
 import { validateFiltersForQuery } from '../../../middlewares/queryValidation/paginationQueryValidationMiddleware';
@@ -6,7 +7,7 @@ import auth from '../../../middlewares/auth';
 import { PaymentTransaction } from './paymentTransaction.model';
 import { IPaymentTransaction } from './paymentTransaction.interface';
 import * as validation from './paymentTransaction.validation';
-
+//@ts-ignore
 import multer from "multer";
 import { TRole } from '../../../middlewares/roles';
 const storage = multer.memoryStorage();

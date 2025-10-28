@@ -5,6 +5,10 @@ export interface PaginateOptions {
   populate?: any; 
 }
 
+export interface PaginateOptionsForConversations extends PaginateOptions {
+  search?: string;
+}
+
 export interface PaginateResult<T> {
   results: T[];
   page: number;

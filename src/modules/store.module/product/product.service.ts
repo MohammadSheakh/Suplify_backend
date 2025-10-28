@@ -84,6 +84,12 @@ export class ProductService extends GenericService<
         },
       },
       ********* */
+     // ✅ Filter out deleted products first
+      {
+        $match: {
+          isDeleted: { $ne: true }, // or simply: isDeleted: false
+        },
+      },
      // 🪄 Populate attachments (from Attachment collection)
       {
         $lookup: {
@@ -130,7 +136,8 @@ export class ProductService extends GenericService<
     const result = await this.model.findById(productId);
 
     const relatedProducts = await this.model.find({ category: result.category,
-      _id: { $ne: productId }
+      _id: { $ne: productId },
+      isDeleted: false
      }).limit(5);
 
     return { product: result, relatedProducts };

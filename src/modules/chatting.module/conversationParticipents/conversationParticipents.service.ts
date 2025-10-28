@@ -1,8 +1,7 @@
-import path from 'path';
 import { GenericService } from '../../_generic-module/generic.services';
 import { IConversationParticipents } from './conversationParticipents.interface';
 import { ConversationParticipents } from './conversationParticipents.model';
-import { PaginateOptions } from '../../../types/paginate';
+import { PaginateOptionsForConversations } from '../../../types/paginate';
 
 export class ConversationParticipentsService extends GenericService<
   typeof ConversationParticipents, IConversationParticipents
@@ -124,8 +123,11 @@ export class ConversationParticipentsService extends GenericService<
   }
 
   ///// just add pagination functionality with above functionality ..  
-  async getAllConversationByUserIdWithPagination(userId: any, options: PaginateOptions = { limit: 10, page: 1 }) {
+  async getAllConversationByUserIdWithPagination(userId: any, options: PaginateOptionsForConversations = { limit: 10, page: 1 , search: '' }) {
     let loggedInUserId = userId;
+
+    const search = options.search?.trim();
+
     // Step 1: Find all conversations the logged-in user participates in
     const userConversations = await ConversationParticipents.find({
       userId: loggedInUserId,
@@ -134,39 +136,45 @@ export class ConversationParticipentsService extends GenericService<
 
     const conversationIds = userConversations.map(conv => conv.conversationId);
 
-  // Step 2: Use pagination on ConversationParticipents
-  const filter = {
-    conversationId: { $in: conversationIds },
-    userId: { $ne: loggedInUserId },
-    isDeleted: false
-  };
+    // Step 2: Use pagination on ConversationParticipents
+    const filter = {
+      conversationId: { $in: conversationIds },
+      userId: { $ne: loggedInUserId },
+      isDeleted: false,
+      name :  { $regex: search, $options: 'i' } // 👉 Add search directly here
+    };
 
-  const populateOptions = [
-    {
-      path: 'userId',
-      select: 'name profileImage role'
-    },
-    {
-      path: 'conversationId',
-      select: 'lastMessage updatedAt',
-      populate: {
-        path: 'lastMessage',
+    const populateOptions = [
+      {
+        path: 'userId',
+        select: 'name profileImage role'
+      },
+      {
+        path: 'conversationId',
+        select: 'lastMessage updatedAt',
+        populate: {
+          path: 'lastMessage',
+        }
       }
-    }
-  ];
-  
-  let dontWantToInclude: string | string[] = '';
+    ];
 
-  // Use your pagination function
-  const paginatedResults = await ConversationParticipents.paginate(
-    filter,
-    {
-      ...options, 
-      sortBy: options.sortBy ?? 'updatedAt', // Sort by most recent conversations
-    },
-    populateOptions,
-    dontWantToInclude
-  );
+    // 👉 Add search directly here
+    // if (search) {
+    //   filter.name = { $regex: search, $options: 'i' };
+    // }
+    
+    let dontWantToInclude: string | string[] = '';
+
+    // Use your pagination function
+    const paginatedResults = await ConversationParticipents.paginate(
+      filter,
+      {
+        ...options, 
+        sortBy: options.sortBy ?? 'updatedAt', // Sort by most recent conversations
+      },
+      populateOptions,
+      dontWantToInclude
+    );
 
     // Step 3: Remove duplicates and format data
     const uniqueUsers = {};

@@ -11,6 +11,9 @@ import validateRequest from '../../shared/validateRequest';
 const UPLOADS_FOLDER = 'uploads/users';
 const upload = fileUploadHandler(UPLOADS_FOLDER);
 import * as validation from './user.validation';
+import { setQueryOptions } from '../../middlewares/setQueryOptions';
+import { imageUploadPipelineForUpdateUserProfile } from './user.middleware';
+import { getLoggedInUserIdAndSetInParams } from '../../middlewares/getLoggedInUserIdAndSetInParams';
 
 export const optionValidationChecking = <T extends keyof IUser | 'sortBy' | 'page' | 'limit' | 'populate'>(
   filters: T[]
@@ -33,7 +36,6 @@ const controller = new UserController();
 //---------------------------------
 // Admin : User Management With Statistics
 //---------------------------------
-//
 router.route('/paginate').get(
   auth(TRole.admin),
   validateFiltersForQuery(optionValidationChecking(['_id',
@@ -79,6 +81,33 @@ router.route('/update/:id').put(
   // validateRequest(validation.createHelpMessageValidationSchema),
   controller.updateById
 );
+
+//---------------------------------
+// Specialist | Doctor | Patient | Admin Get Profile Information By Id 
+// TODO : make sure logged in user can see any user profile ..
+//---------------------------------
+router.route('/profile/:id').get(
+  auth(TRole.common), // any logged in user can see any user profile ..
+  getLoggedInUserIdAndSetInParams('id'),
+  setQueryOptions({
+    populate: [
+      { path: 'profileId', select: 'approvalStatus protocolNames userId description address', /* populate: { path : ""} */ },
+    ],
+    select: 'name profileId email profileImage subscriptionType status role' //-createdAt
+  }),
+  controller.getByIdV2
+);
+
+//---------------------------------
+// Specialist | Doctor | Patient | Admin Update Profile Information By Id 
+// TODO : make sure logged in user can update only his information
+//---------------------------------
+router.route('/profile/:id').put(
+  auth(TRole.common), // any logged in user can see any user profile ..
+  ...imageUploadPipelineForUpdateUserProfile,
+  controller.updateProfileOfSpecialistAndDoctor
+);
+
 
 //[🚧][🧑‍💻✅][🧪] // 🆗
 router.route('/').get(

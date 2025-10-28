@@ -159,6 +159,10 @@ export class GenericController<ModelType, InterfaceType> {
     });
   });
 
+  //----------------------------------------------
+  // this getById is special because it provide freedom to use middleware
+  // like setQueryOptions middleware
+  //-----------------------------------------------
   getByIdV2 = catchAsync(async (req: Request, res: Response) => {
     const id = req.params.id;
 

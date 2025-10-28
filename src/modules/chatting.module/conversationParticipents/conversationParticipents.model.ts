@@ -13,6 +13,10 @@ const conversationParticipentsSchema = new Schema<IConversationParticipents>(
       ref: 'User',
       required: [true, 'User Id is required'],
     },
+    userName : {
+      type: String,
+      required: [true, 'userName is required'],
+    },
     conversationId: { //🔗
       type: Schema.Types.ObjectId,
       ref: 'Conversation',

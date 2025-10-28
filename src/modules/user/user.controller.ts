@@ -220,11 +220,24 @@ export class UserController extends GenericController<
     });
   })
 
-
- 
+  updateProfileOfSpecialistAndDoctor = catchAsync(async (req: Request, res: Response) => {
+    const id = req.params.id;
+    req.body.profileImage = req.uploadedFiles.profileImage; // it actually returns array of string
     
-    
+    // console.log("controller --> ", typeof req.uploadedFiles.profileImage);
 
+    const data = req.body;
+
+    const result = await this.userService.updateProfileOfSpecialistAndDoctor(id, data);
+    
+    sendResponse(res, {
+      code: StatusCodes.OK,
+      data: result,
+      message: `${this.modelName} updated successfully`,
+      success: true,
+    });
+    
+  });
 
 
 }

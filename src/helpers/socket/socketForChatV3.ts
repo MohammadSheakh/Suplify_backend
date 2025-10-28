@@ -374,7 +374,7 @@ export class SocketService {
     //---------------------------------
     //   Handle fetching all conversations with pagination 🟢 working perfectly 
     //---------------------------------
-    socket.on('get-all-conversations-with-pagination', async( conversationData: {page: number, limit: number}, callback) =>{
+    socket.on('get-all-conversations-with-pagination', async( conversationData: {page: number, limit: number, search?: string}, callback) =>{
       try{
         const conversations = await new ConversationParticipentsService().getAllConversationByUserIdWithPagination(userId, conversationData);
         callback?.({ success: true, data: conversations});

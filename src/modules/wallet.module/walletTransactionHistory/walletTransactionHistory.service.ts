@@ -1,5 +1,3 @@
-//@ts-ignore
-import { StatusCodes } from 'http-status-codes';
 import { WalletTransactionHistory } from './walletTransactionHistory.model';
 import { IWalletTransactionHistory } from './walletTransactionHistory.interface';
 import { GenericService } from '../../_generic-module/generic.services';
@@ -17,7 +15,7 @@ import {
   subDays,
 } from 'date-fns';
 import { TWalletTransactionHistory, TWalletTransactionStatus } from './walletTransactionHistory.constant';
-import { TCurrency } from '../../../enums/payment';
+//@ts-ignore
 import mongoose from 'mongoose';
 import { Wallet } from '../wallet/wallet.model';
 
@@ -36,7 +34,6 @@ export class WalletTransactionHistoryService extends GenericService<
    * ********* */
   // Get specialist's comprehensive earnings overview
   async getSpecialistEarningsOverview(userId: string) {
-    
     /*------------------------------------------
     {
       "_id": {
@@ -65,8 +62,8 @@ export class WalletTransactionHistoryService extends GenericService<
         "$date": "2025-10-09T05:21:06.255Z"
       }
     }
-
     ------------------------------------------*/
+
     const now = new Date();
     const todayStart = startOfDay(now);
     const weekStart = startOfWeek(now, { weekStartsOn: 1 }); // Monday
@@ -248,37 +245,37 @@ export class WalletTransactionHistoryService extends GenericService<
       totalEarnings: {
         amount: totalEarnings[0]?.total || 0,
         count: totalEarnings[0]?.count || 0,
-        label: 'Total Program',
+        label: 'Total earnings',
       },
       todayEarnings: {
         amount: todayEarnings[0]?.total || 0,
         count: todayEarnings[0]?.count || 0,
-        label: 'Today Program',
+        label: 'Today earning',
       },
       thisWeekEarnings: {
         amount: thisWeekTotal,
         count: thisWeekEarnings[0]?.count || 0,
         growth: parseFloat(weeklyGrowth.toFixed(2)),
-        label: 'Last week Program',
+        label: 'Last week earning',
         dateRange: `${formatDate(weekStart)} - ${formatDate(now)}`,
       },
       thisMonthEarnings: {
         amount: thisMonthTotal,
         count: thisMonthEarnings[0]?.count || 0,
         growth: parseFloat(monthlyGrowth.toFixed(2)),
-        label: 'This month Program',
+        label: 'This month earning',
         month: currentMonth,
       },
       lastWeekEarnings: {
         amount: lastWeekTotal,
         count: lastWeekEarnings[0]?.count || 0,
-        label: 'Last week Program',
+        label: 'Last week earning',
         dateRange: `${formatDate(lastWeekStart)} - ${formatDate(lastWeekEnd)}`,
       },
       lastMonthEarnings: {
         amount: lastMonthTotal,
         count: lastMonthEarnings[0]?.count || 0,
-        label: 'Previous month Program',
+        label: 'Previous month earning',
         month: lastMonth,
       },
       thisQuarterEarnings: {

@@ -1,8 +1,10 @@
+//@ts-ignore
 import express from 'express';
 import { validateFiltersForQuery } from '../../../middlewares/queryValidation/paginationQueryValidationMiddleware';
 import { ConversationController } from './conversation.controller';
 import { IConversation } from './conversation.interface';
 import auth from '../../../middlewares/auth';
+//@ts-ignore
 import multer from "multer";
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
@@ -27,15 +29,11 @@ const paginationOptions: Array<'sortBy' | 'page' | 'limit' | 'populate'> = [
 // const taskService = new TaskService();
 const controller = new ConversationController();
 
-
-
-//
 router.route('/paginate').get(
   //auth('common'),
-  validateFiltersForQuery(optionValidationChecking(['_id', 'creatorId', 'siteId', ...paginationOptions])),
+  validateFiltersForQuery(optionValidationChecking(['_id', 'creatorId', ...paginationOptions])),
   controller.getAllWithPagination
 );
-
 
 router.route('/:id').get(
   // auth('common'),
@@ -111,15 +109,6 @@ router.route('trigger-cron').get(
 // router.route('/get-all-message/:conversationId').get(
 //   controllerV2.getAllMessagesOfAConversation
 // )
-
-
-  //--------------------------------- 
-  // ( Dashboard ) | Admin :: getAllConversationAndItsParticipantsBySiteId
-  //---------------------------------
-  router.route('/by/siteId').get(
-  //auth('common'),
-  controller.getAllConversationAndItsParticipantsBySiteId
-);
 
 
 export const ConversationRoute = router;

@@ -11,6 +11,7 @@ import multer from "multer";
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 import { TRole } from '../../../middlewares/roles';
+import { getLoggedInUserAndSetReferenceToUser } from '../../../middlewares/getLoggedInUserAndSetReferenceToUser';
 const router = express.Router();
 
 export const optionValidationChecking = <T extends keyof IDoctorPlan | 'sortBy' | 'page' | 'limit' | 'populate'>(
@@ -34,8 +35,9 @@ const controller = new DoctorPlanController();
 //
 router.route('/paginate').get(
   auth(TRole.doctor),
-  validateFiltersForQuery(optionValidationChecking(['_id','planType', 'title', ...paginationOptions])),
-  controller.getAllWithPagination
+  validateFiltersForQuery(optionValidationChecking(['_id','planType', 'title',  ...paginationOptions])),
+  getLoggedInUserAndSetReferenceToUser('createdBy'),
+  controller.getAllWithPaginationV2
 );
 
 router.route('/:id').get(

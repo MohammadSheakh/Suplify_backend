@@ -10,6 +10,7 @@ import PaginationService from '../../common/service/paginationService';
 import omit from '../../shared/omit';
 import pick from '../../shared/pick';
 import { UserProfile } from './userProfile/userProfile.model';
+import { IUserProfile } from '../../helpers/socket/socketForChatV3';
 
 interface IAdminOrSuperAdminPayload {
   email: string;
@@ -215,6 +216,48 @@ export class UserService extends GenericService<typeof User, IUser> {
     return user//updatedProfile;
   }
 
+
+  async updateProfileOfSpecialistAndDoctor(userId: string, data: any): Promise<any> {
+    
+    console.log("from service typeof =-> ", typeof data.profileImage[0].attachment);
+    console.log("from service =-> ", data.profileImage[0].attachment);
+
+    const dataForProfile= {
+      name : data.name,
+      description : data.description,
+      address : data.address,
+      protocolNames : data.protocolNames,
+      profileImage: data.profileImage[0].attachment
+    }
+
+    const user:IUser = await User.findById(userId).select("name profileId");
+    const profile:IUserProfile = await UserProfile.findById(user.profileId);
+
+    const updatedUser = await User.findByIdAndUpdate(userId, {
+      name: data.name ? data.name : user.name,
+      profileImage : {
+        imageUrl: data.profileImage[0].attachment ? data.profileImage[0].attachment : user.profileImage,
+      }
+    }, { new: true });
+
+    if (!updatedUser) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'User not found while update');
+    }
+
+    const updatedUserProfile = await UserProfile.findByIdAndUpdate(
+      updatedUser.profileId,
+      {
+        description : data.description ? data.description : profile.description,
+        address : data.address ? data.address : profile.address,
+        protocolNames : data.protocolNames ? data.protocolNames : profile.protocolNames,
+      }, 
+      { new: true }
+    );
+
+
+    return user
+
+  }
 }
 
 /*********

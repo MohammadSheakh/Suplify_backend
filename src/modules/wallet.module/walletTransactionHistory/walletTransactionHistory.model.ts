@@ -6,7 +6,6 @@ import { TWalletTransactionHistory, TWalletTransactionStatus } from './walletTra
 import { TCurrency } from '../../../enums/payment';
 import { TTransactionFor } from '../../payment.module/paymentTransaction/paymentTransaction.constant';
 
-
 const WalletTransactionHistorySchema = new Schema<IWalletTransactionHistory>(
   {
     walletId: { //🔗

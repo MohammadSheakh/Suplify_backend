@@ -112,7 +112,8 @@ router.route('/protocols-for-patient').get(
 //
 router.route('/paginate/protocol').get(
   auth(TRole.doctor),
-  validateFiltersForQuery(optionValidationChecking(['_id', ...paginationOptions])),
+  validateFiltersForQuery(optionValidationChecking(['_id', 'doctorId', ...paginationOptions])),
+  getLoggedInUserAndSetReferenceToUser('doctorId'),
   controller.getAllWithPaginationForDoctorProtocolSection
 );
 
