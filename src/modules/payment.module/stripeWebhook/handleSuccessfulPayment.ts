@@ -131,7 +131,7 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Subscription) => {
       stripe_customer_id: subscription.customer 
     });
 
-    if (!user) {
+    if (!user){
       console.error('User not found for customer:', subscription.customer);
       return;
     }
