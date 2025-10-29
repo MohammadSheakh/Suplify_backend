@@ -66,7 +66,40 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Subscription) => {
      * *** */
 
     const subscriptionId = invoice.subscription;
-    const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+    const subscription = await stripe.subscriptions.retrieve(subscriptionId, {
+      expand: ['latest_invoice', 'pending_setup_intent']
+    });
+
+    console.log("Subscription :: 🔊🔊🔊🔊🔊🔊🔊", subscription.latest_invoice.period_start)
+    console.log("Subscription :: 🔊🔊🔊🔊🔊🔊🔊", new Date(subscription.latest_invoice.period_start * 1000))
+    console.log("Subscription :: 🔊🔊🔊🔊🔊🔊🔊", subscription.latest_invoice.period_end)
+    console.log("Subscription :: 🔊🔊🔊🔊🔊🔊🔊", new Date(subscription.latest_invoice.period_end * 1000))
+
+/*
+
+  Subscription :: 🔊🔊🔊🔊🔊🔊🔊 {
+    id: 'sub_1SNWKdRw9NX4Ne6pPRlYZ5vg',
+    object: 'subscription',
+    
+    cancel_at: null,
+    cancel_at_period_end: false,
+    canceled_at: null,
+   
+    created: 1761732618,
+   
+    latest_invoice: {
+      id: 'in_1SNWelRw9NX4Ne6p8VoFZLUd',
+     
+      created: 1767003018,
+      
+      period_end: 1767003018,
+      period_start: 1764411018,
+    
+    },
+    
+  }
+*/
+
     
     // ✅ Access metadata from subscription, not invoice
     const metadata:IMetadataForFreeTrial = subscription.metadata;
@@ -90,8 +123,8 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Subscription) => {
       }
     }
 
-    console.log("---- invoice.billing_reason handleSuccessfulPayment for  Subscription Related :: ", invoice.billing_reason ) 
-    console.log("---- invoiceInfo from handleSuccessfulPayment for  Subscription Related :: ", invoiceInfo ) 
+    // console.log("---- invoice.billing_reason handleSuccessfulPayment for  Subscription Related :: ", invoice.billing_reason ) 
+    // console.log("---- invoiceInfo from handleSuccessfulPayment for  Subscription Related :: ", invoiceInfo ) 
 
     // Find user by Stripe customer ID
     const user:TUser = await User.findOne({ 
@@ -137,7 +170,7 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Subscription) => {
         referenceFor : invoiceInfo.subscription_metadata.referenceFor, // If this is for Order .. we pass "Order" here
         referenceId :  invoiceInfo.subscription_metadata.referenceId, // If this is for Order .. then we pass OrderId here
         paymentGateway: TPaymentGateway.stripe,
-        transactionId: invoiceInfo.charge,
+        transactionId: invoice.charge || invoice.id, // ✅ Use charge ID // INFO : previously we set this null but it should be invoice.charge
         paymentIntent: invoiceInfo.payment_intent,
         amount: invoiceInfo.subscription_metadata.amount,
         currency : invoiceInfo.subscription_metadata.currency,
@@ -176,7 +209,7 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Subscription) => {
     // RECURRING PAYMENT (subscription_cycle)
     // ============================================      
     }else if(invoice.billing_reason === 'subscription_cycle'){
-        console.log("⚡ This is recurring subscription payment");
+        console.log("=============== This is recurring subscription payment ================== 🔁");
       /*
         {
           customer: 'cus_SzzhhEPsNynY9B',
@@ -198,13 +231,23 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Subscription) => {
         }
       */
 
+      // TODO : MUST : payment_intent er upor base kore decision nite hobe 
+      // MAYBE >>>>>>>>>>>>>>>>>>>> amra database update korbo ki korbo na  
+
       // Get current billing cycle
       const userSubscription = await UserSubscription.findById(metadata.referenceId);
       if (!userSubscription) {
         throw new Error(`UserSubscription not found: ${metadata.referenceId}`);
       }
 
-      const { current_period_start, current_period_end } = subscription;
+      // lets check if any transaction found for this payment_intent
+      const existingPayment = await PaymentTransaction.findOne({
+        paymentIntent: invoiceInfo.payment_intent
+      })
+
+      if (existingPayment) return; //-------- already processed --------- //
+
+      // const { current_period_start, current_period_end } = subscription;
 
       const newPayment = await PaymentTransaction.create({
         userId: invoiceInfo.subscription_metadata.userId,
@@ -229,13 +272,16 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Subscription) => {
           stripe_transaction_id: invoice.payment_intent,
           subscriptionPlanId: metadata.subscriptionPlanId, // You'll need to fetch this
           status: UserSubscriptionStatusType.active,
-          subscriptionStartDate :  new Date(invoice.period_start * 1000),   // when user first subscribed
-          // currentPeriodStartDate: null, // THIS billing cycle start
-          // expirationDate: null,                 // end of trial or billing cycle
+          // currentPeriodStartDate :  new Date(invoice.period_start * 1000), 
+          currentPeriodStartDate : new Date(subscription.latest_invoice.period_start * 1000),  
+          
+          // expirationDate : new Date(invoice.period_end * 1000),
+
+          expirationDate : new Date(subscription.latest_invoice.period_end * 1000),
+          renewalDate : new Date(subscription.latest_invoice.period_end * 1000),
+
           billingCycle : (userSub.billingCycle || 0) + 1, // ✅ INCREMENT
           isAutoRenewed : true,
-          // renewalDate:  null, // 
-          // Add other fields as needed
         }
       });
 

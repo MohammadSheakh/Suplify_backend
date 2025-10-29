@@ -60,7 +60,7 @@ const paymentTransactionSchema = new Schema<IPaymentTransaction>(
       type: String,
       default: null,
     },
-    paymentIntent: { // from kappes
+    paymentIntent: { // from kappes // TODO : MUST : Add unique index
       type: String,
       default: null,
     },

@@ -13,6 +13,7 @@ import { handleFailedPayment } from './handleFailedPayment';
 import { handleSubscriptionCancellation } from './handleSubscriptionCancellation';
 import { handleSuccessfulPayment } from './handleSuccessfulPayment';
 import { handleSubscriptionDates } from './handleSubscriptionDates';
+import { handleTrialWillEnd } from './handleTrialWillEnd';
 
 const webhookHandler = async (req: Request, res: Response): Promise<void> => {
      console.log('Webhook received');
@@ -70,7 +71,7 @@ const webhookHandler = async (req: Request, res: Response): Promise<void> => {
                case 'invoice.payment_succeeded': // TODO :  we have to use  invoice.paid
                     console.log(`
                          ////////////////////////////////////////
-                         🪝🪝invoice.payment_succeeded 🎯 AUTOMATIC BILLING AFTER TRIAL
+                         🪝🪝invoice.payment_succeeded 🎯 userSubscription related
                          ////////////////////////////////////////
                     `)
                
@@ -125,8 +126,12 @@ const webhookHandler = async (req: Request, res: Response): Promise<void> => {
                     break;
                // ✅ TRIAL CONVERTED TO PAID
                case 'customer.subscription.updated':
-                    // TODO Must:
-                    // await handleSubscriptionUpdate(event.data.object);
+                    console.log(`
+                         ////////////////////////////////////////
+                         🪝customer.subscription.updated
+                         ////////////////////////////////////////
+                    `)
+                    await handleSuccessfulPayment(event.data.object as Stripe.Invoice);
                     break;
                default:
                     // console.log(`Unhandled event type: ${event.type}`);

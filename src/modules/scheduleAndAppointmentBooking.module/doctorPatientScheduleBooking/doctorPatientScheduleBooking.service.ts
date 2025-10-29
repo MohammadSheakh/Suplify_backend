@@ -167,7 +167,6 @@ export class DoctorPatientScheduleBookingService extends GenericService<
                 // purchaseTrainingProgram._id // referenceId
             );
 
-
             return  createdBooking;
         }
 
@@ -240,6 +239,7 @@ export class DoctorPatientScheduleBookingService extends GenericService<
                 addToBullQueueToFreeDoctorAppointmentSchedule(existingSchedule, createdDoctorPatientScheduleBooking);
 
             });
+            
             session.endSession();
             
             const stripeSessionData: any = {

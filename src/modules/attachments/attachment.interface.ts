@@ -1,3 +1,4 @@
+//@ts-ignore
 import { Model, Types } from 'mongoose';
 import { PaginateOptions, PaginateResult } from '../../types/paginate';
 import { Roles } from '../../middlewares/roles';
