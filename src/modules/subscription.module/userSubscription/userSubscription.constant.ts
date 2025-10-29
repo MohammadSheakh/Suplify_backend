@@ -10,6 +10,7 @@ export enum UserSubscriptionStatusType {
     trialing = 'trialing',
     freeTrial = 'freeTrial',
     expired = 'expired', 
+    payment_failed = 'payment_failed', // From claude .. for handle payment failed
 }
 
 

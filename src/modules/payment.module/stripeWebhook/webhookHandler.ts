@@ -78,7 +78,7 @@ const webhookHandler = async (req: Request, res: Response): Promise<void> => {
                      * here we create userSubscription
                      * Trial converted to paid / renewal succeeded
                      * *** */
-                    await handleSuccessfulPayment(event.data.object);
+                    await handleSuccessfulPayment(event.data.object as Stripe.Invoice);
                     break;
                // ✅ TRY TO GET ACURATE DATE FROM HERE ..  AFTER PAYMENT FOR SUBSCRIPTION
                case 'customer.subscription.created':
@@ -109,12 +109,12 @@ const webhookHandler = async (req: Request, res: Response): Promise<void> => {
                     Provide last-chance offers
                     * 
                     * ****** */
-                    // await handleTrialWillEnd(event.data.object);
+                    await handleTrialWillEnd(event.data.object as Stripe.Subscription);
                     break;  
-               // 💳 PAYMENT FAILED AFTER TRIAL  
+               //  ❌ Payment failed 💳 PAYMENT FAILED AFTER TRIAL  
                case 'invoice.payment_failed':
                     console.log("🪝invoice.payment_failed")
-                    await handleFailedPayment(event.data.object);
+                    await handleFailedPayment(event.data.object as Stripe.Invoice);
                     break;
                
                

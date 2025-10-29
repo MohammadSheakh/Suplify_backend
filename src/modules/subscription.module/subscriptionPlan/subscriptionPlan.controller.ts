@@ -45,8 +45,6 @@ export class SubscriptionController extends GenericController<
     this.stripe = stripe;
   }
 
-
-
   purchaseSubscriptionForSuplify = catchAsync(async (req: Request, res: Response) => {
     // TODO : in middleware we have to validate this subscriptionPlanId
 
@@ -99,6 +97,8 @@ export class SubscriptionController extends GenericController<
           status: UserSubscriptionStatusType.cancelling 
         },
     });
+
+    // TODO : MUST : Send Notification to admin that .. a person cancel subscription
 
     sendResponse(res, {
         code: StatusCodes.OK,

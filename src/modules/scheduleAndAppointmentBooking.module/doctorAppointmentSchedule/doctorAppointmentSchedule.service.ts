@@ -214,7 +214,7 @@ export class DoctorAppointmentScheduleService extends GenericService<
 
         // 5. Optional: Sort schedules (e.g., by date ascending)
         {
-            $sort: { scheduleDate: 1, startTime: 1 }
+            $sort: { scheduleDate: -1, startTime: -1 }
         }
     ];
 

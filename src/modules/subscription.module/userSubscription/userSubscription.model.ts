@@ -45,7 +45,6 @@ const userSubscriptionSchema = new Schema<IUserSubscription>(
     expirationDate: {
       type: Date,
       required: false,
-      
     },
 
     renewalDate: {
@@ -85,6 +84,7 @@ const userSubscriptionSchema = new Schema<IUserSubscription>(
         UserSubscriptionStatusType.incomplete,
         UserSubscriptionStatusType.incomplete_expired,
         UserSubscriptionStatusType.trialing,
+        UserSubscriptionStatusType.payment_failed // by claude
       ],
       required: [
         true,

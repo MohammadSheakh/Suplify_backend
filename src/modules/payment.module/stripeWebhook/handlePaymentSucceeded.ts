@@ -35,7 +35,9 @@ import { TDoctorAppointmentScheduleStatus } from "../../scheduleAndAppointmentBo
 const trainingProgramPurchaseService = new TrainingProgramPurchaseService();
 const walletService = new WalletService();
 
-// Function for handling a successful payment
+//------------------------------------------
+// handle SERVICE BOOKING RELATED PAYMENTS
+//------------------------------------------
 export const handlePaymentSucceeded = async (session: Stripe.Checkout.Session) => {
      
      try {
