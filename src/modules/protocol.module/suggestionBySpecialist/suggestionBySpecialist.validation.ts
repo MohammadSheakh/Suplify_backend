@@ -20,9 +20,11 @@ export const createSuggestionValidationSchema = z.object({
         })
         .min(2, {
         message: 'keyPoint must be at least 2 characters long.',
-      }).max(200, {
-        message: 'keyPoint must be at most 200 characters long.',
-      }),
+      })
+      // .max(700, { // TODO : MUST : max is not working .. giving error in frontend 
+      //   message: 'keyPoint must be at most 700 characters long.',
+      // })
+      ,
 
       solutionName: z
         .string({
@@ -31,9 +33,11 @@ export const createSuggestionValidationSchema = z.object({
         })
         .min(2, {
         message: 'solutionName must be at least 2 characters long.',
-      }).max(200, {
-        message: 'solutionName must be at most 200 characters long.',
-      }),
+      })
+      // .max(700, {
+      //   message: 'solutionName must be at most 700 characters long.',
+      // })
+      ,
 
       suggestFromStore: z
         .string({
@@ -42,9 +46,11 @@ export const createSuggestionValidationSchema = z.object({
         })
         .min(2, {
         message: 'suggestFromStore must be at least 2 characters long.',
-      }).max(200, {
-        message: 'suggestFromStore must be at most 200 characters long.',
-      }),
+      })
+      // .max(700, {
+      //   message: 'suggestFromStore must be at most 700 characters long.',
+      // })
+      ,
 
       // planByDoctorId: z.string({
       //     required_error: 'planByDoctorId is required', // as suggestion must be for a plan

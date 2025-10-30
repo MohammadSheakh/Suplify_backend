@@ -1,3 +1,4 @@
+//@ts-ignore
 import { ErrorRequestHandler } from 'express';
 import ApiError from '../errors/ApiError';
 import handleDuplicateError from '../errors/handleDuplicateError';
@@ -7,6 +8,9 @@ import { errorLogger } from '../shared/logger';
 import { IErrorMessage } from '../types/errors.types';
 import { config } from '../config';
 import handleCastError from '../errors/handleCastError';
+import handleStripeError from '../errors/handleStripeError';
+//@ts-ignore
+import Stripe from 'stripe';
 
 const globalErrorHandler: ErrorRequestHandler = (error, req, res, next) => {
   // Log error
@@ -77,6 +81,14 @@ const globalErrorHandler: ErrorRequestHandler = (error, req, res, next) => {
         ]
       : [];
   }
+ // ✅ Handle Stripe errors
+  else if (error instanceof Stripe.errors.StripeError) {
+    const simplifiedError = handleStripeError(error);
+    code = simplifiedError.code;
+    message = simplifiedError.message;
+    errorMessages = simplifiedError.errorMessages;
+  }
+
   // Handle other general errors
   else if (error instanceof Error) {
     message = error.message || 'Internal Server Error';
@@ -106,3 +118,5 @@ const globalErrorHandler: ErrorRequestHandler = (error, req, res, next) => {
 };
 
 export default globalErrorHandler;
+
+

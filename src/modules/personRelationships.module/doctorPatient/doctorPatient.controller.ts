@@ -208,7 +208,7 @@ export class DoctorPatientController extends GenericController<
    *  :doctorId:
    * ******** */
   getAllProtocolForADoctorForPatient = catchAsync(async (req: Request, res: Response) => {
-    const { patientId, doctorId } = req.query;
+    const { patientId, doctorId } = req.query; // as per nirob vai .. 
 
     const result = await this.doctorPatientService.getAllProtocolForADoctorForPatient(
       patientId as string,

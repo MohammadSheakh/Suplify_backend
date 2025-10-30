@@ -48,14 +48,6 @@ export class UserSubscriptionService extends GenericService<typeof UserSubscript
             );
         }
 
-        
-
-        // Start the free trial // TODO:
-        // user.hasUsedFreeTrial = true;
-        // await user.save();
-        // we need stripe customer id 
-
-
         let stripeCustomer;
         if(!user.stripe_customer_id){
             let _stripeCustomer = await stripe.customers.create({
@@ -65,7 +57,7 @@ export class UserSubscriptionService extends GenericService<typeof UserSubscript
             
             stripeCustomer = _stripeCustomer.id;
 
-            await User.findByIdAndUpdate(user?._id, { $set: { stripe_customer_id: stripeCustomer.id } });
+            await User.findByIdAndUpdate(user?._id, { $set: { stripe_customer_id: stripeCustomer, hasUsedFreeTrial: true } }); // 🚩
         }else{
             stripeCustomer = user.stripe_customer_id;
         }
@@ -133,7 +125,7 @@ export class UserSubscriptionService extends GenericService<typeof UserSubscript
         
         // 🎯 KEY: TRIAL SETUP WITH CARD COLLECTION
         subscription_data: {
-            trial_period_days: 1, // 1 days
+            trial_period_days: 7, // 7 days
             metadata: {
                 userId: user._id.toString(),
                 subscriptionType: TSubscription.standard.toString(),

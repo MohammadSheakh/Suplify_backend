@@ -1,4 +1,4 @@
-//@ts-ignore Test
+//@ts-ignore Test 
 import express from 'express';
 import { AuthRoutes } from '../modules/auth/auth.routes';
 // import { AdminRoutes } from '../modules/admin/admin.routes';

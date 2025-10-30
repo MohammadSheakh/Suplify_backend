@@ -204,7 +204,7 @@ export class DoctorPatientScheduleBookingService extends GenericService<
                 
                 stripeCustomer = _stripeCustomer.id;
 
-                await User.findByIdAndUpdate(user?.userId, { $set: { stripe_customer_id: stripeCustomer.id } });
+                await User.findByIdAndUpdate(user?.userId, { $set: { stripe_customer_id: stripeCustomer } });
             }else{
                 stripeCustomer = user.stripe_customer_id;
             }

@@ -9,6 +9,7 @@ import auth from '../../../middlewares/auth';
 //@ts-ignore
 import multer from "multer";
 import { TRole } from '../../../middlewares/roles';
+import { getLoggedInUserAndSetReferenceToUser } from '../../../middlewares/getLoggedInUserAndSetReferenceToUser';
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
@@ -31,16 +32,19 @@ const paginationOptions: Array<'sortBy' | 'page' | 'limit' | 'populate'> = [
 const controller = new WalletTransactionHistoryController();
 
 //---------------------------------
-// Specialist | get all transaction history with wallet balance 
+// Specialist | Doctor 
+// get all transaction history with wallet balance 
 //---------------------------------
 router.route('/paginate').get(
-  auth(TRole.specialist),
+  auth(TRole.specialist, TRole.doctor, TRole.admin),
   validateFiltersForQuery(optionValidationChecking(['_id', 'walletId', ...paginationOptions])),
-  controller.getAllWithPagination
+  getLoggedInUserAndSetReferenceToUser('userId'),
+  controller.getAllWithPaginationV2
 );
 
 //--------------------------------
-// Specialist | Get Overview of Earnings
+// Specialist | Doctor 
+// Get Overview of Earnings
 //---------------------------------
 router.route('/overview').get(
   auth(TRole.common),
