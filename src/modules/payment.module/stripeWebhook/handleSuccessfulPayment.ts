@@ -1,4 +1,5 @@
 import stripe from "../../../config/stripe.config";
+import ApiError from "../../../errors/ApiError";
 import { UserSubscriptionStatusType } from "../../subscription.module/userSubscription/userSubscription.constant";
 import { IUserSubscription } from "../../subscription.module/userSubscription/userSubscription.interface";
 import { UserSubscription } from "../../subscription.module/userSubscription/userSubscription.model";
@@ -7,6 +8,8 @@ import { User } from "../../user/user.model";
 import { TPaymentGateway, TPaymentStatus } from "../paymentTransaction/paymentTransaction.constant";
 import { PaymentTransaction } from "../paymentTransaction/paymentTransaction.model";
 import { FailedWebhook } from "./failedWebhook.model";
+//@ts-ignore
+import { StatusCodes } from 'http-status-codes';
 //@ts-ignore
 import Stripe from "stripe";
 
@@ -123,8 +126,8 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Subscription) => {
       }
     }
 
-    // console.log("---- invoice.billing_reason handleSuccessfulPayment for  Subscription Related :: ", invoice.billing_reason ) 
-    // console.log("---- invoiceInfo from handleSuccessfulPayment for  Subscription Related :: ", invoiceInfo ) 
+    console.log("---- invoice.billing_reason handleSuccessfulPayment for  Subscription Related :: ", invoice.billing_reason ) 
+    console.log("---- invoiceInfo from handleSuccessfulPayment for  Subscription Related :: ", invoiceInfo ) 
 
     // Find user by Stripe customer ID
     const user:TUser = await User.findOne({ 
@@ -163,7 +166,16 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Subscription) => {
       const existingPayment = await PaymentTransaction.findOne({
         paymentIntent: invoice.payment_intent
       });
-      if (existingPayment) return; //-------- already processed --------- // 
+      if (existingPayment)
+      {
+        // throw new ApiError( // keep silent .. that is the best option
+        //     StatusCodes.NOT_FOUND,
+        //     `Existing payment found for paymentIntent ${invoice.payment_intent} .. which means already processed this event and transaction is already createrd. `
+        // );
+
+        console.log(`Payment already processed and and transaction is already createrd for paymentIntent: ${invoice.payment_intent}`);
+        return;
+      }
 
       const newPayment = await PaymentTransaction.create({
         userId: user._id,
@@ -178,14 +190,22 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Subscription) => {
         gatewayResponse: invoiceInfo,
       });
 
+      console.log("newPayment created --- handleSuccessfulPayment --- invoice.billing_reason === 'subscription_create' =>> ", newPayment);
+
       // 1. Update UserSubscription with Stripe IDs
-      await UserSubscription.findByIdAndUpdate(metadata.referenceId, {
+      const userSubs = await UserSubscription.findByIdAndUpdate(metadata.referenceId, {
         $set: {
           stripe_subscription_id: subscriptionId,
           stripe_transaction_id: invoice.payment_intent,
           subscriptionPlanId: metadata.subscriptionPlanId, // You'll need to fetch this
           status: UserSubscriptionStatusType.active,
-          subscriptionStartDate :  new Date(invoice.period_start * 1000),   // when user first subscribed
+          // subscriptionStartDate :  new Date(invoice.period_start * 1000),   // may be have issue here ... 
+
+          subscriptionStartDate :  new Date(subscription.latest_invoice.period_start * 1000),
+          currentPeriodStartDate : new Date(subscription.latest_invoice.period_start * 1000),  
+          expirationDate : new Date(subscription.latest_invoice.period_end * 1000),
+          renewalDate : new Date(subscription.latest_invoice.period_end * 1000),
+
           // currentPeriodStartDate: null, // THIS billing cycle start
           // expirationDate: null,                 // end of trial or billing cycle
           billingCycle : 1 , // First billing cycle 
@@ -195,15 +215,14 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Subscription) => {
         }
       });
 
-      // 2. Mark user as having used free trial (option 2: after first payment)
-      const updatedUser = await User.findByIdAndUpdate(metadata.userId, {
-        $set: { 
-            hasUsedFreeTrial: true,
-            subscriptionType: metadata.subscriptionType 
-          }
-      });
+      // 2. Mark user as having used free trial (option 2: after first payment) // 🚩
+      // const updatedUser = await User.findByIdAndUpdate(metadata.userId, {
+      //   $set: { 
+      //       subscriptionType: metadata.subscriptionType 
+      //     }
+      // });
 
-      console.log("Updated User =>>> ", updatedUser);
+      console.log("Updated userSubs --- handleSuccessfulPayment --- invoice.billing_reason === 'subscription_create' =>> ", userSubs);
 
     // ============================================
     // RECURRING PAYMENT (subscription_cycle)
@@ -245,7 +264,11 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Subscription) => {
         paymentIntent: invoiceInfo.payment_intent
       })
 
-      if (existingPayment) return; //-------- already processed --------- //
+      if (existingPayment) 
+      {
+        console.log(`Payment already processed and and transaction is already createrd for paymentIntent: ${invoice.payment_intent}`);
+        return;
+      }
 
       // const { current_period_start, current_period_end } = subscription;
 
@@ -261,6 +284,8 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Subscription) => {
         paymentStatus: TPaymentStatus.completed,
         gatewayResponse: invoiceInfo,
       });
+
+      console.log("newPayment ->>", newPayment)
 
       const userSub:IUserSubscription = await UserSubscription.findById(metadata.referenceId);
 
@@ -327,7 +352,7 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Subscription) => {
     }else if(invoice.billing_reason === 'trial_end'){
         console.log("⚠️ This is trial end - usually triggers subscription_create invoice");
     }else {
-        console.log("⚡ Other billing reason:", invoice.billing_reason);
+        console.log("⚡ Other billing reason: ", invoice.billing_reason);
     }
 
     

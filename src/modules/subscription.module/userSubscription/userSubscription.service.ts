@@ -4,8 +4,10 @@ import { TUser } from "../../user/user.interface";
 import { User } from "../../user/user.model";
 import { IUserSubscription } from "./userSubscription.interface";
 import { UserSubscription } from "./userSubscription.model";
+//@ts-ignore
 import { StatusCodes } from 'http-status-codes';
 import stripe from "../../../config/stripe.config";
+//@ts-ignore
 import Stripe from "stripe";
 import { config } from "../../../config";
 import { TSubscription } from "../../../enums/subscription";
@@ -57,7 +59,7 @@ export class UserSubscriptionService extends GenericService<typeof UserSubscript
             
             stripeCustomer = _stripeCustomer.id;
 
-            await User.findByIdAndUpdate(user?._id, { $set: { stripe_customer_id: stripeCustomer, hasUsedFreeTrial: true } }); // 🚩
+            await User.findByIdAndUpdate(user?._id, { $set: { stripe_customer_id: stripeCustomer } }); 
         }else{
             stripeCustomer = user.stripe_customer_id;
         }
@@ -147,7 +149,10 @@ export class UserSubscriptionService extends GenericService<typeof UserSubscript
         cancel_url: config.stripe.cancel_url,
         });
 
-        // TODO MUST :  Try catch use korte hobe 
+        // always update hasUsedFreeTrial after session create
+        await User.findByIdAndUpdate(user?._id, { $set: { hasUsedFreeTrial: true } }); // 🚩
+
+        // TODO : MUST :  Try catch use korte hobe 
 
         return session.url;
     }

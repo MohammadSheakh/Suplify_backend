@@ -18,7 +18,7 @@ export const imageUploadPipelineForUpdateUserProfile = [
     {
       name: 'profileImage',
       folder: TFolderName.user,
-      required: true, // optional
+      required: false, // optional
       allowedMimeTypes: ['image/jpeg', 'image/png', 'application/pdf'], // optional
     },
   ]),

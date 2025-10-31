@@ -103,25 +103,26 @@ const webhookHandler = async (req: Request, res: Response): Promise<void> => {
                      * 
                      * This event fires 3 days before the trial ends, giving you time to:
 
-                    Notify the user
-                    Handle potential payment failures
-                    Provide last-chance offers
+                         Notify the user
+                         Handle potential payment failures
+                         Provide last-chance offers
                     * 
                     * ****** */
                     await handleTrialWillEnd(event.data.object as Stripe.Subscription);
-                    break;  
+                    break;
+
                //  ❌ Payment failed 💳 PAYMENT FAILED AFTER TRIAL  
                case 'invoice.payment_failed':
                     console.log("🪝invoice.payment_failed")
                     await handleFailedPayment(event.data.object as Stripe.Invoice);
                     break;
                
-               
                     // 🔄 SUBSCRIPTION CANCELLED
                case 'customer.subscription.deleted':
                     console.log('🪝customer.subscription.deleted')
                     await handleSubscriptionCancellation(event.data.object);
                     break;
+
                // ✅ TRIAL CONVERTED TO PAID
                case 'customer.subscription.updated':
                     console.log(`

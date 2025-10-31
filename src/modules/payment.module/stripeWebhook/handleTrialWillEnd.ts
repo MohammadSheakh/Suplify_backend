@@ -1,28 +1,23 @@
 
 //@ts-ignore
 import Stripe from "stripe";
-import ApiError from "../../../errors/ApiError";
-import { IUser } from "../../token/token.interface";
 import { User } from "../../user/user.model";
 //@ts-ignore
-import { StatusCodes } from 'http-status-codes';
-import stripe from "../../../config/stripe.config";
-import { TUser } from "../../user/user.interface";
 import { enqueueWebNotification } from "../../../services/notification.service";
 import { TRole } from "../../../middlewares/roles";
 import { TNotificationType } from "../../notification/notification.constants";
 
 export interface IMetadataForFreeTrial{
-    userId: string;
-    subscriptionType: string;
-    subscriptionPlanId?: string; // ⚡ we will add this in webhook for standard plan after free trial end
-    referenceId: string; // this is userSubscription._id
-    referenceFor: string; // TTransactionFor.UserSubscription
-    currency: string;
-    amount: string;
+  userId: string;
+  subscriptionType: string;
+  subscriptionPlanId?: string; // ⚡ we will add this in webhook for standard plan after free trial end
+  referenceId: string; // this is userSubscription._id
+  referenceFor: string; // TTransactionFor.UserSubscription
+  currency: string;
+  amount: string;
 }
 
-export const handleTrialWillEnd = async (invoice: Stripe.Subscription) => {
+export const handleTrialWillEnd = async (subscription: Stripe.Subscription) => {
   // parameter name can be subscription
   try {
     /******
@@ -33,45 +28,44 @@ export const handleTrialWillEnd = async (invoice: Stripe.Subscription) => {
      * 
      * *** */
 
-    const subscriptionId = invoice.subscription;
-    const subscription = await stripe.subscriptions.retrieve(subscriptionId);
-    
-    // ✅ Access metadata from subscription, not invoice
-    const metadata:IMetadataForFreeTrial = subscription.metadata;
- 
+    console.log("🧩 handleTrialWillEnd :: subscription.id -->", subscription.id);
+
+    // ✅ Metadata stored when you created the subscription
+    const metadata: IMetadataForFreeTrial = subscription.metadata;
+
+    // ✅ Extract subscription details
     const invoiceInfo = {
-      customer : invoice.customer,
-      payment_intent : invoice.payment_intent,
-      price_id : invoice.lines.data[0].price.id,
-      period_start : invoice.period_start,
-      period_end : invoice.period_end,
-      amount_paid : invoice.amount_paid,
-      billing_reason : invoice.billing_reason,
-      subscriptionId : invoice.subscription,
-      subscription_metadata :  {
+      customer: subscription.customer,
+      price_id: subscription.items.data[0]?.price.id,
+      period_start: subscription.current_period_start,
+      period_end: subscription.current_period_end,
+      amount: subscription.items.data[0]?.price.unit_amount ?? metadata.amount,
+      subscriptionId: subscription.id,
+      subscription_metadata: {
         userId: metadata.userId,
         subscriptionType: metadata.subscriptionType,
-        referenceId : metadata.referenceId,
+        referenceId: metadata.referenceId,
         referenceFor: metadata.referenceFor,
         currency: metadata.currency,
-        amount: metadata.amount
+        amount: metadata.amount,
       }
-    }
+    };
 
-    console.log("---- invoice.billing_reason handleSuccessfulPayment for  Subscription Related :: ", invoice.billing_reason ) 
-    console.log("---- invoiceInfo from handleSuccessfulPayment for  Subscription Related :: ", invoiceInfo ) 
+    // console.log("---- handleTrialWillEnd :: invoiceInfo ----");
+    // console.log(invoiceInfo);
 
-    /*----------------------------------------
-    ---------------------------------------** */
-    // Find user by Stripe customer ID
-    const user:TUser = await User.findOne({ 
-      stripe_customer_id: subscription.customer 
+    // ✅ Find user by Stripe customer ID
+    const user = await User.findOne({
+      stripe_customer_id: subscription.customer
     });
 
     if (!user) {
-      console.error('User not found for customer:', subscription.customer);
+      console.error('❌ User not found for customer:', subscription.customer);
       return;
     }
+
+    // ✅ Notify user or schedule reminder
+    console.log(`Trial will end soon for user: ${user._id} (subscription ${subscription.id})`);
     
     // TODO: Send notification email
     // await sendTrialEndingEmail(metadata.userId, subscription.trial_end);
@@ -88,9 +82,8 @@ export const handleTrialWillEnd = async (invoice: Stripe.Subscription) => {
         // purchaseTrainingProgram._id // referenceId
     );
 
-    console.log(`Trial ending soon for subscription: ${subscription.id}`);
   } catch (error) {
-    console.error('Error handling trial will end:', error);
+    console.error('handleTrialWillEnd -> Error handling trial will end:', error);
     throw error;
   }
 };
