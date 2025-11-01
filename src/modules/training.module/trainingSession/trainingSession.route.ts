@@ -1,3 +1,4 @@
+//@ts-ignore
 import express from 'express';
 import * as validation from './trainingSession.validation';
 import { TrainingSessionController} from './trainingSession.controller';
@@ -6,7 +7,7 @@ import { validateFiltersForQuery } from '../../../middlewares/queryValidation/pa
 import validateRequest from '../../../shared/validateRequest';
 import auth from '../../../middlewares/auth';
 import { TRole } from '../../../middlewares/roles';
-
+//@ts-ignore
 import multer from "multer";
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
@@ -43,6 +44,12 @@ router.route('/paginate').get(
   auth(TRole.patient, TRole.specialist),
   validateFiltersForQuery(optionValidationChecking(['_id', 'trainingProgramId', 'specialistId', ...paginationOptions])),
   controller.getAllWithPagination
+);
+
+router.route('/paginate/for-patient').get(
+  auth(TRole.patient),
+  validateFiltersForQuery(optionValidationChecking(['_id', 'trainingProgramId', 'specialistId', ...paginationOptions])),
+  controller.getTrainingSessionsForProgramWithPatientData
 );
 
 router.route('/:id').get(

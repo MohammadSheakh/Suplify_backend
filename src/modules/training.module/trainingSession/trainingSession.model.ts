@@ -1,3 +1,4 @@
+//@ts-ignore
 import { model, Schema } from 'mongoose';
 import { ITrainingSession, ITrainingSessionModel } from './trainingSession.interface';
 import paginate from '../../../common/plugins/paginate';

@@ -37,6 +37,7 @@ import { WalletTransactionHistoryRoute } from '../modules/wallet.module/walletTr
 import { BankInfoRoute } from '../modules/wallet.module/bankInfo/bankInfo.route';
 import { WithdrawalRequstRoute } from '../modules/wallet.module/withdrawalRequst/withdrawalRequst.route';
 import { LabTestBookingRoute } from '../modules/scheduleAndAppointmentBooking.module/labTestBooking/labTestBooking.route';
+import { PatientTrainingSessionRoute } from '../modules/training.module/patientTrainingSession/patientTrainingSession.route';
 
 // import { ChatRoutes } from '../modules/chat/chat.routes';
 // import { MessageRoutes } from '../modules/message/message.routes';
@@ -84,6 +85,10 @@ const apiRoutes = [
   { // 🟢
     path: '/training-programs/purchase',
     route: TrainingProgramPurchaseRoute,
+  },
+  { // 🟢
+    path: '/patient-session',
+    route: PatientTrainingSessionRoute,
   },
   //////////////////////////////////////////// Cart Order
   { // 🟢

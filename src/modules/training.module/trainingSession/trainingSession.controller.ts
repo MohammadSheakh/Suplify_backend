@@ -1,6 +1,7 @@
+//@ts-ignore
 import { Request, Response } from 'express';
+//@ts-ignore
 import { StatusCodes } from 'http-status-codes';
-
 import { GenericController } from '../../_generic-module/generic.controller';
 import { TrainingSession } from './trainingSession.model';
 import { ITrainingSession } from './trainingSession.interface';
@@ -13,13 +14,16 @@ import omit from '../../../shared/omit';
 import pick from '../../../shared/pick';
 import { User } from '../../user/user.model';
 import { TrainingProgram } from '../trainingProgram/trainingProgram.model';
+import PaginationService from '../../../common/service/paginationService';
 
+//@ts-ignore
+import mongoose from 'mongoose';
 
 export class TrainingSessionController extends GenericController<
   typeof TrainingSession,
   ITrainingSession
 > {
-  TrainingSessionService = new TrainingSessionService();
+  trainingSessionService = new TrainingSessionService();
 
   constructor() {
     super(new TrainingSessionService(), 'TrainingSession');
@@ -115,6 +119,33 @@ export class TrainingSessionController extends GenericController<
       success: true,
     });
   });
+
+  
+  
+  //---------------------------------
+  // Patient | Get all training session of a training program ..
+  //             along with session completion status from patientTrainingSession collection
+  //---------------------------------
+  getTrainingSessionsForProgramWithPatientData = catchAsync(async (req: Request, res: Response) => {
+    const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']);
+    const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
+
+    // req.user.userId is actually patientId
+    const result = await this.trainingSessionService.getTrainingSessionsForProgramWithPatientData(filters.trainingProgramId, req.user.userId, options);
+
+    sendResponse(res, {
+      code: StatusCodes.OK,
+      data: result,
+      message: `All ${this.modelName} with pagination`,
+      success: true,
+    });
+  });
+
+
+  
+
+
+  
 
 
   // add more methods here if needed or override the existing ones 

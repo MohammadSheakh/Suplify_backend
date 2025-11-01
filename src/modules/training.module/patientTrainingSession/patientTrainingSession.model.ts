@@ -1,6 +1,6 @@
 //@ts-ignore
 import { model, Schema } from 'mongoose';
-import { IPatientTrainingSession, IPatientTrainingSessionModel } from './PatientTrainingSession.interface';
+import { IPatientTrainingSession, IPatientTrainingSessionModel } from './patientTrainingSession.interface';
 import paginate from '../../../common/plugins/paginate';
 import { TPatientTrainingSessionStatus } from './patientTrainingSession.constant';
 
@@ -23,10 +23,10 @@ const PatientTrainingSessionSchema = new Schema<IPatientTrainingSession>(
         TPatientTrainingSessionStatus.complete,
         TPatientTrainingSessionStatus.incomplete
       ],
-      default: TPatientTrainingSessionStatus.incomplete,
-      required: [false, `status is not required .. it can be  ${Object.values(TPatientTrainingSessionStatus).join(
-                      ', '
-                    )}`],
+        default: TPatientTrainingSessionStatus.incomplete,
+        required: [false, `status is not required .. it can be  ${Object.values(TPatientTrainingSessionStatus).join(
+          ', '
+      )}`],
     },
     unlockDate : { 
       type: Date,

@@ -7,6 +7,8 @@ import validateRequest from '../../../shared/validateRequest';
 import auth from '../../../middlewares/auth';
 
 import multer from "multer";
+import { setQueryOptions } from '../../../middlewares/setQueryOptions';
+import { defaultExcludes } from '../../../constants/queryOptions';
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
@@ -31,8 +33,17 @@ const controller = new PatientTrainingSessionController();
 //
 router.route('/paginate').get(
   //auth('common'),
-  validateFiltersForQuery(optionValidationChecking(['_id', ...paginationOptions])),
-  controller.getAllWithPagination
+  validateFiltersForQuery(optionValidationChecking(['_id', 'trainingSessionId', ...paginationOptions])),
+  // setQueryOptions({
+  //   populate: [{
+  //     path: 'trainingSessionId', // coverPhotos attachments
+  //     select: 'trainingSessionId',
+  //     populate: { path: 'trainingSessionId', select: 'coverPhotos attachments' }
+  //   }],
+  //   select: `${defaultExcludes}`
+  //   // // ${defaultExcludes}
+  // }),
+  controller.getAllWithPaginationV2
 );
 
 router.route('/:id').get(
