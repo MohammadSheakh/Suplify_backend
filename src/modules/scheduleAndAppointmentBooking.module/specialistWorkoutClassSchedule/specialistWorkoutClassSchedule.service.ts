@@ -167,6 +167,9 @@ export class SpecialistWorkoutClassScheduleService extends GenericService<
                 $gt: [{ $size: "$patientBookings" }, 0]
             },
             
+            // ✅ Add total booking count 🚩
+            totalPatientBookings: { $size: "$patientBookings" },
+
             // Get the latest booking status
             latestBookingStatus: {
                 $cond: {
@@ -242,6 +245,7 @@ export class SpecialistWorkoutClassScheduleService extends GenericService<
 
             // Patient booking information
             hasPatientBooking: 1,
+            totalPatientBookings: 1, // ✅ show booking count 🚩
             latestBookingStatus: 1,
             latestPaymentStatus: 1,
             patientBookings: 1, // Full array of latest 4 bookings
