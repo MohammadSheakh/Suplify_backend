@@ -130,12 +130,32 @@ export class TrainingSessionController extends GenericController<
     const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']);
     const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
 
+
+    const specialistId = filters.specialistId as string;
+    
+    const [specialistInfo, trainingProgramInfo] = await Promise.all([
+      User.findById(specialistId)
+        .select('profileImage name profileId')
+        .populate({
+          path: 'profileId',
+           select: '-attachments -__v'
+        }),
+
+      TrainingProgram.findById(filters.trainingProgramId)
+        .select('programName totalSessionCount') // ISSUE : totalSessionCount calculation has serious issue .. 
+    ]);
+
+    // now remove it from filters so it won’t be used later
+    delete filters.specialistId;
+
     // req.user.userId is actually patientId
     const result = await this.trainingSessionService.getTrainingSessionsForProgramWithPatientData(filters.trainingProgramId, req.user.userId, options);
 
     sendResponse(res, {
       code: StatusCodes.OK,
-      data: result,
+      data: {
+        result, specialistInfo, trainingProgramInfo
+      },
       message: `All ${this.modelName} with pagination`,
       success: true,
     });

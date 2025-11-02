@@ -70,14 +70,20 @@ export class CartItemController extends GenericController<
     const isCartItemExist:ICartItem | any = await CartItem.findOne({
       cartId: cartId,
       itemId: data.itemId
-    })
+    }).populate('itemId')
 
     let newCartItem:ICartItem | any
     if(isCartItemExist){
       //---------------------------------
       // we just update quantity of that cartItem
       //---------------------------------
+
+      if (isCartItemExist.itemId.stockQuantity <= isCartItemExist.quantity) {
+        throw new ApiError(StatusCodes.BAD_REQUEST, 'Item is out of stock');
+      }
+
       isCartItemExist.quantity += 1;
+      isCartItemExist.isDeleted = false;
       
       await isCartItemExist.save();
 
@@ -114,7 +120,7 @@ export class CartItemController extends GenericController<
     sendResponse(res, {
       code: StatusCodes.OK,
       data: isCartItemExist ? isCartItemExist : newCartItem,
-      message: `${this.modelName} created successfully`,
+      message: `${this.modelName} added successfully`,
       success: true,
     });
   });
@@ -174,31 +180,58 @@ export class CartItemController extends GenericController<
     // console.log(typeof cartItem.itemId.stockQuantity," ", typeof cartItem.quantity)
     let updatedCartItem : ICartItem;
 
+    /*
     if(cartItem.itemId.stockQuantity > cartItem.quantity){
       if(type == 'inc'){
-      updatedCartItem = await CartItem.findByIdAndUpdate(id, {
-        $inc: { quantity: 1 }
-      }, {
-        new: true
-      });
-    }else{
-      if(cartItem.quantity == 1){
-        throw new ApiError(
-          StatusCodes.NOT_FOUND,
-          `Can not below 1`
-        );
+        updatedCartItem = await CartItem.findByIdAndUpdate(id, {
+          $inc: { quantity: 1 }
+        }, {
+          new: true
+        });
+      }else{
+        if(cartItem.quantity == 1){
+          throw new ApiError(
+            StatusCodes.NOT_FOUND,
+            `Can not below 1`
+          );
+        }
+        updatedCartItem = await CartItem.findByIdAndUpdate(id, {
+          $inc: { quantity: -1 }
+        }, {
+          new: true
+        });
       }
-      updatedCartItem = await CartItem.findByIdAndUpdate(id, {
-        $inc: { quantity: -1 }
-      }, {
-        new: true
-      });
-    }
     }else{
       throw new ApiError(
         StatusCodes.NOT_FOUND,
         `Item is out of stock`
       );
+    }
+      */
+
+
+    if (type === 'inc') {
+      if (cartItem.itemId.stockQuantity <= cartItem.quantity) {
+        throw new ApiError(StatusCodes.BAD_REQUEST, 'Item is out of stock');
+      }
+
+      updatedCartItem = await CartItem.findByIdAndUpdate(
+        id,
+        { $inc: { quantity: 1 } },
+        { new: true }
+      );
+    } else if (type === 'dec') {
+      if (cartItem.quantity <= 1) {
+        throw new ApiError(StatusCodes.BAD_REQUEST, 'Cannot go below 1');
+      }
+
+      updatedCartItem = await CartItem.findByIdAndUpdate(
+        id,
+        { $inc: { quantity: -1 } },
+        { new: true }
+      );
+    } else {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'Invalid update type');
     }
 
     sendResponse(res, {
