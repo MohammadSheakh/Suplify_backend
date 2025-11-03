@@ -83,6 +83,8 @@ export class DoctorPatientScheduleBookingService extends GenericService<
          * here we also check if relation ship between doctor and patient exist or not
          *  if not then we create the relationship 
          */
+
+        /*-------------------------------------
         
         const doctorPatientRelation = await DoctorPatient.findOne({
             doctorId: existingSchedule.createdBy,
@@ -98,6 +100,8 @@ export class DoctorPatientScheduleBookingService extends GenericService<
             });
             await newRelation.save();
         }
+
+        --------------------------------------*/
 
         /****** as per nirob vai's suggestion 
          * previously we make this schedule booked here ..

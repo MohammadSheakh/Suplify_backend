@@ -88,6 +88,9 @@ export class SpecialistPatientScheduleBookingService extends GenericService<
      */
     
     // TODO : Need Test this code .. if already relation exist .. it should not create duplicate relation
+    
+    
+    /*---------------------------------------
     const specialistPatientRelation:ISpecialistPatient = await SpecialistPatient.findOne({
         specialistId: existingWorkoutClass.createdBy,
         patientId: user.userId
@@ -104,6 +107,8 @@ export class SpecialistPatientScheduleBookingService extends GenericService<
 
         const savedRelation = await newRelation.save();
     }
+
+    ----------------------------------------*/
 
     if(existingUser.subscriptionType == TSubscription.vise){
         // ⚠️    ->  bad code .. Need to optimize .. need to use insertMany for bulk insert
