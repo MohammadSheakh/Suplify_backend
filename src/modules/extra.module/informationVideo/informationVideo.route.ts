@@ -12,6 +12,7 @@ import multer from "multer";
 import { getLoggedInUserAndSetReferenceToUser } from '../../../middlewares/getLoggedInUserAndSetReferenceToUser';
 import { imageUploadPipelineForUpdateInformationVideo } from './informationVideo.middleware';
 import { patchWithDefaults } from '../../../middlewares/updateSomeFieldIfProvideInAModelOtherwiseKeepTheOriginalValue';
+import { setQueryOptions } from '../../../middlewares/setQueryOptions';
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
@@ -41,6 +42,14 @@ router.route('/paginate').get(
   auth(TRole.specialist), // can not assign other role here .. 
   validateFiltersForQuery(optionValidationChecking(['_id', ...paginationOptions])),
   getLoggedInUserAndSetReferenceToUser('createdBy'), // always filter by createdBy logged in user
+  // setQueryOptions({
+  //   populate: [ { 
+  //     path: 'thumbnail video', 
+  //     select: 'attachment',
+  //     // populate: { path: 'profileId', select: 'gender location' }
+  //   }],
+  // }),
+  // controller.getAllWithPagination
   controller.getAllWithPagination
 );
 

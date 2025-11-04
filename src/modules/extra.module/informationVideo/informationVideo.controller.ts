@@ -127,14 +127,12 @@ export class informationVideoController extends GenericController<
       {
         path: 'video',
         select: 'attachment attachmentType' 
+
       },
       // 'personId'
       {
         path: 'thumbnail',
         select: 'attachment attachmentType',
-        // populate: {
-        //   path: '',
-        // }
       }
     ];
 
@@ -161,7 +159,18 @@ export class informationVideoController extends GenericController<
     const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']); ;
     const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
 
-    const populateOptions: (string | {path: string, select: string}[]) = [];
+    const populateOptions: (string | {path: string, select: string}[]) = [
+      {
+        path: 'video',
+        select: 'attachment attachmentType' 
+      },
+      // 'personId'
+      {
+        path: 'thumbnail',
+        select: 'attachment attachmentType',
+        
+      }
+    ];
     // const select = ''; 
 
     let result = null;
