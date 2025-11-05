@@ -473,7 +473,8 @@ export class SocketService {
       //  conversation er lastMessage update korte hobe ..
       //---------------------------------
         const updatedConversation = await Conversation.findByIdAndUpdate(messageData.conversationId, {
-          lastMessage: newMessage._id,
+          lastMessageId: newMessage._id,
+          lastMessage: messageData.text,
         }); // .populate('lastMessage').exec()
 
         // Prepare message data for emission
@@ -515,20 +516,18 @@ export class SocketService {
               participantId,
               `conversation-list-updated::${participantId}`,
               {
-              creatorId : updatedConversation?.creatorId,
-              type: updatedConversation?.type,
-              siteId: updatedConversation?.siteId,
-              canConversate: updatedConversation?.canConversate,
-              lastMessage: {
-                _id: newMessage._id,
-                text: messageData.text,
-                senderId: userId,
-                conversationId: messageData.conversationId,
-              },
-              isDeleted: false,
-              createdAt: "2025-07-19T12:06:00.287Z",
-              _conversationId: updatedConversation?._id,
-            }
+                creatorId : updatedConversation?.creatorId,
+                type: updatedConversation?.type,
+                lastMessage: {
+                  _id: newMessage._id,
+                  text: messageData.text,
+                  senderId: userId,
+                  conversationId: messageData.conversationId,
+                },
+                isDeleted: false,
+                createdAt: "2025-07-19T12:06:00.287Z",
+                _conversationId: updatedConversation?._id,
+              }
           );
 
             /*********

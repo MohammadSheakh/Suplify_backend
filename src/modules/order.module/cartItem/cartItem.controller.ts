@@ -83,8 +83,24 @@ export class CartItemController extends GenericController<
       }
 
       isCartItemExist.quantity += 1;
-      isCartItemExist.isDeleted = false;
-      
+
+      // if already deleted cartItem is added to cart again ... 
+      if(isCartItemExist.isDeleted === true){
+        
+        isCartItemExist.isDeleted = false;
+
+
+        if(existedCart){
+          existedCart.itemCount += 1; // Increment item count
+          await existedCart.save();
+        }
+
+        if(newCart){
+          newCart.itemCount += 1; // Increment item count
+          await newCart.save();
+        }
+      }
+
       await isCartItemExist.save();
 
       // existedCart.itemCount += 1; // Increment item count
@@ -138,17 +154,27 @@ export class CartItemController extends GenericController<
     }
 
     const id = req.params.id;
-    const deletedObject:ICartItem = await this.service.softDeleteById(id);
-    if (!deletedObject) {
-      throw new ApiError(
-        StatusCodes.NOT_FOUND,
-        `Object with ID ${id} not found`
-      );
+
+    const object = await CartItem.findById(id).select('-__v');
+
+    if (!object) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'No Object Found');
+      //   return null;
     }
+
+    if (object.isDeleted === true) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'Item already deleted');
+    }
+
+    const deletedObject = await CartItem.findByIdAndUpdate(
+      id,
+      { isDeleted: true,  quantity: 0 }, // This is important .. 
+      { new: true }
+    );
 
     await Cart.findByIdAndUpdate(deletedObject.cartId, {
       $inc: { itemCount: -1 }
-    }, {
+    },{
       new: true
     });
     

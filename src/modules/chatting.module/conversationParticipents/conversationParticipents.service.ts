@@ -126,7 +126,7 @@ export class ConversationParticipentsService extends GenericService<
   async getAllConversationByUserIdWithPagination(userId: any, options: PaginateOptionsForConversations = { limit: 10, page: 1 , search: '' }) {
     let loggedInUserId = userId;
 
-    const search = options.search?.trim();
+    const search = options?.search?.trim();
 
     // Step 1: Find all conversations the logged-in user participates in
     const userConversations = await ConversationParticipents.find({
@@ -141,8 +141,13 @@ export class ConversationParticipentsService extends GenericService<
       conversationId: { $in: conversationIds },
       userId: { $ne: loggedInUserId },
       isDeleted: false,
-      name :  { $regex: search, $options: 'i' } // 👉 Add search directly here
+      // name :  { $regex: search, $options: 'i' } // 👉 Add search directly here
     };
+
+    // ✅ Only add name filter if search is non-empty
+    if (search) {
+      filter.name = { $regex: search, $options: 'i' };
+    }
 
     const populateOptions = [
       {
@@ -152,9 +157,10 @@ export class ConversationParticipentsService extends GenericService<
       {
         path: 'conversationId',
         select: 'lastMessage updatedAt',
-        populate: {
-          path: 'lastMessage',
-        }
+        // populate: {
+        //   path: 'lastMessageId',
+        //   select: "text"
+        // }
       }
     ];
 

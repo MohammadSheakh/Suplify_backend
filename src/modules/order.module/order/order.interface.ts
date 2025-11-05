@@ -15,13 +15,21 @@ export interface IOrder {
         
   status : OrderStatus.pending | 
                 OrderStatus.processing | 
-                OrderStatus.complete | 
+                OrderStatus.completed | 
                 OrderStatus.failed | 
                 OrderStatus.refunded | 
                 OrderStatus.cancelled;
 
   shippingAddress : String;
   // deliveryCharge : Number; //⚡ from kappes
+
+  discount:{
+    value : number;
+    type: 'percentage' | 'fixed',
+    code : number,
+    discountedAmount : number, 
+  },
+  
   finalAmount : Number;
   paymentMethod :  PaymentMethod.online;
 

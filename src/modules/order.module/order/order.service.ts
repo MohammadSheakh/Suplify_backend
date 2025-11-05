@@ -11,7 +11,7 @@ import { OrderStatus, PaymentStatus, TOrderRelatedTo } from "./order.constant";
 import { ICartItem, ICreateOrder, IOrder } from "./order.interface";
 import { Order } from "./order.model";
 //@ts-ignore
-import {StatusCodes} from 'http-status' 
+import {StatusCodes} from 'http-status-codes' 
 import stripe from "../../../config/stripe.config";
 //@ts-ignore
 import mongoose from "mongoose";
@@ -19,6 +19,7 @@ import { config } from "../../../config";
 import { TTransactionFor } from "../../payment.module/paymentTransaction/paymentTransaction.constant";
 import { TCurrency } from "../../../enums/payment";
 import { ICart } from "../cart/cart.interface";
+import { TSubscription } from "../../../enums/subscription";
 
 export class OrderService extends GenericService<typeof Order, IOrder>{
     private stripe: Stripe;
@@ -67,12 +68,25 @@ export class OrderService extends GenericService<typeof Order, IOrder>{
             stripeCustomer = user.stripe_customer_id;
         }
 
+        const usersSubscriptionToCalculateDiscount = await User.findById(user.userId).select('subscriptionType');
+
+        let discount = 0;
+        if(usersSubscriptionToCalculateDiscount.subscriptionType === TSubscription.standardPlus){
+            discount = 15;
+        }
+
+        if(usersSubscriptionToCalculateDiscount.subscriptionType === TSubscription.vise){
+            discount = 20;
+        }
+
+        console.log("🫥 discount is ", discount);
 
         const session = await mongoose.startSession();
 
         let finalAmount = 0;
         let createdOrder = null;
         let cart : ICart;
+        let totalAfterDiscount = 0;
 
         // session.startTransaction();
         await session.withTransaction(async () => {
@@ -101,6 +115,14 @@ export class OrderService extends GenericService<typeof Order, IOrder>{
 
                 paymentTransactionId : null,
                 paymentStatus : PaymentStatus.unpaid,
+
+                discount:{
+                    value : discount,
+                    type: "percentage",
+                    code : null,
+                    discountedAmount : null // this will be calculated later of this function 
+                },
+
                 finalAmount: 0 // we will update this later in this function
             })
 
@@ -145,9 +167,34 @@ export class OrderService extends GenericService<typeof Order, IOrder>{
             // add that final amount to order
             // order.finalAmount = finalAmount;
 
+            const subtotal = finalAmount; // rename for clarity
+
+            console.log("🟢 Subtotal (before discount): ", subtotal);
+
+            let discountedAmount = 0;
+
+            if (discount > 0) {
+            discountedAmount = (discount / 100) * subtotal;
+            }
+
+            totalAfterDiscount = subtotal - discountedAmount;
+            // Later add deliveryCharge: totalAfterDiscount + deliveryCharge
+
+            console.log("🟢 Total After Discount: ", totalAfterDiscount);
+
             await Order.findByIdAndUpdate(
                 createdOrder._id,
-                { $set: { finalAmount } },
+                { $set: { 
+                    subTotal : subtotal,
+                    finalAmount : totalAfterDiscount,
+                        discount:{
+                            value : discount,
+                            type: "percentage",
+                            code : null,
+                            discountedAmount : discountedAmount // this will be calculated later of this function 
+                        },
+                    } 
+                },
                 { new: true, session }
             );
 
@@ -167,7 +214,7 @@ export class OrderService extends GenericService<typeof Order, IOrder>{
                         product_data: {
                             name: 'Amount',
                         },
-                        unit_amount: finalAmount! * 100, // Convert to cents
+                        unit_amount: totalAfterDiscount! * 100, // Convert to cents
                     },
                     quantity: 1,
                 },
@@ -194,7 +241,7 @@ export class OrderService extends GenericService<typeof Order, IOrder>{
                 referenceId: createdOrder._id.toString(), // in webhook .. in PaymentTransaction Table .. this should be referenceId
                 referenceFor: TTransactionFor.Order, // in webhook .. this should be the referenceFor
                 currency: TCurrency.usd,
-                amount: finalAmount.toString(),
+                amount: totalAfterDiscount.toString(),
                 user: JSON.stringify(user), // who created this order  // as we have to send notification also may be need to send email
                 referenceId2: cart._id.toString(),
                 referenceFor2: "Cart",

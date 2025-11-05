@@ -87,11 +87,44 @@ const orderSchema = new Schema<IOrder>(
           type: Number,
           default: 0,
     },
-    finalAmount: {
+
+    subTotal: { // actual price of all items
+      type: Number,
+      required: false,
+      min: 0
+    },
+
+    finalAmount: { // after deducting discount price .. and adding delivery charge what is the final amount 
       type : Number,
       default: 0,
       required : [false, 'finalAmount is needed . but later we add this']
     },
+
+    discount: {
+        value: {
+          type: Number,
+          min: 0,
+          default: 0
+        },
+        type: {
+          type: String,
+          enum: ['percentage', 'fixed'],
+          required: true,
+        },
+        code: {
+          type: String,
+          trim: true,
+          // optional: only if your system uses promo/coupon codes
+        },
+        discountedAmount: {
+          type: Number,
+          min: 0,
+          default: 0
+          // This stores how much was actually deducted (e.g., 10% of subtotal = $12)
+          // Very useful for reporting and avoiding recalculations
+        },
+    },
+
 
     paymentMethod: {
       type: String,
