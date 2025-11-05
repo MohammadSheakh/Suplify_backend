@@ -111,7 +111,7 @@ export class SubscriptionController extends GenericController<
   // ⚡⚡ For Fertie Project to suplify project
   /*
    * As Admin can create subscription plan ...
-   * // TODO MUST : this should move to service layer .. 
+   * // TODO : MUST : this should move to service layer .. 
    * Lets Create 3 Subscription Plan  
    *
   */  

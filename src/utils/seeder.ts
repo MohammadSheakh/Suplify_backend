@@ -9,7 +9,7 @@ import { TSubscription } from '../enums/subscription';
 dotenv.config();
 
 // Sample data for default users
-const usersData = [
+const usersData:any = [
   {
     name: 'Admin',
     email: 'a@gmail.com',
@@ -31,6 +31,128 @@ const usersData = [
     stripe_customer_id : null,
     stripeConnectedAccount : "",
   },
+  {
+    name: 'Patient One Standard',
+    email: 'p1stan@gmail.com',
+    password: '$2b$12$cxPF29g99duEaWshhIjW6.TXTEzCccwZaL8jil3gFvhMjogg4HxiW', // Hashed password asdfasdf
+    subscriptionType: TSubscription.standard,
+    fcmToken: null,
+    status: 'active',
+    role: 'patient',
+    isEmailVerified: true,
+    isDeleted: false,
+    isResetPassword:false,
+    failedLoginAttempts : 0,
+    stripe_customer_id : null,
+    stripeConnectedAccount : "",
+  },
+  {
+    name: 'Patient Two Vise',
+    email: 'p2vise@gmail.com',
+    password: '$2b$12$cxPF29g99duEaWshhIjW6.TXTEzCccwZaL8jil3gFvhMjogg4HxiW', // Hashed password asdfasdf
+    subscriptionType: TSubscription.vise,
+    fcmToken: null,
+    status: 'active',
+    role: 'patient',
+    isEmailVerified: true,
+    isDeleted: false,
+    isResetPassword:false,
+    failedLoginAttempts : 0,
+    stripe_customer_id : null,
+    stripeConnectedAccount : "",
+  },
+  {
+    name: 'Patient Three StandardPlus',
+    email: 'p2stanplus@gmail.com',
+    password: '$2b$12$cxPF29g99duEaWshhIjW6.TXTEzCccwZaL8jil3gFvhMjogg4HxiW', // Hashed password asdfasdf
+    subscriptionType: TSubscription.standardPlus,
+    fcmToken: null,
+    status: 'active',
+    role: 'patient',
+    isEmailVerified: true,
+    isDeleted: false,
+    isResetPassword:false,
+    failedLoginAttempts : 0,
+    stripe_customer_id : null,
+    stripeConnectedAccount : "",
+  },
+  {
+    name: 'Patient Four None',
+    email: 'p4none@gmail.com',
+    password: '$2b$12$cxPF29g99duEaWshhIjW6.TXTEzCccwZaL8jil3gFvhMjogg4HxiW', // Hashed password asdfasdf
+    subscriptionType: TSubscription.none,
+    fcmToken: null,
+    status: 'active',
+    role: 'patient',
+    isEmailVerified: true,
+    isDeleted: false,
+    isResetPassword:false,
+    failedLoginAttempts : 0,
+    stripe_customer_id : null,
+    stripeConnectedAccount : "",
+  },
+  {
+    name: 'Doctor One',
+    email: 'd1@gmail.com',
+    password: '$2b$12$cxPF29g99duEaWshhIjW6.TXTEzCccwZaL8jil3gFvhMjogg4HxiW', // Hashed password asdfasdf
+    subscriptionType: TSubscription.none,
+    fcmToken: null,
+    status: 'active',
+    role: 'doctor',
+    isEmailVerified: true,
+    isDeleted: false,
+    isResetPassword:false,
+    failedLoginAttempts : 0,
+    stripe_customer_id : null,
+    stripeConnectedAccount : "",
+  },
+  {
+    name: 'Doctor Two',
+    email: 'd2@gmail.com',
+    password: '$2b$12$cxPF29g99duEaWshhIjW6.TXTEzCccwZaL8jil3gFvhMjogg4HxiW', // Hashed password asdfasdf
+    subscriptionType: TSubscription.none,
+    fcmToken: null,
+    status: 'active',
+    role: 'doctor',
+    isEmailVerified: true,
+    isDeleted: false,
+    isResetPassword:false,
+    failedLoginAttempts : 0,
+    stripe_customer_id : null,
+    stripeConnectedAccount : "",
+  },
+  {
+    name: 'Specialist One',
+    email: 's1@gmail.com',
+    password: '$2b$12$cxPF29g99duEaWshhIjW6.TXTEzCccwZaL8jil3gFvhMjogg4HxiW', // Hashed password asdfasdf
+    subscriptionType: TSubscription.none,
+    fcmToken: null,
+    status: 'active',
+    role: 'specialist',
+    isEmailVerified: true,
+    isDeleted: false,
+    isResetPassword:false,
+    failedLoginAttempts : 0,
+    stripe_customer_id : null,
+    stripeConnectedAccount : "",
+  },
+  
+  {
+    name: 'Specialist Two',
+    email: 's2@gmail.com',
+    password: '$2b$12$cxPF29g99duEaWshhIjW6.TXTEzCccwZaL8jil3gFvhMjogg4HxiW', // Hashed password asdfasdf
+    subscriptionType: TSubscription.none,
+    fcmToken: null,
+    status: 'active',
+    role: 'specialist',
+    isEmailVerified: true,
+    isDeleted: false,
+    isResetPassword:false,
+    failedLoginAttempts : 0,
+    stripe_customer_id : null,
+    stripeConnectedAccount : "",
+  },
+
 ];
 
 // Function to drop the entire database
@@ -51,7 +173,7 @@ const seedUsers = async () => {
 
     // Create UserProfiles
     const userProfiles = await UserProfile.insertMany(
-      usersData.map((_, index) => ({
+      usersData.map((_:any, index:any) => ({
         approvalStatus: 'pending',
         description: `${usersData[index].name}'s profile`,
         attachments: [],
@@ -61,7 +183,7 @@ const seedUsers = async () => {
     );
 
     // Create Users with hashed passwords and linked profileId
-    const usersWithProfileIds = usersData.map((userData, index) => ({
+    const usersWithProfileIds = usersData.map((userData:any, index:any) => ({
       ...userData,
       // password: hashedPasswords[index], // ✅ Hashed
       profileId: userProfiles[index]._id,

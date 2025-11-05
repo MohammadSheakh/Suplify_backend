@@ -43,7 +43,7 @@ const auth = (...roles: TRole[]/******** Previously it was string[] */) =>
           StatusCodes.BAD_REQUEST,
           'Your account is not email verified. please verify your email'
         );
-      }else if (user.role !== 'patient' && userProfile.approvalStatus == TApprovalStatus.pending){
+      }else if (user.role !== 'patient' && user.role !== 'admin' && userProfile.approvalStatus == TApprovalStatus.pending){
           throw new ApiError(
           StatusCodes.BAD_REQUEST,
           'Your account is not approved by admin. please wait for admin approval or contact support'

@@ -117,7 +117,7 @@ export class DoctorPatientController extends GenericController<
     });
   });
 
-  //---------------------------------
+  //--------------------------------- may be not working ... 
   // Admin | Users Section | Get All Unknown Doctor For A Patient 
   //---------------------------------
   getUnknownDoctorsForAPatient = catchAsync(async (req: Request, res: Response) => {

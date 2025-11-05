@@ -11,6 +11,7 @@ import omit from '../../shared/omit';
 import pick from '../../shared/pick';
 import { UserProfile } from './userProfile/userProfile.model';
 import { IUserProfile } from '../../helpers/socket/socketForChatV3';
+import { TRole } from '../../middlewares/roles';
 
 interface IAdminOrSuperAdminPayload {
   email: string;
@@ -198,6 +199,14 @@ export class UserService extends GenericService<typeof User, IUser> {
     // Ensure the user has a profileId
     if (!user.profileId) {
       throw new ApiError(StatusCodes.BAD_REQUEST, 'User does not have an associated profile');
+    }
+
+    console.log("user -> ", user)
+    console.log("user.role -> ", user.role)
+    // console.log("user -> ", user)
+
+    if(user.role === TRole.admin){
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'You can not change status of admin');
     }
 
     // Update the approvalStatus in the UserProfile

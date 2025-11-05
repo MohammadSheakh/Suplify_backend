@@ -10,6 +10,7 @@ import { TRole } from '../../../middlewares/roles';
 //@ts-ignore
 import multer from "multer";
 import { getLoggedInUserAndSetReferenceToUser } from '../../../middlewares/getLoggedInUserAndSetReferenceToUser';
+import { getIdFromParamsAndSetInQueryForFilter } from '../../../middlewares/getIdFromParamsAndSetInFilters';
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
@@ -35,7 +36,6 @@ const controller = new DoctorPatientController();
 //---------------------------------
 // Patient | Get all Patients Related Doctor .. 
 //---------------------------------
-//
 router.route('/paginate').get(
   auth(TRole.patient),// , TRole.doctor
   validateFiltersForQuery(optionValidationChecking(['_id', ...paginationOptions])),
@@ -90,8 +90,6 @@ router.route('/paginate/doctor-protocol/forPatient').get(
   controller.getAllDoctorAndProtocolCountForPatient
 );
 
-
-
 /**********
  * 
  * Specialist | Members and protocol 
@@ -136,7 +134,7 @@ router.route('/').get(
 
 
 /**********
- * 
+ *  as per nirob vai's complain .. try to fix this endpoint with the help of middleware
  * 
  * Admin | User Management | Show all doctor for assign to a patient
  *  /////// TODO : MUST :  need to fix this 
@@ -144,7 +142,9 @@ router.route('/').get(
  * ********** */
 router.route('/doctor/:patientId').get(
   auth(TRole.doctor, TRole.admin),
-  controller.getUnknownDoctorsForAPatient
+  getIdFromParamsAndSetInQueryForFilter('patientId', 'patientId'),
+  // controller.getUnknownDoctorsForAPatient
+  controller.getAllWithPagination
 );
 
 

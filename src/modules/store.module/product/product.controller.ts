@@ -122,7 +122,7 @@ export class ProductController extends GenericController<
         return this.productService.categoryWithCount_WithoutCaching();
       },
       3600, // 1 hour TTL
-      true
+      false
     );
 
     sendResponse(res, {
