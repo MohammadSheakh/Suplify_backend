@@ -9,8 +9,8 @@ export const createHelpMessageValidationSchema = z.object({
         required_error: 'name is required, name must be a string.',
         invalid_type_error: 'name must be a string.',
       })
-      .min(5, {
-        message: 'name must be at least 5 characters long.',
+      .min(2, {
+        message: 'name must be at least 2 characters long.',
     }).max(500, {
       message: 'name must be at most 500 characters long.',
     }),
@@ -20,8 +20,8 @@ export const createHelpMessageValidationSchema = z.object({
         required_error: 'description is required, description must be a string.',
         invalid_type_error: 'description must be a string.',
       })
-      .min(5, {
-        message: 'description must be at least 5 characters long.',
+      .min(2, {
+        message: 'description must be at least 2 characters long.',
     }).max(1000, {
       message: 'description must be at most 500 characters long.',
     }),

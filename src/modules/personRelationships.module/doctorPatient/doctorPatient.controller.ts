@@ -13,6 +13,7 @@ import catchAsync from '../../../shared/catchAsync';
 import omit from '../../../shared/omit';
 import pick from '../../../shared/pick';
 import { PaginationHelpers } from '../../../common/service/paginationHelpers';
+import { User } from '../../user/user.model';
 
 
 export class DoctorPatientController extends GenericController<
@@ -80,9 +81,13 @@ export class DoctorPatientController extends GenericController<
 
     const result = await this.service.getAllWithPagination(filters, options, populateOptions, select);
 
+    const loggedInUserSubscriptionType = await User.findById(req.user.userId).select('subscriptionType');     
+
+
     sendResponse(res, {
       code: StatusCodes.OK,
       data: result,
+      data2 : loggedInUserSubscriptionType,
       message: `All ${this.modelName} with pagination`,
       success: true,
     });
@@ -105,6 +110,41 @@ export class DoctorPatientController extends GenericController<
       options
     );
 
+    const loggedInUserSubscriptionType = await User.findById(req.user.userId).select('subscriptionType');     
+
+
+    // data: {
+    //     doctors: result.results,
+    //     pagination: result.pagination
+    //   }
+    sendResponse(res, {
+      code: StatusCodes.OK,
+      data: result,
+      data2 : loggedInUserSubscriptionType,
+      message: `All ${this.modelName} with pagination`,
+      success: true,
+    });
+  });
+
+
+  //---------------------------------
+  // Admin | Get all Unknown Doctor for a patient 
+  // same logic as Patient | Get all Unknown Doctor 
+  //---------------------------------
+  getUnknownDoctorsByPatientForAdminSection = catchAsync(async (req: Request, res: Response) => {
+    const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']); ;
+    const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
+    // const { page, limit } = PaginationHelpers.extractPaginationFromQuery(req.query);
+    
+    const result = await this.doctorPatientService.getUnknownDoctorsForPatient(req.query.patientId,
+      // {
+      //   page: options.page,
+      //   limit: options.limit
+      // }
+      filters,
+      options
+    );
+
     // data: {
     //     doctors: result.results,
     //     pagination: result.pagination
@@ -116,6 +156,7 @@ export class DoctorPatientController extends GenericController<
       success: true,
     });
   });
+
 
   //--------------------------------- may be not working ... 
   // Admin | Users Section | Get All Unknown Doctor For A Patient 

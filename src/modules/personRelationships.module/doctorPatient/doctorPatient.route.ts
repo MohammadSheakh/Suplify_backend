@@ -135,18 +135,15 @@ router.route('/').get(
 
 /**********
  *  as per nirob vai's complain .. try to fix this endpoint with the help of middleware
- * 
+ *  Fixed
  * Admin | User Management | Show all doctor for assign to a patient
- *  /////// TODO : MUST :  need to fix this 
  * :patientId:
  * ********** */
 router.route('/doctor/:patientId').get(
   auth(TRole.doctor, TRole.admin),
   getIdFromParamsAndSetInQueryForFilter('patientId', 'patientId'),
-  // controller.getUnknownDoctorsForAPatient
-  controller.getAllWithPagination
+  controller.getUnknownDoctorsByPatientForAdminSection
 );
-
 
 
 //---------------------------------

@@ -108,10 +108,14 @@ export class DoctorPatientScheduleBookingService extends GenericService<
          * but now we do this in webhook .. 
          * ****** */
         // existingSchedule.scheduleStatus = TDoctorAppointmentScheduleStatus.booked;
-
         // existingSchedule.booked_by = user.userId; // we update this in webhook
 
-        if(existingUser.subscriptionType == TSubscription.vise){
+        const doctorPatientRelation = await DoctorPatient.findOne({
+            doctorId: existingSchedule.createdBy,
+            patientId: user.userId
+        });
+
+        if(existingUser.subscriptionType == TSubscription.vise && doctorPatientRelation){
 
             // no payment required ..
             /******

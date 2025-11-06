@@ -54,7 +54,7 @@ router.route('/paginate/for-admin').get(
 );
 
 //---------------------------------
-// Patient | Get all Others Specialist .. 
+// Patient | Get all Others Specialist ..  ©️🏗️🚧
 //---------------------------------
 router.route('/paginate/others').get(
   auth(TRole.patient),

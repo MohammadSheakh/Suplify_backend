@@ -9,6 +9,7 @@ import catchAsync from '../../../shared/catchAsync';
 import omit from '../../../shared/omit';
 import pick from '../../../shared/pick';
 import sendResponse from '../../../shared/sendResponse';
+import { User } from '../../user/user.model';
 
 
 export class SpecialistPatientController extends GenericController<
@@ -127,32 +128,35 @@ export class SpecialistPatientController extends GenericController<
 
     const result = await this.service.getAllWithPagination(filters, options, populateOptions, select);
 
+    const loggedInUserSubscriptionType = await User.findById(req.user.userId).select('subscriptionType');     
+
+  
     sendResponse(res, {
       code: StatusCodes.OK,
       data: result,
+      data2 : loggedInUserSubscriptionType,
       message: `All ${this.modelName} with pagination`,
       success: true,
     });
   });
 
 //--------------------------------- 
-// Patient | Get all Unknown Specialist .. 
+// Patient | Get all Unknown Specialist ..  ©️🏗️🚧
 //---------------------------------
   getUnknownSpecialist = catchAsync(async (req: Request, res: Response) => {
-    //const filters = pick(req.query, ['_id', 'title']); // now this comes from middleware in router
     const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']); ;
     const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
-    // const { page, limit } = PaginationHelpers.extractPaginationFromQuery(req.query);
     
     // 📈⚙️ OPTIMIZATION:
     const result = await this.specialistPatientService.getUnknownSpecialistsForPatient(req.user.userId,
-      // {
-      //   page: options.page,
-      //   limit: options.limit
-      // }
       filters,
       options
     );
+
+    
+
+    const loggedInUserSubscriptionType = await User.findById(req.user.userId).select('subscriptionType');     
+
 
     // data: {
     //     doctors: result.results,
@@ -161,6 +165,7 @@ export class SpecialistPatientController extends GenericController<
     sendResponse(res, {
       code: StatusCodes.OK,
       data: result,
+      data2 : loggedInUserSubscriptionType,
       message: `All ${this.modelName} with pagination`,
       success: true,
     });

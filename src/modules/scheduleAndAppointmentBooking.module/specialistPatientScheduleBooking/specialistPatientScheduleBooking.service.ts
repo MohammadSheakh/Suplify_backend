@@ -110,7 +110,12 @@ export class SpecialistPatientScheduleBookingService extends GenericService<
 
     ----------------------------------------*/
 
-    if(existingUser.subscriptionType == TSubscription.vise){
+    const specialistPatientRelation:ISpecialistPatient = await SpecialistPatient.findOne({
+        specialistId: existingWorkoutClass.createdBy,
+        patientId: user.userId
+    });
+
+    if(existingUser.subscriptionType == TSubscription.vise && specialistPatientRelation){
         // ⚠️    ->  bad code .. Need to optimize .. need to use insertMany for bulk insert
         // no payment required ..
         /******
@@ -205,7 +210,7 @@ export class SpecialistPatientScheduleBookingService extends GenericService<
      * 
      * ******* */
 
-    let stripeResult ;
+    let stripeResult;
     let bookWorkoutClass : ISpecialistPatientScheduleBooking | null = null;
     
     try {

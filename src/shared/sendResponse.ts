@@ -1,9 +1,11 @@
+//@ts-ignore
 import { Response } from 'express';
 
 type IData<T> = {
   code: number;
   message?: string;
   data?: T;
+  data2?: any;
   success?: boolean;
 };
 
@@ -13,6 +15,7 @@ const sendResponse = <T>(res: Response, data: IData<T>) => {
     message: data.message,
     data: {
       attributes: data.data,
+      additionalResponse: data.data2
     },
     success: data.success,
   };

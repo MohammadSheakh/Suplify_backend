@@ -1,3 +1,4 @@
+//@ts-ignore
 import { model, Schema } from 'mongoose';
 import { IDoctorPatientScheduleBooking, IDoctorPatientScheduleBookingModel } from './doctorPatientScheduleBooking.interface';
 import paginate from '../../../common/plugins/paginate';

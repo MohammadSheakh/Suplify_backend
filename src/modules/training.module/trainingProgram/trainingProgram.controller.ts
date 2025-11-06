@@ -15,6 +15,7 @@ import omit from '../../../shared/omit';
 import pick from '../../../shared/pick';
 import { User } from '../../user/user.model';
 import ApiError from '../../../errors/ApiError';
+import { TSubscription } from '../../../enums/subscription';
 
 
 export class TrainingProgramController extends GenericController<
@@ -46,6 +47,8 @@ export class TrainingProgramController extends GenericController<
             path: 'profileId', 
             select: 'description protocolNames howManyPrograms'
         });
+
+    
 
     sendResponse(res, {
       code: StatusCodes.OK,
