@@ -87,7 +87,7 @@ export class DoctorAppointmentScheduleService extends GenericService<
 
   }
  
-  // ⚙️
+  // ⚙️⚙️⚙️⚙️⚙️⚙️⚙️⚙️⚙️⚙️⚙️⚙️⚙️⚙️⚙️⚙️⚙️⚙️⚙️⚙️⚙️⚙️⚙️⚙️⚙️⚙️⚙️⚙️⚙️⚙️⚙️vvvv
   async getAllAvailableScheduleAndRecentBookedScheduleOfDoctor(filters:any, options: PaginateOptions, populateOptions:any, patientId:string) : Promise<any> {
     const pipeline = [
         // 1. Match schedules for the doctor
@@ -95,7 +95,30 @@ export class DoctorAppointmentScheduleService extends GenericService<
             $match: {
                 createdBy: new mongoose.Types.ObjectId(filters.createdBy), // 👈 your doctor ID
             }
+
+            
         },
+        {
+            $match: {
+                    booked_by: { $ne: new mongoose.Types.ObjectId(filters.createdBy) }
+            }
+        },
+
+        // ================ by QWEn
+        // {
+        //     $match: {
+        //         // Rule 1: Either not booked, or booked by me
+        //         $or: [
+        //         { booked_by: null },
+        //         { booked_by: new mongoose.Types.ObjectId(patientId) }
+        //         ],
+        //         // Rule 2: Either not expired, or it's mine (redundant but safe)
+        //         $or: [
+        //         { scheduleStatus: { $ne: "expired" } },
+        //         { booked_by: new mongoose.Types.ObjectId(patientId) }
+        //         ]
+        //     }
+        // },
 
         // 2. Lookup recent bookings by this patient (max 3, sorted by latest first)
         {
@@ -130,7 +153,86 @@ export class DoctorAppointmentScheduleService extends GenericService<
             as: "patientBookings"
             }
         },
-        // 
+
+
+        // 3. ✅ CRITICAL FIX: Filter BEFORE unwind to remove schedules booked by others  By Claude  not working
+        // {
+        //     $match: {
+        //         $or: [
+        //             // Show available schedules (not booked by anyone)
+        //             { booked_by: null },
+                    
+        //             // Show schedules where THIS patient has bookings
+        //             { 
+        //                 booked_by: { $ne: null },
+        //                 patientBookings: { $ne: [] }, // Array is not empty
+        //                 "patientBookings.0": { $exists: true } // Has at least one booking
+        //             }
+        //         ]
+        //     }
+        // },
+
+
+
+        
+
+        //-------------------------------------------------------- by qwen ... not working
+        // Step 1: Compute flags
+        // {
+        //     $addFields: {
+        //         isBookedByMe: {
+        //         $gt: [
+        //             { $size: { $ifNull: ["$patientBookings", []] } },
+        //             0
+        //         ]
+        //         },
+        //         isBookedByOther: {
+        //         $gt: [
+        //             {
+        //             $size: {
+        //                 $filter: {
+        //                 input: { $ifNull: ["$allBookings", []] },
+        //                 cond: { $ne: ["$$this.patientId", new mongoose.Types.ObjectId(patientId)] }
+        //                 }
+        //             }
+        //             },
+        //             0
+        //         ]
+        //         }
+        //     }
+        // },
+
+        // Step 2: Apply complete visibility rules
+        // {
+        //     $match: {
+        //         isBookedByOther: false, // ← NEVER show if someone else booked it
+        //         $or: [
+        //         { scheduleStatus: { $ne: "expired" } }, // available future slots
+        //         { isBookedByMe: true }                  // my past bookings
+        //         ]
+        //     }
+        // },
+
+
+        //------------------------------------------------------------------  by qwen
+        // Compute helper fields
+        {
+        $addFields: {
+            hasPatientBooking: { $gt: [{ $size: "$patientBookings" }, 0] }
+        }
+        },
+
+        // // 🔥 CRITICAL: Filter out unwanted schedules
+        {
+            $match: {
+                $or: [
+                { scheduleStatus: { $ne: "expired" } },          // Upcoming or available
+                { scheduleStatus: "expired", hasPatientBooking: true } // My past booking
+                ]
+            }
+        },
+
+
         // {
         //     $unwind: "$patientBookings",
         // },

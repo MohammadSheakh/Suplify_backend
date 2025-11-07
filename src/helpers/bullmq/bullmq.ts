@@ -93,6 +93,8 @@ export const startScheduleWorker = () => {
         console.log("updatedSchedule.startTime :: ", updatedSchedule.startTime)
         console.log("updatedSchedule.endTime :: ", updatedSchedule.endTime)
 
+        /*-------------------------------------------
+
          // 🔹 Step 3: Preserve original time-of-day from startTime & endTime
         const originalStart = new Date(updatedSchedule.startTime);
         const originalEnd = new Date(updatedSchedule.endTime);
@@ -118,9 +120,9 @@ export const startScheduleWorker = () => {
         console.log("newStartTime :: ", newStartTime)
         console.log("newEndTime :: ", newEndTime)
 
-        /****
+        /----------------------------
          * lets create another 
-         * ** */
+         ------------------------------------------/
 
         updatedSchedule && await DoctorAppointmentSchedule.create({
           createdBy: updatedSchedule.createdBy,
@@ -136,11 +138,15 @@ export const startScheduleWorker = () => {
           scheduleStatus: TDoctorAppointmentScheduleStatus.available,
         });
 
+        
+        -----------------------------------*/
+
         await DoctorPatientScheduleBooking.findByIdAndUpdate(appointmentBookingId, {
           $set: {
             status: TAppointmentStatus.completed,
           }
         });
+
 
         console.log(`✅ Schedule ${scheduleId} automatically freed.`);
       }else if (job.name ==="makeDoctorAppointmentScheduleAvailableIfNotBooked"){
@@ -148,13 +154,22 @@ export const startScheduleWorker = () => {
         console.log("🔎🔎🔎🔎 makeDoctorAppointmentScheduleAvailableIfNotBooked")
         const { scheduleId } = job.data;
 
-        const updatedSchedule:IDoctorAppointmentSchedule = await DoctorAppointmentSchedule.findByIdAndUpdate(scheduleId, {
-          $set: { 
-            scheduleStatus: TDoctorAppointmentScheduleStatus.available,
-            booked_by: null,
-          }
-        });
-        
+        const schedule:IDoctorAppointmentSchedule = await DoctorAppointmentSchedule.findById(scheduleId).select("scheduleStatus");
+
+        if(!schedule){
+          console.log(`⚠️ Schedule ${scheduleId} not found.`);
+          return;
+        }
+
+        if(schedule.scheduleStatus === TDoctorAppointmentScheduleStatus.pending){
+          const updatedSchedule:IDoctorAppointmentSchedule = await DoctorAppointmentSchedule.findByIdAndUpdate(scheduleId, {
+            $set: { 
+              scheduleStatus: TDoctorAppointmentScheduleStatus.available,
+              booked_by: null,
+            }
+          });
+        }
+
       }else if (job.name === "expireDoctorAppointmentScheduleAfterEndTime") {
 
         console.log("🔎🔎🔎🔎 expireDoctorAppointmentScheduleAfterEndTime ")
