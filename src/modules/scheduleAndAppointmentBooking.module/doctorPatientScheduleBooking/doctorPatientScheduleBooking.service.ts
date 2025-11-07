@@ -43,6 +43,14 @@ export class DoctorPatientScheduleBookingService extends GenericService<
         this.stripe = stripe;
     }
 
+    /*----------------------------------
+    available 
+    └─(verb)→ status[]
+        ├─( )→ 
+        └─( / )→ 
+    -----------------------------------*/
+
+
     async createV2(doctorScheduleId: string, user: IUser) : Promise<IDoctorPatientScheduleBooking | null | { url: any} > 
     {
         /******
@@ -67,7 +75,7 @@ export class DoctorPatientScheduleBookingService extends GenericService<
                scheduleStatus:// TDoctorAppointmentScheduleStatus.available 
             { $in: [
                 TDoctorAppointmentScheduleStatus.available,
-                TDoctorAppointmentScheduleStatus.booked
+                // TDoctorAppointmentScheduleStatus.booked ////////----------------- why can a person book a schedule that already booked
             ] } // Check for both pending and scheduled statuses
             }
         );
@@ -155,6 +163,7 @@ export class DoctorPatientScheduleBookingService extends GenericService<
 
             addToBullQueueToFreeDoctorAppointmentSchedule(existingSchedule, createdBooking);
 
+            
 
             /********
              * 
@@ -224,7 +233,10 @@ export class DoctorPatientScheduleBookingService extends GenericService<
 
             // session.startTransaction();
             await session.withTransaction(async () => {
-                
+
+                //-------------- this line is very important 
+                existingSchedule.scheduleStatus = TDoctorAppointmentScheduleStatus.pending;
+            
                 createdDoctorPatientScheduleBooking = await DoctorPatientScheduleBooking.create({
                     patientId: user.userId,  //🔗
                     doctorScheduleId: existingSchedule._id,  //🔗
@@ -245,6 +257,10 @@ export class DoctorPatientScheduleBookingService extends GenericService<
                 await existingSchedule.save({ session });
 
                 addToBullQueueToFreeDoctorAppointmentSchedule(existingSchedule, createdDoctorPatientScheduleBooking);
+
+                // as initially schedule status is pending temporarily
+                addQueueToFreeAppointmentScheduleIfNotBookedAfterFiFteenMinute(existingSchedule);
+
 
             });
             
@@ -372,35 +388,12 @@ export class DoctorPatientScheduleBookingService extends GenericService<
  * ******** */
 async function addToBullQueueToFreeDoctorAppointmentSchedule(existingSchedule : IDoctorAppointmentSchedule, createdBooking: IDoctorPatientScheduleBooking){
     // 🥇
-    // const endTime = new Date(existingSchedule.endTime); 
-    // const delay = endTime.getTime() - Date.now();
-    
-
-    // 🔍 DEBUG: Let's see what we're actually working with
-    // console.log("🔍 Raw existingSchedule.endTime:", existingSchedule.endTime);
-    // console.log("🔍 typeof existingSchedule.endTime:", typeof existingSchedule.endTime);
-    // console.log("🔍 existingSchedule.endTime.constructor.name:", existingSchedule.endTime?.constructor?.name);
     
     const endTime = new Date(existingSchedule.endTime);
-    
-    // console.log("🔍 Parsed endTime:", endTime);
-    // console.log("🔍 endTime.toISOString():", endTime.toISOString());
-    // console.log("🔍 endTime.getTime():", endTime.getTime());
-    
     const now = Date.now();
-    // console.log("🔍 Current time (Date.now()):", now);
-    // console.log("🔍 Current time as Date:", new Date(now).toISOString());
-    
+
     const delay = endTime.getTime() - now;
-    // console.log("🔍 Calculated delay (ms):", delay);
-    // console.log("🔍 Calculated delay (minutes):", delay / 1000 / 60);
     
-    // Original logging
-    // console.log('👉 schedule booking time : ', now) 
-    // console.log("👉 Scheduling job to free up schedule at : ", endTime , " ⚡ ",  endTime.getTime()); 
-    // console.log("👉 delay :", delay); 
-
-
     if (delay > 0) {
         await scheduleQueue.add(
             "makeDoctorAppointmentScheduleAvailable",
@@ -427,5 +420,27 @@ async function addToBullQueueToFreeDoctorAppointmentSchedule(existingSchedule : 
         // ${delay / 1000}s -> 
         console.log(`⏰ Job added to free schedule ${existingSchedule._id} in ${formatDelay(delay)}`);
         logger.info(colors.green(`⏰ Job added to free schedule ${existingSchedule._id} in ${formatDelay(delay)}`));
+    }
+}
+
+/*********
+ * we actually make this one available if not booked within 15 minute
+ * TODO : MUST : before making it available .. we need to check if appointment time range is still future or not
+ * ******** */
+async function addQueueToFreeAppointmentScheduleIfNotBookedAfterFiFteenMinute(existingSchedule : IDoctorAppointmentSchedule){
+    
+    const delay = 15 * 60 * 1000; // 15 minutes → 900,000 milliseconds;
+    
+    if (delay > 0) {
+        await scheduleQueue.add(
+            "makeDoctorAppointmentScheduleAvailableIfNotBooked",
+            { 
+                scheduleId: existingSchedule._id,
+            },
+            { delay }
+        );
+       
+        console.log(`⏰ Job added to free schedule ${existingSchedule._id} in ${formatDelay(delay)} if not booked`);
+        logger.info(colors.green(`⏰ Job added to free schedule ${existingSchedule._id} in ${formatDelay(delay)} if not booked`));
     }
 }

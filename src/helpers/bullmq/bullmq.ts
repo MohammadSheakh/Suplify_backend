@@ -143,6 +143,18 @@ export const startScheduleWorker = () => {
         });
 
         console.log(`✅ Schedule ${scheduleId} automatically freed.`);
+      }else if (job.name ==="makeDoctorAppointmentScheduleAvailableIfNotBooked"){
+
+        console.log("🔎🔎🔎🔎 makeDoctorAppointmentScheduleAvailableIfNotBooked")
+        const { scheduleId } = job.data;
+
+        const updatedSchedule:IDoctorAppointmentSchedule = await DoctorAppointmentSchedule.findByIdAndUpdate(scheduleId, {
+          $set: { 
+            scheduleStatus: TDoctorAppointmentScheduleStatus.available,
+            booked_by: null,
+          }
+        });
+        
       }else if (job.name === "expireDoctorAppointmentScheduleAfterEndTime") {
 
         console.log("🔎🔎🔎🔎 expireDoctorAppointmentScheduleAfterEndTime ")

@@ -18,7 +18,8 @@ export interface IDoctorAppointmentSchedule {
   meetingLink : string;
   scheduleStatus?: TDoctorAppointmentScheduleStatus.available
   | TDoctorAppointmentScheduleStatus.booked
-  | TDoctorAppointmentScheduleStatus.cancelled;
+  | TDoctorAppointmentScheduleStatus.cancelled
+  | TDoctorAppointmentScheduleStatus.pending;
 
   isDeleted? : boolean;  
   createdAt?: Date;

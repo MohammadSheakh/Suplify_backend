@@ -53,6 +53,7 @@ const DoctorAppointmentScheduleSchema = new Schema<IDoctorAppointmentSchedule>(
         TDoctorAppointmentScheduleStatus.available,
         TDoctorAppointmentScheduleStatus.booked,
         TDoctorAppointmentScheduleStatus.cancelled,
+        TDoctorAppointmentScheduleStatus.pending,
       ],
       default: TDoctorAppointmentScheduleStatus.available,
       required: [true, `scheduleStatus is required .. it can be  ${Object.values(TDoctorAppointmentScheduleStatus).join(
