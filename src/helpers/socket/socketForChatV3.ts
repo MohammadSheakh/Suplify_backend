@@ -512,6 +512,7 @@ export class SocketService {
 
           if(isOnline){
          
+            /*-----------------------------------------
             await socketService.emitToUser(
               participantId,
               `conversation-list-updated::${participantId}`,
@@ -529,6 +530,34 @@ export class SocketService {
                 _conversationId: updatedConversation?._id,
               }
           );
+
+          -----------------------------------------*/
+
+          if(participantId !== userId.toString()){  // 🧪🧪🧪🧪🧪🧪🧪
+            // which means userId is receiverId
+
+            const userPro = await this.getUserProfile(userId) as IUserProfile;
+
+            await socketService.emitToUser(
+                participantId,
+                `conversation-list-updated::${participantId}`,
+                {
+                  userId: {
+                    "_userId": userId,
+                    "name": userPro.name,
+                    "profileImage": userPro.profileImage,
+                    "role": userPro.role,
+                  },
+                  conversations:[
+                    {
+                      _conversationId: updatedConversation?._id,
+                      lastMessage : messageData.text,
+                      updatedAt : newMessage.createdAt
+                    },
+                  ],
+                }
+            );
+          }
 
             /*********
 
