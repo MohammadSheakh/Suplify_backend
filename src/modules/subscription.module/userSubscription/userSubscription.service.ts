@@ -50,6 +50,7 @@ export class UserSubscriptionService extends GenericService<typeof UserSubscript
             );
         }
 
+        /*--------------------------------------
         let stripeCustomer;
         if(!user.stripe_customer_id){
             let _stripeCustomer = await stripe.customers.create({
@@ -63,6 +64,74 @@ export class UserSubscriptionService extends GenericService<typeof UserSubscript
         }else{
             stripeCustomer = user.stripe_customer_id;
         }
+        -------------------------------------*/
+
+        let stripeCustomer;
+
+        if (!user.stripe_customer_id) {
+
+            console.log(" 1 ")
+
+                // 🔹 No customer ID saved — create a new one
+                const _stripeCustomer = await stripe.customers.create({
+                    name: user?.name,
+                    email: user?.email,
+                });
+
+
+                stripeCustomer = _stripeCustomer.id;
+
+                await User.findByIdAndUpdate(user._id, {
+                    $set: { stripe_customer_id: stripeCustomer },
+                });
+            } else {
+                try {
+                    // 🔹 Check if existing Stripe customer still exists
+                    const retriveUser = await stripe.customers.retrieve(user.stripe_customer_id);
+
+                    console.log("retriveUser ::", retriveUser)
+
+                    if (retriveUser.deleted) {
+                        // Customer deleted or invalid → recreate and update DB
+                        const _stripeCustomer = await stripe.customers.create({
+                            name: user?.name,
+                            email: user?.email,
+                        });
+
+                        stripeCustomer = _stripeCustomer.id;
+
+                        await User.findByIdAndUpdate(user._id, {
+                            $set: { stripe_customer_id: stripeCustomer },
+                        });
+                    }
+                } catch (err) {
+
+                    console.log(" 3 ")
+                    if (err.raw && err.raw.code === "resource_missing") {
+                        // console.warn("⚠️ Stripe customer not found, recreating...");
+
+                        // Customer deleted or invalid → recreate and update DB
+                        const _stripeCustomer = await stripe.customers.create({
+                            name: user?.name,
+                            email: user?.email,
+                        });
+
+                        stripeCustomer = _stripeCustomer.id;
+
+                        await User.findByIdAndUpdate(user._id, {
+                            $set: { stripe_customer_id: stripeCustomer },
+                        });
+                    } else {
+
+                        console.log("❌ Unexpected error when retrieving Stripe customer:", err);   
+
+                        throw err; // rethrow other unexpected errors
+                    }
+                }
+        }
+
+
+
         //---------------------------------
         // get active standard plan priceId from database
         //---------------------------------
@@ -97,7 +166,7 @@ export class UserSubscriptionService extends GenericService<typeof UserSubscript
             // renewalDate : will be updated after 70 dollar for standard plan successful payment in webhook 
             stripe_subscription_id: null, // because its free trial // after 70 dollar payment we will update this 
             stripe_transaction_id : null, // because its free trial // after 70 dollar payment we will update this 
-        
+            billingCycle : 0, // because its free trial
             // ⚡⚡⚡⚡ must null assign korte hobe renewal date e 
 
             /******

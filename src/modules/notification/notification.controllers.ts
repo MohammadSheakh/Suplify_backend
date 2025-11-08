@@ -1,3 +1,4 @@
+//@ts-ignore
 import { StatusCodes } from 'http-status-codes';
 import { NotificationService } from './notification.services';
 import catchAsync from '../../shared/catchAsync';

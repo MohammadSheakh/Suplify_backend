@@ -6,6 +6,7 @@ import { Notification } from './notification.model';
 import { User } from '../user/user.model';
 import { PaginateOptions, PaginateResult } from '../../types/paginate';
 import ApiError from '../../errors/ApiError';
+import { TRole } from '../../middlewares/roles';
 
 const addNotification = async (
   payload: INotification
@@ -21,20 +22,18 @@ const getALLNotification = async (
   userId: string
 ) => {
   filters.receiverId = userId;
-  const unViewNotificationCount = await Notification.countDocuments({
-    receiverId: userId,
-    viewStatus: false,
-  });
-
+  
   const result = await Notification.paginate(filters, options);
-  return { ...result, unViewNotificationCount };
+  return { ...result};
 };
+
+
 
 const getAdminNotifications = async (
   filters: Partial<INotification>,
   options: PaginateOptions
 ): Promise<PaginateResult<INotification>> => {
-  filters.role = 'admin'; // Important SQL
+  filters.receiverRole = TRole.admin; // Important SQL
   return Notification.paginate(filters, options);
 };
 

@@ -7,6 +7,9 @@ import auth from '../../../middlewares/auth';
 import { TRole } from '../../../middlewares/roles';
 //@ts-ignore
 import multer from "multer";
+import { getLoggedInUserAndSetReferenceToUser } from '../../../middlewares/getLoggedInUserAndSetReferenceToUser';
+import { setQueryOptions } from '../../../middlewares/setQueryOptions';
+import { defaultExcludes } from '../../../constants/queryOptions';
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
@@ -31,9 +34,24 @@ const controller = new UserSubscriptionController();
 
 //
 router.route('/paginate').get(
-  //auth('common'),
-  validateFiltersForQuery(optionValidationChecking(['_id'])),
-  controller.getAllWithPagination 
+  auth(TRole.common),
+  validateFiltersForQuery(optionValidationChecking(['_id', 'userId'])),
+  getLoggedInUserAndSetReferenceToUser('userId'),
+  setQueryOptions({
+    populate: [{
+      path: 'subscriptionPlanId', // coverPhotos attachments
+      select: 'subscriptionName subscriptionType amount currency',
+      // populate: { path: 'subscriptionPlanId', select: 'subscriptionName attachments' }
+    },
+    {
+      path: "userId",
+      select: `name email subscriptionType`
+    }
+    ],
+    select: `${defaultExcludes}`
+    // // ${defaultExcludes}
+  }),
+  controller.getAllWithPaginationV2 
 );
 
 router.route('/:id').get(

@@ -1,5 +1,8 @@
 import stripe from "../../../config/stripe.config";
 import ApiError from "../../../errors/ApiError";
+import { TRole } from "../../../middlewares/roles";
+import { enqueueWebNotification } from "../../../services/notification.service";
+import { TNotificationType } from "../../notification/notification.constants";
 import { UserSubscriptionStatusType } from "../../subscription.module/userSubscription/userSubscription.constant";
 import { IUserSubscription } from "../../subscription.module/userSubscription/userSubscription.interface";
 import { UserSubscription } from "../../subscription.module/userSubscription/userSubscription.model";
@@ -146,7 +149,7 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Subscription) => {
     // FIRST PAYMENT (subscription_create)
     // ============================================
     if(invoice.billing_reason === 'subscription_create'){
-      console.log("⚡ This is first payment after trial or immediate payment without trial");
+      console.log("⚡ This is first payment after trial or immediate payment without trial 1️⃣", invoice.billing_reason);
 
       // ⭕ these dates are undifind ⭕ ⭕ ⭕  
       // const { current_period_start, current_period_end } = subscription;
@@ -190,6 +193,19 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Subscription) => {
         gatewayResponse: invoiceInfo,
       });
 
+
+      await enqueueWebNotification(
+          `New Subscription puchased by ${user._id} ${user.name} and paid ${invoiceInfo.subscription_metadata.amount} ${invoiceInfo.subscription_metadata.currency}`,
+          user._id, // senderId
+          null, // receiverId
+          TRole.admin, // receiverRole
+          TNotificationType.payment, // type
+          null, // linkFor
+          null // linkId
+      );
+      
+
+
       console.log("newPayment created --- handleSuccessfulPayment --- invoice.billing_reason === 'subscription_create' =>> ", newPayment);
 
       // 1. Update UserSubscription with Stripe IDs
@@ -226,9 +242,9 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Subscription) => {
 
     // ============================================
     // RECURRING PAYMENT (subscription_cycle)
-    // ============================================      
+    // ============================================
     }else if(invoice.billing_reason === 'subscription_cycle'){
-        console.log("=============== This is recurring subscription payment ================== 🔁");
+        console.log("=============== This is recurring subscription payment ================== 🔁2️⃣ ", invoice.billing_reason);
       /*
         {
           customer: 'cus_SzzhhEPsNynY9B',
@@ -287,28 +303,49 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Subscription) => {
 
       console.log("newPayment ->>", newPayment)
 
+      await enqueueWebNotification(
+          `Recurring Subscription payment received from ${user._id} ${user.name} and paid ${invoiceInfo.subscription_metadata.amount} ${invoiceInfo.subscription_metadata.currency} successfully.`,
+          user._id, // senderId
+          null, // receiverId
+          TRole.admin, // receiverRole
+          TNotificationType.payment, // type
+          null, // linkFor
+          null // linkId
+      );
+
       const userSub:IUserSubscription = await UserSubscription.findById(metadata.referenceId);
+
+
+      const newExpirationDate = new Date(userSub.expirationDate);
+      newExpirationDate.setDate(newExpirationDate.getDate() + 30); // ✅ adds 30 days
 
       // TODO : referenceFor theke Model ta select korte hobe Best practice
       // 1. Update UserSubscription with Stripe IDs
-      await UserSubscription.findByIdAndUpdate(metadata.referenceId, {
+      const updatedUserSub = await UserSubscription.findByIdAndUpdate(metadata.referenceId, {
         $set: {
           stripe_subscription_id: subscriptionId,
           stripe_transaction_id: invoice.payment_intent,
           subscriptionPlanId: metadata.subscriptionPlanId, // You'll need to fetch this
           status: UserSubscriptionStatusType.active,
           // currentPeriodStartDate :  new Date(invoice.period_start * 1000), 
-          currentPeriodStartDate : new Date(subscription.latest_invoice.period_start * 1000),  
+          // currentPeriodStartDate : new Date(subscription.latest_invoice.period_start * 1000),  
+          
+          currentPeriodStartDate : userSub.expirationDate, 
           
           // expirationDate : new Date(invoice.period_end * 1000),
+          // expirationDate : new Date(subscription.latest_invoice.period_end * 1000),
+          // renewalDate : new Date(subscription.latest_invoice.period_end * 1000),
 
-          expirationDate : new Date(subscription.latest_invoice.period_end * 1000),
-          renewalDate : new Date(subscription.latest_invoice.period_end * 1000),
+          expirationDate : newExpirationDate, // ✅ updated expiration date
+          renewalDate : newExpirationDate,   // ✅ updated renewal date
 
           billingCycle : (userSub.billingCycle || 0) + 1, // ✅ INCREMENT
           isAutoRenewed : true,
         }
       });
+
+      console.log("Updated updatedUserSub ->>", updatedUserSub) 
+
 
       // 2. Mark user as having used free trial (option 2: after first payment)
       await User.findByIdAndUpdate(metadata.userId, {
@@ -351,6 +388,17 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Subscription) => {
     
     }else if(invoice.billing_reason === 'trial_end'){
         console.log("⚠️ This is trial end - usually triggers subscription_create invoice");
+
+        await enqueueWebNotification(
+          `Trial ended for user ${user._id} ${user.name}.`,
+          null, // senderId  as system notification
+          user._id, // receiverId
+          TRole.patient, // receiverRole
+          TNotificationType.system, // type
+          null, // linkFor
+          null // linkId
+      );
+
     }else {
         console.log("⚡ Other billing reason: ", invoice.billing_reason);
     }

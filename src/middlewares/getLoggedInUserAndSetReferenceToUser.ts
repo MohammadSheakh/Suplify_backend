@@ -10,9 +10,7 @@ import { StatusCodes } from 'http-status-codes';
 //---------------------------------
 export const getLoggedInUserAndSetReferenceToUser = <T> (referenceToUser: string) => {
   return (req: Request, res:Response, next:NextFunction) => {
-    
     // const filtersParam = req.query || ''; // Get filters query param
-
     if (!req.user) {
       sendResponse(res, {
         code: StatusCodes.UNAUTHORIZED,

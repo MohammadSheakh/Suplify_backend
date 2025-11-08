@@ -186,7 +186,7 @@ const apiRoutes = [
     route: AttachmentRoutes,
   },
   {
-    path: '/activitys',
+    path: '/notifications',
     route: NotificationRoutes,
   },
   {

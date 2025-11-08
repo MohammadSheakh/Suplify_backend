@@ -220,7 +220,7 @@ export class SocketService {
         // Get user profile
         const userProfile = await this.getUserProfile(userId) as IUserProfile;
 
-        console.log("userProfile in connection 🔌🔌", userProfile)
+        // console.log("userProfile in connection 🔌🔌", userProfile)
         socket.data.userProfile = userProfile;
 
         // Handle connection in Redis
@@ -481,7 +481,13 @@ export class SocketService {
         const messageToEmit = {
           ...messageData,
           _id: newMessage._id,
-          senderId: userId, // senderId should be the userId
+          //senderId: userId, // senderId should be the userId
+          senderId: {  /// populated as per nirob vais request
+            name: userProfile?.name,
+            profileImage: userProfile?.profileImage,
+            _userId: userId,
+          },
+
           name: userProfile?.name,
           image: userProfile?.profileImage,
           createdAt: newMessage.createdAt || new Date()
