@@ -25,8 +25,9 @@ export const createDoctorPlanValidationSchema = z.object({
     description: z.string({
       required_error: 'description is required.',
       invalid_type_error: 'description must be a string.',
-    }).min(2, 'description must be at least 2 characters long')
-      .max(1000, 'description must be at most 1000 characters long'),
+    })
+    .min(2, 'description must be at least 2 characters long'),
+      // .max(1000, 'description must be at most 1000 characters long'),
     
     keyPoints: z.array(
       z.string()
@@ -69,8 +70,8 @@ export const updateDoctorPlanValidationSchema = z.object({
     description: z.string({
       required_error: 'description is required.',
       invalid_type_error: 'description must be a string.',
-    }).min(2, 'description must be at least 2 characters long')
-      .max(1000, 'description must be at most 1000 characters long').optional(),
+    }).min(2, 'description must be at least 2 characters long').optional(),
+      // .max(1000, 'description must be at most 1000 characters long')
     
     keyPoints: z.array(
       z.string()

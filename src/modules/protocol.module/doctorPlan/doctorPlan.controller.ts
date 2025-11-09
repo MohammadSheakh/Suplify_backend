@@ -52,7 +52,8 @@ export class DoctorPlanController extends GenericController<
 
 
   getAllWithPagination = catchAsync(async (req: Request, res: Response) => {
-    //const filters = pick(req.query, ['_id', 'title']); // now this comes from middleware in router
+    req.query.createdBy  = (req.user as any).userId;
+    
     const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']); ;
     const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
 
@@ -81,6 +82,17 @@ export class DoctorPlanController extends GenericController<
 
     const result = await this.service.getAllWithPagination(/*filters,*/query, options, populateOptions, select);
 
+
+    if(req.query.title == '' || !req.query.title){
+      console.log("hit")
+      sendResponse(res, {
+        code: StatusCodes.OK,
+        data: [],
+        message: `All ${this.modelName} with pagination`,
+        success: true,
+      });  
+    }
+
     sendResponse(res, {
       code: StatusCodes.OK,
       data: result,
@@ -88,6 +100,39 @@ export class DoctorPlanController extends GenericController<
       success: true,
     });
   });
+
+
+  // may be we dont need this 
+  getAllWithPaginationV2 = catchAsync(async (req: Request, res: Response) => {
+    //const filters = pick(req.query, ['_id', 'title']); // now this comes from middleware in router
+    const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']); ;
+    const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
+
+    // ✅ Default values
+    let populateOptions: (string | { path: string; select: string }[]) = [];
+    let select = '-isDeleted -createdAt -updatedAt -__v';
+
+    // ✅ If middleware provided overrides → use them
+    if (req.queryOptions) {
+      if (req.queryOptions.populate) {
+        populateOptions = req.queryOptions.populate;
+      }
+      if (req.queryOptions.select) {
+        select = req.queryOptions.select;
+      }
+    }
+
+    const result = await this.service.getAllWithPagination(filters, options, populateOptions , select );
+
+    sendResponse(res, {
+      code: StatusCodes.OK,
+      data: result,
+      message: `All ${this.modelName} with pagination`,
+      success: true,
+    });
+  });
+
+
 
 
   assignToPatient = catchAsync(async (req: Request, res: Response) => {

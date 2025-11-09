@@ -26,9 +26,10 @@ export const createInfomationVideoValidationSchema = z.object({
         invalid_type_error: 'description must be a string.',
       }).min(2, {
       message: 'description must be at least 2 characters long.',
-    }).max(1000, {
-      message: 'description must be at most 1000 characters long.',
     }),
+    // .max(1000, {
+    //   message: 'description must be at most 1000 characters long.',
+    // }),
   }),
   // params: z.object({
   //   id: z.string().optional(),

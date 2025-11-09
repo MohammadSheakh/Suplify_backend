@@ -44,10 +44,10 @@ export const createWorkoutClassSessionValidationSchema = z.object({
       })
       .min(2, {
         message: 'description must be at least 2 characters long.',
-      })
-      .max(1000, {
-        message: 'description must be at most 1000 characters long.',
       }),
+      // .max(1000, {
+      //   message: 'description must be at most 1000 characters long.',
+      // }),
 
     typeOfLink: z.enum([
       TMeetingLink.zoom,

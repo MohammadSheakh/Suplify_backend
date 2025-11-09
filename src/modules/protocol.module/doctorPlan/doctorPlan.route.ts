@@ -36,8 +36,8 @@ const controller = new DoctorPlanController();
 router.route('/paginate').get(
   auth(TRole.doctor),
   validateFiltersForQuery(optionValidationChecking(['_id','planType', 'title',  ...paginationOptions])),
-  getLoggedInUserAndSetReferenceToUser('createdBy'),
-  controller.getAllWithPaginationV2
+  // getLoggedInUserAndSetReferenceToUser('createdBy'),
+  controller.getAllWithPagination // V2
 );
 
 router.route('/:id').get(
