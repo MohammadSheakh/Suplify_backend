@@ -9,6 +9,7 @@ import { notificationFilters } from './notification.constants';
 const getALLNotification = catchAsync(async (req, res) => {
   const filters = pick(req.query, notificationFilters);
   const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
+  options.sortBy = '-createdAt'; // latest notification first
   const userId = req.user.userId;
   const result = await NotificationService.getALLNotification(
     filters,
@@ -26,6 +27,7 @@ const getALLNotification = catchAsync(async (req, res) => {
 const getAdminNotifications = catchAsync(async (req, res) => {
   const filters = pick(req.query, notificationFilters);
   const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
+  options.sortBy = '-createdAt'; // latest notification first
   const result = await NotificationService.getAdminNotifications(
     filters,
     options

@@ -204,9 +204,10 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Subscription) => {
           null // linkId
       );
       
-
-
       console.log("newPayment created --- handleSuccessfulPayment --- invoice.billing_reason === 'subscription_create' =>> ", newPayment);
+
+      const newExpirationDate = new Date();
+      newExpirationDate.setDate(newExpirationDate.getDate() + 30); // ✅ adds 30 days
 
       // 1. Update UserSubscription with Stripe IDs
       const userSubs = await UserSubscription.findByIdAndUpdate(metadata.referenceId, {
@@ -218,9 +219,17 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Subscription) => {
           // subscriptionStartDate :  new Date(invoice.period_start * 1000),   // may be have issue here ... 
 
           subscriptionStartDate :  new Date(subscription.latest_invoice.period_start * 1000),
+
           currentPeriodStartDate : new Date(subscription.latest_invoice.period_start * 1000),  
-          expirationDate : new Date(subscription.latest_invoice.period_end * 1000),
-          renewalDate : new Date(subscription.latest_invoice.period_end * 1000),
+          
+          // expirationDate : new Date(subscription.latest_invoice.period_end * 1000),
+          
+          expirationDate : newExpirationDate,
+        
+          //renewalDate : new Date(subscription.latest_invoice.period_end * 1000),
+
+          renewalDate : newExpirationDate,
+
 
           // currentPeriodStartDate: null, // THIS billing cycle start
           // expirationDate: null,                 // end of trial or billing cycle

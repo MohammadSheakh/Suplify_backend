@@ -81,6 +81,14 @@ export class PlanByDoctorController extends GenericController<
     const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']); ;
     const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
 
+    // 🤢🤮
+    if(filters.patientId == 'null'){
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'patientId is required in query');
+    }
+    if(filters.protocolId == 'null'){
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'protocolId is required in query');
+    }
+
     const populateOptions: (string | {path: string, select: string}[]) = [
       
     ];

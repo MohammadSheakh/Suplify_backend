@@ -4,7 +4,7 @@ import { UserSubscription } from "../../subscription.module/userSubscription/use
 import { IUser } from "../../user/user.interface";
 import { User } from "../../user/user.model";
 
-// 7. HANDLE SUBSCRIPTION CANCELLATION WEBHOOK
+// 7. HANDLE SUBSCRIPTION CANCELLATION WEBHOOK 🟢🟢🟢🟢🟢
 export const handleSubscriptionCancellation = async (subscription) => {
   console.log("🔥handleSubscriptionCancellation🔥 in webhook 🪝 ------", subscription);
   /*-----------------------------------------
@@ -64,7 +64,22 @@ export const handleSubscriptionCancellation = async (subscription) => {
       stripe_subscription_id: null
     });
 
+
+    const updatedUsersSubs = await UserSubscription.findOneAndUpdate(
+      { 
+        _id: subscription.metadata.referenceId,  // this is UserSubscription id from metadata
+        status : UserSubscriptionStatusType.cancelling // previously eta active chilo ..  
+      },
+      {
+        $set: { 
+          cancelledAt: new Date(),
+          status: UserSubscriptionStatusType.cancelled,
+        }
+      }
+    );
+
   
+    /*------------------------------------------------
     await UserSubscription.updateMany(
       { 
         userId: user._id,
@@ -79,6 +94,8 @@ export const handleSubscriptionCancellation = async (subscription) => {
         } 
       }
     );
+
+    ------------------------------------------------*/
     
     console.log(`🔚 Subscription cancelled for user: ${user.email}`);
     

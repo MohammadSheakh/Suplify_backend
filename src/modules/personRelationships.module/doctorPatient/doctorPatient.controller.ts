@@ -14,6 +14,8 @@ import omit from '../../../shared/omit';
 import pick from '../../../shared/pick';
 import { PaginationHelpers } from '../../../common/service/paginationHelpers';
 import { User } from '../../user/user.model';
+import { toObjectId } from '../../../utils/toMongooseObjectId';
+import ApiError from '../../../errors/ApiError';
 
 
 export class DoctorPatientController extends GenericController<
@@ -227,8 +229,13 @@ export class DoctorPatientController extends GenericController<
     const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']); ;
     const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
 
+    // 🤢🤮
+    if(filters.patientId == 'null'){
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'patientId is required in query');
+    }
+
     const result = await this.doctorPatientService.getAllDoctorAndProtocolCountForPatient(
-      filters.patientId, // from query .. must be sent from frontend
+      toObjectId(filters.patientId) , // from query .. must be sent from frontend
       filters,
       options
     );

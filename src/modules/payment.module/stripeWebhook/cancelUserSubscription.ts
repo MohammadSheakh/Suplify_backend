@@ -1,3 +1,7 @@
+import stripe from "../../../config/stripe.config";
+import { User } from "../../user/user.model";
+
+// 🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴
 // 6. CANCEL SUBSCRIPTION (USER REQUEST)
 async function cancelUserSubscription(userId, cancelImmediately = false) {
   try {
@@ -31,7 +35,7 @@ async function cancelUserSubscription(userId, cancelImmediately = false) {
     }
     
     // Send cancellation confirmation email
-    await sendCancellationEmail(user, cancelImmediately);
+    // await sendCancellationEmail(user, cancelImmediately); 🟢🟢🟢🟢🟢
     
     return { 
       success: true, 

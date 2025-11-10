@@ -3,7 +3,7 @@ import Stripe from "stripe";
 import { GenericService } from "../../_generic-module/generic.services";
 import { ISubscriptionPlan } from "./subscriptionPlan.interface";
 import { SubscriptionPlan } from "./subscriptionPlan.model";
-import { UserSubscriptionService } from "../userSubscription/userSubscription.service";
+import { getOrCreateStripeCustomer, UserSubscriptionService } from "../userSubscription/userSubscription.service";
 import stripe from "../../../config/stripe.config";
 import ApiError from "../../../errors/ApiError";
 //@ts-ignore
@@ -69,6 +69,9 @@ export class SubscriptionPlanService extends GenericService<typeof SubscriptionP
                 `Subscription plan not found`
             );
         }
+
+        console.log('Subscription Plan Found: ', subscriptionPlan);
+
         const user:TUser | null = await User.findById(userId);
         if (!user) {
             throw new ApiError(
@@ -76,6 +79,7 @@ export class SubscriptionPlanService extends GenericService<typeof SubscriptionP
                 'User not found'
             );
         }
+
         if (user.subscriptionType !== TSubscription.none) {
             throw new ApiError(
                 StatusCodes.BAD_REQUEST,
@@ -87,6 +91,9 @@ export class SubscriptionPlanService extends GenericService<typeof SubscriptionP
         // If stripeCustomerId found .. we dont need to create that .. 
         //---------------------------------   
 
+        let  stripeCustomer = await getOrCreateStripeCustomer(user);
+
+        /*---------------------------------------
         let stripeCustomer;
         if(!user.stripe_customer_id){
             let _stripeCustomer = await stripe.customers.create({
@@ -101,6 +108,8 @@ export class SubscriptionPlanService extends GenericService<typeof SubscriptionP
         }else{
             stripeCustomer = user.stripe_customer_id;
         }
+
+        ---------------------------------------*/
 
         //---------------------------------
         // Lets create a userSubscription // TODO : we have to check already have userSubsription or not .. 
@@ -157,7 +166,7 @@ export class SubscriptionPlanService extends GenericService<typeof SubscriptionP
             subscription_data: {
                 metadata: {
                 userId: user._id.toString(),
-                subscriptionType: TSubscription.standard.toString(),
+                subscriptionType: subscriptionPlan.subscriptionType.toString(),// TSubscription.standard.toString(),
                 subscriptionPlanId: subscriptionPlan._id.toString(),
                 referenceId: newUserSubscription._id.toString(),
                 referenceFor:  TTransactionFor.UserSubscription.toString(),

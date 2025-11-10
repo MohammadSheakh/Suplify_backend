@@ -27,6 +27,9 @@ import { IUserSubscription } from '../userSubscription/userSubscription.interfac
 import { UserSubscriptionStatusType } from '../userSubscription/userSubscription.constant';
 import { UserSubscription } from '../userSubscription/userSubscription.model';
 import { config } from '../../../config';
+import { enqueueWebNotification } from '../../../services/notification.service';
+import { TRole } from '../../../middlewares/roles';
+import { TNotificationType } from '../../notification/notification.constants';
 
 const subscriptionPlanService = new SubscriptionPlanService();
 const userService = new UserService();
@@ -80,15 +83,27 @@ export class SubscriptionController extends GenericController<
   // POST /api/subscription/cancel
   cancelSubscription = async (req: Request, res: Response) => {
     const user = req.user as IUser;
-    const userSub:IUserSubscription = await UserSubscription.findOne({ userId: user.userId });
+    const userSub:IUserSubscription = await UserSubscription.findOne({
+       userId: user.userId,
+       status: UserSubscriptionStatusType.active 
+    });
+
+    console.log("userSub : ", userSub)
+
 
     if (!userSub || !userSub.stripe_subscription_id) {
-        throw new ApiError(StatusCodes.BAD_REQUEST, 'No active subscription found');
+        throw new ApiError(StatusCodes.NOT_FOUND, 'No active subscription found');
     }
 
     const canceledSub = await stripe.subscriptions.update(userSub.stripe_subscription_id, {
         cancel_at_period_end: true,
     });
+
+    console.log("canceledSub : ",canceledSub)
+
+    if (!canceledSub) {
+        throw new ApiError(StatusCodes.NOT_FOUND, 'Failed to cancel subscription');
+    }
 
     // it will cancel the subscription at the end of the billing cycle
     await UserSubscription.findByIdAndUpdate(userSub._id, {
@@ -99,6 +114,17 @@ export class SubscriptionController extends GenericController<
     });
 
     // TODO : MUST : Send Notification to admin that .. a person cancel subscription
+
+    await enqueueWebNotification(
+      // TODO : MUST : subscription plan name can not be shown from user.subscriptionPlan field .. we have to fetch current subscription status .. not from JWT token
+        `A User ${user.userId} ${user.subscriptionPlan} Cancel his subscription ${userSub.subscriptionPlanId} at ${new Date()}.`,
+        user.userId, // senderId
+        null, // receiverId
+        TRole.admin, // receiverRole
+        TNotificationType.payment, // type
+        null, // linkFor
+        null // linkId
+    );
 
     sendResponse(res, {
         code: StatusCodes.OK,

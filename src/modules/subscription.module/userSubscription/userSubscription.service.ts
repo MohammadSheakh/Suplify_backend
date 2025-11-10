@@ -25,6 +25,8 @@ export class UserSubscriptionService extends GenericService<typeof UserSubscript
         this.stripe = stripe;
     }
 
+    
+
     startFreeTrial = async (userId: string | undefined): Promise<any> => {
         /*******
          *  1. check users hasUsedFreeTrial 
@@ -66,8 +68,10 @@ export class UserSubscriptionService extends GenericService<typeof UserSubscript
         }
         -------------------------------------*/
 
-        let stripeCustomer;
-
+    
+        let  stripeCustomer = await getOrCreateStripeCustomer(user);
+        /*---------------------------------------------
+        
         if (!user.stripe_customer_id) {
 
             console.log(" 1 ")
@@ -127,9 +131,10 @@ export class UserSubscriptionService extends GenericService<typeof UserSubscript
 
                         throw err; // rethrow other unexpected errors
                     }
-                }
+                }1
         }
 
+        ---------------------------------------------*/
 
 
         //---------------------------------
@@ -226,6 +231,80 @@ export class UserSubscriptionService extends GenericService<typeof UserSubscript
         return session.url;
     }
 }
+
+
+export async function getOrCreateStripeCustomer (user: TUser): Promise<any> {
+    let stripeCustomer:any;
+
+    if (!user.stripe_customer_id) {
+
+        console.log(" 1 ")
+
+            // 🔹 No customer ID saved — create a new one
+            const _stripeCustomer = await stripe.customers.create({
+                name: user?.name,
+                email: user?.email,
+            });
+
+
+            stripeCustomer = _stripeCustomer.id;
+
+            await User.findByIdAndUpdate(user._id, {
+                $set: { stripe_customer_id: stripeCustomer },
+            });
+
+            return stripeCustomer;
+        } else {
+            try {
+                // 🔹 Check if existing Stripe customer still exists
+                const retriveUser = await stripe.customers.retrieve(user.stripe_customer_id);
+
+                console.log("retriveUser ::", retriveUser)
+
+                if (retriveUser.deleted) {
+                    // Customer deleted or invalid → recreate and update DB
+                    const _stripeCustomer = await stripe.customers.create({
+                        name: user?.name,
+                        email: user?.email,
+                    });
+
+                    stripeCustomer = _stripeCustomer.id;
+
+                    await User.findByIdAndUpdate(user._id, {
+                        $set: { stripe_customer_id: stripeCustomer },
+                    });
+
+                    return stripeCustomer;
+                }
+            } catch (err) {
+
+                console.log(" 3 ")
+                if (err.raw && err.raw.code === "resource_missing") {
+                    // console.warn("⚠️ Stripe customer not found, recreating...");
+
+                    // Customer deleted or invalid → recreate and update DB
+                    const _stripeCustomer = await stripe.customers.create({
+                        name: user?.name,
+                        email: user?.email,
+                    });
+
+                    stripeCustomer = _stripeCustomer.id;
+
+                    await User.findByIdAndUpdate(user._id, {
+                        $set: { stripe_customer_id: stripeCustomer },
+                    });
+
+                    return stripeCustomer;
+                } else {
+
+                    console.log("❌ Unexpected error when retrieving Stripe customer:", err);   
+
+                    throw err; // rethrow other unexpected errors
+                }
+            }1
+    }
+}
+    
 
 ///////////////// OPTIONS ... 
 // Collect card but don't charge immediately

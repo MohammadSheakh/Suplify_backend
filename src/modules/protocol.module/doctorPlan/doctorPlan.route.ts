@@ -30,14 +30,23 @@ const paginationOptions: Array<'sortBy' | 'page' | 'limit' | 'populate'> = [
 // const taskService = new TaskService();
 const controller = new DoctorPlanController();
 //---------------------------------
-// Doctor | get own all plan by category 
+// Doctor | get own all plan by category With Search
 //---------------------------------
-//
 router.route('/paginate').get(
   auth(TRole.doctor),
   validateFiltersForQuery(optionValidationChecking(['_id','planType', 'title',  ...paginationOptions])),
   // getLoggedInUserAndSetReferenceToUser('createdBy'),
   controller.getAllWithPagination // V2
+);
+
+//---------------------------------
+// Doctor | get own all plan by category Without Search
+//---------------------------------
+router.route('/paginate/without-search').get(
+  auth(TRole.doctor),
+  validateFiltersForQuery(optionValidationChecking(['_id','planType', 'title',  ...paginationOptions])),
+  // getLoggedInUserAndSetReferenceToUser('createdBy'),
+  controller.getAllWithPaginationWithoutSearch // V2
 );
 
 router.route('/:id').get(

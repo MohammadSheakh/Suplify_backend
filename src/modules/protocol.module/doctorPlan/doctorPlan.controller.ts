@@ -101,6 +101,46 @@ export class DoctorPlanController extends GenericController<
     });
   });
 
+  getAllWithPaginationWithoutSearch = catchAsync(async (req: Request, res: Response) => {
+    req.query.createdBy  = (req.user as any).userId;
+    
+    const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']); ;
+    const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
+
+    const populateOptions: (string | {path: string, select: string}[]) = [
+    ];
+
+    const select = '-createdAt -updatedAt -__v -isDeleted'; // fields to exclude
+
+    const query = {};
+
+    // Create a copy of filter without isPreview to handle separately
+    const mainFilter = { ...filters };
+
+    // Loop through each filter field and add conditions if they exist
+    for (const key of Object.keys(mainFilter)) {
+      if (key === 'title' && mainFilter[key] !== '') {
+        query[key] = { $regex: mainFilter[key], $options: 'i' }; // Case-insensitive regex search for name
+      // } else {
+      } else if (mainFilter[key] !== '' && mainFilter[key] !== null && mainFilter[key] !== undefined){
+        //---------------------------------
+        // In pagination in filters when we pass empty string  it retuns all data
+        //---------------------------------
+        query[key] = mainFilter[key];
+      }
+    }
+
+    const result = await this.service.getAllWithPagination(/*filters,*/query, options, populateOptions, select);
+    
+    sendResponse(res, {
+      code: StatusCodes.OK,
+      data: result,
+      message: `All ${this.modelName} with pagination`,
+      success: true,
+    });
+  });
+
+
 
   // may be we dont need this 
   getAllWithPaginationV2 = catchAsync(async (req: Request, res: Response) => {

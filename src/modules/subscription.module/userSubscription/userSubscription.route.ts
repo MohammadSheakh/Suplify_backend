@@ -10,6 +10,7 @@ import multer from "multer";
 import { getLoggedInUserAndSetReferenceToUser } from '../../../middlewares/getLoggedInUserAndSetReferenceToUser';
 import { setQueryOptions } from '../../../middlewares/setQueryOptions';
 import { defaultExcludes } from '../../../constants/queryOptions';
+import { setRequestFiltersV2 } from '../../../middlewares/setRequstFilterAndValue';
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
@@ -37,6 +38,9 @@ router.route('/paginate').get(
   auth(TRole.common),
   validateFiltersForQuery(optionValidationChecking(['_id', 'userId'])),
   getLoggedInUserAndSetReferenceToUser('userId'),
+  setRequestFiltersV2({
+    sortBy: '-createdAt',
+  }),
   setQueryOptions({
     populate: [{
       path: 'subscriptionPlanId', // coverPhotos attachments
