@@ -38,6 +38,7 @@ import { BankInfoRoute } from '../modules/wallet.module/bankInfo/bankInfo.route'
 import { WithdrawalRequstRoute } from '../modules/wallet.module/withdrawalRequst/withdrawalRequst.route';
 import { LabTestBookingRoute } from '../modules/scheduleAndAppointmentBooking.module/labTestBooking/labTestBooking.route';
 import { PatientTrainingSessionRoute } from '../modules/training.module/patientTrainingSession/patientTrainingSession.route';
+import { SpecialistSuggestionForAPlanRoute } from '../modules/protocol.module/specialistSuggestionForAPlan/specialistSuggestionForAPlan.route';
 
 // import { ChatRoutes } from '../modules/chat/chat.routes';
 // import { MessageRoutes } from '../modules/message/message.routes';
@@ -156,6 +157,11 @@ const apiRoutes = [
   { // 🟢
     path: '/suggestion-by-specialist/',
     route: SuggestionBySpecialistRoute,
+  },
+
+  { // 🟢
+    path: '/suggestion-by-specialist-for-a-plan/',
+    route: SpecialistSuggestionForAPlanRoute,
   },
 
   { // 🟢

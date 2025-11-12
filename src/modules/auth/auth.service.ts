@@ -25,6 +25,9 @@ import { enqueueWebNotification } from '../../services/notification.service';
 import { TRole } from '../../middlewares/roles';
 import { TNotificationType } from '../notification/notification.constants';
 import { SpecialistPatient } from '../personRelationships.module/specialistPatient/specialistPatient.model';
+import { IUserProfile } from '../user/userProfile/userProfile.interface';
+import { TApprovalStatus } from '../user/userProfile/userProfile.constant';
+
 const eventEmitterForUpdateUserProfile = new EventEmitter(); // functional way
 const eventEmitterForCreateWallet = new EventEmitter();
 const eventEmitterForAssignSpecialistAutomatically = new EventEmitter();
@@ -290,6 +293,7 @@ const createUser = async (userData: TUser, userProfileId:string) => {
 
 const login = async (email: string, reqpassword: string, fcmToken : string) => {
   const user = await User.findOne({ email }).select('+password');
+
   if (!user) {
     throw new ApiError(StatusCodes.UNAUTHORIZED, 'Invalid credentials');
   }
@@ -328,9 +332,6 @@ const login = async (email: string, reqpassword: string, fcmToken : string) => {
       );
     }
     // user.fcmToken = fcmToken;
-
-
-
     await user.save();
     throw new ApiError(StatusCodes.UNAUTHORIZED, 'Invalid credentials');
   }
@@ -339,6 +340,24 @@ const login = async (email: string, reqpassword: string, fcmToken : string) => {
     user.failedLoginAttempts = 0;
     user.lockUntil = undefined;
     await user.save();
+  }
+
+  if(user.role === 'specialist' || user.role === 'doctor') {
+    const userProfileToCheckApprovalStatus:IUserProfile = await UserProfile.findById(user.profileId); 
+    
+    if(!userProfileToCheckApprovalStatus){
+      throw new ApiError(
+        StatusCodes.UNAUTHORIZED,
+        `Your profile is not found. Please contact support.`,
+      );
+    }
+
+    if(userProfileToCheckApprovalStatus.approvalStatus !== TApprovalStatus.approved){
+      throw new ApiError(
+        StatusCodes.UNAUTHORIZED,
+        `Your account is not approved yet. Please wait for admin approval.`,
+      );
+    }
   }
 
   const tokens = await TokenService.accessAndRefreshToken(user);

@@ -12,6 +12,7 @@ import pick from '../../shared/pick';
 import { UserProfile } from './userProfile/userProfile.model';
 import { IUserProfile } from '../../helpers/socket/socketForChatV3';
 import { TRole } from '../../middlewares/roles';
+import { TApprovalStatus } from './userProfile/userProfile.constant';
 
 interface IAdminOrSuperAdminPayload {
   email: string;
@@ -201,10 +202,6 @@ export class UserService extends GenericService<typeof User, IUser> {
       throw new ApiError(StatusCodes.BAD_REQUEST, 'User does not have an associated profile');
     }
 
-    console.log("user -> ", user)
-    console.log("user.role -> ", user.role)
-    // console.log("user -> ", user)
-
     if(user.role === TRole.admin){
       throw new ApiError(StatusCodes.BAD_REQUEST, 'You can not change status of admin');
     }
@@ -217,6 +214,12 @@ export class UserService extends GenericService<typeof User, IUser> {
     );
 
     user.profileId = updatedProfile
+
+    if(approvalStatus ===  TApprovalStatus.approved){
+      user.isEmailVerified = true;
+
+      await user.save();
+    }
 
     if (!updatedProfile) {
       throw new ApiError(StatusCodes.NOT_FOUND, 'User profile not found');
