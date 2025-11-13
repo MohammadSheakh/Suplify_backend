@@ -30,9 +30,9 @@ const paginationOptions: Array<'sortBy' | 'page' | 'limit' | 'populate'> = [
 const controller = new ConversationController();
 
 router.route('/paginate').get(
-  //auth('common'),
+  auth(TRole.common),
   validateFiltersForQuery(optionValidationChecking(['_id', 'creatorId', ...paginationOptions])),
-  controller.getAllWithPagination
+  controller.getAllConversationByUserIdWithPagination
 );
 
 router.route('/:id').get(
@@ -93,9 +93,9 @@ router.route('/participants/remove').delete(
 );
 
 //[🚧][🧑‍💻✅][🧪] // 🆗
-router.route('/participants/all').get(
-  //auth('common'),
-  controller.showParticipantsOfExistingConversation
+router.route('/participants/other').get(
+  auth(TRole.common),
+  controller.showOtherParticipantOfConversation
 );
 
 /*************

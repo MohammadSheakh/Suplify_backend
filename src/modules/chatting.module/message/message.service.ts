@@ -11,13 +11,15 @@ export class MessagerService extends GenericService<typeof Message, IMessage>{ /
      * ⭕ not needed may be 
      * *** */
     async getAllByConversationId(conversationId: string) {
-        const object = await this.model.find({ conversationId});
-        
-        if (!object) {
-          // throw new ApiError(StatusCodes.BAD_REQUEST, 'No file uploaded');
-          return null;
-        }
-        return object;
+      const object = await this.model.find({ conversationId});
+      
+      if (!object) {
+        // throw new ApiError(StatusCodes.BAD_REQUEST, 'No file uploaded');
+        return null;
       }
+      return object;
+    }
     
+    
+
 }

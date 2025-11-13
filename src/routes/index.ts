@@ -60,6 +60,18 @@ const apiRoutes = [
 
   ////////////////////// Created By Mohammad Sheakh
 
+
+  //------------------------------- Conversation
+  {
+    path: '/messages',
+    route: MessageRoute,
+  },
+
+  {
+    path: '/conversations',
+    route: ConversationRoute,
+  },
+  //----------------------------------------
   {
     path: '/settings',
     route: SettingsRoutes,
@@ -68,13 +80,13 @@ const apiRoutes = [
     path: '/products',
     route: ProductRoute,
   },
-  ///////////////////////////////////////// Success Tracker
+  //---------------------------------------- Success Tracker
   {
     path: '/success-tracker',
     route: SuccessTrackerRoute,
   },
   
-  ///////////////////////////////////////// Training Program
+  //---------------------------------------- Training Program
   { // 🟢
     path: '/training-programs',
     route: TrainingProgramRoute,
@@ -91,7 +103,7 @@ const apiRoutes = [
     path: '/patient-session',
     route: PatientTrainingSessionRoute,
   },
-  //////////////////////////////////////////// Cart Order
+  //---------------------------------------- Cart Order
   { // 🟢
     path: '/cart-items',
     route: CartItemRoute,
@@ -115,13 +127,13 @@ const apiRoutes = [
     route: LabTestBookingRoute,
   },
 
-  ///////////////////////////////////////// Payment Transaction
+  //---------------------------------------- Payment Transaction
   { // 🟢
     path: '/payment-transactions',
     route: PaymentTransactionRoute,
   },
 
-  ///////////////////////////////////////// Chatting 
+  //---------------------------------------- Chatting 
   { // 🟢
     path: '/conversations',
     route: ConversationRoute,
@@ -130,7 +142,7 @@ const apiRoutes = [
     path: '/information-videos',
     route: informationVideoRoute,
   },
-  ////////////////////////////////////////////  Doctor Appointment
+  //----------------------------------------  Doctor Appointment
   { // 🟢
     path: '/doctor-appointments',
     route: DoctorAppointmentScheduleRoute,
@@ -140,7 +152,7 @@ const apiRoutes = [
     path: '/doctor-appointments/bookings',
     route: DoctorPatientScheduleBookingRoute,
   },
-  //////////////////////////////////////////// Doctor Plan (protocol)
+  //---------------------------------------- Doctor Plan (protocol)
   { // 🟢
     path: '/doctor-plans/',
     route: DoctorPlanRoute,
@@ -169,7 +181,7 @@ const apiRoutes = [
     route: DoctorSpecialistPatientRoute,
   },
 
-  ///////////////////////////////////////////// Person Relationships
+  //---------------------------------------- Person Relationships
   { // 🟢
     path: '/doctor-patients',
     route: doctorPatientRoute,
@@ -178,7 +190,7 @@ const apiRoutes = [
     path: '/specialist-patients',
     route: specialistPatientRoute,
   },
-  ///////////////////////////////////////////// Workout Class
+  //---------------------------------------- Workout Class
   { // 🟢
     path: '/workout-schedules',
     route: SpecialistWorkoutClassScheduleRoute,
@@ -207,7 +219,7 @@ const apiRoutes = [
     path: '/user-subs',
     route: UserSubscriptionRoute,
   },
-  //////////////////////////////////////// Subscription
+  //---------------------------------------- Subscription
   { // 🟢
     path: '/subscription-plans',
     route: SubscriptionPlanRoute,
@@ -216,7 +228,7 @@ const apiRoutes = [
     path: '/stripe',
     route: stripeAccountRoutes,
   },
-  ///////////////////////////////////////////// Wallet
+  //---------------------------------------- Wallet
   { // 🟢
     path: '/wallet-transactions',
     route: WalletTransactionHistoryRoute,

@@ -21,7 +21,10 @@ export class ConversationParticipentsService extends GenericService<
   }
 
   async getByConversationId(conversationId: any) {
-    const object = await this.model.find({ conversationId });
+    const object = await this.model.find({ conversationId }).select('userId').populate({
+      path: 'userId',
+      select:'name profileImage'
+    });
     if (!object) {
       // throw new ApiError(StatusCodes.BAD_REQUEST, 'No file uploaded');
       return null;
