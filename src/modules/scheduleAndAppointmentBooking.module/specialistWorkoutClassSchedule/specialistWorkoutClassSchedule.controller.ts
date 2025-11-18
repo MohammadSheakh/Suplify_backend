@@ -55,6 +55,8 @@ export class SpecialistWorkoutClassScheduleController extends GenericController<
 
     const result = await this.specialistWorkoutClassScheduleService.getAllWithAggregation(filters, options, req.user.userId);
 
+    console.log("result :: ", result);
+
     // get specialist information
 
     const specialistInfo = await User

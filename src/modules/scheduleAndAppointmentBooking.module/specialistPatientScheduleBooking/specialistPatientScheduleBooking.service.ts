@@ -58,7 +58,7 @@ export class SpecialistPatientScheduleBookingService extends GenericService<
     
     
     const checkAlreadyBooked = await SpecialistPatientScheduleBooking.findOne({
-      workoutClassId,
+      workoutClassScheduleId:workoutClassId,
       patientId: user.userId
     });
 
@@ -79,6 +79,11 @@ export class SpecialistPatientScheduleBookingService extends GenericService<
 
     if(existingWorkoutClass.status !== TSpecialistWorkoutClassSchedule.available){
         throw new ApiError(StatusCodes.BAD_REQUEST, `This workout class is not available for booking. Current status is ${existingWorkoutClass.status}`);
+    }
+
+    const now = new Date();
+    if(existingWorkoutClass.endTime < now) {
+        throw new Error('This workout class has already ended. You cannot book it.');
     }
 
     /********
@@ -139,7 +144,6 @@ export class SpecialistPatientScheduleBookingService extends GenericService<
                     endTime : existingWorkoutClass.endTime,
                     startTime: existingWorkoutClass.startTime,
                     scheduleDate: existingWorkoutClass.scheduleDate,
-
                     price: parseInt(existingWorkoutClass.price)
                 });
 

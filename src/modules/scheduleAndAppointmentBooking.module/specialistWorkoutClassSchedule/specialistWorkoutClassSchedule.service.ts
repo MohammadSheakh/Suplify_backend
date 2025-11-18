@@ -8,6 +8,7 @@ import { GenericService } from '../../_generic-module/generic.services';
 import { toLocalTime, toUTCTime } from '../../../utils/timezone';
 import { PaginateOptions } from '../../../types/paginate';
 import PaginationService from '../../../common/service/paginationService';
+import { TPaymentStatus } from '../specialistPatientScheduleBooking/specialistPatientScheduleBooking.constant';
 
 export class SpecialistWorkoutClassScheduleService extends GenericService<
   typeof SpecialistWorkoutClassSchedule,
@@ -131,7 +132,9 @@ export class SpecialistWorkoutClassScheduleService extends GenericService<
                     $match: {
                         $expr: { $eq: ["$workoutClassScheduleId", "$$scheduleId"] },
                         patientId: new mongoose.Types.ObjectId(patientId),
-                        isDeleted: { $ne: true }
+                        isDeleted: { $ne: true },
+                        // paymentStatus : TPaymentStatus.paid,
+                        paymentStatus: { $in: [TPaymentStatus.paid, TPaymentStatus.unpaid] } // try to fix bug
                     }
                 },
                 {
