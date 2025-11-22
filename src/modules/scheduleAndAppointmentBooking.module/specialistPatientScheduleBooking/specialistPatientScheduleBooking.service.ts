@@ -77,14 +77,15 @@ export class SpecialistPatientScheduleBookingService extends GenericService<
         throw new ApiError(StatusCodes.NOT_FOUND, 'Workout Class not found');
     }
 
-    if(existingWorkoutClass.status !== TSpecialistWorkoutClassSchedule.available){
-        throw new ApiError(StatusCodes.BAD_REQUEST, `This workout class is not available for booking. Current status is ${existingWorkoutClass.status}`);
-    }
-
     const now = new Date();
     if(existingWorkoutClass.endTime < now) {
         throw new Error('This workout class has already ended. You cannot book it.');
     }
+
+    if(existingWorkoutClass.status !== TSpecialistWorkoutClassSchedule.available){
+        throw new ApiError(StatusCodes.BAD_REQUEST, `This workout class is not available for booking. Current status is ${existingWorkoutClass.status}`);
+    }
+
 
     /********
      * 📝
