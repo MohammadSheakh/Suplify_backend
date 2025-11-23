@@ -358,6 +358,13 @@ const login = async (email: string, reqpassword: string, fcmToken : string) => {
         `Your account is not approved yet. Please wait for admin approval.`,
       );
     }
+
+    if (!user.isEmailVerified) {
+      throw new ApiError(
+        StatusCodes.BAD_REQUEST,
+        'Your account is not email verified. please verify your email'
+      );
+    }
   }
 
   const tokens = await TokenService.accessAndRefreshToken(user);

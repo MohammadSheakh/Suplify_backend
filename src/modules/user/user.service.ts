@@ -217,7 +217,6 @@ export class UserService extends GenericService<typeof User, IUser> {
 
     if(approvalStatus ===  TApprovalStatus.approved){
       user.isEmailVerified = true;
-
       await user.save();
     }
 

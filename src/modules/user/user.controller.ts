@@ -210,8 +210,6 @@ export class UserController extends GenericController<
     // const userId = req.params.id;
     const { approvalStatus, userId } = req.query;
 
-    
-
     const result = await this.userService.changeApprovalStatusByUserId(userId, String(approvalStatus));
 
     sendResponse(res, {
