@@ -115,6 +115,7 @@ export class TrainingProgramController extends GenericController<
 
     // only get logged in specialist's training program
     filters.createdBy = (req.user as IUser).userId;
+    filters.isDeleted = false;
 
     const populateOptions: (string | {path: string, select: string}[]) = [
       {

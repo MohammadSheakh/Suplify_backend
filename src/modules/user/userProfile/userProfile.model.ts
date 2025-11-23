@@ -20,12 +20,14 @@ const userProfileSchema = new Schema<IUserProfile>({
         ],
         default: TApprovalStatus.pending,
     },
-    protocolNames : [ // for specialist
-        {
-            type: String,
-            required: [false, 'Protocol name is not required'],
-        }
-    ],
+    protocolNames : 
+    // for specialist
+    {
+        type: [String],
+        required: [false, 'Protocol name is not required'],
+        default: [], // optional but recommended
+    }
+    ,
     howManyPrograms:{ // for specialist
         type: Number,
         required: [false, 'How many programs is not required'],

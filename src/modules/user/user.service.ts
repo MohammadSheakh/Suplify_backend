@@ -231,9 +231,7 @@ export class UserService extends GenericService<typeof User, IUser> {
 
   async updateProfileOfSpecialistAndDoctor(userId: string, data: any): Promise<any> {
     
-    // console.log("from service typeof =-> ", typeof data.profileImage[0].attachment);
-    // console.log("from service =-> ", data.profileImage[0].attachment);
-
+  
     const dataForProfile= {
       name : data.name,
       description : data.description,
@@ -262,10 +260,10 @@ export class UserService extends GenericService<typeof User, IUser> {
         description : data.description ? data.description : profile.description,
         address : data.address ? data.address : profile.address,
         protocolNames : data.protocolNames ? data.protocolNames : profile.protocolNames,
+        howManyPrograms : data.howManyPrograms ? data.howManyPrograms : profile.howManyPrograms, 
       }, 
       { new: true }
     );
-
 
     return {
       updatedUser,

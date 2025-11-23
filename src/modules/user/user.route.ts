@@ -91,7 +91,7 @@ router.route('/profile/:id').get(
   getLoggedInUserIdAndSetInParams('id'),
   setQueryOptions({
     populate: [
-      { path: 'profileId', select: 'approvalStatus protocolNames userId description address', /* populate: { path : ""} */ },
+      { path: 'profileId', select: 'approvalStatus howManyPrograms protocolNames userId description address', /* populate: { path : ""} */ },
     ],
     select: 'name profileId email profileImage subscriptionType status role' //-createdAt
   }),

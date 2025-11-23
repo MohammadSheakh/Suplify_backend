@@ -159,6 +159,8 @@ export class informationVideoController extends GenericController<
     const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']); ;
     const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
 
+    filters.isDeleted = false;
+    
     const populateOptions: (string | {path: string, select: string}[]) = [
       {
         path: 'video',
