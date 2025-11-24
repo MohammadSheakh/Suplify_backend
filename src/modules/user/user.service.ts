@@ -268,7 +268,6 @@ export class UserService extends GenericService<typeof User, IUser> {
       updatedUser,
       updatedUserProfile
     }
-
   }
 }
 
