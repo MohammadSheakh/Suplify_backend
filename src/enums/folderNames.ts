@@ -1,4 +1,4 @@
-const parentFolder = "testing"; // suplify // testing // TODO : MUST : should come from .env file
+const parentFolder = "suplify"; // suplify // testing // TODO : MUST : should come from .env file
 
 export enum TFolderName {
     informationVideo = `${parentFolder}/informationVideo`,
