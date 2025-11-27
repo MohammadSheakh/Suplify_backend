@@ -188,6 +188,8 @@ export class UserController extends GenericController<
       }
     }
 
+    options.sortBy='-createdAt'
+
     const select = 'name email role subscriptionType'; 
 
     // const result = await this.service.getAllWithPagination(query, options, populateOptions , select );

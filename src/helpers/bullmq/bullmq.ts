@@ -337,7 +337,7 @@ export const startNotificationWorker = () => {
           referenceId: data.referenceId,
         });
 
-        // logger.info(`✅ Notification created for ${data.receiverRole} :: `, notif);
+        logger.info(`✅ Notification created for ${data.receiverRole} :: `, notif);
         
         let eventName;
         let emitted;

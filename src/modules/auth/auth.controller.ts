@@ -62,7 +62,7 @@ const register = catchAsync(async (req :Request, res:Response) => {
     //---------------------------------
     // we already created wallet for doctor and specialist in AuthService.createUser function
     //---------------------------------
-    sendResponse(res, {
+    return sendResponse(res, {
       code: StatusCodes.CREATED,
       message: `Account create successfully. After checking your documents, you will be notified by email.`,
       data: result,
@@ -70,7 +70,7 @@ const register = catchAsync(async (req :Request, res:Response) => {
     });
   } 
 
-  sendResponse(res, {
+  return sendResponse(res, {
     code: StatusCodes.CREATED,
     message: `Account create successfully, Please verify your email to login`,
     data: result,

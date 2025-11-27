@@ -4,7 +4,7 @@ import ApiError from '../../errors/ApiError';
 import { PaginateOptions, PaginateResult } from '../../types/paginate';
 import { IUser, TUser } from './user.interface';
 import { User } from './user.model';
-import { sendAdminOrSuperAdminCreationEmail } from '../../helpers/emailService';
+import { sendAdminOrSuperAdminCreationEmail, sendEmailToTheDoctorThatAdminApprovedHim } from '../../helpers/emailService';
 import { GenericService } from '../_generic-module/generic.services';
 import PaginationService from '../../common/service/paginationService';
 import omit from '../../shared/omit';
@@ -131,6 +131,11 @@ export class UserService extends GenericService<typeof User, IUser> {
                 profileUpdatedAt: '$profileInfo.updatedAt'
             }
         },
+
+        // 👉 SORT BY createdAt DESCENDING
+        {
+          $sort: { createdAt: -1 }
+        }
         
         // Step 6: Handle users without profiles (set default approval status)
         // {
@@ -217,6 +222,10 @@ export class UserService extends GenericService<typeof User, IUser> {
 
     if(approvalStatus ===  TApprovalStatus.approved){
       user.isEmailVerified = true;
+      console.log("sending email Hit ----------------------------------- ");
+
+      await sendEmailToTheDoctorThatAdminApprovedHim(user.email);
+
       await user.save();
     }
 
