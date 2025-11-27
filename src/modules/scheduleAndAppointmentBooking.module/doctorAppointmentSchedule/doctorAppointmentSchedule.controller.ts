@@ -134,7 +134,7 @@ export class DoctorAppointmentScheduleController extends GenericController<
       
     ).select('name profileImage profileId').populate({
       path: 'profileId',
-      select: 'description',
+      select: 'description address',
     });
     
     sendResponse(res, {

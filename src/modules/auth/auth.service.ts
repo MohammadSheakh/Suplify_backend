@@ -47,6 +47,8 @@ export default eventEmitterForUpdateUserProfile;
 eventEmitterForAssignSpecialistAutomatically.on('eventEmitterForAssignSpecialistAutomatically', 
   async (valueFromRequest: any) => {
   try {
+
+      console.log("lets assign Specialist automatically for this patient ---------- ⚡")
       const { userId } = valueFromRequest; // this userId is patientId
 
       /********* Version 1️⃣
@@ -139,7 +141,7 @@ eventEmitterForAssignSpecialistAutomatically.on('eventEmitterForAssignSpecialist
       });
 
       console.log(
-        `✅ Patient ${userId} assigned to specialist ${specialistId.toString()} successfully.`
+        `✅ Patient ${userId} assigned to specialist ${specialistId.toString()} successfully.`, relation
       );
 
     }catch (error) {

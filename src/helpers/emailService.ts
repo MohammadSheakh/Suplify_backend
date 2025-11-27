@@ -66,14 +66,12 @@ const sendVerificationEmail = async (to: string, otp: string) => {
 
 const sendEmailToTheDoctorThatAdminApprovedHim = async (to: string) => {
 
-  console.log("sending email----------------------------------- ");
-
   const subject = 'You Got Approval From Suplify Admin';
   const html = `
     <div style="width: 45% ; margin: 0 auto ;font-family: Arial, sans-serif; padding: 20px; color: #333; border: 1px solid #ccc; border-radius: 20px;">
       <div style="text-align: center; margin-bottom: 20px;">
         <img src="http://34.203.0.252:6731/uploads/logoForEmail/suplify_logo2.png" alt="Logo" style="width: 200px; margin-bottom: 20px;" />
-        <h1 style="color: #1B9AAA;">Approval</h1>
+        <h1 style="color: #1B9AAA;">Approved</h1>
         <p style="font-size: 16px;">Thank you for signing up! You can log in now.</p>
       </div>
       
