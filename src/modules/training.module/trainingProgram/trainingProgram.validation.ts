@@ -20,7 +20,7 @@ export const createTrainingProgramValidationSchema = z.object({
         invalid_type_error: 'description must be a string.',
       }).min(2, {
       message: 'description must be at least 2 characters long.',
-    }).max(200, {
+    }).max(700, {
       message: 'description must be at most 200 characters long.',
     }),
     totalSessionCount:z.string({ // TODO : make it number
