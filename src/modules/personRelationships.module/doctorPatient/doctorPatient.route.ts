@@ -126,6 +126,11 @@ router.route('/update/:id').put(
   controller.updateById
 );
 
+router.route('/softDelete/:id').put(
+  //auth('common'),
+  controller.softDeleteById
+);
+
 //[🚧][🧑‍💻✅][🧪] // 🆗
 router.route('/').get(
   auth('commonAdmin'),

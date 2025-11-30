@@ -10,6 +10,7 @@ import { TRole } from '../../../middlewares/roles';
 //@ts-ignore
 import multer from "multer";
 import { getLoggedInUserAndSetReferenceToUser } from '../../../middlewares/getLoggedInUserAndSetReferenceToUser';
+import { setRequestFiltersV2 } from '../../../middlewares/setRequstFilterAndValue';
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
@@ -37,7 +38,10 @@ const controller = new PlanByDoctorController();
 router.route('/paginate').get(
   auth(TRole.doctor, TRole.specialist),
   validateFiltersForQuery(optionValidationChecking(['_id', 'planType','patientId', 'protocolId', ...paginationOptions])),
-  controller.getAllWithPagination
+  setRequestFiltersV2({
+    isDeleted: false,
+  }),
+  controller.getAllWithPaginationV2
 );
 
 /*******

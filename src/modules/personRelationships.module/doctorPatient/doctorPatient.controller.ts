@@ -16,6 +16,7 @@ import { PaginationHelpers } from '../../../common/service/paginationHelpers';
 import { User } from '../../user/user.model';
 import { toObjectId } from '../../../utils/toMongooseObjectId';
 import ApiError from '../../../errors/ApiError';
+import { IUser } from '../../token/token.interface';
 
 
 export class DoctorPatientController extends GenericController<
@@ -27,6 +28,39 @@ export class DoctorPatientController extends GenericController<
   constructor() {
     super(new DoctorPatientService(), 'doctorPatient');
   }
+
+  updateExtraNote = catchAsync(async(req: Request, res: Response) => {
+    
+    console.log("req.body :: ", req.body);
+    console.log("doctorId :: ", (req.user as IUser).userId)
+    console.log("patientId :: ", req.query.patientId)
+
+    const updateExtraNote:IDoctorPatient = await DoctorPatient.findOneAndUpdate({
+        doctorId: (req.user as IUser).userId,
+        patientId: req.query.patientId
+      },{
+        extraNote : req.body.extraNote
+      },
+      {
+        new : true
+      }
+    )
+    
+    // const extraNote = await DoctorPatient.findOne({
+    //     doctorId: (req.user as IUser).userId,
+    //     patientId: req.query.patientId
+    //   }).select('extraNote patientId').populate({
+    //     path: 'patientId',
+    //     select: 'name profileImage'
+    //   }).lean();
+
+
+    console.log("updateExtraNote :: ", updateExtraNote);
+
+    return updateExtraNote;
+  })
+
+  
 
   //---------------------------------
   // Admin | User Management | Assign Doctor for a patient
