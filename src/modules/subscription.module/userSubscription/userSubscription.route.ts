@@ -40,6 +40,7 @@ router.route('/paginate').get(
   getLoggedInUserAndSetReferenceToUser('userId'),
   setRequestFiltersV2({
     sortBy: '-createdAt',
+    limit : 6,
   }),
   setQueryOptions({
     populate: [{

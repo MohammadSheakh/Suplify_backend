@@ -126,6 +126,12 @@ router.route('/update/:id').put(
   controller.updateById
 );
 
+router.route('/update-extra-note').put(
+  auth(TRole.doctor),
+  // validateRequest(validation.createHelpMessageValidationSchema),
+  controller.updateExtraNote
+);
+
 router.route('/softDelete/:id').put(
   //auth('common'),
   controller.softDeleteById

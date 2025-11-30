@@ -31,10 +31,6 @@ export class DoctorPatientController extends GenericController<
 
   updateExtraNote = catchAsync(async(req: Request, res: Response) => {
     
-    console.log("req.body :: ", req.body);
-    console.log("doctorId :: ", (req.user as IUser).userId)
-    console.log("patientId :: ", req.query.patientId)
-
     const updateExtraNote:IDoctorPatient = await DoctorPatient.findOneAndUpdate({
         doctorId: (req.user as IUser).userId,
         patientId: req.query.patientId
@@ -46,18 +42,12 @@ export class DoctorPatientController extends GenericController<
       }
     )
     
-    // const extraNote = await DoctorPatient.findOne({
-    //     doctorId: (req.user as IUser).userId,
-    //     patientId: req.query.patientId
-    //   }).select('extraNote patientId').populate({
-    //     path: 'patientId',
-    //     select: 'name profileImage'
-    //   }).lean();
-
-
-    console.log("updateExtraNote :: ", updateExtraNote);
-
-    return updateExtraNote;
+    sendResponse(res, {
+      code: StatusCodes.OK,
+      data: updateExtraNote,
+      message: `${this.modelName} created successfully`,
+      success: true,
+    });
   })
 
   
