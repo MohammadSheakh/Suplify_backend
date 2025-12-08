@@ -9,6 +9,7 @@ import eventEmitterForOTPCreateAndSendMail, { OtpService } from '../otp/otp.serv
 import { User } from '../user/user.model';
 //@ts-ignore
 import bcryptjs from 'bcryptjs';
+import bcrypt from 'bcrypt';
 import { TUser } from '../user/user.interface';
 import { config } from '../../config';
 import { TokenService } from '../token/token.service';
@@ -200,6 +201,8 @@ const createUser = async (userData: TUser, userProfileId:string) => {
     }
   }
 
+  userData.password = await bcryptjs.hash(userData.password, 12);
+
   const user = await User.create(userData);
 
   // ⚠️ bad code .. 
@@ -390,6 +393,8 @@ const verifyEmail = async (email: string, token: string, otp: string) => {
   if (!user) {
     throw new ApiError(StatusCodes.NOT_FOUND, 'User not found');
   }
+
+  console.log("token - isResetPassword ? -> ", token, user?.isResetPassword)
 
   await TokenService.verifyToken(
     token,

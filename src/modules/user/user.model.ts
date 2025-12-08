@@ -226,12 +226,12 @@ userSchema.statics.isMatchPassword = async function (
 // Middleware to hash password before saving
 userSchema.pre('save', async function (next) {
 
-  if (this.isModified('password')) {
-    this.password = await bcryptjs.hash(
-      this.password,
-      Number(config.bcrypt.saltRounds),
-    );
-  }
+  // if (this.isModified('password')) {
+  //   this.password = await bcryptjs.hash(
+  //     this.password,
+  //     Number(config.bcrypt.saltRounds),
+  //   );
+  // }
   next();
 });
 

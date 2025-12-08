@@ -44,12 +44,20 @@ const verifyToken = async (
   secret: Secret,
   tokenType: TokenType
 ) => {
+
+  console.log("token-secret-tokenType :: ", token, " --- ", secret," --- ", tokenType)
+
   const decoded = jwt.verify(token, secret) as JwtPayload;
+
+  console.log( "decoded -> ", decoded );
+
   const storedToken = await Token.findOne({
     token,
     user: decoded.userId,
     type: tokenType
   });
+
+  console.log("storedToken -> ", storedToken);
 
   if (!storedToken) {
     throw new ApiError(

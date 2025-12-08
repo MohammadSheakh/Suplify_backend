@@ -29,7 +29,7 @@ export async function enqueueWebNotification(
 ) {
 
   const notifAdded = await notificationQueue.add(
-    'send-notification',
+    'send-notification-suplify',
     {
       title,
       senderId,
