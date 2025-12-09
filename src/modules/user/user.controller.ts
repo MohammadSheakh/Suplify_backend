@@ -185,7 +185,7 @@ export class UserController extends GenericController<
         // In pagination in filters when we pass empty string  it retuns all data
         //---------------------------------
         query[key] = mainFilter[key];
-      
+      }
     }
 
     options.sortBy='-createdAt'
