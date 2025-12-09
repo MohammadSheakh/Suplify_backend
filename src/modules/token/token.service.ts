@@ -57,12 +57,11 @@ const verifyToken = async (
     type: tokenType
   });
 
-  console.log("storedToken -> ", storedToken);
 
   if (!storedToken) {
     throw new ApiError(
       StatusCodes.BAD_REQUEST,
-      'Token is invalid or already used'
+      'Token is invalid or already used. Please Login again.'
     );
   }
   if (storedToken.expiresAt < new Date()) {
