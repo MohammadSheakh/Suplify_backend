@@ -37,7 +37,7 @@ const eventEmitterForAssignSpecialistAutomatically = new EventEmitter();
 eventEmitterForUpdateUserProfile.on('eventEmitterForUpdateUserProfile', async (valueFromRequest: any) => {
   try {
       const { userProfileId, userId } = valueFromRequest;
-      await UserProfile.findByIdAndUpdate(userProfileId, { userId });
+      await UserProfile.findByIdAndUpdate(userProfileId, { userId});
     }catch (error) {
       console.error('Error occurred while handling token creation and deletion:', error);
     }
