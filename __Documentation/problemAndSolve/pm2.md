@@ -1,4 +1,4 @@
-pnpm pm2 start src/serverV2.ts --name my-api
+pnpm install --save-dev pm2
 
 pnpm pm2 start src/serverV2.ts -f --interpreter=ts-node --name suplify-api
 
