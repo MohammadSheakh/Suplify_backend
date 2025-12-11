@@ -125,7 +125,7 @@ async function main() {
     startNotificationWorker();
 
   } catch (error) {
-    errorLogger.error(colors.red('🤢 Issue from server.ts => ', error));
+    errorLogger.error(colors.red('🤢 Issue from server.ts => ', error)); // 
   }
 
   //handle unhandledRejection
