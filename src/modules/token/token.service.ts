@@ -159,7 +159,7 @@ const accessAndRefreshToken = async (user: TUser) => {
     stripe_customer_id: user.stripe_customer_id ? user.stripe_customer_id : null
   };
 
-  await Token.deleteMany({ user: user._id });
+  // await Token.deleteMany({ user: user._id }); // as per nirob vai .. he give this decision to not delete old tokens .. 
   const accessToken = createToken(
     payload,
     config.jwt.accessSecret,
