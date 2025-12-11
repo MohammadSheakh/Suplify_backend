@@ -1,3 +1,5 @@
+https://devhints.io/pm2
+
 pnpm install --save-dev pm2
 
 pnpm pm2 start src/serverV2.ts -f --interpreter=ts-node --name suplify-api
