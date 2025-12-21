@@ -3,7 +3,7 @@
   "exclude": ["node_modules"], // which files to skip
   "compilerOptions": {
     ///"moduleResolution": "node",
-    "moduleResolution": "",
+    // "moduleResolution": "",
     
     ///"moduleResolution": "NodeNext",
 
