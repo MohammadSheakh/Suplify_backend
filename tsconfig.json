@@ -2,7 +2,8 @@
   "include": ["src", "src/modules/order.module/order/order.controller.ts"], // which files to compile
   "exclude": ["node_modules"], // which files to skip
   "compilerOptions": {
-    "moduleResolution": "node",
+    ///"moduleResolution": "node",
+    "moduleResolution": "",
     
     ///"moduleResolution": "NodeNext",
 
