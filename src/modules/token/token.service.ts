@@ -45,11 +45,11 @@ const verifyToken = async (
   tokenType: TokenType
 ) => {
 
-  console.log("token-secret-tokenType :: ", token, " --- ", secret," --- ", tokenType)
+  // console.log("token-secret-tokenType :: ", token, " --- ", secret," --- ", tokenType)
 
   const decoded = jwt.verify(token, secret) as JwtPayload;
 
-  console.log( "decoded -> ", decoded );
+  // console.log( "decoded -> ", decoded );
 
   const storedToken = await Token.findOne({
     token,
