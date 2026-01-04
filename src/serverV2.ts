@@ -95,8 +95,6 @@ async function main() {
     const socketPort = 6735; // 👈 choose your socket port
     const socketServer = http.createServer(); // independent HTTP server only for socket.io
 
-
-
     // Initialize Socket.IO with Redis state management
     // await socketService.initialize(server, redisPubClient, redisSubClient, redisPubClient);
     await socketService.initialize(
