@@ -16,9 +16,22 @@ pnpm pm2 logs suplify-api --err
 
 pnpm pm2 info suplify-api
 
-
+*************************************** FINAL VERSION
+** TO RUN
 pnpm pm2 start src/serverV2.ts -f --interpreter=ts-node --node-args="--transpile-only" --name suplify-api
+** TO SEE LOGS
+less /home/mohammadsheakh/.pm2/logs/suplify-api-out.log
 
+Navigation commands in less:
+↑/↓ arrows - Move up/down one line
+Page Up/Page Down - Move up/down one screen
+Space - Move down one screen (same as Page Down)
+b - Move back one screen (same as Page Up)
+Home - Go to beginning of file
+End or G - Go to end of file
+g - Go to beginning of file
+q - Quit and return to terminal
+----------------
 
 pm2 start npm --name "suplify-api" -- run dev
 pm2 start pnpm --name "suplify-api" -- run dev
