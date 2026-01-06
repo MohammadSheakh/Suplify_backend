@@ -105,6 +105,12 @@ router.route('/').post(
   controller.create
 );
 
+router.route('/v2').post(
+  auth(TRole.specialist),
+  validateRequest(validation.createWorkoutClassSessionValidationSchema),
+  controller.create2
+);
+
 router.route('/delete/:id').delete(
   //auth('common'),
   controller.deleteById

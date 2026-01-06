@@ -9,12 +9,14 @@ pnpm pm2 list
 
 pnpm pm2 delete suplify-api  // delete 
 pnpm pm2 delete 0
+pnpm pm2 restart 0
 
 pnpm pm2 logs suplify-api --lines 100   // to see last 100 lines of log
 pnpm pm2 logs suplify-api
 pnpm pm2 logs suplify-api --err
 
 pnpm pm2 info suplify-api
+pnpm pm2 stop 0
 
 *************************************** FINAL VERSION
 ** TO RUN

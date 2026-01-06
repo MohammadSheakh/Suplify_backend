@@ -5,6 +5,16 @@ export enum TSpecialistWorkoutClassSchedule {
   expired = 'expired',
 }
 
+export enum TSpecialistWorkoutClassType {
+  online  = 'online', 
+  inPerson = 'inPerson'
+}
+
+export enum TSpecialistWorkoutClassScheduleType {
+  oneTime  = 'oneTime', 
+  repeat = 'repeat'
+}
+
 export enum TMeetingLink {
   zoom = 'zoom',
   googleMeet = 'googleMeet',

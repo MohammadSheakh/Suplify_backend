@@ -18,6 +18,13 @@ const SuggestionBySpecialistSchema = new Schema<ISuggestionBySpecialist>(
       type: String,
       required: [true, 'suggestFromStore is required'],
     },
+
+    // 🆕
+    link: {
+      type: String,
+      required: [false, 'link is not required'],
+    },
+
     createdBy: { //🔗 Specialist Id 
       type: Schema.Types.ObjectId,
       ref: 'User',

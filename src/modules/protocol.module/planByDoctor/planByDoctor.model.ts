@@ -37,16 +37,23 @@ const planByDoctorSchema = new Schema<IPlanByDoctor>(
     
     description: {
       type: String,
-      required: [true, 'description is required'],
+      required: [false, 'description is not required'],
     },
     keyPoints : {
       type: [String],
-      required : [true, 'keyPoints are required']
+      required : [false, 'keyPoints are not required']
     },
     totalKeyPoints : {
       type: Number,
-      required: [true, 'totalKeyPoints is required']
+      required: [false, 'totalKeyPoints is not required']
     },
+
+    // 🆕
+    link: {
+      type: String,
+      required: [false, 'link is not required'],
+    },
+
     patientId: { //🔗 for which patient
       type: Schema.Types.ObjectId,
       ref: 'User',

@@ -9,6 +9,7 @@ import { toLocalTime, toUTCTime } from '../../../utils/timezone';
 import { PaginateOptions } from '../../../types/paginate';
 import PaginationService from '../../../common/service/paginationService';
 import { TPaymentStatus } from '../specialistPatientScheduleBooking/specialistPatientScheduleBooking.constant';
+import { TSpecialistWorkoutClassScheduleType } from './specialistWorkoutClassSchedule.constant';
 
 export class SpecialistWorkoutClassScheduleService extends GenericService<
   typeof SpecialistWorkoutClassSchedule,
@@ -94,6 +95,136 @@ export class SpecialistWorkoutClassScheduleService extends GenericService<
 
     return transformedDoc;
   
+  }
+
+ /*-─────────────────────────────────
+    |  Client want to create workout class oneTime and repeat mode like google calender.. 
+    |  if "repeat" selected .. then client needs to provide
+    |  weekDays [ "saturday" ], startDate, endDate 
+    └──────────────────────────────────*/
+  async createV3(data:ISpecialistWorkoutClassSchedule, userTimeZone: string) : Promise<ISpecialistWorkoutClassSchedule> {
+    
+    console.log("data :: ", data);
+    // ----------------------------
+    // Common validation
+    // ----------------------------
+    if (!data.startTime || !data.endTime) {
+        throw new Error('startTime and endTime are required');
+    }
+
+    data.startTime = toUTCTime(data.startTime, userTimeZone);
+    data.endTime = toUTCTime(data.endTime, userTimeZone);
+
+    if (isNaN(data.startTime.getTime())) throw new Error('Invalid startTime');
+
+    if (isNaN(data.endTime.getTime())) throw new Error('Invalid endTime');
+
+    if (data.startTime >= data.endTime) throw new Error('Start time must be before end time');
+
+    if (data.startTime < new Date()) throw new Error('Start time must be in the future');
+
+    // ----------------------------
+    // ONE_TIME
+    // ----------------------------
+    if (data.scheduleType === TSpecialistWorkoutClassScheduleType.oneTime) {
+        
+        if (!data.scheduleDate) throw new Error('scheduleDate is required');
+
+        const scheduleDate = new Date(data.scheduleDate);
+
+        if (isNaN(scheduleDate.getTime())) throw new Error('Invalid scheduleDate');
+
+        // Overlap check
+        const overlapping = await SpecialistWorkoutClassSchedule.findOne({
+            createdBy: data.createdBy,
+            scheduleType: TSpecialistWorkoutClassScheduleType.oneTime,
+            scheduleDate,
+            $or: [
+                {
+                    startTime: { $lt: data.endTime },
+                    endTime: { $gt: data.startTime },
+                },
+            ],
+        });
+
+        if (overlapping) throw new Error('Overlapping schedule exists');
+
+        const doc = await this.model.create(data);
+
+        return {
+        ...doc.toObject(),
+        startTime: toLocalTime(doc.startTime, userTimeZone),
+        endTime: toLocalTime(doc.endTime, userTimeZone),
+        };
+    }
+
+    // ----------------------------
+    // REPEAT
+    // ----------------------------
+    if (data.scheduleType ===  TSpecialistWorkoutClassScheduleType.repeat ) {
+        
+        const rule = data.repeatRule;
+
+        if (!rule?.weekDays?.length || !rule?.startDate || !rule?.durationWeeks) {
+            throw new Error('Invalid repeatRule');
+        }
+
+        const startDate = new Date(rule.startDate);
+        if (isNaN(startDate.getTime())) throw new Error('Invalid repeat startDate');
+
+        // Calculate endDate (important)
+        const endDate = new Date(startDate);
+        endDate.setDate(endDate.getDate() + rule.durationWeeks * 7);
+
+        data.repeatRule.startDate = startDate;
+        data.repeatRule.endDate = endDate;
+
+        /*---------------------- INCOMPLETE LOGIC ... NEED TO CHECK MORE USECASE
+        // Overlap check (date range based)
+        const overlapping = await SpecialistWorkoutClassSchedule.findOne({
+            createdBy: data.createdBy,
+            scheduleType: TSpecialistWorkoutClassScheduleType.repeat,
+            status: 'available',
+            $or: [
+                {
+                    'repeatRule.startDate': { $lte: endDate },
+                    'repeatRule.endDate': { $gte: startDate },
+                },
+            ],
+            startTime: { $lt: data.endTime },
+            endTime: { $gt: data.startTime },
+        });
+        ----------------------*/
+
+        const overlapping = await SpecialistWorkoutClassSchedule.findOne({
+            createdBy: data.createdBy,
+            scheduleType: TSpecialistWorkoutClassScheduleType.repeat,
+            status: 'available',
+
+            // Date overlap
+            'repeatRule.startDate': { $lte: endDate },
+            'repeatRule.endDate': { $gte: startDate },
+
+            // Time overlap
+            startTime: { $lt: data.endTime },
+            endTime: { $gt: data.startTime },
+
+            // Weekday overlap
+            'repeatRule.weekDays': { $in: data.repeatRule.weekDays },
+        });
+
+        if (overlapping) throw new Error('Overlapping recurring schedule exists');
+
+        const doc = await this.model.create(data);
+
+        return {
+            ...doc.toObject(),
+            startTime: toLocalTime(doc.startTime, userTimeZone),
+            endTime: toLocalTime(doc.endTime, userTimeZone),
+        };
+    }
+
+    throw new Error('Invalid scheduleType');  
   }
 
 
@@ -305,7 +436,7 @@ export class SpecialistWorkoutClassScheduleService extends GenericService<
     );
   }
 
-  /********
+  /******** 💎✨🔍 -> V2 Found
    * 
    * Specialist | Get all workout class with booking count 
    * 
@@ -374,6 +505,102 @@ export class SpecialistWorkoutClassScheduleService extends GenericService<
           typeOfLink: 1,
           meetingLink: 1,
           bookingCount: 1, // 🆕 count of scheduled bookings
+        },
+      },
+
+      // Sort by newest
+      {
+        $sort: { createdAt: -1 },
+      },
+    ];
+
+    // Use pagination service for aggregation
+    return await PaginationService.aggregationPaginate(
+      SpecialistWorkoutClassSchedule, 
+      pipeline,
+      options
+    );
+  }
+
+  /********🆕🆕
+   * 
+   * Specialist | Get all workout class with booking count 
+   * 
+   * from SpecialistPatientScheduleBookingSchema
+   * reponse also contains count of scheduled bookings for each booking..
+   * not for [status.pending] [status.cancelled] [status.completed]
+   * only for [status.scheduled]
+   * 
+   * ------------------------
+   * 
+   * As per New Requirement ..  lets provide all the property that available .. 
+   * 
+   * ******* */
+  async getAllWithAggregationForSpecialistV2(
+      filters: any, // Partial<INotification> // FixMe : fix type
+      options: PaginateOptions,
+    ) {
+      
+      //📈⚙️ Business logic: Build the aggregation pipeline
+      const pipeline = [
+      // Match schedules created by this specialist
+      {
+        $match: {
+          createdBy: new mongoose.Types.ObjectId(filters.createdBy),
+          isDeleted: { $ne: true },
+        },
+      },
+
+      // Lookup only scheduled bookings for this schedule
+      {
+        $lookup: {
+          from: 'specialistpatientschedulebookings',
+          let: { scheduleId: '$_id' },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ['$workoutClassScheduleId', '$$scheduleId'] },
+                    { $eq: ['$status', 'scheduled'] }, // ✅ only scheduled
+                    { $ne: ['$isDeleted', true] },
+                  ],
+                },
+              },
+            },
+          ],
+          as: 'bookings',
+        },
+      },
+
+      // Add booking count
+      {
+        $addFields: {
+          bookingCount: { $size: '$bookings' },
+        },
+      },
+
+      // Project fields you want to return
+      {
+        $project: {
+          _id: 1,
+          scheduleName: 1,
+          scheduleDate: 1,
+        //   startTime: 1,
+          endTime: 1,
+          description: 1,
+          status: 1,
+          price: 1,
+          sessionType: 1,
+          typeOfLink: 1,
+          meetingLink: 1,
+          bookingCount: 1, // 🆕 count of scheduled bookings
+        
+          //---------------
+          repeatRule : 1,
+          scheduleType : 1,
+          hotspotId : 1,
+          classType : 1
         },
       },
 

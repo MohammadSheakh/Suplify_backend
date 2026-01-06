@@ -31,15 +31,21 @@ const DoctorPlanSchema = new Schema<IDoctorPlan>(
     
     description: {
       type: String,
-      required: [true, 'description is required'],
+      required: [false, 'description is not required'],
     },
     keyPoints : {
       type: [String],
-      required : [true, 'keyPoints are required']
+      required : [false, 'keyPoints are not required']
     },
     totalKeyPoints : { // based on keypoints length // auto calculate .. 
       type: Number,
       required: [true, 'totalKeyPoints is required']
+    },
+
+    // 🆕
+    link: {
+      type: String,
+      required: [false, 'link is not required'],
     },
     
     isDeleted: {
