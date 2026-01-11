@@ -12,6 +12,7 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 import { TRole } from '../../../middlewares/roles';
 import { getLoggedInUserAndSetReferenceToUser } from '../../../middlewares/getLoggedInUserAndSetReferenceToUser';
+import { imageUploadPipelineForUpdateDoctorPlan } from './doctorPlan.middleware';
 const router = express.Router();
 
 export const optionValidationChecking = <T extends keyof IDoctorPlan | 'sortBy' | 'page' | 'limit' | 'populate'>(
@@ -54,11 +55,18 @@ router.route('/:id').get(
   controller.getById
 );
 
-//---------------------------------
+//--------------------------------- 💎✨🔍 -> V2 Found
 // Doctor | Update Own plan .. params :: doctorPlanId
 //---------------------------------
 router.route('/update/:id').put(
   auth(TRole.doctor),
+  validateRequest(validation.updateDoctorPlanValidationSchema),
+  controller.updateById
+);
+
+router.route('/v2/:id').put(
+  auth(TRole.doctor),
+  ...imageUploadPipelineForUpdateDoctorPlan,
   validateRequest(validation.updateDoctorPlanValidationSchema),
   controller.updateById
 );
