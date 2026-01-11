@@ -68,7 +68,7 @@ router.route('/v2/:id').put(
   auth(TRole.doctor),
   ...imageUploadPipelineForUpdateDoctorPlan,
   validateRequest(validation.updateDoctorPlanValidationSchema),
-  controller.updateById
+  controller.updateWithImageById
 );
 
 //[🚧][🧑‍💻✅][🧪] // 🆗
@@ -122,8 +122,6 @@ router.route('/softDelete/:id').put(
   controller.softDeleteById
 );
 
-////////////
 //[🚧][🧑‍💻✅][🧪] // 🆗
-
 
 export const DoctorPlanRoute = router;

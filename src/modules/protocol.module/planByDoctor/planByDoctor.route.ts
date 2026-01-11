@@ -11,6 +11,7 @@ import { TRole } from '../../../middlewares/roles';
 import multer from "multer";
 import { getLoggedInUserAndSetReferenceToUser } from '../../../middlewares/getLoggedInUserAndSetReferenceToUser';
 import { setRequestFiltersV2 } from '../../../middlewares/setRequstFilterAndValue';
+import { imageUploadPipelineForUpdatePlanByDoctor } from './planByDoctor.middleware';
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
@@ -139,13 +140,23 @@ router.route('/:id').get(
   controller.getById
 );
 
-//--------------------------------- 
+//--------------------------------- 💎✨🔍 -> V2 Found
 // Doctor | Update plan for patient
 //---------------------------------
 router.route('/:id').put(
   auth(TRole.doctor),
   // validateRequest(validation.createHelpMessageValidationSchema), // TODO :  MUST add validation
   controller.updateById
+);
+
+//--------------------------------- V2
+// Doctor | Update plan for patient
+//---------------------------------
+router.route('/v2/:id').put(
+  auth(TRole.doctor),
+  ...imageUploadPipelineForUpdatePlanByDoctor,
+  // validateRequest(validation.createHelpMessageValidationSchema), // TODO :  MUST add validation
+  controller.updateWithImageById
 );
 
 //[🚧][🧑‍💻✅][🧪] //🆗
