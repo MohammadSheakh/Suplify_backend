@@ -12,6 +12,8 @@ import sendResponse from '../../../shared/sendResponse';
 import omit from '../../../shared/omit';
 import pick from '../../../shared/pick';
 import ApiError from '../../../errors/ApiError';
+import { AttachmentService } from '../../attachments/attachment.service';
+import { TFolderName } from '../../../enums/folderNames';
 
 
 export class PlanByDoctorController extends GenericController<
@@ -24,12 +26,51 @@ export class PlanByDoctorController extends GenericController<
     super(new PlanByDoctorService(), 'PlanByDoctor');
   }
 
-  //---------------------------------
+  //---------------------------------  💎✨🔍 -> V2 Found
   // Doctor | Create plan for patient .. 
   //---------------------------------
   create = catchAsync(async (req: Request, res: Response) => {
     
     const data: IPlanByDoctor = req.body;
+
+    data.createdBy = (req.user as IUser).userId;
+
+    data.totalKeyPoints = data?.keyPoints?.length ? data?.keyPoints?.length : 0;
+
+    const result = await this.service.create(data);
+
+    sendResponse(res, {
+      code: StatusCodes.OK,
+      data: result,
+      message: `${this.modelName} created successfully`,
+      success: true,
+    });
+  });
+
+  //---------------------------------
+  // Doctor | Create plan for patient .. 
+  //---------------------------------
+  createV2 = catchAsync(async (req: Request, res: Response) => {
+    
+    const data: IPlanByDoctor = req.body;
+
+    let attachments = [];
+          
+    if (req.files && req.files.attachments) {
+      attachments.push(
+          ...(await Promise.all(
+            req.files.attachments.map(async file => {
+                const attachmenId = await new AttachmentService().uploadSingleAttachment(
+                    file, // file to upload 
+                    TFolderName.common, // folderName
+                );
+                return attachmenId;
+            })
+          ))
+      );
+    }
+
+    data.attachments = attachments;
 
     data.createdBy = (req.user as IUser).userId;
 
@@ -114,7 +155,29 @@ export class PlanByDoctorController extends GenericController<
     const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']); ;
     const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
 
-    const populateOptions: (string | {path: string, select: string}[]) = [];
+    const populateOptions: (string | {path: string, select: string}[]) = [
+      { path: 'attachments', select: 'attachment'}
+    ];
+
+    const select = '-__v -updatedAt -createdAt -isDeleted';
+
+    const result = await this.service.getAllWithPagination(filters, options, populateOptions, select);
+
+    sendResponse(res, {
+      code: StatusCodes.OK,
+      data: result,
+      message: `All ${this.modelName} with pagination`,
+      success: true,
+    });
+  });
+
+  getAllWithPaginationForPatientV2 = catchAsync(async (req: Request, res: Response) => {
+    const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']); ;
+    const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
+
+    const populateOptions: (string | {path: string, select: string}[]) = [
+      { path: 'proofOfPayment', select: 'attachment'}
+    ];
 
     const select = '-__v -updatedAt -createdAt -isDeleted';
 

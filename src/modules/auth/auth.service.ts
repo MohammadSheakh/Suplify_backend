@@ -278,9 +278,11 @@ const createUser = async (userData: TUser, userProfileId:string) => {
   // if patient .. then we need to assign a specialist to him automatically 
   ////////////////////////////////////////
 
+  /*------------------------- Client dont want this in version two
   eventEmitterForAssignSpecialistAutomatically.emit('eventEmitterForAssignSpecialistAutomatically', { 
     userId : user._id
   });
+  --------------------------*/
 
   // , { otp }
   // Run token and OTP creation in parallel

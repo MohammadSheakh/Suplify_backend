@@ -8,15 +8,15 @@ const SuggestionBySpecialistSchema = new Schema<ISuggestionBySpecialist>(
   {
     keyPoint:{
       type: String,
-      required: [true, 'keyPoint is required']
+      required: [false, 'keyPoint is required']
     },
     solutionName: {
       type: String,
-      required : [true, 'solutionName is required']
+      required : [false, 'solutionName is required']
     },
     suggestFromStore: {
       type: String,
-      required: [true, 'suggestFromStore is required'],
+      required: [false, 'suggestFromStore is required'],
     },
 
     // 🆕
@@ -24,6 +24,15 @@ const SuggestionBySpecialistSchema = new Schema<ISuggestionBySpecialist>(
       type: String,
       required: [false, 'link is not required'],
     },
+
+    // 🆕 //--------- sorry we can not add this attachments here .. 
+    attachments: [  //🔗
+      {
+          type: Schema.Types.ObjectId,
+          ref: 'Attachment',
+          required: [false, 'attachments is not required'],
+      }
+    ],
 
     createdBy: { //🔗 Specialist Id 
       type: Schema.Types.ObjectId,

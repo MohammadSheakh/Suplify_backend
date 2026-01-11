@@ -56,7 +56,7 @@ router.route('/paginate/for-specialist').get(
   controller.getAllWithPaginationForSpecialist
 );
 
-/*******
+/*******   💎✨🔍 -> V2 Found
  * 
  * Patient |  protocol 
  *  |-> Get All plan For a protocol and planType for a patient 
@@ -67,6 +67,19 @@ router.route('/paginate/for-patient').get(
   validateFiltersForQuery(optionValidationChecking(['_id', 'planType', 'protocolId', ...paginationOptions])),
   getLoggedInUserAndSetReferenceToUser('patientId'),
   controller.getAllWithPaginationForPatient
+);
+
+/*******  v2 just populated attachments
+ * 
+ * Patient |  protocol 
+ *  |-> Get All plan For a protocol and planType for a patient 
+ * 
+ * ****** */
+router.route('/paginate/for-patient/v2').get(
+  auth(TRole.patient),
+  validateFiltersForQuery(optionValidationChecking(['_id', 'planType', 'protocolId', ...paginationOptions])),
+  getLoggedInUserAndSetReferenceToUser('patientId'),
+  controller.getAllWithPaginationForPatientV2
 );
 
 
@@ -141,13 +154,25 @@ router.route('/').get(
   controller.getAll
 );
 
-//--------------------------------- 
+//--------------------------------- 💎✨🔍 -> V2 Found
 // Doctor | Create plan for patient
 //---------------------------------
 router.route('/').post(
   auth(TRole.doctor),
   // validateRequest(validation.createHelpMessageValidationSchema), // TODO: validation add korte hobe 
   controller.create
+);
+
+
+router.route('/v2').post(
+  auth(TRole.doctor),
+  [
+    upload.fields([
+      { name: 'attachments', maxCount: 15 }, // Allow up to 5 cover photos
+    ]),
+  ],
+  // validateRequest(validation.createHelpMessageValidationSchema), // TODO: validation add korte hobe 
+  controller.createV2
 );
 
 router.route('/delete/:id').delete(

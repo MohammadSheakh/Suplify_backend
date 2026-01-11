@@ -48,6 +48,15 @@ const DoctorPlanSchema = new Schema<IDoctorPlan>(
       required: [false, 'link is not required'],
     },
     
+    // 🆕
+    attachments: [  //🔗
+      {
+          type: Schema.Types.ObjectId,
+          ref: 'Attachment',
+          required: [false, 'attachments is not required'],
+      }
+    ],
+    
     isDeleted: {
       type: Boolean,
       required: [false, 'isDeleted is not required'],

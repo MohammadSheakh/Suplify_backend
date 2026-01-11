@@ -54,6 +54,15 @@ const planByDoctorSchema = new Schema<IPlanByDoctor>(
       required: [false, 'link is not required'],
     },
 
+    // 🆕
+    attachments: [  //🔗
+      {
+          type: Schema.Types.ObjectId,
+          ref: 'Attachment',
+          required: [false, 'attachments is not required'],
+      }
+    ],
+
     patientId: { //🔗 for which patient
       type: Schema.Types.ObjectId,
       ref: 'User',

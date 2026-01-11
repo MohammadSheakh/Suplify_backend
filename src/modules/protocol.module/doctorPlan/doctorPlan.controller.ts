@@ -14,6 +14,8 @@ import pick from '../../../shared/pick';
 import { PlanByDoctorService } from '../planByDoctor/planByDoctor.service';
 import { IPlanByDoctor } from '../planByDoctor/planByDoctor.interface';
 import { PlanByDoctor } from '../planByDoctor/planByDoctor.model';
+import { TFolderName } from '../../../enums/folderNames';
+import { AttachmentService } from '../../attachments/attachment.service';
 
 
 let planByDoctorService = new PlanByDoctorService();
@@ -28,12 +30,51 @@ export class DoctorPlanController extends GenericController<
     super(new DoctorPlanService(), 'DoctorPlan');
   }
 
-  //---------------------------------
+  //--------------------------------- 💎✨🔍 -> V2 Found
   // Doctor | Create Own plan .. so that later he can assign these plans to any patient
   //---------------------------------
   create = catchAsync(async (req: Request, res: Response) => {
     
     const data: IDoctorPlan = req.body;
+
+    data.createdBy = (req.user as IUser).userId;
+
+    data.totalKeyPoints = data?.keyPoints?.length ? data?.keyPoints?.length : 0;
+
+    const result = await this.service.create(data);
+
+    sendResponse(res, {
+      code: StatusCodes.OK,
+      data: result,
+      message: `${this.modelName} created successfully`,
+      success: true,
+    });
+  });
+
+  //---------------------------------
+  // Doctor | Create Own plan .. so that later he can assign these plans to any patient
+  //---------------------------------
+  createV2 = catchAsync(async (req: Request, res: Response) => {
+    
+    const data: IDoctorPlan = req.body;
+
+    let attachments = [];
+              
+    if (req.files && req.files.attachments) {
+      attachments.push(
+          ...(await Promise.all(
+            req.files.attachments.map(async file => {
+                const attachmenId = await new AttachmentService().uploadSingleAttachment(
+                    file, // file to upload 
+                    TFolderName.common, // folderName
+                );
+                return attachmenId;
+            })
+          ))
+      );
+    }
+
+    data.attachments = attachments;
 
     data.createdBy = (req.user as IUser).userId;
 
@@ -107,7 +148,9 @@ export class DoctorPlanController extends GenericController<
     const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']); ;
     const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
 
+    // 🆕 we populate attachments here .. based on new requirements 
     const populateOptions: (string | {path: string, select: string}[]) = [
+      { path: 'attachments', select: 'attachment'},
     ];
 
     const select = '-createdAt -updatedAt -__v -isDeleted'; // fields to exclude

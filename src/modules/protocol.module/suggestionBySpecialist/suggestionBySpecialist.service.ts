@@ -65,11 +65,12 @@ export class SuggestionBySpecialistService extends GenericService<
     const insertedSuggestions = await SuggestionBySpecialist.insertMany(
       data.map((
         // item
-        { keyPoint , solutionName, suggestFromStore, ...rest }
+        { keyPoint , solutionName, suggestFromStore, link, ...rest }
       ) => ({
         keyPoint,
         solutionName,
         suggestFromStore,
+        link,
         createdBy: specialistId, // specialist id
       })) as ISuggestionBySpecialist[]
     );

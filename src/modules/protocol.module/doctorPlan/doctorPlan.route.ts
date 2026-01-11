@@ -68,13 +68,27 @@ router.route('/').get(
   auth('commonAdmin'),
   controller.getAll
 );
-//---------------------------------
+//--------------------------------- 💎✨🔍 -> V2 Found
 // Doctor | Create Own plan .. so that later he can assign these plans to any patient
 //---------------------------------
 router.route('/').post(
   auth(TRole.doctor),
   validateRequest(validation.createDoctorPlanValidationSchema),
   controller.create
+);
+
+//--------------------------------- 
+// Doctor | Create Own plan .. so that later he can assign these plans to any patient
+//---------------------------------
+router.route('/v2').post(
+  auth(TRole.doctor),
+  [
+    upload.fields([
+      { name: 'attachments', maxCount: 15 }, // Allow up to 5 cover photos
+    ]),
+  ],
+  validateRequest(validation.createDoctorPlanValidationSchema),
+  controller.createV2
 );
 
 /*******
