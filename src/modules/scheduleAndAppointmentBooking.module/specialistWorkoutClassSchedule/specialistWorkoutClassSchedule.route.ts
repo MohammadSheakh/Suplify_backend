@@ -86,9 +86,6 @@ router.route('/:id').put(
 );
 
 
-
-
-
 //[🚧][🧑‍💻✅][🧪] // 🆗
 router.route('/').get(
   auth('commonAdmin'),
