@@ -8,6 +8,7 @@ import { LabTestBookingService } from './labTestBooking.service';
 import { IBookLabTest, ILabTestBooking } from './labTestBooking.interface';
 import sendResponse from '../../../shared/sendResponse';
 import catchAsync from '../../../shared/catchAsync';
+import ApiError from '../../../errors/ApiError';
 
 // let conversationParticipantsService = new ConversationParticipentsService();
 
@@ -34,6 +35,42 @@ export class LabTestBookingController extends GenericController<
     data: result,
     message: `${this.modelName} created successfully`,
     success: true,
+    });
+  });
+
+  //🆕
+  updateWithImageById = catchAsync(async (req: Request, res: Response) => {
+
+    if (!req.params.id) {
+      throw new ApiError(
+        StatusCodes.BAD_REQUEST,
+        `id is required for update ${this.modelName}`
+      );
+    }
+    
+    const id = req.params.id;
+
+    const existingObject = await this.service.getById(id);
+
+    // TODO : proper type needs to be pass here... 
+    const existingObjectDTO : ILabTestBooking = {
+      attachments : req.uploadedFiles.attachments?.[0] ?? existingObject?.uploadedResults,
+      ...req.body
+    }
+
+    const updatedObject = await this.service.updateById(id, /*req.body*/ existingObjectDTO);
+    if (!updatedObject) {
+      throw new ApiError(
+        StatusCodes.NOT_FOUND,
+        `Object with ID ${id} not found`
+      );
+    }
+    
+    //   return res.status(StatusCodes.OK).json(updatedObject);
+    sendResponse(res, {
+      code: StatusCodes.OK,
+      data: updatedObject,
+      message: `${this.modelName} updated successfully`,
     });
   });
 

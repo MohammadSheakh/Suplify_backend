@@ -9,6 +9,7 @@ import * as validation from './labTestBooking.validation';
 //@ts-ignore
 import multer from "multer";
 import { TRole } from '../../../middlewares/roles';
+import { imageUploadPipelineForUpdateLabTestBooking } from './labTestBooking.middleware';
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
@@ -49,6 +50,23 @@ router.route('/update/:id').put(
   // validateRequest(validation.createHelpMessageValidationSchema),
   controller.updateById
 );
+
+
+/** ---------------------------------------------- // 🆕
+ * @role Doctor | Admin
+ * @Section Lab Test Booking Section.. | Get all protocol for a patient section ..
+ * @module LabTestBooking 
+ * @figmaIndex 0-0
+ * @desc  admin can see and upload lab test results .. and doctor can also
+ * go to a patients protocol section  to view all lab test and go to a test to 
+*----------------------------------------------*/
+router.route('/v2/:id').put(
+  auth(TRole.admin, TRole.doctor),
+  ...imageUploadPipelineForUpdateLabTestBooking,
+  // validateRequest(validation.createHelpMessageValidationSchema),
+  controller.updateById
+);
+
 
 //[🚧][🧑‍💻✅][🧪] // 🆗
 router.route('/').get(

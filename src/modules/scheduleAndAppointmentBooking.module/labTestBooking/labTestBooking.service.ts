@@ -111,6 +111,7 @@ export class LabTestBookingService extends GenericService<
                     state: data.state,
                     zipCode: data.zipCode,
                     country: data.country,
+                    isResultUploaded : false, // 🆕
                     
                     paymentTransactionId : null,
                     paymentStatus : PaymentStatus.unpaid,
@@ -218,6 +219,8 @@ export class LabTestBookingService extends GenericService<
             state: data.state,
             zipCode: data.zipCode,
             country: data.country,
+            
+            isResultUploaded : false, // 🆕
             
             paymentTransactionId : null,
             paymentStatus : PaymentStatus.unpaid,

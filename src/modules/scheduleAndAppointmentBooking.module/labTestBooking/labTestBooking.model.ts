@@ -97,6 +97,23 @@ const LabTestBookingSchema = new Schema<ILabTestBooking>(
       // Initially This should be unpaid .. In webhook we update this as paid .. 
       //---------------------------------
     },
+
+    // 🆕
+    // multiple lab result can be uploaded by doctor
+    uploadedResults: [//🔗🖼️
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'Attachment',
+        required: [false, 'attachments is not required'],
+      }
+    ],
+
+    // 🆕
+    isResultUploaded : {
+      type: Boolean,
+      required: [false, 'isDeleted is not required'],
+      default: false,
+    },
     
     isDeleted: {
       type: Boolean,
