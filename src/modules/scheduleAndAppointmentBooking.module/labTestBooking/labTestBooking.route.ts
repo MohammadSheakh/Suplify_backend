@@ -12,6 +12,7 @@ import { TRole } from '../../../middlewares/roles';
 import { imageUploadPipelineForUpdateLabTestBooking } from './labTestBooking.middleware';
 import { setQueryOptions } from '../../../middlewares/setQueryOptions';
 import { defaultExcludes } from '../../../constants/queryOptions';
+import { getLoggedInUserAndSetReferenceToUser } from '../../../middlewares/getLoggedInUserAndSetReferenceToUser';
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
@@ -38,7 +39,7 @@ const controller = new LabTestBookingController();
 //-------------------------------
 router.route('/paginate').get(
   //auth('common'),
-  validateFiltersForQuery(optionValidationChecking(['_id', 'status', ...paginationOptions])),
+  validateFiltersForQuery(optionValidationChecking(['_id', 'status', 'patientId', ...paginationOptions])),
   setQueryOptions({
     populate: [ 
       { 
@@ -60,6 +61,36 @@ router.route('/paginate').get(
     select: `${defaultExcludes}`
     // // ${defaultExcludes}
   }),
+  // controller.getAllWithPagination
+  controller.getAllWithPaginationV2
+);
+
+//🆕
+router.route('/paginate/for-patient').get(
+  auth(TRole.patient),
+  validateFiltersForQuery(optionValidationChecking(['_id', 'status', 'patientId', ...paginationOptions])),
+  setQueryOptions({
+    populate: [ 
+      { 
+        path: 'uploadedResults', 
+        select: 'attachment',
+        // populate: { path: 'profileId', select: 'gender location' }
+      },
+      { 
+        path: 'patientId', 
+        select: 'name profileImage role',
+        // populate: { path: 'profileId', select: 'gender location' }
+      },
+      { 
+        path: 'labTestId', 
+        select: 'name attachment description price',
+        // populate: { path: 'profileId', select: 'gender location' }
+      }
+    ],
+    select: `${defaultExcludes}`
+    // // ${defaultExcludes}
+  }),
+  getLoggedInUserAndSetReferenceToUser('patientId'),
   // controller.getAllWithPagination
   controller.getAllWithPaginationV2
 );
