@@ -1,12 +1,11 @@
 //@ts-ignore
 import express from 'express';
-import * as validation from './protocol.validation';
-import { ProtocolController} from './protocol.controller';
-import { IProtocol } from './protocol.interface';
+import * as validation from './hireSpecialistRequestToAdmin.validation';
+import { HireSpecialistRequestToAdminController} from './hireSpecialistRequestToAdmin.controller';
+import { IHireSpecialistRequestToAdmin } from './hireSpecialistRequestToAdmin.interface';
 import { validateFiltersForQuery } from '../../../middlewares/queryValidation/paginationQueryValidationMiddleware';
 import validateRequest from '../../../shared/validateRequest';
 import auth from '../../../middlewares/auth';
-import { TRole } from '../../../middlewares/roles';
 //@ts-ignore
 import multer from "multer";
 const storage = multer.memoryStorage();
@@ -14,7 +13,7 @@ const upload = multer({ storage: storage });
 
 const router = express.Router();
 
-export const optionValidationChecking = <T extends keyof IProtocol | 'sortBy' | 'page' | 'limit' | 'populate'>(
+export const optionValidationChecking = <T extends keyof IHireSpecialistRequestToAdmin | 'sortBy' | 'page' | 'limit' | 'populate'>(
   filters: T[]
 ) => {
   return filters;
@@ -27,20 +26,13 @@ const paginationOptions: Array<'sortBy' | 'page' | 'limit' | 'populate'> = [
   'populate',
 ];
 
-
 // const taskService = new TaskService();
-const controller = new ProtocolController();
+const controller = new HireSpecialistRequestToAdminController();
 
-/*********
- * 
- * Doctor | Show all protocol for a patient with extraNote from doctorPatient 
- * TODO : confusion in total plan calculation 
- * ⚠️    ->  bad code .. Need to optimize
- * ******** */
 //
 router.route('/paginate').get(
-  auth(TRole.doctor),
-  validateFiltersForQuery(optionValidationChecking(['_id','patientId', ...paginationOptions])),
+  //auth('common'),
+  validateFiltersForQuery(optionValidationChecking(['_id', ...paginationOptions])),
   controller.getAllWithPagination
 );
 
@@ -49,11 +41,8 @@ router.route('/:id').get(
   controller.getById
 );
 
-//---------------------------------
-// Doctor | Update Protocol Name TODO : only specific fields should be updated
-//---------------------------------
 router.route('/update/:id').put(
-  auth(TRole.doctor),
+  //auth('common'),
   // validateRequest(validation.createHelpMessageValidationSchema),
   controller.updateById
 );
@@ -64,17 +53,17 @@ router.route('/').get(
   controller.getAll
 );
 
-//---------------------------------
-// Doctor  | Create Protocol For Patient
-//---------------------------------
-
-router.route('/').post(
-  auth(TRole.doctor),
-  validateRequest(validation.createProtocolValidationSchema),
+//[🚧][🧑‍💻✅][🧪] // 🆗
+router.route('/create').post(
+  // [
+  //   upload.fields([
+  //     { name: 'attachments', maxCount: 15 }, // Allow up to 5 cover photos
+  //   ]),
+  // ],
+  auth('common'),
+  validateRequest(validation.createHelpMessageValidationSchema),
   controller.create
 );
-
-// TODO : Show all protocol for a patient + extraNote(from doctorPatient) 
 
 router.route('/delete/:id').delete(
   //auth('common'),
@@ -90,4 +79,4 @@ router.route('/softDelete/:id').put(
 //[🚧][🧑‍💻✅][🧪] // 🆗
 
 
-export const protocolRoute = router;
+export const HireSpecialistRequestToAdminRoute = router;
