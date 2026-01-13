@@ -186,9 +186,6 @@ export class WithdrawalRequstController extends GenericController<
       });
     }
 
-    // console.log("proofOfPayment 👈", proofOfPayment);
-    // console.log("proofOfPayment 👈 type of :: ", typeof proofOfPayment);
-
     withdrawalRequst.proofOfPayment = proofOfPayment[0];
     withdrawalRequst.status = TWithdrawalRequst.completed;
     withdrawalRequst.processedAt = new Date();
@@ -214,10 +211,7 @@ export class WithdrawalRequstController extends GenericController<
         userId : withdrawalRequst.userId
       });
 
-      console.log("log: wallet.amount => ", typeof wallet.amount,"~~~", wallet.amount);
-      console.log("log: withdrawalRequst.requestedAmount => ", typeof withdrawalRequst.requestedAmount , "~~~", withdrawalRequst.requestedAmount);
-      console.log("log: wallet.amount - withdrawalRequst.requestedAmount  result => ", wallet.amount - withdrawalRequst.requestedAmount);
-
+      
       if(wallet){
 
         balanceBeforeTransaction = wallet.amount;

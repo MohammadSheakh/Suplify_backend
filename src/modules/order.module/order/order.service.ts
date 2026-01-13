@@ -79,7 +79,7 @@ export class OrderService extends GenericService<typeof Order, IOrder>{
             discount = 20;
         }
 
-        console.log("🫥 discount is ", discount);
+        // console.log("🫥 discount is ", discount);
 
         const session = await mongoose.startSession();
 
@@ -162,14 +162,14 @@ export class OrderService extends GenericService<typeof Order, IOrder>{
                 }
             }
 
-            console.log("🟢 Final Amount (before delivery charge): ", finalAmount);
+            // console.log("🟢 Final Amount (before delivery charge): ", finalAmount);
 
             // add that final amount to order
             // order.finalAmount = finalAmount;
 
             const subtotal = finalAmount; // rename for clarity
 
-            console.log("🟢 Subtotal (before discount): ", subtotal);
+            // console.log("🟢 Subtotal (before discount): ", subtotal);
 
             let discountedAmount = 0;
 
@@ -180,7 +180,7 @@ export class OrderService extends GenericService<typeof Order, IOrder>{
             totalAfterDiscount = subtotal - discountedAmount;
             // Later add deliveryCharge: totalAfterDiscount + deliveryCharge
 
-            console.log("🟢 Total After Discount: ", totalAfterDiscount);
+            // console.log("🟢 Total After Discount: ", totalAfterDiscount);
 
             await Order.findByIdAndUpdate(
                 createdOrder._id,

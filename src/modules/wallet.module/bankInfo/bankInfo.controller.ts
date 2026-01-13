@@ -28,11 +28,7 @@ export class BankInfoController extends GenericController<
     
     const data:IBankInfo = req.body;
 
-    console.log('data :: ',data )
-
     data.userId = ((req.user) as IUser).userId as string;
-
-    console.log("logged in user ::", ((req.user) as IUser).userId)
 
     const result = await this.bankInfoService.createOrUpdate(((req.user) as IUser).userId as string, data);
 

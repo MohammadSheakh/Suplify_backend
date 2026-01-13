@@ -30,18 +30,18 @@ export class SpecialistWorkoutClassScheduleService extends GenericService<
     if(data.scheduleDate && data.startTime && data.endTime) {
         const scheduleDate = new Date(data.scheduleDate);
         
-        console.log("data.startTime before ->>>", data.startTime, typeof data.startTime)
-        console.log("data.scheduleDate before ->>>", data.scheduleDate, typeof data.scheduleDate)
+        // console.log("data.startTime before ->>>", data.startTime, typeof data.startTime)
+        // console.log("data.scheduleDate before ->>>", data.scheduleDate, typeof data.scheduleDate)
 
         data.startTime = toUTCTime(data.startTime, userTimeZone);
         data.endTime = toUTCTime(data.endTime, userTimeZone);
 
-        console.log("scheduleDate.getTime() ->>>", scheduleDate.getTime())
+        // console.log("scheduleDate.getTime() ->>>", scheduleDate.getTime())
 
         
-        console.log("data.startTime.getTime() ->>>", data.startTime.getTime())
+        // console.log("data.startTime.getTime() ->>>", data.startTime.getTime())
 
-        console.log("data.endTime.getTime() ->>>", data.endTime.getTime())
+        // console.log("data.endTime.getTime() ->>>", data.endTime.getTime())
 
 
         if(isNaN(scheduleDate.getTime()) ) {
@@ -104,7 +104,7 @@ export class SpecialistWorkoutClassScheduleService extends GenericService<
     └──────────────────────────────────*/
   async createV3(data:ISpecialistWorkoutClassSchedule, userTimeZone: string) : Promise<ISpecialistWorkoutClassSchedule> {
     
-    console.log("data :: ", data);
+    // console.log("data :: ", data);
     // ----------------------------
     // Common validation
     // ----------------------------

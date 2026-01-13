@@ -167,10 +167,8 @@ export class TrainingProgramController extends GenericController<
    
     // for update cases .. if image uploaded then we use that uploaded image url otherwise we use previous one
     if(req.uploadedFiles?.attachments.length > 0){
-      console.log('req.uploadedFiles?.attachments.length > 0 .. replace prev image with the new one');
       req.body.attachments = req.uploadedFiles?.attachments;
     }else{
-      console.log('req.uploadedFiles?.attachments.length == 0 .. keep prev image');
       req.body.attachments = obj.attachments;
     }
 

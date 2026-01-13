@@ -30,7 +30,7 @@ export class CartItemController extends GenericController<
   create = catchAsync(async (req: Request, res: Response) => {
     const data:ICreateCart = req.body;
 
-    console.log(data);
+    // console.log(data);
 
     /****
      * check Logged in users Cart exist or not 
@@ -51,11 +51,11 @@ export class CartItemController extends GenericController<
       });
 
       cartId = newCart._id;
-      console.log('New cart created:', newCart);
+      // console.log('New cart created:', newCart);
     } else {
 
       cartId = existedCart._id;
-      console.log('Existed cart found:', existedCart);
+      // console.log('Existed cart found:', existedCart);
     }
 
     /******

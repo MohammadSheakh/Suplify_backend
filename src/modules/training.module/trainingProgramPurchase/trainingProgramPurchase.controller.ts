@@ -26,9 +26,7 @@ export class TrainingProgramPurchaseController extends GenericController<
   create = catchAsync(async (req: Request, res: Response) => {
     
     // const data:ITrainingProgramPurchase = req.body;
-    
-    console.log("1️⃣")
-
+  
     const result = await this.trainingProgramPurchaseService.createV2(req.params.trainingProgramId, req.user as IUser);
 
     sendResponse(res, {

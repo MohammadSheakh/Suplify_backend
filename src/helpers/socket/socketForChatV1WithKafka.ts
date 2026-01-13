@@ -288,7 +288,7 @@ const socketForChat_With_Kafka = (io: Server) => {
           ************ */
 
 
-          console.log("online and offline related Users Array 🔊🔊", usersWhohaveConversationWithThisUser)
+          // console.log("online and offline related Users Array 🔊🔊", usersWhohaveConversationWithThisUser)
 
           const filteredOnlineUsers = Array.from(onlineUsers).filter(onlineUserId => 
             usersWhohaveConversationWithThisUser.some(conversationUserId => 
@@ -308,8 +308,8 @@ const socketForChat_With_Kafka = (io: Server) => {
 
           ************ */
 
-          console.log("system onlineUsers: ⚡", onlineUsers);
-          console.log("related online users array: ⚡", filteredOnlineUsers , " ⚡logged in userId⚡ ", userId.userId);
+          // console.log("system onlineUsers: ⚡", onlineUsers);
+          // console.log("related online users array: ⚡", filteredOnlineUsers , " ⚡logged in userId⚡ ", userId.userId);
 
           callback?.({ success: true, data: filteredOnlineUsers});
         } catch (error) {
@@ -330,11 +330,11 @@ const socketForChat_With_Kafka = (io: Server) => {
           return emitError(socket, 'conversationId is required');
         }
 
-        console.log('🚮🚮🚮🚮🚮🚮')
+        // console.log('🚮🚮🚮🚮🚮🚮')
 
         
 
-        console.log(`User ${user.name} joining chat ${conversationData.conversationId}`);
+        // console.log(`User ${user.name} joining chat ${conversationData.conversationId}`);
         
         // console.log(`Current userSocketMap: ${Array.from(userSocketMap.entries()).map(([k, v]) => `${k}:${v}`).join(', ')}`);
         // console.log(`Current socketUserMap: ${Array.from(socketUserMap.entries()).map(([k, v]) => `${k}:${v}`).join(', ')}`);
@@ -346,9 +346,9 @@ const socketForChat_With_Kafka = (io: Server) => {
 
         // Debug: Check room membership //------- from claude
         const roomSockets = await io.in(conversationData.conversationId).fetchSockets();
-        console.log(`Room 💡 ${conversationData.conversationId} now has ${roomSockets.length} socket or user`); // 💡 how many users are joined in this conversation
-        console.log(roomSockets.map((s: any) => `${s.id} (${s.data.user.name})`).join(', '));
-        console.log(`--------------------- All current online users: ${Array.from(onlineUsers).join(', ')}`); // 💡 how many users are online 
+        // console.log(`Room 💡 ${conversationData.conversationId} now has ${roomSockets.length} socket or user`); // 💡 how many users are joined in this conversation
+        // console.log(roomSockets.map((s: any) => `${s.id} (${s.data.user.name})`).join(', '));
+        // console.log(`--------------------- All current online users: ${Array.from(onlineUsers).join(', ')}`); // 💡 how many users are online 
         
 
         // Notify others in the chat
@@ -368,7 +368,7 @@ const socketForChat_With_Kafka = (io: Server) => {
       socket.on('get-all-conversations', async(conversationData: {conversationId: string}, callback) =>{
         try{
           const conversations = await new ConversationParticipentsService().getAllConversationByUserId(userId);
-          console.log("conversations: 🟢🟢 ", conversations);
+          // console.log("conversations: 🟢🟢 ", conversations);
           callback?.({ success: true, data: conversations});// 🟡🟡 fix korte hobe .. onlineUsers er part ta .. 
         } catch (error) {
           console.error('Error fetching conversations:', error);
@@ -422,7 +422,7 @@ const socketForChat_With_Kafka = (io: Server) => {
             populateOptions, 
             '' // select
           );
-          console.log("messages: 🟢🟢 ", messages);
+          // console.log("messages: 🟢🟢 ", messages);
           callback?.({ success: true, data: messages});
         } catch (error) {
           console.error('Error fetching conversations:', error);
@@ -468,7 +468,7 @@ const socketForChat_With_Kafka = (io: Server) => {
             }
           });
 
-          console.log("isExist: 🟡", isExist);
+          // console.log("isExist: 🟡", isExist);
 
         if(!isExist){
             emitError(socket, `You are not a participant in this conversation`);
@@ -535,7 +535,7 @@ const socketForChat_With_Kafka = (io: Server) => {
           conversationParticipants.forEach((participant: any) => {
             const participantId = participant.userId?.toString();
             
-            console.log(`1️⃣ .forEach Participant ID: ${participantId}, User ID: ${userId}`);
+            // console.log(`1️⃣ .forEach Participant ID: ${participantId}, User ID: ${userId}`);
             
             // Skip the sender if excludeUserId is provided
             // if (userId && participantId == userId) {
@@ -644,7 +644,7 @@ const socketForChat_With_Kafka = (io: Server) => {
 
         // Debug: Check room membership //------- from claude
         const roomSockets = await io.in(conversationData.conversationId).fetchSockets();
-        console.log(`Room 💡 ${conversationData.conversationId} now has ${roomSockets.length} sockets or user`);
+        // console.log(`Room 💡 ${conversationData.conversationId} now has ${roomSockets.length} sockets or user`);
         console.log(roomSockets.map((s: any) => `${s.id} (${s.data.user.name})`).join(', '));
         
         // console.log(`--------------------- All current online users: ${Array.from(onlineUsers).join(', ')}`); // 💡 how many users are online 
@@ -729,7 +729,7 @@ const socketForChat_With_Kafka = (io: Server) => {
        * ************* */
 
       socket.on('disconnect', () => {
-        console.log(`User ${user.name} disconnected`);
+        // console.log(`User ${user.name} disconnected`);
         handleUserDisconnection(userId, socket.id, onlineUsers, userSocketMap, socketUserMap, io);
       });
 
@@ -748,10 +748,10 @@ const socketForChat_With_Kafka = (io: Server) => {
   const getOnlineUsers = () => Array.from(onlineUsers);
   const isUserOnline = (userId: string) =>
   {
-    console.log("onlineUsers: ", onlineUsers);
+    // console.log("onlineUsers: ", onlineUsers);
     // let res = onlineUsers.has(new ObjectId(userId));
     const isOnline = Array.from(onlineUsers).some(id => id.toString() === userId);
-    console.log(`User ${userId} online 🟢 status: ${isOnline}`);
+    // console.log(`User ${userId} online 🟢 status: ${isOnline}`);
     // onlineUsers.has(userId)
     return isOnline;
   }

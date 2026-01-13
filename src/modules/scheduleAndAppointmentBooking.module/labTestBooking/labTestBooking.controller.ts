@@ -52,9 +52,27 @@ export class LabTestBookingController extends GenericController<
 
     const existingObject = await this.service.getById(id);
 
+    // console.log("req.uploadedFiles?.uploadedResults?.[0] -> ", req.uploadedFiles?.uploadedResults?.[0]);
+
+    // new uploaded attachment (if any)
+    const newAttachment = req.uploadedFiles?.uploadedResults?.[0];
+
+    // console.log("newAttachment -> ", newAttachment);
+
+    // final attachment (new OR existing)
+    const finalAttachment =
+      newAttachment ?? existingObject.uploadedResults;
+
+    // console.log("finalAttachment -> ", finalAttachment);
+
+    // derive flag
+    const isResultUploaded = Boolean(finalAttachment); 
+
+  
     // TODO : proper type needs to be pass here... 
     const existingObjectDTO : ILabTestBooking = {
-      attachments : req.uploadedFiles.attachments?.[0] ?? existingObject?.uploadedResults,
+      uploadedResults : req.uploadedFiles.uploadedResults?.[0] ?? existingObject?.uploadedResults,
+      isResultUploaded,
       ...req.body
     }
 

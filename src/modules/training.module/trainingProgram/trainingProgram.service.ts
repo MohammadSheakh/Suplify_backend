@@ -15,7 +15,6 @@ import { errorLogger } from '../../../shared/logger';
 const eventEmitForUpdateSpecialistUserProfile = new EventEmitter(); 
 
 eventEmitForUpdateSpecialistUserProfile.on('eventEmitForUpdateSpecialistUserProfile', async (specialistId: any) => {
-  console.log("eventEmitForUpdateSpecialistUserProfile event received for specialistId ::",specialistId )
   try {
     const trainingProgramCount = await TrainingProgram.countDocuments({ createdBy: specialistId, isDeleted: { $ne: true } });
 

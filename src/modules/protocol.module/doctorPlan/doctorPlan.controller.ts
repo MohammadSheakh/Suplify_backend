@@ -125,7 +125,7 @@ export class DoctorPlanController extends GenericController<
 
 
     if(req.query.title == '' || !req.query.title){
-      console.log("hit")
+      
       sendResponse(res, {
         code: StatusCodes.OK,
         data: [],

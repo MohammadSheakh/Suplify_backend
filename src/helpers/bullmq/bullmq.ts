@@ -49,12 +49,12 @@ export const startScheduleWorker = () => {
     async (job:IScheduleJob) => {
       // TODO : add try catch 
 
-      console.log(`Processing job ${job.id} of type ${job.name}⚡${job.data}`);
+      // console.log(`Processing job ${job.id} of type ${job.name}⚡${job.data}`);
       logger.info('Processing job', job.name, " ⚡ ", job.data);
 
       if (job.name === "makeDoctorAppointmentScheduleAvailable") {
 
-        console.log("🔎🔎🔎🔎 makeDoctorAppointmentScheduleAvailable ")
+        // console.log("🔎🔎🔎🔎 makeDoctorAppointmentScheduleAvailable ")
         const { scheduleId, appointmentBookingId } = job.data;
 
         const tomorrow = new Date();
@@ -90,8 +90,8 @@ export const startScheduleWorker = () => {
           }
         });
 
-        console.log("updatedSchedule.startTime :: ", updatedSchedule.startTime)
-        console.log("updatedSchedule.endTime :: ", updatedSchedule.endTime)
+        // console.log("updatedSchedule.startTime :: ", updatedSchedule.startTime)
+        // console.log("updatedSchedule.endTime :: ", updatedSchedule.endTime)
 
         /*-------------------------------------------
 
@@ -148,10 +148,10 @@ export const startScheduleWorker = () => {
         });
 
 
-        console.log(`✅ Schedule ${scheduleId} automatically freed.`);
+        // console.log(`✅ Schedule ${scheduleId} automatically freed.`);
       }else if (job.name ==="makeDoctorAppointmentScheduleAvailableIfNotBooked"){
 
-        console.log("🔎🔎🔎🔎 makeDoctorAppointmentScheduleAvailableIfNotBooked")
+        // console.log("🔎🔎🔎🔎 makeDoctorAppointmentScheduleAvailableIfNotBooked")
         const { scheduleId } = job.data;
 
         const schedule:IDoctorAppointmentSchedule = await DoctorAppointmentSchedule.findById(scheduleId).select("scheduleStatus");
@@ -172,7 +172,7 @@ export const startScheduleWorker = () => {
 
       }else if (job.name === "expireDoctorAppointmentScheduleAfterEndTime") {
 
-        console.log("🔎🔎🔎🔎 expireDoctorAppointmentScheduleAfterEndTime ")
+        // console.log("🔎🔎🔎🔎 expireDoctorAppointmentScheduleAfterEndTime ")
         const { scheduleId } = job.data;
 
         /*****
@@ -192,9 +192,9 @@ export const startScheduleWorker = () => {
           }
         });
 
-        console.log(`✅ Schedule ${scheduleId} automatically expired at ${new Date().toLocaleString()}.`);
+        // console.log(`✅ Schedule ${scheduleId} automatically expired at ${new Date().toLocaleString()}.`);
       }else if (job.name === "makeSpecialistWorkoutClassScheduleAvailable") {
-        console.log("🔎🔎🔎🔎 makeSpecialistWorkoutClassScheduleAvailable ")
+        // console.log("🔎🔎🔎🔎 makeSpecialistWorkoutClassScheduleAvailable ")
         const { scheduleId } = job.data; 
         /***
          * we dont need booking id here as multiple patient can book a workout class
@@ -213,7 +213,7 @@ export const startScheduleWorker = () => {
         }
 
         if (schedule.status === TSpecialistWorkoutClassSchedule.available) {
-          console.log(`⏩ Schedule ${scheduleId} is already available. Skipping job.`);
+          // console.log(`⏩ Schedule ${scheduleId} is already available. Skipping job.`);
           return;
         }
 
@@ -262,7 +262,7 @@ export const startScheduleWorker = () => {
         //   }
         // });
 
-        console.log(`✅ Schedule ${scheduleId} automatically freed.`);
+        // console.log(`✅ Schedule ${scheduleId} automatically freed.`);
       }else{
         console.log(`❓ Unknown job type: ${job.name}`);
       }

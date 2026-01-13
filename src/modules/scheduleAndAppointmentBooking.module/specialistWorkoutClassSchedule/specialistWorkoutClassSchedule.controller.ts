@@ -30,7 +30,7 @@ export class SpecialistWorkoutClassScheduleController extends GenericController<
 
     const data:ISpecialistWorkoutClassSchedule = req.body;
 
-    console.log("data :: ", data);
+    // console.log("data :: ", data);
     
     data.createdBy = (req.user as IUser)?.userId; // speacialist Id
 
@@ -74,7 +74,7 @@ export class SpecialistWorkoutClassScheduleController extends GenericController<
 
     const result = await this.specialistWorkoutClassScheduleService.getAllWithAggregation(filters, options, req.user.userId);
 
-    console.log("result :: ", result);
+    // console.log("result :: ", result);
 
     // get specialist information
 

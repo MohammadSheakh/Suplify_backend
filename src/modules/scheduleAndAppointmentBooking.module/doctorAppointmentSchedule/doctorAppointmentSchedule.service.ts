@@ -369,7 +369,7 @@ async function addToBullQueueToExpireDoctorAppointmentScheduleAfterEndTime(
         ********** */
 
         // ${delay / 1000}s -> 
-        console.log(`⏰ Job added to expire schedule ${createdDoctorSchedule._id} in ${formatDelay(delay)} `);
+        // console.log(`⏰ Job added to expire schedule ${createdDoctorSchedule._id} in ${formatDelay(delay)} `);
         logger.info(colors.green(`⏰ Job added to expire schedule ${createdDoctorSchedule._id} in ${formatDelay(delay)} `));
     }
 }

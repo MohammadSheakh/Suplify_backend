@@ -21,7 +21,7 @@ const createConnectedStripeAccount = async (user: any, host: string, protocol: s
      const existingAccount = await StripeAccount.findOne({
           user: user.id,
      }).select('user accountId isCompleted');
-     console.log('existingAccount', existingAccount);
+     // console.log('existingAccount', existingAccount);
 
      if (existingAccount) {
           //---------------------------------
@@ -62,7 +62,7 @@ const createConnectedStripeAccount = async (user: any, host: string, protocol: s
                transfers: { requested: true },
           },
      });
-     console.log('stripe account', account);
+     // console.log('stripe account', account);
 
      await StripeAccount.create({ accountId: account.id, userId: user.id });
 
@@ -72,7 +72,7 @@ const createConnectedStripeAccount = async (user: any, host: string, protocol: s
           return_url: `${protocol}://${host}/api/v1/payments/success-account/${account.id}`,
           type: 'account_onboarding',
      });
-     console.log('onboardingLink-2', onboardingLink);
+     // console.log('onboardingLink-2', onboardingLink);
 
      /********
       * Now if account creation is successful then we pass that user to /success-account/:accountId

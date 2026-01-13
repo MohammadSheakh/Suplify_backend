@@ -286,8 +286,6 @@ export class TrainingProgramPurchaseService extends GenericService<
         }], { session }
       );
 
-      console.log("purchaseTrainingProgram :: 🟢🟢 ", trainingProgramPurchase)
-
     });
     session.endSession();
 

@@ -42,7 +42,7 @@ export const handlePaymentSucceeded = async (session: Stripe.Checkout.Session) =
      
      try {
 
-          console.log("session.metadata 🔎🔎", session.metadata)
+          // console.log("session.metadata 🔎🔎", session.metadata)
 
           const { 
                referenceId, // bookingId
@@ -73,8 +73,8 @@ export const handlePaymentSucceeded = async (session: Stripe.Checkout.Session) =
           // that Id exist or not in our database .. 
 
           const paymentIntent = session.payment_intent as string;
-          console.log('=============================');
-          console.log('paymentIntent : ', paymentIntent);
+          // console.log('=============================');
+          // console.log('paymentIntent : ', paymentIntent);
           
           const isPaymentExist = await PaymentTransaction.findOne({ paymentIntent });
 
@@ -86,7 +86,8 @@ export const handlePaymentSucceeded = async (session: Stripe.Checkout.Session) =
 
                // which means we dont create paymentTransaction here ..
                // we want to create  paymentTransaction in handleSuccessfulPayment
-               console.log("🟡🟡 which means we dont create paymentTransaction here 🟡🟡 we want to create  paymentTransaction in handleSuccessfulPayment")
+
+               // console.log("🟡🟡 which means we dont create paymentTransaction here 🟡🟡 we want to create  paymentTransaction in handleSuccessfulPayment")
                // lets test ... 
                return
           }
@@ -252,7 +253,7 @@ async function updateDoctorPatientScheduleBooking(
      doctorAppointmentScheduleId : string,
      doctorAppointmentScheduleIdReferenceFor: string
 ){
-     console.log("☑️HIT☑️ handlePaymentSucceed -> updateDoctorPatientScheduleBooking >>> doctorAppointmentScheduleId", doctorAppointmentScheduleId)
+     // console.log("☑️HIT☑️ handlePaymentSucceed -> updateDoctorPatientScheduleBooking >>> doctorAppointmentScheduleId", doctorAppointmentScheduleId)
 
      const updatedDoctorPatientScheduleBooking:IDoctorPatientScheduleBooking = await DoctorPatientScheduleBooking.findByIdAndUpdate(doctorPatientScheduleBookingId, { 
           /* update fields */ 
@@ -345,7 +346,7 @@ async function updatePurchaseTrainingProgram(
      );
 
 
-     console.log("♻️updatedTrainingProgramPurchase from webhook 🪝 🪝  ", updatedTrainingProgramPurchase)
+     // console.log("♻️updatedTrainingProgramPurchase from webhook 🪝 🪝  ", updatedTrainingProgramPurchase)
 
      // here we create all patientTrainingSession for track all session for this patient
      trainingProgramPurchaseService._handlePersonTrainingSessionCreate(trainingProgramId, user);
@@ -394,7 +395,7 @@ async function updateSpecialistPatientScheduleBooking(
      specialistWorkoutClassScheduleId : string,
      specialistWorkoutClassScheduleIdReferenceFor: string
 ){
-     console.log("☑️HIT☑️ handlePaymentSucceed -> updateSpecialistPatientScheduleBooking >>> specialistPatientScheduleBookingId", specialistPatientScheduleBookingId)
+     // console.log("☑️HIT☑️ handlePaymentSucceed -> updateSpecialistPatientScheduleBooking >>> specialistPatientScheduleBookingId", specialistPatientScheduleBookingId)
 
      const updatedSpecialsitPatientWorkoutClassBooking:ISpecialistPatientScheduleBooking = await SpecialistPatientScheduleBooking.findByIdAndUpdate(specialistPatientScheduleBookingId, { 
           /* update fields */ 
