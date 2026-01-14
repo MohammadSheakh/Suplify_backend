@@ -2,6 +2,7 @@ import { GenericService } from '../../_generic-module/generic.services';
 import { IConversationParticipents } from './conversationParticipents.interface';
 import { ConversationParticipents } from './conversationParticipents.model';
 import { PaginateOptionsForConversations } from '../../../types/paginate';
+import { socketService } from '../../../helpers/socket/socketForChatV3';
 
 export class ConversationParticipentsService extends GenericService<
   typeof ConversationParticipents, IConversationParticipents
@@ -228,6 +229,104 @@ export class ConversationParticipentsService extends GenericService<
     totalPages: paginatedResults.totalPages,
     totalResults: paginatedResults.totalResults
   };
+  }
+
+  /*-─────────────────────────────────
+    |  With Read Unread Logic ..  
+    └──────────────────────────────────*/
+  async getAllConversationByUserIdWithPaginationV2(userId: any, options: PaginateOptionsForConversations = { limit: 10, page: 1 , search: '' }) 
+  {
+    let loggedInUserId = userId;
+
+    const search = options?.search?.trim();
+
+    // Step 1: Find all conversations the logged-in user participates in
+    const userConversations:IConversationParticipents[] = await ConversationParticipents.find({
+      userId: loggedInUserId,
+      isDeleted: false
+    }).select('conversationId');
+
+    const conversationIds = userConversations.map(conv => conv.conversationId);
+
+    // Step 2: Use pagination on ConversationParticipents
+    const filter = {
+      conversationId: { $in: conversationIds },
+      userId: { $ne: loggedInUserId },
+      isDeleted: false,
+    };
+
+    // ✅ Only add name filter if search is non-empty
+    if (search) {
+      filter.name = { $regex: search, $options: 'i' };
+    }
+
+    const populateOptions = [
+      {
+        path: 'userId',
+        select: 'name profileImage role'
+      },
+      {
+        path: 'conversationId',
+        select: 'lastMessage updatedAt',
+      }
+    ];
+
+    let dontWantToInclude: string | string[] = '';
+
+    // Use your pagination function
+    const paginatedResults = await ConversationParticipents.paginate(
+      filter,
+      {
+        ...options, 
+        sortBy: options.sortBy ?? 'updatedAt', // Sort by most recent conversations
+      },
+      populateOptions,
+      dontWantToInclude
+    );
+
+    // Step 3: Remove duplicates and format data
+    const uniqueUsers = {};
+    
+    paginatedResults.results.forEach(participant => {
+      const userId = participant.userId._id.toString();
+      
+      if (!uniqueUsers[userId]) {
+        uniqueUsers[userId] = {
+          userId: {
+            _userId: participant.userId._id,
+            name: participant.userId.name,
+            profileImage: participant.userId.profileImage,
+            role: participant.userId.role
+          },
+          conversations: [],
+          // isOnline: global.socketUtils.isUserOnline(userId), // 😄😄😄😄😄😄😄
+        };
+      }
+      
+      // Add conversation if not already added
+      const conversationExists = uniqueUsers[userId].conversations.some(
+        conv => conv._conversationId.toString() === participant.conversationId._id.toString()
+      );
+      
+      if (!conversationExists) {
+        uniqueUsers[userId].conversations.push({
+          _conversationId: participant.conversationId._id,
+          lastMessage: participant.conversationId.lastMessage,
+          updatedAt: participant.conversationId.updatedAt
+        });
+      }
+    });
+
+
+    // return Object.values(uniqueUsers);
+    // Return paginated response with processed data
+    return {
+      results: Object.values(uniqueUsers),
+      page: paginatedResults.page,
+      limit: paginatedResults.limit,
+      totalPages: paginatedResults.totalPages,
+      totalResults: paginatedResults.totalResults
+    };
   }
 
 
