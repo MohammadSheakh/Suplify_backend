@@ -417,7 +417,7 @@ export class SocketService {
           populateOptions, 
           '' // select
         );
-        console.log("messages: 🟢🟢 ", messages);
+        // console.log("messages: 🟢🟢 ", messages);
         callback?.({ success: true, data: messages});
       } catch (error) {
         console.error('Error fetching conversations:', error);
@@ -523,7 +523,7 @@ export class SocketService {
           //if (Array.from(onlineUsers).some(id => id.toString() === participantId)) {
 
           if(isOnline){
-         
+            console.log(`${participantId} 🟢online.. `)
             /*-----------------------------------------
             await socketService.emitToUser(
               participantId,
@@ -593,6 +593,7 @@ export class SocketService {
             ********** */
             
           }else{
+            console.log(`${participantId}offline ⭕`)
             // TODO : MUST Push notification
             // .... TODO: push notification .. 
           }
