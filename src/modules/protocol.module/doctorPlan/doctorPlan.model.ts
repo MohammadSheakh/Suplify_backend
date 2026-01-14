@@ -1,3 +1,4 @@
+//@ts-ignore
 import { model, Schema } from 'mongoose';
 import { IDoctorPlan, IDoctorPlanModel } from './doctorPlan.interface';
 import paginate from '../../../common/plugins/paginate';

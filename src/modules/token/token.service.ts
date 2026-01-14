@@ -76,13 +76,36 @@ const verifyToken = async (
 };
 
 const createVerifyEmailToken = async (user: TUser) => {
+
+  const payload = { userId: user._id, email: user.email, role: user.role };
+  await Token.deleteMany({ user: user._id });
+  const verifyEmailToken = createToken(
+    payload,
+    config.token.TokenSecret,
+    config.token.verifyEmailTokenExpiration
+  );
+  const expiresAt = getExpirationTime(config.token.verifyEmailTokenExpiration);
+
+  await Token.create({
+    token: verifyEmailToken,
+    user: user._id,
+    type: TokenType.VERIFY,
+    expiresAt,
+  });
+  return verifyEmailToken;
+
+  /*-------------------- Comment this Code After Long Long Time
   const payload = { userId: user._id, email: user.email, role: user.role };
  const verifyEmailToken = createToken(
     payload,
     config.token.TokenSecret,
     config.token.verifyEmailTokenExpiration
   );
-  /**************
+
+  --------------------*/
+
+
+  /************** Previous Code
   await Token.deleteMany({ user: user._id });
   
   const expiresAt = getExpirationTime(config.token.verifyEmailTokenExpiration);
@@ -95,7 +118,7 @@ const createVerifyEmailToken = async (user: TUser) => {
   });
   ****************/
 
-  /**************
+  /************** Previous Code
   
   const [, tokenDoc] = await Promise.all([
     Token.deleteMany({ user: user._id }), // Clean up old tokens
@@ -109,6 +132,7 @@ const createVerifyEmailToken = async (user: TUser) => {
 
   ****************/
 
+  /*-----------------  Comment this Code After Long Long Time
   // TODO : Need to add type
   let tokenRelatedValues : any = {
       token: verifyEmailToken,
@@ -120,6 +144,8 @@ const createVerifyEmailToken = async (user: TUser) => {
     eventEmitterForTokenDeleteAndCreate.emit('eventEmitForTokenDeleteAndCreate', tokenRelatedValues);
 
   return verifyEmailToken;
+
+  ----------------------*/
 };
 
 const createResetPasswordToken = async (user: TUser) => {
