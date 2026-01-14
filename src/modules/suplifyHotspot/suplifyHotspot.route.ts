@@ -9,6 +9,9 @@ import auth from '../../middlewares/auth';
 //@ts-ignore
 import multer from "multer";
 import { TRole } from '../../middlewares/roles';
+import { setQueryOptions } from '../../middlewares/setQueryOptions';
+import { defaultExcludes } from '../../constants/queryOptions';
+import { imageUploadPipelineForUpdateSuplifyHotspot } from './suplifyHotspot.middleware';
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
@@ -34,7 +37,17 @@ const controller = new SuplifyHotspotController();
 router.route('/paginate').get(
   //auth('common'),
   validateFiltersForQuery(optionValidationChecking(['_id', ...paginationOptions])),
-  controller.getAllWithPagination
+  setQueryOptions({
+      populate: [ 
+        { 
+          path: 'attachments', 
+          select: 'attachment',
+          // populate: { path: 'profileId', select: 'gender location' }
+        }
+      ],
+      select: `${defaultExcludes}`
+    }),
+  controller.getAllWithPaginationV2
 );
 
 router.route('/:id').get(
@@ -42,10 +55,11 @@ router.route('/:id').get(
   controller.getById
 );
 
-router.route('/update/:id').put(
+router.route('/:id').put(
   //auth('common'),
+  ...imageUploadPipelineForUpdateSuplifyHotspot,
   // validateRequest(validation.createHelpMessageValidationSchema),
-  controller.updateById
+  controller.updateWithImageById
 );
 
 //[🚧][🧑‍💻✅][🧪] // 🆗
@@ -55,8 +69,8 @@ router.route('/').get(
 );
 
 /** ----------------------------------------------
- * @role Admin
- * @Section Suplify Hotspot
+ * @role Admin 
+ * @Section Suplify Hotspot 
  * @module WorkoutClass  
  * @figmaIndex 0-0
  * @desc we need this hotspot for WorkoutClass module   
@@ -73,7 +87,7 @@ router.route('/').post(
   controller.createWithAttachments
 );
 
-router.route('/delete/:id').delete(
+router.route('/:id').delete(
   //auth('common'),
   controller.deleteById
 ); // FIXME : change to admin

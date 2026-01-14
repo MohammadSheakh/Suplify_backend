@@ -241,6 +241,17 @@ export class GenericController<ModelType, InterfaceType> {
     }
 
     const updatedObject = await this.service.updateById(id, /*req.body*/ existingObjectDTO);
+    
+    /*-------------------- If you override this controller .. then comment above line and uncomment this block of code
+    const updatedObject = await this.service.updateByIdWithPopulateTestingPurpose(id, existingObjectDTO, [
+      {
+        path: "attachments",
+        select: "attachment"
+      }
+    ]);
+    ---------------------*/
+
+
     if (!updatedObject) {
       throw new ApiError(
         StatusCodes.NOT_FOUND,

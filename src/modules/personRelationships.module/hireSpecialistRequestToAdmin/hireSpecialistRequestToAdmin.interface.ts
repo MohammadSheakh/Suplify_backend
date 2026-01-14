@@ -5,8 +5,8 @@ import { PaginateOptions, PaginateResult } from '../../../types/paginate';
 export interface IHireSpecialistRequestToAdmin {
   // _taskId: undefined | Types.ObjectId;
   _id?: Types.ObjectId; // undefined |  Types.ObjectId |
-  userId: Types.ObjectId;
-  message : string;
+  patientId: Types.ObjectId;
+  specialistId : Types.ObjectId;
 
   isDeleted? : boolean;  
   createdAt?: Date;

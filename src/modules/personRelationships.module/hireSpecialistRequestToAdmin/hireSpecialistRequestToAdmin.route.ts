@@ -8,6 +8,9 @@ import validateRequest from '../../../shared/validateRequest';
 import auth from '../../../middlewares/auth';
 //@ts-ignore
 import multer from "multer";
+import { TRole } from '../../../middlewares/roles';
+import { setQueryOptions } from '../../../middlewares/setQueryOptions';
+import { defaultExcludes } from '../../../constants/queryOptions';
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
@@ -33,7 +36,21 @@ const controller = new HireSpecialistRequestToAdminController();
 router.route('/paginate').get(
   //auth('common'),
   validateFiltersForQuery(optionValidationChecking(['_id', ...paginationOptions])),
-  controller.getAllWithPagination
+  setQueryOptions({
+    populate: [
+      {
+        path: "specialistId",
+        select: `name email profileImage`
+      },
+      {
+        path: "patientId",
+        select: `name email subscriptionType profileImage`
+      }
+    ],
+    select: `${defaultExcludes}`
+    // // ${defaultExcludes}
+  }),
+  controller.getAllWithPaginationV2
 );
 
 router.route('/:id').get(
@@ -47,21 +64,36 @@ router.route('/update/:id').put(
   controller.updateById
 );
 
+/** ----------------------------------------------
+ * @role Admin
+ * @Section Admin End
+ * @module SpecialistPatient |
+ * @figmaIndex 0-0
+ * @desc change different status approved-rejected or keep pending state 
+ * 
+*----------------------------------------------*/
+router.route('/change-status/:hireSpecialistId').put(
+  auth(TRole.admin),
+  controller.changeStatus
+)
+
 //[🚧][🧑‍💻✅][🧪] // 🆗
 router.route('/').get(
   auth('commonAdmin'),
   controller.getAll
 );
 
-//[🚧][🧑‍💻✅][🧪] // 🆗
-router.route('/create').post(
-  // [
-  //   upload.fields([
-  //     { name: 'attachments', maxCount: 15 }, // Allow up to 5 cover photos
-  //   ]),
-  // ],
-  auth('common'),
-  validateRequest(validation.createHelpMessageValidationSchema),
+/** ----------------------------------------------
+ * @role Patient
+ * @Section Specialist's Profile
+ * @module SpecialistPatient |
+ * @figmaIndex 0-0
+ * @desc patient request to admin for hiring a specialist .. admin will approve this 
+ * 
+*----------------------------------------------*/
+router.route('/').post(
+  auth(TRole.patient),
+  // validateRequest(validation.createHelpMessageValidationSchema),
   controller.create
 );
 

@@ -19,6 +19,7 @@ const HireSpecialistRequestToAdminSchema = new Schema<IHireSpecialistRequestToAd
     status : {
       type: String,
       enum : [THireStatus],
+      default: THireStatus.pending,
       required: [false, 'status is not required'],
     },
     isDeleted: {

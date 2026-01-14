@@ -79,6 +79,33 @@ export class GenericService<ModelType, InterfaceType> {
     return await this.model.findByIdAndUpdate(id, data, { new: true }).select('-__v');
   }
 
+  async updateByIdWithPopulateTestingPurpose(id: string, data: InterfaceType, populateOptions?: any,) {
+    const object = await this.model.findById(id).select('-__v');
+    if (!object) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'No Object Found');
+      //   return null;
+    }
+
+    let query = this.model.findByIdAndUpdate(id, data, { new: true }).select('-__v');
+    
+    if (populateOptions && populateOptions.length > 0) {
+        
+        // Check if it's the old format (array of strings)
+        if (typeof populateOptions[0] === 'string') {
+            // query = query.select(populateOptions[0]);
+            populateOptions.forEach(field => {
+                query = query.populate(field as string);
+            });
+        } else {
+            populateOptions.forEach(option => {
+                query = query.populate(option);
+            });
+        }
+    }
+    
+    return await query;
+  }
+
   async deleteById(id: string) {
     return await this.model.findByIdAndDelete(id).select('-__v');
   }
