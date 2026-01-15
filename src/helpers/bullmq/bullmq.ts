@@ -90,57 +90,6 @@ export const startScheduleWorker = () => {
           }
         });
 
-        // console.log("updatedSchedule.startTime :: ", updatedSchedule.startTime)
-        // console.log("updatedSchedule.endTime :: ", updatedSchedule.endTime)
-
-        /*-------------------------------------------
-
-         // 🔹 Step 3: Preserve original time-of-day from startTime & endTime
-        const originalStart = new Date(updatedSchedule.startTime);
-        const originalEnd = new Date(updatedSchedule.endTime);
-
-        // Create new startTime: tomorrow + original start time (hours, minutes, seconds)
-        const newStartTime = new Date(tomorrow);
-        newStartTime.setHours(
-          originalStart.getHours(),
-          originalStart.getMinutes(),
-          originalStart.getSeconds(),
-          originalStart.getMilliseconds()
-        );
-
-        // Create new endTime: tomorrow + original end time
-        const newEndTime = new Date(tomorrow);
-        newEndTime.setHours(
-          originalEnd.getHours(),
-          originalEnd.getMinutes(),
-          originalEnd.getSeconds(),
-          originalEnd.getMilliseconds()
-        );
-
-        console.log("newStartTime :: ", newStartTime)
-        console.log("newEndTime :: ", newEndTime)
-
-        /----------------------------
-         * lets create another 
-         ------------------------------------------/
-
-        updatedSchedule && await DoctorAppointmentSchedule.create({
-          createdBy: updatedSchedule.createdBy,
-          scheduleName: updatedSchedule.scheduleName,
-          scheduleDate: tomorrow,
-          startTime: newStartTime,
-          endTime: newEndTime,
-
-          description: updatedSchedule.description,
-          price: updatedSchedule.price,
-          typeOfLink: updatedSchedule.typeOfLink,
-          meetingLink: updatedSchedule.meetingLink,
-          scheduleStatus: TDoctorAppointmentScheduleStatus.available,
-        });
-
-        
-        -----------------------------------*/
-
         await DoctorPatientScheduleBooking.findByIdAndUpdate(appointmentBookingId, {
           $set: {
             status: TAppointmentStatus.completed,
@@ -151,7 +100,6 @@ export const startScheduleWorker = () => {
         // console.log(`✅ Schedule ${scheduleId} automatically freed.`);
       }else if (job.name ==="makeDoctorAppointmentScheduleAvailableIfNotBooked"){
 
-        // console.log("🔎🔎🔎🔎 makeDoctorAppointmentScheduleAvailableIfNotBooked")
         const { scheduleId } = job.data;
 
         const schedule:IDoctorAppointmentSchedule = await DoctorAppointmentSchedule.findById(scheduleId).select("scheduleStatus");
@@ -172,7 +120,6 @@ export const startScheduleWorker = () => {
 
       }else if (job.name === "expireDoctorAppointmentScheduleAfterEndTime") {
 
-        // console.log("🔎🔎🔎🔎 expireDoctorAppointmentScheduleAfterEndTime ")
         const { scheduleId } = job.data;
 
         /*****
@@ -194,7 +141,6 @@ export const startScheduleWorker = () => {
 
         // console.log(`✅ Schedule ${scheduleId} automatically expired at ${new Date().toLocaleString()}.`);
       }else if (job.name === "makeSpecialistWorkoutClassScheduleAvailable") {
-        // console.log("🔎🔎🔎🔎 makeSpecialistWorkoutClassScheduleAvailable ")
         const { scheduleId } = job.data; 
         /***
          * we dont need booking id here as multiple patient can book a workout class
@@ -221,10 +167,7 @@ export const startScheduleWorker = () => {
         const timeForTomorrow = new Date()
         
         // TODO : need to think about timezone⏳⌛ here
-        // tomorrow.setDate(tomorrow.getDate() + 1);
-        // tomorrow.setHours(0, 0, 0, 0); // reset to midnight
-
-
+        
         tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
         timeForTomorrow.setUTCDate(timeForTomorrow.getUTCDate() + 1);
 
@@ -235,10 +178,6 @@ export const startScheduleWorker = () => {
         await SpecialistWorkoutClassSchedule.findByIdAndUpdate(scheduleId, {
           $set: { 
               status:  TSpecialistWorkoutClassSchedule.expired,
-              // TSpecialistWorkoutClassSchedule.available,
-              // scheduleDate: tomorrow,
-              // startTime: timeForTomorrow,
-              // endTime: timeForTomorrow,
           }
         });
 
@@ -255,12 +194,6 @@ export const startScheduleWorker = () => {
           { workoutClassScheduleId: scheduleId },
           { $set: { status: TScheduleBookingStatus.completed } }
         );
-
-        // await SpecialistPatientScheduleBooking.findByIdAndUpdate(workoutClassBookingId, {
-        //   $set: {
-        //     status: TScheduleBookingStatus.completed,
-        //   }
-        // });
 
         // console.log(`✅ Schedule ${scheduleId} automatically freed.`);
       }else{
@@ -291,10 +224,9 @@ export const startScheduleWorker = () => {
   ********** */
 }
 
-/**************************************************************
- * *********************************************************** */
-
-// Notification Queue
+/*-─────────────────────────────────
+|  Notification Queue
+└──────────────────────────────────*/
 export const notificationQueue = new Queue("notificationQueue-suplify", {
   connection: redisPubClient.options,
 });
@@ -309,8 +241,6 @@ interface IScheduleJobForNotification {
   id: string
 }
 
-// enqueueWebNotification() this function is called when we need to send notification
-// 🔎 search for enqueueWebNotification to see details   
 
 export const startNotificationWorker = () => {
   const worker = new Worker(
@@ -351,19 +281,7 @@ export const startNotificationWorker = () => {
             data.receiverRole,
             eventName,
             {
-              // id: notif._id.toString(),
-              // title: notif.title,
-              // senderId: notif.senderId?.toString(),
-              // type: notif.type,
-              // linkFor: notif.linkFor,
-              // linkId: notif.linkId?.toString(),
-              // referenceFor: notif.referenceFor,
-              // referenceId: notif.referenceId?.toString(),
-              // createdAt: notif.createdAt,
-              // isRead: notif.isRead || false
-
               title: data.title,
-              // subTitle: data.subTitle,
               senderId: data.senderId,
               receiverId: null,
               receiverRole: data.receiverRole,
@@ -391,19 +309,7 @@ export const startNotificationWorker = () => {
             receiverId,
             eventName,
             {
-              // id: notif._id.toString(),
-              // title: notif.title,
-              // senderId: notif.senderId?.toString(),
-              // type: notif.type,
-              // linkFor: notif.linkFor,
-              // linkId: notif.linkId?.toString(),
-              // referenceFor: notif.referenceFor,
-              // referenceId: notif.referenceId?.toString(),
-              // createdAt: notif.createdAt,
-              // isRead: notif.isRead || false
-
               title: data.title,
-              // subTitle: data.subTitle,
               senderId: data.senderId,
               receiverId: data.receiverId,
               receiverRole: data.receiverRole,

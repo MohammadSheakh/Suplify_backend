@@ -113,16 +113,9 @@ export class SocketService {
 
       // Create Socket.IO server
       this.io = new SocketIOServer(server, {
-        // pingTimeout: 60000,
-        // pingInterval: 25000,
-        // upgradeTimeout: 30000,
-        // maxHttpBufferSize: 1e6,
         cors: {
           origin: '*',
-          // methods: ['GET', 'POST']
         },
-        // allowEIO3: true, // Support older clients
-        // transports: ['polling', 'websocket']
       });
 
       server.listen(socketPort, config.backend.ip as string, () => {
@@ -187,9 +180,6 @@ export class SocketService {
 
         const user = await this.getUserDetailsFromToken(token);
 
-        // console.log("user", user)
-        // 🔥 CRITICAL: Convert ObjectId to string
-
         if (!user) {
           return next(new Error('Invalid authentication token'));
         }
@@ -212,9 +202,9 @@ export class SocketService {
   private setupEventHandlers() {
     if (!this.io) return;
 
-    //---------------------------------
-    // 🟢🟢 
-    //---------------------------------
+    /*-─────────────────────────────────
+    |  
+    └──────────────────────────────────*/
     this.io.on('connection', async (socket: Socket) => {
       const user = socket.data.user; // 🟡 issue  MUST BE RESOLVED
 
@@ -296,10 +286,6 @@ export class SocketService {
       logger.error(`🔴 Socket.IO server error in worker ${process.pid}:`, error);
     });
 
-    // Handle adapter errors ❌ REMOVE THIS — IT'S INVALID
-    // this.io.adapter.on('error', (error) => {
-    //   logger.error(`🔴 Redis adapter error in worker ${process.pid}:`, error);
-    // });
   }
 
   // 🔗➡️ setupEventHandlers
@@ -478,9 +464,6 @@ export class SocketService {
         // Get chat details
         const {conversationData, conversationParticipants} = await getConversationById(messageData.conversationId);
         
-        // console.log('Conversation data:', conversationData);
-        // console.log('Conversation participants:', conversationParticipants);
-
         //---------------------------------
         // here we will check if the sender is a participant in the conversation or not
         // if not then we will send an error message
@@ -494,8 +477,6 @@ export class SocketService {
               return;
           }
         });
-
-        console.log("isExist: 🟡", isExist);
 
       if(!isExist){
           emitError(socket, `You are not a participant in this conversation`);
@@ -515,14 +496,13 @@ export class SocketService {
         const updatedConversation = await Conversation.findByIdAndUpdate(messageData.conversationId, {
           lastMessageId: newMessage._id,
           lastMessage: messageData.text,
-        }); // .populate('lastMessage').exec()
+        });
 
         // Prepare message data for emission
         const messageToEmit = {
           ...messageData,
           _id: newMessage._id,
-          //senderId: userId, // senderId should be the userId
-          senderId: {  /// populated as per nirob vais request
+          senderId: {  // populated as per nirob vais request
             name: userProfile?.name,
             profileImage: userProfile?.profileImage,
             _userId: userId,
@@ -541,8 +521,6 @@ export class SocketService {
         
         // socket.emit(eventName, messageToEmit);
 
-        //************************************************* */
-
         // 🟢 NEW: Notify all conversation participants about conversation list update
       
         // Notify each participant (except the sender if excludeUserId is provided)
@@ -557,7 +535,7 @@ export class SocketService {
           //if (Array.from(onlineUsers).some(id => id.toString() === participantId)) {
 
           const isInConversationRoom = await this.redisStateManager.isUserInRoom(participantId.toString(), messageData.conversationId.toString())
-          // console.log("isInConversationRoom :->: " , isInConversationRoom)
+          
           // ============================================
           // DECISION TREE FOR NOTIFICATIONS
           // ============================================
@@ -595,130 +573,85 @@ export class SocketService {
             
             
           } else if (isOnline && !isInConversationRoom) {
-            //🎯🎯🎯🎯🎯🎯🎯🎯🎯 This is actual code block for this Suplify Project 🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯
-            console.log(`${participantId} 🟢online.. `)
-            /*-----------------------------------------
-            await socketService.emitToUser(
-              participantId,
-              `conversation-list-updated::${participantId}`,
-              {
-                creatorId : updatedConversation?.creatorId,
-                type: updatedConversation?.type,
-                lastMessage: {
-                  _id: newMessage._id,
-                  text: messageData.text,
-                  senderId: userId,
-                  conversationId: messageData.conversationId,
-                },
-                isDeleted: false,
-                createdAt: "2025-07-19T12:06:00.287Z",
-                _conversationId: updatedConversation?._id,
-              }
-          );
-
-          -----------------------------------------*/
-
-          if(participantId !== userId.toString()){  // 🧪🧪🧪🧪🧪🧪🧪
-            // which means userId is receiverId
-
-            //🛠️🎯⭐⚒️  update unreadCount for participants
-            const updatedConversationParticipant:IConversationParticipents = await ConversationParticipents.findByIdAndUpdate(
-              participant._id,
-              {
-                $set: {
-                  isThisConversationUnseen: 1 // 1 means unseen .. 0 means seen
-                },
-                $inc: {
-                  unreadCount: 1 // increases unreadCount by 1
-                }
-              },
-              {
-                new : true
-              }
-            )
-
-            // calculate total unseenConversationCount for every participant .. and send them via socket 
-            const allConversation = await ConversationParticipents.aggregate([
-              {
-                $match: {
-                  userId: new mongoose.Types.ObjectId(participantId) // ensure proper ObjectId if 'id' is string
-                }
-              },
-              {
-                $group: {
-                  _id: null,
-                  totalUnseen: { $sum: "$isThisConversationUnseen" }
-                }
-              }
-            ]);
-
-            const unreadConversationCount = allConversation.length > 0 ? allConversation[0].totalUnseen : 1;
-
-
-            await socketService.emitToUser(
-                participantId,
-                `unseen-count::${participantId}`,
-                {
-                  unreadConversationCount: unreadConversationCount
-                }
-            );
-
-            const userPro = await this.getUserProfile(userId) as IUserProfile;
-
-            await socketService.emitToUser(
-                participantId,
-                `conversation-list-updated::${participantId}`,
-                {
-                  userId: {
-                    "_userId": userId,
-                    "name": userPro.name,
-                    "profileImage": userPro.profileImage,
-                    "role": userPro.role,
-                  },
-                  conversations:[
-                    {
-                      _conversationId: updatedConversation?._id,
-                      lastMessage : messageData.text,
-                      updatedAt : newMessage.createdAt
-                    },
-                  ],
-                }
-            );
-
-          }
-
-            /*********
-
-            // Emit to participant's personal room  .to(participantId)
-            io.emit(`conversation-list-updated::${participantId}`, {
-              creatorId : updatedConversation?.creatorId,
-              type: updatedConversation?.type,
-              siteId: updatedConversation?.siteId,
-              canConversate: updatedConversation?.canConversate,
-              lastMessage: {
-                _id: newMessage._id,
-                text: messageData.text,
-                senderId: userId,
-                conversationId: messageData.conversationId,
-              },
-              isDeleted: false,
-              createdAt: "2025-07-19T12:06:00.287Z",
-              _conversationId: updatedConversation?._id,
-            });
-
-            ********** */
             
+            if(participantId !== userId.toString()){ 
+              // which means userId is receiverId
+
+              //🛠️🎯⭐⚒️  update unreadCount for participants
+              const updatedConversationParticipant:IConversationParticipents = await ConversationParticipents.findByIdAndUpdate(
+                participant._id,
+                {
+                  $set: {
+                    isThisConversationUnseen: 1 // 1 means unseen .. 0 means seen
+                  },
+                  $inc: {
+                    unreadCount: 1 // increases unreadCount by 1
+                  }
+                },
+                {
+                  new : true
+                }
+              )
+
+              // calculate total unseenConversationCount for every participant .. and send them via socket 
+              const allConversation = await ConversationParticipents.aggregate([
+                {
+                  $match: {
+                    userId: new mongoose.Types.ObjectId(participantId) // ensure proper ObjectId if 'id' is string
+                  }
+                },
+                {
+                  $group: {
+                    _id: null,
+                    totalUnseen: { $sum: "$isThisConversationUnseen" }
+                  }
+                }
+              ]);
+
+              const unreadConversationCount = allConversation.length > 0 ? allConversation[0].totalUnseen : 1;
+
+
+              await socketService.emitToUser(
+                  participantId,
+                  `unseen-count::${participantId}`,
+                  {
+                    unreadConversationCount: unreadConversationCount
+                  }
+              );
+
+              const userPro = await this.getUserProfile(userId) as IUserProfile;
+
+              await socketService.emitToUser(
+                  participantId,
+                  `conversation-list-updated::${participantId}`,
+                  {
+                    userId: {
+                      "_userId": userId,
+                      "name": userPro.name,
+                      "profileImage": userPro.profileImage,
+                      "role": userPro.role,
+                    },
+                    conversations:[
+                      {
+                        _conversationId: updatedConversation?._id,
+                        lastMessage : messageData.text,
+                        updatedAt : newMessage.createdAt
+                      },
+                    ],
+                  }
+              );
+
+            }
+
           } else{
             console.log(`${participantId}offline ⭕`)
             // TODO : MUST Push notification
-            // .... TODO: push notification .. 
+            // .... THIS PROJECT IS NOT AN APP .. so we dont need push notification here
           } 
 
         });
 
-        //************************************************* */
-
-        /// / Emit to sender's personal room 
+        // Emit to sender's personal room 
         callback?.({
           success: true,
           message: "Message sent successfully",
@@ -744,7 +677,6 @@ export class SocketService {
     
 
     // Add other event handlers here (send-new-message, get-all-conversations, etc.)
-    // ... (your existing event handlers remain the same)
   }
 
   // 🔗➡️ setupEventHandlers

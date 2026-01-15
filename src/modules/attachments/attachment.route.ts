@@ -39,12 +39,6 @@ router.route('/').get(
   AttachmentController.getAllAttachment
 );
 
-// router.route('/create').post(
-//   auth('projectManager'),
-//   // validateRequest(validation.createHelpMessageValidationSchema),
-//   AttachmentController.createAttachment
-// );
-
 //[🚧][🧑‍💻✅][🧪🆗] 
 router.route('/delete/:attachmentId').delete(
   auth('common'),

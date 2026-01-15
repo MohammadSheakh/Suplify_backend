@@ -50,9 +50,6 @@ export class AttachmentService extends GenericService<typeof Attachment, IAttach
     });
   }
 
-  // INFO : multiple file upload korar case e .. controller thekei korte hobe .. loop chalate hobe
-  // async uploadMultipleAttachments() {
-  // }
 
   async deleteAttachment(string: string) {
     try {
