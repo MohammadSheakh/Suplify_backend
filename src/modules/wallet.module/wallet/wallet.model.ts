@@ -36,14 +36,6 @@ const WalletSchema = new Schema<IWallet>(
       default: TWalletStatus.active,
       required: [false, 'status is not required'],
     },
-    // userRole: {  /// do we need this field ???
-    //   type: String,
-    //   enum: {
-    //     values: Roles,
-    //     message: '{VALUE} is not a valid role',
-    //   },
-    //   required: [true, 'Role is required'],
-    // },
     isDeleted: {
       type: Boolean,
       required: [false, 'isDeleted is not required'],
