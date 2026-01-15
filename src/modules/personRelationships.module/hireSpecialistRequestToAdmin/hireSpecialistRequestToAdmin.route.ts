@@ -47,7 +47,7 @@ router.route('/paginate').get(
         select: `name email subscriptionType profileImage`
       }
     ],
-    select: `${defaultExcludes}`
+    select: `-isDeleted -updatedAt -__v`
     // // ${defaultExcludes}
   }),
   controller.getAllWithPaginationV2

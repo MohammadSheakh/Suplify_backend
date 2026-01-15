@@ -12,6 +12,7 @@ import { TRole } from '../../middlewares/roles';
 import { setQueryOptions } from '../../middlewares/setQueryOptions';
 import { defaultExcludes } from '../../constants/queryOptions';
 import { imageUploadPipelineForUpdateSuplifyHotspot } from './suplifyHotspot.middleware';
+import { setRequestFiltersV2 } from '../../middlewares/setRequstFilterAndValue';
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
@@ -46,6 +47,9 @@ router.route('/paginate').get(
         }
       ],
       select: `${defaultExcludes}`
+    }),
+    setRequestFiltersV2({
+      isDeleted: false,
     }),
   controller.getAllWithPaginationV2
 );
@@ -88,14 +92,16 @@ router.route('/').post(
 );
 
 router.route('/:id').delete(
-  //auth('common'),
-  controller.deleteById
-); // FIXME : change to admin
-
-router.route('/softDelete/:id').put(
-  //auth('common'),
+  auth(TRole.admin),
   controller.softDeleteById
 );
+
+// hard delete
+router.route('/:id/permanent').delete(
+  auth(TRole.admin),
+  controller.deleteById
+); 
+
 
 ////////////
 //[🚧][🧑‍💻✅][🧪] // 🆗
