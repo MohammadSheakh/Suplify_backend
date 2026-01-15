@@ -330,6 +330,9 @@ export class ConversationParticipentsService extends GenericService<
   }
 
 
+  
+
+
   /**********
    * 
    * Socket Helper Function
@@ -439,4 +442,19 @@ export class ConversationParticipentsService extends GenericService<
   //   }
   //   return object;
   // }
+}
+
+interface UniqueUser {
+  userId: {
+    _userId: string;
+    name: string;
+    profileImage: string;
+    role: string;
+  };
+  conversations: {
+    _conversationId: string;
+    lastMessage: string;
+    updatedAt: Date;
+  }[];
+  isOnline: boolean;
 }

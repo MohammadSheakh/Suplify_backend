@@ -35,14 +35,32 @@ const conversationParticipentsSchema = new Schema<IConversationParticipents>(
       required: [true, 'Role is required'],
     },
 
+    //🆕 may be we dont need this field right now 
     lastMessageReadAt: {
       type: Date,
       required: [false, 'lastMessageReadAt is not required'],
     },
+
+    //🆕 may be we dont need this field right now 
+    lastMessageReadId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Message',
+      required: [false, 'lastMessageReadId is not required'],
+    },
+
+    //🆕
     unreadCount: {
       type: Number,
       required: [false, 'unreadCount is not required']
     },
+
+    //🆕  --- value could be 0 or 1 .. 0 means ... no unseen message found
+    // ------------------------------- 1 means unseen message found
+    isThisConversationUnseen: {
+      type: Number,
+      required: [false, 'unreadCount is not required']
+    },
+
     isDeleted: {
       type: Boolean,
       required: [false, 'isDeleted is not required'],

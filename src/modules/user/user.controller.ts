@@ -11,7 +11,10 @@ import { IUser } from '../token/token.interface';
 import omit from '../../shared/omit';
 import pick from '../../shared/pick';
 import { UserProfile } from './userProfile/userProfile.model';
-
+import { ConversationController } from '../chatting.module/conversation/conversation.controller';
+import { ConversationParticipents } from '../chatting.module/conversationParticipents/conversationParticipents.model';
+//@ts-ignore
+import mongoose from 'mongoose';
 const userService = new UserService();
 
 // TODO : IUser should be import from user.interface
@@ -24,6 +27,73 @@ export class UserController extends GenericController<
   constructor() {
     super(new UserService(), 'User');
   }
+
+
+  getByIdV2 = catchAsync(async (req: Request, res: Response) => {
+    const id = req.params.id;
+
+    // ✅ Default values
+    let populateOptions: (string | { path: string; select: string }[]) = [];
+    let select = '-isDeleted -createdAt -updatedAt -__v';
+
+    // ✅ If middleware provided overrides → use them
+    if (req.queryOptions) {
+      if (req.queryOptions.populate) {
+        populateOptions = req.queryOptions.populate;
+      }
+      if (req.queryOptions.select) {
+        select = req.queryOptions.select;
+      }
+    }
+
+    const result = await this.service.getById(id, populateOptions, select);
+    if (!result) {
+      throw new ApiError(
+        StatusCodes.NOT_FOUND,
+        `Object with ID ${id} not found`
+      );
+    }
+
+    
+
+    const allConversation = await ConversationParticipents.aggregate([
+    {
+      $match: {
+        userId: new mongoose.Types.ObjectId(id) // ensure proper ObjectId if 'id' is string
+      }
+    },
+    {
+      $group: {
+        _id: null,
+        totalUnseen: { $sum: "$isThisConversationUnseen" }
+      }
+    }
+  ]);
+
+  const unreadConversationCount = allConversation.length > 0 ? allConversation[0].totalUnseen : 0;
+
+  console.log("unreadConversationCount :🆕: ", unreadConversationCount )
+
+    sendResponse(res, {
+      code: StatusCodes.OK,
+      // data: {
+      //   userId: result.userId,
+      //   userName: result.userId,
+      //   email: result.email,
+      //   role: result.role,
+      //   stripe_customer_id: result.stripe_customer_id,
+      //   subscriptionPlan: result.subscriptionPlan,
+
+      //  unreadConversationCount
+      // },
+
+      data: result,
+      data2 : {
+        unreadConversationCount
+      },
+      message: `${this.modelName} retrieved successfully`,
+    });
+  });
 
 //---------------------------------
 // from previous codebase
@@ -45,6 +115,8 @@ export class UserController extends GenericController<
 //---------------------------------
   getById = catchAsync(async (req: Request, res: Response) => {
     const id = (req.user as IUser).userId;
+
+    console.log("⭐⭐⭐⭐")
 
     // TODO : ⚠️ need to optimize this populate options ..
     const populateOptions = [
@@ -69,9 +141,13 @@ export class UserController extends GenericController<
     //   );
     // }
 
+    
+
     sendResponse(res, {
       code: StatusCodes.OK,
-      data: result,
+      // data: result,
+      data : result,
+      
       message: `${this.modelName} retrieved successfully`,
     });
   });
