@@ -125,9 +125,6 @@ router.route('/softDelete/:id').put(
   controller.softDeleteById
 );
 
-////////////
-//[🚧][🧑‍💻✅][🧪] // 🆗
-
 
 export const UserRoutes = router;
 

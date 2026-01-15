@@ -76,17 +76,7 @@ export class UserController extends GenericController<
 
     sendResponse(res, {
       code: StatusCodes.OK,
-      // data: {
-      //   userId: result.userId,
-      //   userName: result.userId,
-      //   email: result.email,
-      //   role: result.role,
-      //   stripe_customer_id: result.stripe_customer_id,
-      //   subscriptionPlan: result.subscriptionPlan,
-
-      //  unreadConversationCount
-      // },
-
+    
       data: result,
       data2 : {
         unreadConversationCount
@@ -116,17 +106,12 @@ export class UserController extends GenericController<
   getById = catchAsync(async (req: Request, res: Response) => {
     const id = (req.user as IUser).userId;
 
-    console.log("⭐⭐⭐⭐")
-
     // TODO : ⚠️ need to optimize this populate options ..
     const populateOptions = [
       'profileId',
       {
         path: 'profileId',
         select: '-attachments -__v', // TODO MUST : when create profile .. must initiate address and description
-        // populate: {
-        //   path: 'profileId',
-        // }
       }
     ];
 
@@ -141,13 +126,9 @@ export class UserController extends GenericController<
     //   );
     // }
 
-    
-
     sendResponse(res, {
       code: StatusCodes.OK,
-      // data: result,
-      data : result,
-      
+      data : result, 
       message: `${this.modelName} retrieved successfully`,
     });
   });
@@ -165,9 +146,6 @@ export class UserController extends GenericController<
       {
         path: 'profileId',
         select: '-attachments -__v', // TODO MUST : when create profile .. must initiate address and description
-        // populate: {
-        //   path: 'profileId',
-        // }
       }
     ];
     
@@ -302,10 +280,9 @@ export class UserController extends GenericController<
 
   updateProfileOfSpecialistAndDoctor = catchAsync(async (req: Request, res: Response) => {
     const id = req.params.id;
+    
     req.body.profileImage = req.uploadedFiles.profileImage; // it actually returns array of string
     
-    // console.log("controller --> ", typeof req.uploadedFiles.profileImage);
-
     const data = req.body;
 
     const result = await this.userService.updateProfileOfSpecialistAndDoctor(id, data);

@@ -122,14 +122,6 @@ export class TrainingProgramController extends GenericController<
         path: 'trailerContents attachments',
         select: '-__v -updatedAt -createdAt' 
       },
-      // 'personId'
-      // {
-      //   path: '', 
-      //   select: '',
-      //   populate: {
-      //     path: '',
-      //   }
-      // }
     ];
 
     const select = '-isDeleted -createdAt -updatedAt -__v'; 
@@ -175,8 +167,6 @@ export class TrainingProgramController extends GenericController<
     // ✅ Use preprocessed uploaded file URLs //🥇🔁 this task we do in middleware level for create API not for update API
     // req.body.attachments = req.uploadedFiles?.attachments || [];
     // req.body.trailerContents = req.uploadedFiles?.trailerContents || [];
-
-
 
     const updatedObject = await this.service.updateById(id, req.body);
     if (!updatedObject) {
