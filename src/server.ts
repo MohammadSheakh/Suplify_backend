@@ -17,7 +17,7 @@ import { createAdapter } from '@socket.io/redis-adapter';
 import { startNotificationWorker, startScheduleWorker } from './helpers/bullmq/bullmq'; // ⬅️ ADD THIS
 import connectToDb from './config/mongoDbConfig';
 import { initializeRedis, redisPubClient, redisSubClient } from './helpers/redis/redis';
-import { socketHelperForKafka } from './helpers/socket/socketForChatV1WithKafka';
+import { socketHelperForKafka } from './helpers/socket/deprecated/socketForChatV1WithKafka';
 
 // in production, use all cores, but in development, limit to 2-4 cores
 const numCPUs = config.environment === 'production' ? os.cpus().length : Math.max(0, Math.min(1, os.cpus().length));

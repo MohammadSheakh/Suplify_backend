@@ -16,7 +16,7 @@ import http from "http";
 import { startNotificationWorker, startScheduleWorker } from './helpers/bullmq/bullmq'; // ⬅️ ADD THIS
 import connectToDb from './config/mongoDbConfig';
 import { initializeRedis, redisClient, redisPubClient, redisSubClient } from './helpers/redis/redis';
-import { socketHelperForKafka } from './helpers/socket/socketForChatV1WithKafka';
+import { socketHelperForKafka } from './helpers/socket/deprecated/socketForChatV1WithKafka';
 import { socketService } from './helpers/socket/socketForChatV3';
 
 // in production, use all cores, but in development, limit to 2-4 cores
