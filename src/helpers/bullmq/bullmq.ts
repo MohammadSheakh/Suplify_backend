@@ -15,7 +15,12 @@ import { INotification } from "../../modules/notification/notification.interface
 import { redisPubClient } from "../redis/redis";
 import { socketService } from "../socket/socketForChatV3";
 import { TRole } from "../../middlewares/roles";
+import { Conversation } from "../../modules/chatting.module/conversation/conversation.model";
+import { IConversation } from "../../modules/chatting.module/conversation/conversation.interface";
 
+/*-─────────────────────────────────
+|  Schedule Queue
+└──────────────────────────────────*/
 // Create Queue
 export const scheduleQueue = new Queue("scheduleQueue", {
   connection: redisPubClient.options, // reuse your redis config
@@ -328,6 +333,60 @@ export const startNotificationWorker = () => {
           }
         }
 
+      } catch (err: any) {
+        console.log("⭕ error block hit  of notification worker", err)
+        errorLogger.error(
+          `❌ Notification job ${id} failed: ${err.message}`
+        );
+        throw err; // ensures retry/backoff
+      }
+    },
+    { connection: redisPubClient.options }
+  );
+  //@ts-ignore
+  worker.on("completed", (job) =>
+    logger.info(`✅ Notification job ${job.id} (${job.name}) completed`)
+  );
+  //@ts-ignore
+  worker.on("failed", (job, err) =>
+    errorLogger.error(`❌ Notification job ${job?.id} (${job?.name}) failed`, err)
+  );
+};
+
+
+/*-─────────────────────────────────
+|  Update Conversations Last Message Queue
+└──────────────────────────────────*/
+
+export const updateConversationsLastMessageQueue = new Queue("updateConversationsLastMessageQueue-suplify", {
+  connection: redisPubClient.options,
+});
+
+interface IScheduleJobForUpdateConversationsLastMessage {
+  name: string;
+  data : IConversation, // conversation update er jonno different ekta interface create kore .. sheta use korte hobe .. 
+  id: string
+}
+
+export const startUpdateConversationsLastMessageWorker = () => {
+  const worker = new Worker(
+    "updateConversationsLastMessageQueue-suplify",
+    async (
+      job: IScheduleJobForUpdateConversationsLastMessage
+      // job : Job<INotification, any, NotificationJobName>
+    ) => {
+      console.log("job.data testing startUpdateConversationsLastMessageWorker::", job.data)
+      const { id, name, data } = job;
+      logger.info(`Processing notification job ${id} ⚡ ${name}`, data);
+
+      try {
+        const updatedConversation = await Conversation.findByIdAndUpdate(data.conversationId, {
+          lastMessageId: data.lastMessageId,
+          lastMessage: data.lastMessage,
+        });
+
+        logger.info(`✅ Conversation updated for ${data.conversationId} :: `, updatedConversation);
+        
       } catch (err: any) {
         console.log("⭕ error block hit  of notification worker", err)
         errorLogger.error(

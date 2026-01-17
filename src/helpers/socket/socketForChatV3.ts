@@ -461,10 +461,10 @@ export class SocketService {
 
         //⭐🎯🛠️ call service ....
 
-        const result = await messageService.sendMessage(socket, messageData, callback);
+        const newMessage = await messageService.sendMessage(socket, this.redisStateManager, messageData, callback);
 
+        console.log("newMessage =>>> ", newMessage);
 
-        
         // Emit to sender's personal room 
         callback?.({
           success: true,
@@ -489,7 +489,7 @@ export class SocketService {
       }
     });
 
-    socket.on('send-new-message-previous-version', async (messageData: MessageData, callback) => {
+    socket.on('send-new-message-v0', async (messageData: MessageData, callback) => {
 
       console.log("requested user Id 🟡🟡",  userId)
       try {

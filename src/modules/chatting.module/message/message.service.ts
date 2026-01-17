@@ -1,5 +1,8 @@
+import { RedisStateManager } from "../../../helpers/redis/redisStateManagerForSocketV2";
 import { emitError, getConversationById, IUserProfile, MessageData, SocketAck, socketService } from "../../../helpers/socket/socketForChatV3";
+import { enqueueLastMessageToUpdateConversation } from "../../../services/conversation.service";
 import { GenericService } from "../../_generic-module/generic.services";
+import { User } from "../../user/user.model";
 import { Conversation } from "../conversation/conversation.model";
 import { IConversationParticipents } from "../conversationParticipents/conversationParticipents.interface";
 import { ConversationParticipents } from "../conversationParticipents/conversationParticipents.model";
@@ -7,6 +10,7 @@ import { IMessage } from "./message.interface";
 import { Message } from "./message.model";
 //@ts-ignore
 import mongoose from 'mongoose';
+// import { RedisStateManager } from '../redis/redisStateManagerForSocketV2';
 
 export class MessagerService extends GenericService<typeof Message, IMessage>{ /**typeof Message */
     constructor(){
@@ -29,9 +33,12 @@ export class MessagerService extends GenericService<typeof Message, IMessage>{ /
     /*-─────────────────────────────────
     |  we call this service from 'send-new-message' socket event emit
     └──────────────────────────────────*/
-    async sendMessage(socket, messageData: MessageData, callback: SocketAck){
+    async sendMessage(socket:any , redisStateManager:RedisStateManager , messageData: MessageData, callback: SocketAck){
       const userId = socket.data.user._id;
-      const userProfile : IUserProfile = socket.data.userProfile; //⚠️ not sure .. do we need to pull profileInformation by userId 
+      // const userProfile : IUserProfile = socket.data.userProfile; //⚠️ not sure .. do we need to pull profileInformation by userId 
+      const userProfile : IUserProfile = await this.getUserProfile(userId) as IUserProfile
+
+      console.log("1️⃣")
 
       if (!messageData.conversationId || !messageData.text?.trim()) {
         const error = 'Chat ID and message content are required';
@@ -39,26 +46,40 @@ export class MessagerService extends GenericService<typeof Message, IMessage>{ /
         return emitError(socket, error);
       }
 
-      // Get chat details
+      // Get chat details  //⚠️ we dont need conversationData here ... need to write another function .. which only return conversationparticipants.. 
       const {conversationData, conversationParticipants} = await getConversationById(messageData.conversationId);
       
+      console.log("1️⃣ 2")
+
       //---------------------------------
       // here we will check if the sender is a participant in the conversation or not
       // if not then we will send an error message
       //---------------------------------
       let isExist = false;
-    
-      for(const participant of conversationParticipants){
+
+      conversationParticipants.forEach((participant: IConversationParticipents) => {
         const participantId:string = participant.userId?.toString();
         
         if (participantId == userId.toString()) {
             isExist = true;
             return;
         }
-      }
+      });
+    
+      // for(const participant of conversationParticipants){
+      //   const participantId:string = participant.userId?.toString();
+        
+      //   if (participantId == userId.toString()) {
+      //       isExist = true;
+      //       return;
+      //   }
+      // }
+
+      console.log("1️⃣ 3")
 
       if(!isExist){
-          emitError(socket, `You are not a participant in this conversation`);
+        // 🟪☑️🟣
+        return emitError(socket, `You are not a participant in this conversation`);
       }
 
       // Create message
@@ -68,14 +89,24 @@ export class MessagerService extends GenericService<typeof Message, IMessage>{ /
         senderId: userId,
       });
 
-      //---------------------------------
-      //  TODO : event emitter er maddhome message create korar por
-      //  conversation er lastMessage update korte hobe ..
-      //---------------------------------
+      console.log("1️⃣4")
+
+      /*---------------------------- we do the same thing by redis bullmq
+      
       const updatedConversation = await Conversation.findByIdAndUpdate(messageData.conversationId, {
         lastMessageId: newMessage._id,
         lastMessage: messageData.text,
       });
+
+      ------------------------------*/
+
+      enqueueLastMessageToUpdateConversation(
+        messageData.conversationId,
+        newMessage._id,
+        messageData.text,
+      )
+
+      console.log("1️⃣5")
 
       // Prepare message data for emission
       const messageToEmit = {
@@ -92,11 +123,15 @@ export class MessagerService extends GenericService<typeof Message, IMessage>{ /
         createdAt: newMessage.createdAt || new Date()
       };
 
+      console.log("1️⃣6")
+
       // Emit to chat room
       const eventName = `new-message-received::${messageData.conversationId}`; // ${messageData.conversationId}
       
       // when you send everyone exclude the sender
       socket.to(messageData.conversationId).emit(eventName, messageToEmit);
+
+      console.log("1️⃣7")
       
       // socket.emit(eventName, messageToEmit);
 
@@ -113,7 +148,7 @@ export class MessagerService extends GenericService<typeof Message, IMessage>{ /
         // Check if participant is online
         //if (Array.from(onlineUsers).some(id => id.toString() === participantId)) {
 
-        const isInConversationRoom = await this.redisStateManager.isUserInRoom(participantId.toString(), messageData.conversationId.toString())
+        const isInConversationRoom = await redisStateManager.isUserInRoom(participantId.toString(), messageData.conversationId.toString())
         
         // ============================================
         // DECISION TREE FOR NOTIFICATIONS
@@ -126,7 +161,7 @@ export class MessagerService extends GenericService<typeof Message, IMessage>{ /
           if(participantId !== userId.toString()){  // 🧪🧪🧪🧪🧪🧪🧪
             // which means userId is receiverId
 
-            const userPro = await this.getUserProfile(userId) as IUserProfile; //🎯 need to check from which file this interface came from 
+            // const userPro = await this.getUserProfile(userId) as IUserProfile; //🎯 need to check from which file this interface came from 
 
             await socketService.emitToUser(
                 participantId,
@@ -134,13 +169,14 @@ export class MessagerService extends GenericService<typeof Message, IMessage>{ /
                 {
                   userId: {
                     "_userId": userId,
-                    "name": userPro.name,
-                    "profileImage": userPro.profileImage,
-                    "role": userPro.role,
+                    "name": userProfile.name,
+                    "profileImage": userProfile.profileImage,
+                    "role": userProfile.role,
                   },
                   conversations:[
                     {
-                      _conversationId: updatedConversation?._id,
+                      // _conversationId: updatedConversation?._id,
+                      _conversationId : messageData.conversationId,
                       lastMessage : messageData.text,
                       updatedAt : newMessage.createdAt
                     },
@@ -198,7 +234,7 @@ export class MessagerService extends GenericService<typeof Message, IMessage>{ /
                 }
             );
 
-            const userPro = await this.getUserProfile(userId) as IUserProfile;
+            // const userPro = await this.getUserProfile(userId) as IUserProfile;
 
             await socketService.emitToUser(
                 participantId,
@@ -206,13 +242,14 @@ export class MessagerService extends GenericService<typeof Message, IMessage>{ /
                 {
                   userId: {
                     "_userId": userId,
-                    "name": userPro.name,
-                    "profileImage": userPro.profileImage,
-                    "role": userPro.role,
+                    "name": userProfile.name,
+                    "profileImage": userProfile.profileImage,
+                    "role": userProfile.role,
                   },
                   conversations:[
                     {
-                      _conversationId: updatedConversation?._id,
+                      // _conversationId: updatedConversation?._id,
+                      _conversationId : messageData.conversationId,
                       lastMessage : messageData.text,
                       updatedAt : newMessage.createdAt
                     },
@@ -228,6 +265,14 @@ export class MessagerService extends GenericService<typeof Message, IMessage>{ /
           // .... THIS PROJECT IS NOT AN APP .. so we dont need push notification here
         } 
 
-      });      
+      });  
+      
+      console.log("1️⃣8")
+
+      return newMessage;
+    }
+
+    private async getUserProfile(userId: string) : Promise<IUserProfile | null> {
+      return await User.findById(userId, 'id name email profileImage subscriptionType role fcmToken').lean();
     }
 }
