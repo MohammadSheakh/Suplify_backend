@@ -25,21 +25,25 @@ import { IConversation } from '../../modules/chatting.module/conversation/conver
 //@ts-ignore
 import mongoose from 'mongoose';
 
+const messageService = new MessagerService(); // we call this in 'send-new-message' event
+
 export type IUserProfile = Pick<IUser, '_id' | 'name' | 'profileImage' | 'role' | 'subscriptionType' | 'fcmToken'>;
 
-interface MessageData {
+export interface MessageData {
   conversationId: string;
   senderId: string;
   text: string;
   // Add other message properties as needed
 }
 
-async function getConversationById(conversationId: string) {
+export type SocketAck = (response: any) => void;
+
+export async function getConversationById(conversationId: string) {
   try {
     const conversationData:IConversation = await Conversation.findById(conversationId)//.populate('users').exec();  // FIXME: user populate korar bishoy ta 
     // FIXME : check korte hobe  
     
-    const conversationParticipants:IConversationParticipents = await ConversationParticipents.find({
+    const conversationParticipants:IConversationParticipents[] = await ConversationParticipents.find({
       conversationId: conversationId
     });
 
@@ -57,7 +61,7 @@ async function getConversationById(conversationId: string) {
 }
 
 // 🔎🔎🔎 Helper function to emit errors
-function emitError(socket: any, message: string, disconnect: boolean = false) {
+export function emitError(socket: any, message: string, disconnect: boolean = false) {
   socket.emit('io-error', {
     success: false,
     message,
@@ -449,7 +453,43 @@ export class SocketService {
     //   Handle new messages  🟢working perfectly
     //---------------------------------
 
-    socket.on('send-new-message', async (messageData: MessageData, callback) => {
+    socket.on('send-new-message', async (messageData: MessageData, callback: SocketAck) => {
+
+      // console.log("requested user Id 🟡🟡",  userId)
+      try {
+        // console.log('New message received:', messageData);
+
+        //⭐🎯🛠️ call service ....
+
+        const result = await messageService.sendMessage(socket, messageData, callback);
+
+
+        
+        // Emit to sender's personal room 
+        callback?.({
+          success: true,
+          message: "Message sent successfully",
+          messageDetails: { 
+            messageId : newMessage._id,
+            conversationId: messageData.conversationId,
+            senderId: userId,
+            text: messageData.text,
+            timestamp: newMessage.createdAt || new Date(),
+            name: userProfile?.name,
+            image: userProfile?.profileImage || null
+
+          },
+        });
+
+      } catch (error) {
+        console.error('Error sending message:', error);
+        const errorMessage = 'Failed to send message';
+        callback?.({ success: false, message: errorMessage });
+        emitError(socket, errorMessage);
+      }
+    });
+
+    socket.on('send-new-message-previous-version', async (messageData: MessageData, callback) => {
 
       console.log("requested user Id 🟡🟡",  userId)
       try {
