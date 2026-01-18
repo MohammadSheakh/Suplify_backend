@@ -252,7 +252,9 @@ export class DoctorPlanController extends GenericController<
       description : doctorPlan.description,
       keyPoints : doctorPlan.keyPoints,
       totalKeyPoints : doctorPlan.totalKeyPoints,
-      patientId : patientId // from query
+      patientId : patientId, // from query
+      attachments : doctorPlan.attachments, //🆕
+      link : doctorPlan.link, //🆕
     }
 
     const result = await planByDoctorService.create(newPlanData);

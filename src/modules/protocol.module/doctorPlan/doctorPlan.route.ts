@@ -67,7 +67,7 @@ router.route('/update/:id').put(
 router.route('/v2/:id').put(
   auth(TRole.doctor),
   ...imageUploadPipelineForUpdateDoctorPlan,
-  validateRequest(validation.updateDoctorPlanValidationSchema),
+  // validateRequest(validation.updateDoctorPlanValidationSchema),
   controller.updateWithImageById
 );
 

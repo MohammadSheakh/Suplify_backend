@@ -441,6 +441,8 @@ export const startNotifyParticipantsWorker = () => {
 
       logger.info(`Notifying ${participantIds.length} participants for conversation ${conversationId}`);
 
+      //☑️🟣 Note: We use for...of instead of forEach + async to avoid race conditions and ensure proper error handling per participant.
+
       // Process each participant
       for (const participantId of participantIds) {
         if (participantId === senderId) continue; // skip sender
@@ -469,7 +471,12 @@ export const startNotifyParticipantsWorker = () => {
               },
               { 
                 $set: { isThisConversationUnseen: 1 },
-                $inc: { unreadCount: 1 }
+                // $inc: { unreadCount: 1 }  // ⭕ this is risky ..
+                /**
+                 * ❌ Why this is dangerous -
+                 *  see details chatting.module -> unread-count-issue.md
+                 * You are mutating unread count blindly, without knowing whether the message was already read or processed.
+                 **/ 
               },
               { new: true }
             );

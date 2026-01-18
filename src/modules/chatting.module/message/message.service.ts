@@ -283,8 +283,6 @@ export class MessagerService extends GenericService<typeof Message, IMessage>{ /
       // const userProfile : IUserProfile = socket.data.userProfile; //⚠️ not sure .. do we need to pull profileInformation by userId 
       const userProfile : IUserProfile = await this.getUserProfile(userId) as IUserProfile
 
-      console.log("1️⃣")
-
       if (!messageData.conversationId || !messageData.text?.trim()) {
         const error = 'Chat ID and message content are required';
         callback?.({ success: false, message: error });
@@ -294,8 +292,6 @@ export class MessagerService extends GenericService<typeof Message, IMessage>{ /
       // Get chat details  //⚠️ we dont need conversationData here ... need to write another function .. which only return conversationparticipants.. 
       const {conversationData, conversationParticipants} = await getConversationById(messageData.conversationId);
       
-      console.log("1️⃣ 2")
-
       //---------------------------------
       // here we will check if the sender is a participant in the conversation or not
       // if not then we will send an error message
@@ -378,8 +374,6 @@ export class MessagerService extends GenericService<typeof Message, IMessage>{ /
         },
         conversationParticipants.map(p => p.userId.toString()),
       )
-
-      console.log("1️⃣8")
 
       return newMessage;
     }

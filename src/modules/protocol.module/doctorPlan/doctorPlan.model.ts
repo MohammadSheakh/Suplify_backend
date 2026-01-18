@@ -13,7 +13,8 @@ const DoctorPlanSchema = new Schema<IDoctorPlan>(
         TPlanByDoctor.lifeStyleChanges,
         TPlanByDoctor.mealPlan,
         TPlanByDoctor.suppliment,
-        TPlanByDoctor.workOut
+        TPlanByDoctor.workOut,
+        TPlanByDoctor.labTest,
       ],
       required: [true, `planType is required .. it can be  ${Object.values(TPlanByDoctor).join(
               ', '

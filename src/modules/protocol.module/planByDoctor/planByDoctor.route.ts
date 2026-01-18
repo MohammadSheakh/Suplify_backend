@@ -12,6 +12,7 @@ import multer from "multer";
 import { getLoggedInUserAndSetReferenceToUser } from '../../../middlewares/getLoggedInUserAndSetReferenceToUser';
 import { setRequestFiltersV2 } from '../../../middlewares/setRequstFilterAndValue';
 import { imageUploadPipelineForUpdatePlanByDoctor } from './planByDoctor.middleware';
+import { setQueryOptions } from '../../../middlewares/setQueryOptions';
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
@@ -42,6 +43,12 @@ router.route('/paginate').get(
   setRequestFiltersV2({
     isDeleted: false,
   }),
+  setQueryOptions({
+      populate: [
+        { path: 'attachments', select: 'attachment', /* populate: { path : ""} */ },
+      ],
+      select: '-isDeleted -updatedAt -__v'
+    }),
   controller.getAllWithPaginationV2
 );
 

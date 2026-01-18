@@ -35,7 +35,7 @@ const conversationParticipentsSchema = new Schema<IConversationParticipents>(
       required: [true, 'Role is required'],
     },
 
-    //🆕 may be we dont need this field right now 
+    //🆕 we need to use this field .. 
     lastMessageReadAt: {
       type: Date,
       required: [false, 'lastMessageReadAt is not required'],
@@ -48,7 +48,8 @@ const conversationParticipentsSchema = new Schema<IConversationParticipents>(
       required: [false, 'lastMessageReadId is not required'],
     },
 
-    //🆕
+    //🆕 ❌ Unread count becomes stateful and fragile.
+    // we have this only for show value .. 
     unreadCount: {
       type: Number,
       required: [false, 'unreadCount is not required']

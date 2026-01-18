@@ -349,8 +349,9 @@ export class SocketService {
           userId
         },
         {
-          unreadCount: 0,
-          isThisConversationUnseen : 0
+          unreadCount: 0, // ❌ useless .. we dont rely on this value 
+          isThisConversationUnseen : 0,
+          lastMessageReadAt: new Date(),// we will calculate unseen message count based on this 
         }
       );
     });
@@ -465,7 +466,7 @@ export class SocketService {
 
         // const newMessage = await messageService.sendMessage(socket, this.redisStateManager, messageData, callback);
 
-        console.log("newMessage =>>> ", newMessage);
+        // console.log("newMessage =>>> ", newMessage);
 
         // Emit to sender's personal room 
         callback?.({

@@ -223,6 +223,8 @@ export class GenericController<ModelType, InterfaceType> {
 
   updateWithImageById = catchAsync(async (req: Request, res: Response) => {
 
+    console.log("req.body coming from nerob vai ->>> ", req.body)
+
     if (!req.params.id) {
       throw new ApiError(
         StatusCodes.BAD_REQUEST,
@@ -240,6 +242,8 @@ export class GenericController<ModelType, InterfaceType> {
       ...req.body
     }
 
+    console.log("existingObjectDTO -> nerob vai ->>>>", existingObjectDTO);
+
     const updatedObject = await this.service.updateById(id, /*req.body*/ existingObjectDTO);
     
     /*-------------------- If you override this controller .. then comment above line and uncomment this block of code
@@ -251,6 +255,8 @@ export class GenericController<ModelType, InterfaceType> {
     ]);
     ---------------------*/
 
+
+    console.log("updated object ->>>> ", updatedObject);
 
     if (!updatedObject) {
       throw new ApiError(
