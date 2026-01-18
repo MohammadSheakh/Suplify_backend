@@ -1,6 +1,7 @@
+import { notifyParticipantsQueue } from "../../../helpers/bullmq/bullmq";
 import { RedisStateManager } from "../../../helpers/redis/redisStateManagerForSocketV2";
 import { emitError, getConversationById, IUserProfile, MessageData, SocketAck, socketService } from "../../../helpers/socket/socketForChatV3";
-import { enqueueLastMessageToUpdateConversation } from "../../../services/conversation.service";
+import { enqueueLastMessageToUpdateConversation, enqueueParticipantsToNotify } from "../../../services/conversation.service";
 import { GenericService } from "../../_generic-module/generic.services";
 import { User } from "../../user/user.model";
 import { Conversation } from "../conversation/conversation.model";
@@ -30,7 +31,7 @@ export class MessagerService extends GenericService<typeof Message, IMessage>{ /
       return object;
     }
 
-    /*-─────────────────────────────────
+    /*-───────────────────────────────── 💎✨🔍 -> V2 Found
     |  we call this service from 'send-new-message' socket event emit
     └──────────────────────────────────*/
     async sendMessage(socket:any , redisStateManager:RedisStateManager , messageData: MessageData, callback: SocketAck){
@@ -267,6 +268,117 @@ export class MessagerService extends GenericService<typeof Message, IMessage>{ /
 
       });  
       
+      console.log("1️⃣8")
+
+      return newMessage;
+    }
+
+    /*-─────────────────────────────────  V2
+    | What we update in this v2 is ..
+    | Move all .. Notify all conversation participants about conversation list update
+    | Logic to BullMQ
+    └──────────────────────────────────*/
+    async sendMessageV2(socket:any , redisStateManager:RedisStateManager , messageData: MessageData, callback: SocketAck){
+      const userId = socket.data.user._id;
+      // const userProfile : IUserProfile = socket.data.userProfile; //⚠️ not sure .. do we need to pull profileInformation by userId 
+      const userProfile : IUserProfile = await this.getUserProfile(userId) as IUserProfile
+
+      console.log("1️⃣")
+
+      if (!messageData.conversationId || !messageData.text?.trim()) {
+        const error = 'Chat ID and message content are required';
+        callback?.({ success: false, message: error });
+        return emitError(socket, error);
+      }
+
+      // Get chat details  //⚠️ we dont need conversationData here ... need to write another function .. which only return conversationparticipants.. 
+      const {conversationData, conversationParticipants} = await getConversationById(messageData.conversationId);
+      
+      console.log("1️⃣ 2")
+
+      //---------------------------------
+      // here we will check if the sender is a participant in the conversation or not
+      // if not then we will send an error message
+      //---------------------------------
+      let isExist = false;
+
+      conversationParticipants.forEach((participant: IConversationParticipents) => {
+        const participantId:string = participant.userId?.toString();
+        
+        if (participantId == userId.toString()) {
+            isExist = true;
+            return;
+        }
+      });
+    
+      // for(const participant of conversationParticipants){
+      //   const participantId:string = participant.userId?.toString();
+        
+      //   if (participantId == userId.toString()) {
+      //       isExist = true;
+      //       return;
+      //   }
+      // }
+
+      if(!isExist){
+        // ☑️🟣
+        return emitError(socket, `You are not a participant in this conversation`);
+      }
+
+      // Create message
+      const newMessage = await Message.create({
+        ...messageData,
+        timestamp: new Date(),
+        senderId: userId,
+      });
+
+      // ☑️🟣
+      enqueueLastMessageToUpdateConversation(
+        messageData.conversationId,
+        newMessage._id,
+        messageData.text,
+      )
+
+      // Prepare message data for emission
+      const messageToEmit = {
+        ...messageData,
+        _id: newMessage._id,
+        senderId: {  // populated as per nirob vais request
+          name: userProfile?.name,
+          profileImage: userProfile?.profileImage,
+          _userId: userId,
+        },
+
+        name: userProfile?.name,
+        image: userProfile?.profileImage,
+        createdAt: newMessage.createdAt || new Date()
+      };
+
+      // Emit to chat room
+      const eventName = `new-message-received::${messageData.conversationId}`; // ${messageData.conversationId}
+      
+      // when you send everyone exclude the sender
+      socket.to(messageData.conversationId).emit(eventName, messageToEmit);
+
+      
+      // socket.emit(eventName, messageToEmit);
+
+      // 🟢 NEW: Notify all conversation participants about conversation list update
+      // ✅ Enqueue participant notification job
+
+      enqueueParticipantsToNotify(
+        messageData.conversationId,
+        newMessage._id.toString(),
+        messageData.text,
+        userId.toString(),
+        {
+          name: userProfile.name,
+          profileImage : userProfile.profileImage,
+          role : userProfile.role,
+        },
+        conversationParticipants.map(p => p.userId.toString()),
+      )
+
       console.log("1️⃣8")
 
       return newMessage;

@@ -17,6 +17,10 @@ import { socketService } from "../socket/socketForChatV3";
 import { TRole } from "../../middlewares/roles";
 import { Conversation } from "../../modules/chatting.module/conversation/conversation.model";
 import { IConversation } from "../../modules/chatting.module/conversation/conversation.interface";
+import { ConversationParticipents } from "../../modules/chatting.module/conversationParticipents/conversationParticipents.model";
+//@ts-ignore
+import mongoose from 'mongoose';
+
 
 /*-─────────────────────────────────
 |  Schedule Queue
@@ -246,7 +250,6 @@ interface IScheduleJobForNotification {
   id: string
 }
 
-
 export const startNotificationWorker = () => {
   const worker = new Worker(
     "notificationQueue-suplify",
@@ -404,5 +407,113 @@ export const startUpdateConversationsLastMessageWorker = () => {
   //@ts-ignore
   worker.on("failed", (job, err) =>
     errorLogger.error(`❌ Notification job ${job?.id} (${job?.name}) failed`, err)
+  );
+};
+
+
+/*-─────────────────────────────────
+|  Notify All Conversation participants Queue
+└──────────────────────────────────*/
+
+export const notifyParticipantsQueue = new Queue<INotifyParticipantsJobData>(
+  'notify-participants-queue-suplify',
+  { connection: redisPubClient.options }
+);
+
+export interface INotifyParticipantsJobData {
+  conversationId: string;
+  messageId: string;
+  messageText: string;
+  senderId: string;
+  senderProfile: {
+    name: string;
+    profileImage?: string;
+    role?: string;
+  };
+  participantIds: string[]; // list of all participant user IDs (strings)
+}
+
+export const startNotifyParticipantsWorker = () => {
+  const worker = new Worker<INotifyParticipantsJobData>(
+    'notify-participants-queue-suplify',
+    async (job) => {
+      const { conversationId, messageId, messageText, senderId, senderProfile, participantIds } = job.data;
+
+      logger.info(`Notifying ${participantIds.length} participants for conversation ${conversationId}`);
+
+      // Process each participant
+      for (const participantId of participantIds) {
+        if (participantId === senderId) continue; // skip sender
+
+        try {
+          const isOnline = await socketService.isUserOnline(participantId);
+          // const isInRoom = await socketService.redisStateManager.isUserInRoom(participantId, conversationId);
+          const isInRoom = await socketService.isUserInRoom(participantId, conversationId);
+
+          if (isInRoom) {
+            // Emit conversation list update (no unread count bump)
+            await socketService.emitToUser(participantId, `conversation-list-updated::${participantId}`, {
+              userId: senderProfile,
+              conversations: [{
+                _conversationId: conversationId,
+                lastMessage: messageText,
+                updatedAt: new Date(), // or pass timestamp from job if needed
+              }],
+            });
+          } else if (isOnline && !isInRoom) {
+            // Update unread count
+            const updatedParticipant = await ConversationParticipents.findOneAndUpdate(
+              { 
+                userId: new mongoose.Types.ObjectId(participantId),
+                conversationId: new mongoose.Types.ObjectId(conversationId)
+              },
+              { 
+                $set: { isThisConversationUnseen: 1 },
+                $inc: { unreadCount: 1 }
+              },
+              { new: true }
+            );
+
+            // Calculate total unseen conversations
+            const [result] = await ConversationParticipents.aggregate([
+              { $match: { userId: new mongoose.Types.ObjectId(participantId) } },
+              { $group: { _id: null, totalUnseen: { $sum: "$isThisConversationUnseen" } } }
+            ]);
+
+            const unreadConversationCount = result?.totalUnseen || 0;
+
+            // Emit both events
+            await socketService.emitToUser(participantId, `unseen-count::${participantId}`, {
+              unreadConversationCount
+            });
+
+            await socketService.emitToUser(participantId, `conversation-list-updated::${participantId}`, {
+              userId: senderProfile,
+              conversations: [{
+                _conversationId: conversationId,
+                lastMessage: messageText,
+                updatedAt: new Date(),
+              }],
+            });
+          }
+          // If offline → skip (or add push notification later)
+
+        } catch (err) {
+          errorLogger.error(`Failed to notify participant ${participantId}:`, err);
+          // Don't throw → continue with others
+        }
+      }
+
+      return { notified: participantIds.filter(id => id !== senderId) };
+    },
+    { connection: redisPubClient.options }
+  );
+
+  worker.on('completed', (job, result) =>
+    logger.info(`✅ Notify job ${job.id} completed. Notified ${result?.notified?.length || 0} users.`)
+  );
+
+  worker.on('failed', (job, err) =>
+    errorLogger.error(`❌ Notify job ${job.id} failed`, err)
   );
 };

@@ -461,7 +461,9 @@ export class SocketService {
 
         //⭐🎯🛠️ call service ....
 
-        const newMessage = await messageService.sendMessage(socket, this.redisStateManager, messageData, callback);
+        const newMessage = await messageService.sendMessageV2(socket, this.redisStateManager, messageData, callback);
+
+        // const newMessage = await messageService.sendMessage(socket, this.redisStateManager, messageData, callback);
 
         console.log("newMessage =>>> ", newMessage);
 
@@ -830,6 +832,10 @@ export class SocketService {
 
   public async isUserOnline(userId: string): Promise<boolean> {
     return await this.redisStateManager.isUserOnline(userId);
+  }
+
+  public async isUserInRoom(participantId : string, conversationId: string){
+    return await this.redisStateManager.isUserInRoom(participantId, conversationId);
   }
 
   public async getUserConnectionInfo(userId: string) {
