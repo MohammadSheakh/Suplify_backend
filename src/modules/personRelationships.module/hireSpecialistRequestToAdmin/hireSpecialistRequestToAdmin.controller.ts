@@ -33,7 +33,7 @@ export class HireSpecialistRequestToAdminController extends GenericController<
 
     // check if already assigned
     const existing = await HireSpecialistRequestToAdmin.findOne({
-      patientId: data.patientId,
+      patientId: req.user.userId,
       specialistId: data.specialistId
     }).lean();
 
@@ -41,12 +41,17 @@ export class HireSpecialistRequestToAdminController extends GenericController<
       sendResponse(res, {
         code: StatusCodes.OK,
         data: existing,
-        message: `Specialist already assigned to this patient`,
+        message: `You already request for this specialist.`,
         success: true,
       });
     }
 
-    const result = await this.service.create(data);
+    const hireSpecialistDTO = {
+      patientId: req.user.userId,
+      specialistId: data.specialistId
+    }
+
+    const result = await this.service.create(hireSpecialistDTO);
 
     sendResponse(res, {
       code: StatusCodes.OK,

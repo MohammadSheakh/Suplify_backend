@@ -70,15 +70,6 @@ const DoctorPlanSchema = new Schema<IDoctorPlan>(
 
 DoctorPlanSchema.plugin(paginate);
 
-DoctorPlanSchema.pre('save', function (next) {
-  // Rename _id to _projectId
-  // this._taskId = this._id;
-  // this._id = undefined;  // Remove the default _id field
-  //this.renewalFee = this.initialFee
-
-  next();
-});
-
 // Use transform to rename _id to _projectId
 DoctorPlanSchema.set('toJSON', {
   transform: function (doc, ret, options) {

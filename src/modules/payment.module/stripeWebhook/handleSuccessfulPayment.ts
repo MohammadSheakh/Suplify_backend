@@ -145,9 +145,10 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Subscription) => {
     // ✅ Use proper Stripe dates instead of manual calculation
     // const dates = calculateSubscriptionDates(subscription, invoice);
    
-    // ============================================
-    // FIRST PAYMENT (subscription_create)
-    // ============================================
+    
+    /*──────────────────────────────────
+    |  FIRST PAYMENT (subscription_create)   
+    └────────────────────────────────────*/
     if(invoice.billing_reason === 'subscription_create'){
       // console.log("⚡ This is first payment after trial or immediate payment without trial 1️⃣", invoice.billing_reason);
 
@@ -249,9 +250,9 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Subscription) => {
 
       // console.log("Updated userSubs --- handleSuccessfulPayment --- invoice.billing_reason === 'subscription_create' =>> ", userSubs);
 
-    // ============================================
-    // RECURRING PAYMENT (subscription_cycle)
-    // ============================================
+    /*──────────────────────────────────
+    | RECURRING PAYMENT (subscription_cycle)  
+    └────────────────────────────────────*/
     }else if(invoice.billing_reason === 'subscription_cycle'){
         // console.log("=============== This is recurring subscription payment ================== 🔁2️⃣ ", invoice.billing_reason);
       /*
@@ -364,9 +365,9 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Subscription) => {
           }
       });
 
-    // ============================================
-    // SUBSCRIPTION UPDATE (plan change, proration) | we need to work on this
-    // ============================================  
+    /*──────────────────────────────────
+    | SUBSCRIPTION UPDATE (plan change, proration) | we need to work on this   
+    └────────────────────────────────────*/
     }else if(invoice.billing_reason === 'subscription_update'){
       
       // console.log("⚡ This is subscription update payment (plan change, proration, etc.)");

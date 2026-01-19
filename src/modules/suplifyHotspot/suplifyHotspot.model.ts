@@ -65,15 +65,6 @@ const SuplifyHotspotSchema = new Schema<ISuplifyHotspot>(
 
 SuplifyHotspotSchema.plugin(paginate);
 
-SuplifyHotspotSchema.pre('save', function (next) {
-  // Rename _id to _projectId
-  // this._taskId = this._id;
-  // this._id = undefined;  // Remove the default _id field
-  //this.renewalFee = this.initialFee
-
-  next();
-});
-
 // Use transform to rename _id to _projectId
 SuplifyHotspotSchema.set('toJSON', {
   transform: function (doc, ret, options) {

@@ -119,8 +119,9 @@ export class WithdrawalRequstController extends GenericController<
     }) // TODO : MUST : add logic 
 
     // if last Withdrawal request is in week then we can not create withdrawal request
-    /************** TODO : MUST .. uncomment this part
-     * ************* */
+    /*──────────────────────────────────
+    |  TODO : MUST .. uncomment this part
+    └────────────────────────────────────*/
 
     
     if (lastWithdrawalRequest && 
@@ -133,10 +134,9 @@ export class WithdrawalRequstController extends GenericController<
       });
     }
     
-
-    //------------------------------------
-    // TODO : MUST : Send Notification to Admin that a withdrawal request is created
-    //------------------------------------
+    /*──────────────────────────────────
+    |  TODO : MUST : Send Notification to Admin that a withdrawal request is created 
+    └────────────────────────────────────*/
     
     await enqueueWebNotification(
       `An withdrawal request is created by ${(req.user as IUser).userId} ${(req.user as IUser).userName} for $${data.requestedAmount}`,
@@ -159,9 +159,9 @@ export class WithdrawalRequstController extends GenericController<
     });
   });
 
-  //---------------------------------
-  //  Admin | Upload receipt And Update status 
-  //---------------------------------
+  /*──────────────────────────────────
+  | Admin | Upload receipt And Update status  
+  └────────────────────────────────────*/
   uploadReceiptAndUpdateStatus = catchAsync(async (req: Request, res: Response) => {
     /*******
      * 📝

@@ -31,9 +31,9 @@ export class RedisStateManager {
     this.redis = redisClient;
   }
 
-  // =============================================
-  // Online Users Management
-  // =============================================
+  /*──────────────────────────────────
+  |   Online Users Management
+  └────────────────────────────────────*/
 
   // 🔗➡️ socketForChatV3.ts -> setupEventHandlers
   async handleUserReconnection(
@@ -109,9 +109,9 @@ export class RedisStateManager {
     logger.info(colors.green(`✅ User ${userId} added to Redis state (Worker: ${workerId})`));
   }
 
-  // =============================================
-  // Related Users
-  // =============================================
+  /*──────────────────────────────────
+  |   Related Users
+  └────────────────────────────────────*/
 
   //🔗➡️ socketForChatV3.ts -> notifyRelatedUsersOnlineStatus
   // 🔗➡️ socketForChatV3.ts ->  setupUserEventHandlers -> socket.on('only-related-online-users'
@@ -138,9 +138,9 @@ export class RedisStateManager {
     }
   }
 
-  // =============================================
-  // Cleanup & Maintenance
-  // =============================================
+  /*──────────────────────────────────
+  |   Cleanup & Maintenance
+  └────────────────────────────────────*/
 
   // 🔗➡️ socketForChatV3.ts -> startCleanupJob
   async cleanupStaleConnections(): Promise<void> {
@@ -229,9 +229,9 @@ export class RedisStateManager {
     return userId; // string or null
   }
 
-  // =============================================
-  // Room Management
-  // =============================================
+  /*──────────────────────────────────
+  |   Room Management
+  └────────────────────────────────────*/
 
   async joinRoom(userId: string, roomId: string): Promise<void> {
     const pipeline = this.redis.multi();

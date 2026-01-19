@@ -151,9 +151,10 @@ export class MessagerService extends GenericService<typeof Message, IMessage>{ /
 
         const isInConversationRoom = await redisStateManager.isUserInRoom(participantId.toString(), messageData.conversationId.toString())
         
-        // ============================================
-        // DECISION TREE FOR NOTIFICATIONS
-        // ============================================
+        
+        /*──────────────────────────────────
+        |  DECISION TREE FOR NOTIFICATIONS   
+        └────────────────────────────────────*/
         
         if (isInConversationRoom) {
           console.log(`${participantId} 🟢isInConversationRoom.. `)

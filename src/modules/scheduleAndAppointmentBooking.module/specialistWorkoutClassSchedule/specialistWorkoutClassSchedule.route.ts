@@ -67,6 +67,7 @@ router.route('/:id').get(
 router.route('/:id').put(
   auth(TRole.specialist),
   //  ...imageUploadPipelineForUpdateWorkoutClass, // no image upload needed for workout class
+  /*--------------------------
   patchWithDefaults( //🥇
       'SpecialistWorkoutClassSchedule', 
       optionValidationChecking([ // pass array of fields that we want to update if provide in request body
@@ -81,6 +82,8 @@ router.route('/:id').put(
         'price'
       ])
     ),
+
+  ---------------------------*/
   // validateRequest(validation.updateTrainingProgramValidationSchema), // TODO : MUST validation add korte hobe
   controller.updateById
 );

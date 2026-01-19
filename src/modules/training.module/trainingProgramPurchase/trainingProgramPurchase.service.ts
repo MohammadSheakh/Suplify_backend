@@ -188,10 +188,10 @@ export class TrainingProgramPurchaseService extends GenericService<
 
           await this._handlePersonTrainingSessionCreate(trainingProgramId, user);
 
-          /**********
-           * 🥇
-           * Lets send notification to specialist that patient has purchased training program
-           * ******* */
+          
+          /*──────────────────────────────────
+          | 🥇 Lets send notification to specialist that patient has purchased training program 
+          └────────────────────────────────────*/
           await enqueueWebNotification(
             `${existingTrainingProgram.programName} purchased by a ${existingUser.subscriptionType} user ${existingUser.name} .  purchaseTrainingProgramId ${purchaseTrainingProgram._id}`,
             existingUser._id, // senderId

@@ -250,12 +250,9 @@ const createUser = async (userData: TUser, userProfileId:string) => {
     });
 
     
-
-    /********
-     * 
-     * Lets send notification to admin that new doctor or specialist registered
-     * 
-     * ***** */
+    /*──────────────────────────────────
+    |   Lets send notification to admin that new doctor or specialist registered
+    └────────────────────────────────────*/
     await enqueueWebNotification(
       `A ${userData.role} registered successfully . verify document to activate account`,
       null, // senderId

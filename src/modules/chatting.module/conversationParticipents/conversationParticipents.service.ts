@@ -3,6 +3,9 @@ import { IConversationParticipents } from './conversationParticipents.interface'
 import { ConversationParticipents } from './conversationParticipents.model';
 import { PaginateOptionsForConversations } from '../../../types/paginate';
 import { socketService } from '../../../helpers/socket/socketForChatV3';
+//@ts-ignore
+import mongoose from 'mongoose'
+import { Message } from '../message/message.model';
 
 export class ConversationParticipentsService extends GenericService<
   typeof ConversationParticipents, IConversationParticipents
@@ -234,64 +237,95 @@ export class ConversationParticipentsService extends GenericService<
   /*-─────────────────────────────────
     |  With Read Unread Logic ..  
     └──────────────────────────────────*/
-  async getAllConversationByUserIdWithPaginationV2(userId: any, options: PaginateOptionsForConversations = { limit: 10, page: 1 , search: '' }) 
-  {
-    let loggedInUserId = userId;
-
+  async getAllConversationByUserIdWithPaginationV2(
+    userId: any,
+    options: PaginateOptionsForConversations = { limit: 10, page: 1, search: '' }
+  ) {
+    const loggedInUserId = new mongoose.Types.ObjectId(userId);
     const search = options?.search?.trim();
 
-    // Step 1: Find all conversations the logged-in user participates in
-    const userConversations:IConversationParticipents[] = await ConversationParticipents.find({
+    // Step 1: Get all conversations the user is in
+    const userOwnParts = await ConversationParticipents.find({
       userId: loggedInUserId,
       isDeleted: false
-    }).select('conversationId');
+    }).select('conversationId lastMessageReadAt');
 
-    const conversationIds = userConversations.map(conv => conv.conversationId);
+    const conversationIds = userOwnParts.map(p => p.conversationId);
+    const lastReadMap = new Map();
+    userOwnParts.forEach(p => {
+      lastReadMap.set(p.conversationId.toString(), p.lastMessageReadAt);
+    });
 
-    // Step 2: Use pagination on ConversationParticipents
+    if (conversationIds.length === 0) {
+      return { results: [], page: 1, limit: 10, totalPages: 0, totalResults: 0 };
+    }
+
+    // Step 2: Find other participants (for display)
     const filter = {
       conversationId: { $in: conversationIds },
       userId: { $ne: loggedInUserId },
       isDeleted: false,
     };
 
-    // ✅ Only add name filter if search is non-empty
     if (search) {
-      filter.name = { $regex: search, $options: 'i' };
+      filter.userName = { $regex: search, $options: 'i' };
     }
 
     const populateOptions = [
-      {
-        path: 'userId',
-        select: 'name profileImage role'
-      },
-      {
-        path: 'conversationId',
-        select: 'lastMessage updatedAt',
-      }
+      { path: 'userId', select: 'name profileImage role' },
+      { path: 'conversationId', select: 'lastMessage updatedAt' }
     ];
 
-    let dontWantToInclude: string | string[] = '';
-
-    // Use your pagination function
     const paginatedResults = await ConversationParticipents.paginate(
       filter,
-      {
-        ...options, 
-        sortBy: options.sortBy ?? 'updatedAt', // Sort by most recent conversations
-      },
+      { ...options, sortBy: 'conversationId.updatedAt:desc' },
       populateOptions,
-      dontWantToInclude
+      ''
     );
 
-    // Step 3: Remove duplicates and format data
-    const uniqueUsers = {};
-    
-    paginatedResults.results.forEach(participant => {
-      const userId = participant.userId._id.toString();
-      
-      if (!uniqueUsers[userId]) {
-        uniqueUsers[userId] = {
+    // Step 3: For each conversation in results, compute unread count simply
+    const enrichedConversations = [];
+
+  
+    /*──────────────────────────────────
+    |  TODO : jodi jono conversation e join thake .. taile shetar unread count 0 hobe 
+    └────────────────────────────────────*/
+
+    for (const participant of paginatedResults.results) {
+      const convoId = participant.conversationId._id.toString();
+      const lastReadAt = lastReadMap.get(convoId) || null;
+
+      // Count unread messages: from others, sent after last read
+      let unreadCount = 0;
+      if (lastReadAt) {
+        unreadCount = await Message.countDocuments({
+          conversationId: participant.conversationId._id,
+          senderId: { $ne: loggedInUserId },
+          createdAt: { $gt: lastReadAt }
+        });
+      } else {
+        // If never read, count all messages from others
+        unreadCount = await Message.countDocuments({
+          conversationId: participant.conversationId._id,
+          senderId: { $ne: loggedInUserId }
+        });
+      }
+
+      enrichedConversations.push({
+        participant,
+        unreadCount
+      });
+    }
+
+    // Step 4: Group by other user (same as before)
+    const uniqueUsers: Record<string, any> = {};
+
+    for (const { participant, unreadCount } of enrichedConversations) {
+      const otherUserId = participant.userId._id.toString();
+      const convoId = participant.conversationId._id.toString();
+
+      if (!uniqueUsers[otherUserId]) {
+        uniqueUsers[otherUserId] = {
           userId: {
             _userId: participant.userId._id,
             name: participant.userId.name,
@@ -299,27 +333,24 @@ export class ConversationParticipentsService extends GenericService<
             role: participant.userId.role
           },
           conversations: [],
-          // isOnline: global.socketUtils.isUserOnline(userId), // 😄😄😄😄😄😄😄
         };
       }
-      
-      // Add conversation if not already added
-      const conversationExists = uniqueUsers[userId].conversations.some(
-        conv => conv._conversationId.toString() === participant.conversationId._id.toString()
+
+      // Avoid duplicates (shouldn't happen, but safe)
+      const exists = uniqueUsers[otherUserId].conversations.some(
+        (c: any) => c._conversationId.toString() === convoId
       );
-      
-      if (!conversationExists) {
-        uniqueUsers[userId].conversations.push({
+
+      if (!exists) {
+        uniqueUsers[otherUserId].conversations.push({
           _conversationId: participant.conversationId._id,
           lastMessage: participant.conversationId.lastMessage,
-          updatedAt: participant.conversationId.updatedAt
+          updatedAt: participant.conversationId.updatedAt,
+          unreadCount,
         });
       }
-    });
+    }
 
-
-    // return Object.values(uniqueUsers);
-    // Return paginated response with processed data
     return {
       results: Object.values(uniqueUsers),
       page: paginatedResults.page,

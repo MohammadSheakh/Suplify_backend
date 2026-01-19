@@ -190,15 +190,14 @@ export const startScheduleWorker = () => {
           }
         });
 
-        /******
-         * need to think about this part .. do we need to create a new schedule for next day ?
-         * *** */
 
-        /*****
-         * 
-         * we need batch update here .. as multiple patient can book a workout class
-         *
-         ****** */
+        /*──────────────────────────────────
+        | need to think about this part .. do we need to create a new schedule for next day ?   
+        └────────────────────────────────────*/
+        
+        /*──────────────────────────────────
+        | we need batch update here .. as multiple patient can book a workout class   
+        └────────────────────────────────────*/
         await SpecialistPatientScheduleBooking.updateMany(
           { workoutClassScheduleId: scheduleId },
           { $set: { status: TScheduleBookingStatus.completed } }

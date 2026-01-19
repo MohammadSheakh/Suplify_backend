@@ -108,15 +108,6 @@ const paymentTransactionSchema = new Schema<IPaymentTransaction>(
 
 paymentTransactionSchema.plugin(paginate);
 
-paymentTransactionSchema.pre('save', function(next) {
-  // Rename _id to _projectId
-  // this._taskId = this._id;
-  // this._id = undefined;  // Remove the default _id field
-
-  next();
-});
-
-
 // Use transform to rename _id to _projectId
 paymentTransactionSchema.set('toJSON', {
   transform: function (doc, ret, options) {
@@ -125,7 +116,6 @@ paymentTransactionSchema.set('toJSON', {
     return ret;
   }
 });
-
 
 export const PaymentTransaction = model<IPaymentTransaction, IPaymentTransactionModel>(
   'PaymentTransaction',

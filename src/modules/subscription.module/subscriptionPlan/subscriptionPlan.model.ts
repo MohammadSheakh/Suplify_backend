@@ -124,16 +124,6 @@ const subscriptionPlanSchema = new Schema<ISubscriptionPlan>(
 );
 
 subscriptionPlanSchema.plugin(paginate);
-//@ts-ignore
-subscriptionPlanSchema.pre('save', function(next) {
-  // Rename _id to _projectId
-  // this._taskId = this._id;
-  // this._id = undefined;  // Remove the default _id field
-  // this.renewalFee = this.initialFee
-  
-  next();
-});
-
 
 // Use transform to rename _id to _projectId
 subscriptionPlanSchema.set('toJSON', {

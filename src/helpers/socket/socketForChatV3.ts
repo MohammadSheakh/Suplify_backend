@@ -206,9 +206,6 @@ export class SocketService {
   private setupEventHandlers() {
     if (!this.io) return;
 
-    /*-─────────────────────────────────
-    |  
-    └──────────────────────────────────*/
     this.io.on('connection', async (socket: Socket) => {
       const user = socket.data.user; // 🟡 issue  MUST BE RESOLVED
 
@@ -349,7 +346,7 @@ export class SocketService {
           userId
         },
         {
-          unreadCount: 0, // ❌ useless .. we dont rely on this value 
+          // unreadCount: 0, // ❌ useless .. we dont rely on this value 
           isThisConversationUnseen : 0,
           lastMessageReadAt: new Date(),// we will calculate unseen message count based on this 
         }
@@ -380,6 +377,19 @@ export class SocketService {
         message: `${userProfile?.name} left the conversation`
       });
 
+      // 🎯🆕 NEED TO USE KAFKA
+      await ConversationParticipents.updateOne(
+        {
+          conversationId,
+          userId
+        },
+        {
+          // unreadCount: 0, // ❌ useless .. we dont rely on this value 
+          isThisConversationUnseen : 0,
+          lastMessageReadAt: new Date(),// we will calculate unseen message count based on this 
+        }
+      );
+
       callback?.({ success: true, message: 'Left conversation successfully' });
     });
 
@@ -389,7 +399,12 @@ export class SocketService {
     //---------------------------------
     socket.on('get-all-conversations-with-pagination', async( conversationData: {page: number, limit: number, search?: string}, callback) =>{
       try{
-        const conversations = await new ConversationParticipentsService().getAllConversationByUserIdWithPagination(userId, conversationData);
+
+        //const conversations = await new ConversationParticipentsService().getAllConversationByUserIdWithPagination(userId, conversationData);
+        
+        //🆕 now we return conversation list with unseen message counts 
+        const conversations = await new ConversationParticipentsService().getAllConversationByUserIdWithPaginationV2(userId, conversationData);
+        
         callback?.({ success: true, data: conversations});
       } catch (error) {
         console.error('Error fetching conversations:', error);
@@ -579,9 +594,10 @@ export class SocketService {
 
           const isInConversationRoom = await this.redisStateManager.isUserInRoom(participantId.toString(), messageData.conversationId.toString())
           
-          // ============================================
-          // DECISION TREE FOR NOTIFICATIONS
-          // ============================================
+          
+          /*──────────────────────────────────
+          |  DECISION TREE FOR NOTIFICATIONS 
+          └────────────────────────────────────*/
           
           if (isInConversationRoom) {
             console.log(`${participantId} 🟢isInConversationRoom.. `)
@@ -767,9 +783,9 @@ export class SocketService {
     }, 5 * 60 * 1000);
   }
 
-  // =============================================
-  // Public API Methods
-  // =============================================
+  /*──────────────────────────────────
+  |   Public API Methods
+  └────────────────────────────────────*/
   
   /*******
    * 🟢🟢 

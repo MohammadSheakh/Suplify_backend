@@ -90,15 +90,6 @@ const DoctorAppointmentScheduleSchema = new Schema<IDoctorAppointmentSchedule>(
 
 DoctorAppointmentScheduleSchema.plugin(paginate);
 
-DoctorAppointmentScheduleSchema.pre('save', function (next: any) {
-  // Rename _id to _projectId
-  // this._taskId = this._id;
-  // this._id = undefined;  // Remove the default _id field
-  //this.renewalFee = this.initialFee
-
-  next();
-});
-
 // Use transform to rename _id to _projectId
 DoctorAppointmentScheduleSchema.set('toJSON', {
   transform: function (doc, ret, options) {

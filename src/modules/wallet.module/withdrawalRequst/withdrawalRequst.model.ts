@@ -5,7 +5,6 @@ import paginate from '../../../common/plugins/paginate';
 import { TWithdrawalRequst } from './withdrawalRequst.constant';
 import { TBankAccount } from '../bankInfo/bankInfo.constant';
 
-
 const WithdrawalRequstSchema = new Schema<IWithdrawalRequst>(
   {
     walletId: { //🔗 for which wallet this withdraw request
@@ -100,15 +99,6 @@ const WithdrawalRequstSchema = new Schema<IWithdrawalRequst>(
 );
 
 WithdrawalRequstSchema.plugin(paginate);
-
-WithdrawalRequstSchema.pre('save', function (next) {
-  // Rename _id to _projectId
-  // this._taskId = this._id;
-  // this._id = undefined;  // Remove the default _id field
-  //this.renewalFee = this.initialFee
-
-  next();
-});
 
 // Use transform to rename _id to _projectId
 WithdrawalRequstSchema.set('toJSON', {

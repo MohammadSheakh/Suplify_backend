@@ -33,15 +33,6 @@ const HireSpecialistRequestToAdminSchema = new Schema<IHireSpecialistRequestToAd
 
 HireSpecialistRequestToAdminSchema.plugin(paginate);
 
-HireSpecialistRequestToAdminSchema.pre('save', function (next) {
-  // Rename _id to _projectId
-  // this._taskId = this._id;
-  // this._id = undefined;  // Remove the default _id field
-  //this.renewalFee = this.initialFee
-
-  next();
-});
-
 // Use transform to rename _id to _projectId
 HireSpecialistRequestToAdminSchema.set('toJSON', {
   transform: function (doc, ret, options) {

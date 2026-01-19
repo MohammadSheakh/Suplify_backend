@@ -9,12 +9,10 @@ const SuccessTrackerSchema = new Schema<ISuccessTracker>(
       type: Schema.Types.ObjectId,
       ref: 'User',
     },
-
     weekStartDate: {
       type: Date,
       required: true
     },
-
     weekEndDate: {
       type: Date,
       required: true
@@ -53,15 +51,6 @@ const SuccessTrackerSchema = new Schema<ISuccessTracker>(
 );
 
 SuccessTrackerSchema.plugin(paginate);
-
-SuccessTrackerSchema.pre('save', function (next) {
-  // Rename _id to _projectId
-  // this._taskId = this._id;
-  // this._id = undefined;  // Remove the default _id field
-  //this.renewalFee = this.initialFee
-
-  next();
-});
 
 // Use transform to rename _id to _projectId
 SuccessTrackerSchema.set('toJSON', {
