@@ -11,7 +11,7 @@ pm2 logs 0
 
 pnpm pm2 delete suplify-api  // delete 
 pnpm pm2 delete 0
-pnpm pm2 restart 0
+pm2 restart 0
 
 pnpm pm2 logs suplify-api --lines 100   // to see last 100 lines of log
 pnpm pm2 logs suplify-api
@@ -54,7 +54,7 @@ htop
 pnpm ts-node --showConfig
 
 —---------------------------------------- start backend 
-
+//
 pm2 kill
 rm -rf ~/.pm2
 
