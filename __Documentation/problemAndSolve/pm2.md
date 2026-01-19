@@ -6,6 +6,8 @@ pnpm install --save-dev pm2
 pnpm pm2 start ecosystem.config.js  // start with config file 
 
 pnpm pm2 list
+pm2 show 0
+pm2 logs 0
 
 pnpm pm2 delete suplify-api  // delete 
 pnpm pm2 delete 0
