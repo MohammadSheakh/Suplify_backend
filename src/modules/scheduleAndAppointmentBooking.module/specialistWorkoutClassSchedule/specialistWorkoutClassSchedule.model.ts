@@ -111,7 +111,7 @@ const SpecialistWorkoutClassScheduleSchema = new Schema<ISpecialistWorkoutClassS
         TMeetingLink.googleMeet,
         TMeetingLink.others
       ],
-      required: [true, `status is required .. it can be  ${Object.values(TMeetingLink).join(
+      required: [false, `status is not required .. it can be  ${Object.values(TMeetingLink).join(
         ', '
       )}`],
     },
@@ -127,7 +127,7 @@ const SpecialistWorkoutClassScheduleSchema = new Schema<ISpecialistWorkoutClassS
     },
     meetingLink:{
       type : String,
-      required: [true, 'meetingLink is required'],
+      required: [false, 'meetingLink is not required'],
     },
     isDeleted: {
       type: Boolean,
@@ -140,14 +140,14 @@ const SpecialistWorkoutClassScheduleSchema = new Schema<ISpecialistWorkoutClassS
 
 SpecialistWorkoutClassScheduleSchema.plugin(paginate);
 
-SpecialistWorkoutClassScheduleSchema.pre('save', function (next) {
-  // Rename _id to _projectId
-  // this._taskId = this._id;
-  // this._id = undefined;  // Remove the default _id field
-  //this.renewalFee = this.initialFee
+// SpecialistWorkoutClassScheduleSchema.pre('save', function (next) {
+//   // Rename _id to _projectId
+//   // this._taskId = this._id;
+//   // this._id = undefined;  // Remove the default _id field
+//   //this.renewalFee = this.initialFee
 
-  next();
-});
+//   next();
+// });
 
 // Use transform to rename _id to _projectId
 SpecialistWorkoutClassScheduleSchema.set('toJSON', {

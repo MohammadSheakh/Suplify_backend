@@ -580,27 +580,84 @@ export class SpecialistWorkoutClassScheduleService extends GenericService<
         },
       },
 
-      // Project fields you want to return
-      {
+
+
+      // Lookup hotspot details
+    {
+        $lookup: {
+            from: 'suplifyhotspots',
+            localField: 'hotspotId',
+            foreignField: '_id',
+            as: 'hotspot',
+        },
+    },
+
+    // Convert hotspot array → object //🆕
+    {
+        $unwind: {
+            path: '$hotspot',
+            preserveNullAndEmptyArrays: true, // important
+        },
+    },
+    //🆕
+    {
+        $lookup: {
+            from: 'attachments',
+            localField: 'hotspot.attachments',
+            foreignField: '_id',
+            as: 'hotspotAttachments',
+        },
+    },
+    // Convert hotspotAttachments array → object //🆕
+    {
+        $unwind: {
+            path: '$hotspotAttachments',
+            preserveNullAndEmptyArrays: true, // important
+        },
+    },
+    { //🆕
+        $addFields: {
+            'hotspot.attachments': '$hotspotAttachments',
+        },
+    },
+
+
+        // Project fields you want to return
+        {
         $project: {
-          _id: 1,
-          scheduleName: 1,
-          scheduleDate: 1,
+            _id: 1,
+            scheduleName: 1,
+            scheduleDate: 1,
         //   startTime: 1,
-          endTime: 1,
-          description: 1,
-          status: 1,
-          price: 1,
-          sessionType: 1,
-          typeOfLink: 1,
-          meetingLink: 1,
-          bookingCount: 1, // 🆕 count of scheduled bookings
+        endTime: 1,
+        description: 1,
+        status: 1,
+        price: 1,
+        sessionType: 1,
+        typeOfLink: 1,
+        meetingLink: 1,
+        bookingCount: 1, // 🆕 count of scheduled bookings
+
+        //---------------
+        repeatRule : 1,
+        scheduleType : 1,
+        hotspotId : 1,
+        classType : 1,
         
-          //---------------
-          repeatRule : 1,
-          scheduleType : 1,
-          hotspotId : 1,
-          classType : 1
+        // 🆕 Hotspot details
+        hotspot: {
+            _id: '$hotspot._id',
+            name: '$hotspot.name',
+            address: '$hotspot.address',
+
+            // 🖼️ attachments populated
+            attachments: {
+                _id: '$hotspot.attachments._id',
+                attachment: '$hotspot.attachments.attachment',
+                attachmentType : '$hotspot.attachments.attachmentType',
+            },
+        },
+
         },
       },
 

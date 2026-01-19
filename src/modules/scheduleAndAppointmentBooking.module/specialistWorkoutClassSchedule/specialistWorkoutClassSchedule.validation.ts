@@ -56,7 +56,7 @@ export const createWorkoutClassSessionValidationSchema = z.object({
     ], {
       required_error: 'typeOfLink is required, typeOfLink must be a string.',
       invalid_type_error: 'typeOfLink must be a string.',
-    }),
+    }).optional(),
 
     sessionType: z.enum([
       TSession.private,
@@ -76,7 +76,7 @@ export const createWorkoutClassSessionValidationSchema = z.object({
       })
       .max(1000, {
         message: 'meetingLink must be at most 1000 characters long.',
-      }),
+      }).optional(),
 
   }),
 
