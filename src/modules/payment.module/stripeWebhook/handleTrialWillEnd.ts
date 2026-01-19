@@ -28,7 +28,7 @@ export const handleTrialWillEnd = async (subscription: Stripe.Subscription) => {
      * 
      * *** */
 
-    console.log("🧩 handleTrialWillEnd :: subscription.id -->", subscription.id);
+    // console.log("🧩 handleTrialWillEnd :: subscription.id -->", subscription.id);
 
     // ✅ Metadata stored when you created the subscription
     const metadata: IMetadataForFreeTrial = subscription.metadata;
@@ -65,7 +65,7 @@ export const handleTrialWillEnd = async (subscription: Stripe.Subscription) => {
     }
 
     // ✅ Notify user or schedule reminder
-    console.log(`Trial will end soon for user: ${user._id} (subscription ${subscription.id})`);
+    // console.log(`Trial will end soon for user: ${user._id} (subscription ${subscription.id})`);
     
     // TODO: Send notification email
     // await sendTrialEndingEmail(metadata.userId, subscription.trial_end);

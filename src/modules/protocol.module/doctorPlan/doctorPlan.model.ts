@@ -1,3 +1,4 @@
+//@ts-ignore
 import { model, Schema } from 'mongoose';
 import { IDoctorPlan, IDoctorPlanModel } from './doctorPlan.interface';
 import paginate from '../../../common/plugins/paginate';
@@ -12,7 +13,8 @@ const DoctorPlanSchema = new Schema<IDoctorPlan>(
         TPlanByDoctor.lifeStyleChanges,
         TPlanByDoctor.mealPlan,
         TPlanByDoctor.suppliment,
-        TPlanByDoctor.workOut
+        TPlanByDoctor.workOut,
+        TPlanByDoctor.labTest,
       ],
       required: [true, `planType is required .. it can be  ${Object.values(TPlanByDoctor).join(
               ', '
@@ -31,16 +33,31 @@ const DoctorPlanSchema = new Schema<IDoctorPlan>(
     
     description: {
       type: String,
-      required: [true, 'description is required'],
+      required: [false, 'description is not required'],
     },
     keyPoints : {
       type: [String],
-      required : [true, 'keyPoints are required']
+      required : [false, 'keyPoints are not required']
     },
     totalKeyPoints : { // based on keypoints length // auto calculate .. 
       type: Number,
       required: [true, 'totalKeyPoints is required']
     },
+
+    // 🆕
+    link: {
+      type: String,
+      required: [false, 'link is not required'],
+    },
+    
+    // 🆕
+    attachments: [  //🔗
+      {
+          type: Schema.Types.ObjectId,
+          ref: 'Attachment',
+          required: [false, 'attachments is not required'],
+      }
+    ],
     
     isDeleted: {
       type: Boolean,
@@ -52,15 +69,6 @@ const DoctorPlanSchema = new Schema<IDoctorPlan>(
 );
 
 DoctorPlanSchema.plugin(paginate);
-
-DoctorPlanSchema.pre('save', function (next) {
-  // Rename _id to _projectId
-  // this._taskId = this._id;
-  // this._id = undefined;  // Remove the default _id field
-  //this.renewalFee = this.initialFee
-
-  next();
-});
 
 // Use transform to rename _id to _projectId
 DoctorPlanSchema.set('toJSON', {

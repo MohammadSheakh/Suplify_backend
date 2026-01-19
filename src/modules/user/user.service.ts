@@ -4,7 +4,7 @@ import ApiError from '../../errors/ApiError';
 import { PaginateOptions, PaginateResult } from '../../types/paginate';
 import { IUser, TUser } from './user.interface';
 import { User } from './user.model';
-import { sendAdminOrSuperAdminCreationEmail, sendEmailToTheDoctorThatAdminApprovedHim } from '../../helpers/emailService';
+import { sendAdminOrSuperAdminCreationEmail, sendEmailToTheDoctorThatAdminApprovedHim, sendEmailToTheDoctorThatAdminRejectHim } from '../../helpers/emailService';
 import { GenericService } from '../_generic-module/generic.services';
 import PaginationService from '../../common/service/paginationService';
 import omit from '../../shared/omit';
@@ -171,7 +171,7 @@ export class UserService extends GenericService<typeof User, IUser> {
     };
 
     // Use pagination service for aggregation
-     const res =
+    const res =
       await PaginationService.aggregationPaginate(
       User, 
       pipeline,
@@ -184,7 +184,8 @@ export class UserService extends GenericService<typeof User, IUser> {
     }
   }
 
-  async changeApprovalStatusByUserId(userId: string, approvalStatus: string): Promise<any> {
+  // 🆕
+  async changeApprovalStatusByUserId(userId: string, approvalStatus: string, emailBody: string): Promise<any> {
     
     const populateOptions = 
     [
@@ -222,11 +223,20 @@ export class UserService extends GenericService<typeof User, IUser> {
 
     if(approvalStatus ===  TApprovalStatus.approved){
       user.isEmailVerified = true;
-      console.log("sending email Hit ----------------------------------- ");
 
       await sendEmailToTheDoctorThatAdminApprovedHim(user.email);
 
       await user.save();
+    }
+
+    if(approvalStatus ===  TApprovalStatus.rejected){
+    
+      if(! emailBody){
+        throw new ApiError(StatusCodes.BAD_REQUEST, 'Please provide emailBody');
+      }
+
+      await sendEmailToTheDoctorThatAdminRejectHim(user.email, emailBody);
+
     }
 
     if (!updatedProfile) {
@@ -239,7 +249,6 @@ export class UserService extends GenericService<typeof User, IUser> {
 
   async updateProfileOfSpecialistAndDoctor(userId: string, data: any): Promise<any> {
     
-  
     const dataForProfile= {
       name : data.name,
       description : data.description,

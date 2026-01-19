@@ -3,27 +3,25 @@
  * This code is updated ... working perfectly
  * 
  * ********** */
+//@ts-ignore
 import colors from 'colors';
+//@ts-ignore
 import { Server, Socket } from 'socket.io';
-import { logger } from '../../shared/logger';
-import getUserDetailsFromToken from '../getUesrDetailsFromToken';
-import { Message } from '../../modules/chatting.module/message/message.model';
-import { Conversation } from '../../modules/chatting.module/conversation/conversation.model';
-import { User } from '../../modules/user/user.model';
-import { ConversationParticipents } from '../../modules/chatting.module/conversationParticipents/conversationParticipents.model';
+import { logger } from '../../../shared/logger';
+import getUserDetailsFromToken from '../../getUesrDetailsFromToken';
+import { Message } from '../../../modules/chatting.module/message/message.model';
+import { Conversation } from '../../../modules/chatting.module/conversation/conversation.model';
+import { User } from '../../../modules/user/user.model';
+import { ConversationParticipents } from '../../../modules/chatting.module/conversationParticipents/conversationParticipents.model';
 
-import { ConversationParticipentsService } from '../../modules/chatting.module/conversationParticipents/conversationParticipents.service';
-import { MessagerService } from '../../modules/chatting.module/message/message.service';
-
-/////////////////////////////////////////
-import { produceMessage } from '../kafka/kafka';
+import { ConversationParticipentsService } from '../../../modules/chatting.module/conversationParticipents/conversationParticipents.service';
+import { MessagerService } from '../../../modules/chatting.module/message/message.service';
 
 declare module 'socket.io' {
   interface Socket {
     userId?: string;
   }
 }
-
 /***********************
 Key Changes Made:
 
@@ -152,7 +150,7 @@ const handleUserDisconnection = async(
   ************* */
 };
 
-const socketForChat_With_Kafka = (io: Server) => {
+const socketForChat_V2_Claude = (io: Server) => {
   // Better data structures for managing connections - MOVED INSIDE THE FUNCTION
   const onlineUsers = new Set<string>();
   const userSocketMap = new Map<string, string>(); // userId -> socketId
@@ -188,7 +186,6 @@ const socketForChat_With_Kafka = (io: Server) => {
     const userId = user._id;
 
     logger.info(colors.blue(`🔌🟢 User connected: :userId🔌: ${userId} :userName🔌: ${user.name} :socketId⚡💡: ${socket.id}`));
-
 
     try {
       // Get user profile once at connection
@@ -438,20 +435,22 @@ const socketForChat_With_Kafka = (io: Server) => {
 
       socket.on('send-new-message', async (messageData: MessageData, callback) => {
 
-        // console.log("requested user Id 🟡🟡",  userId)
+        console.log("requested user Id 🟡🟡",  userId)
         try {
-          // console.log('New message received:', messageData);
+          console.log('New message received:', messageData);
 
-          // if (!messageData.conversationId || !messageData.text?.trim()) {
-          //   const error = 'Chat ID and message content are required';
-          //   callback?.({ success: false, message: error });
-          //   return emitError(socket, error);
-          // }
+          if (!messageData.conversationId || !messageData.text?.trim()) {
+            const error = 'Chat ID and message content are required';
+            callback?.({ success: false, message: error });
+            return emitError(socket, error);
+          }
 
           // Get chat details
           const {conversationData, conversationParticipants} = await getConversationById(messageData.conversationId);
           
-          
+          // console.log('Conversation data:', conversationData);
+          // console.log('Conversation participants:', conversationParticipants);
+
           /*************
            * 
            * here we will check if the sender is a participant in the conversation or not
@@ -475,48 +474,38 @@ const socketForChat_With_Kafka = (io: Server) => {
         }
 
 
-          /*** Check if user is blocked  - from previous logic ... ** */
-          
-        /*********************
-         * 
-         * Now we dont save message to mongodb .. 
-         * 
-         * we just produce Message in kafka .. 
-         * 
-         * ***************** */  
+        // Check if user is blocked
+        // if (conversationData.blockedUsers?.includes(userId)) {
+        //   const error = "You have been blocked. You can't send messages.";
+        //   callback?.({ success: false, message: error });
+        //   return emitError(socket, error);
+        // }
 
-        /*******
         // Create message
         const newMessage = await Message.create({
           ...messageData,
           timestamp: new Date(),
           senderId: userId,
         });
-        ****** */
-       await produceMessage({
-          ...messageData,
-          timestamp: new Date(),
-          senderId: userId,
-        });
-        console.log("Message produced to Kafka Broker successfully");
 
         /********
          * 
-         *  lets also do this in kafka consumer ..
-         * 👍👍👍👍👍
+         *  TODO : event emitter er maddhome message create korar por
+         *  conversation er lastMessage update korte hobe ..
+         * 
          * ******* */
-          //const updatedConversation = await Conversation.findByIdAndUpdate(messageData.conversationId, {
-          //  lastMessage: newMessage._id,
-          //}); // .populate('lastMessage').exec()
+          const updatedConversation = await Conversation.findByIdAndUpdate(messageData.conversationId, {
+            lastMessage: newMessage._id,
+          }); // .populate('lastMessage').exec()
 
           // Prepare message data for emission
           const messageToEmit = {
             ...messageData,
-            //_id: newMessage._id, 👍👍👍👍👍
+            _id: newMessage._id,
             senderId: userId, // senderId should be the userId
             name: userProfile?.name || user.name,
             image: userProfile?.profileImage,
-            //createdAt: newMessage.createdAt || new Date()  👍👍👍👍
+            createdAt: newMessage.createdAt || new Date()
           };
 
           // Emit to chat room
@@ -547,7 +536,6 @@ const socketForChat_With_Kafka = (io: Server) => {
             // Check if participant is online
             if (Array.from(onlineUsers).some(id => id.toString() === participantId)) {
 
-              /***********👍👍👍👍👍👍
               // Emit to participant's personal room  .to(participantId)
               io.emit(`conversation-list-updated::${participantId}`, {
                 creatorId : updatedConversation?.creatorId,
@@ -564,7 +552,7 @@ const socketForChat_With_Kafka = (io: Server) => {
                 createdAt: "2025-07-19T12:06:00.287Z",
                 _conversationId: updatedConversation?._id,
               });
-              ********** */
+              
             }else{
               // .... TODO: push notification .. 
             }
@@ -577,17 +565,18 @@ const socketForChat_With_Kafka = (io: Server) => {
             success: true,
             message: "Message sent successfully",
             messageDetails: { 
-              // messageId : newMessage._id,👍👍👍👍👍
+              messageId : newMessage._id,
               conversationId: messageData.conversationId,
               senderId: userId,
               text: messageData.text,
-              // timestamp: newMessage.createdAt || new Date(),👍👍👍👍👍
+              timestamp: newMessage.createdAt || new Date(),
               name: userProfile?.name || user.name,
               image: userProfile?.profileImage || null
 
             },
           });
           
+
         } catch (error) {
           console.error('Error sending message:', error);
           const errorMessage = 'Failed to send message';
@@ -596,39 +585,7 @@ const socketForChat_With_Kafka = (io: Server) => {
         }
       });
 
-      /***********
-       * 
-       *   Handle chat blocking 
-       * 
-       * ********** */
-
-      socket.on("isChatBlocked", (data: { conversationId: string; userId: string }, callback) => {
-        try {
-          if (!data.conversationId || !data.userId) {
-            return callback?.({ success: false, message: 'Invalid data provided' });
-          }
-
-          const message = {
-            success: true,
-            message: 'Chat is blocked',
-            data: data.conversationId,
-            timestamp: new Date().toISOString()
-          };
-
-          callback?.(message);
-
-          // Emit to specific user and chat
-          io.emit(`needRefresh::${data.userId}`, {
-            success: true,
-            message: `User ${data.userId} needs refresh`
-          });
-          io.emit(`isChatBlocked::${data.conversationId}`, message);
-
-        } catch (error) {
-          console.error('Error handling conversation block:', error);
-          callback?.({ success: false, message: 'Failed to block conversation' });
-        }
-      });
+      
 
       /*************
        * 
@@ -660,66 +617,7 @@ const socketForChat_With_Kafka = (io: Server) => {
         callback?.({ success: true, message: 'Left conversation successfully' });
       });
 
-      /*************
-       * 
-       * Handle read receipts
-       * 
-       * ************* */
-
-      socket.on('read-all-messages', ({ conversationId, users, readByUserId }) => {
-        if (!conversationId || !Array.isArray(users) || !readByUserId) {
-          return emitError(socket, 'Invalid read receipt data');
-        }
-
-        users.forEach((targetUserId: string) => {
-          if (targetUserId !== userId) { // Don't emit to sender
-            io.to(targetUserId).emit('user-read-all-conversation-messages', {
-              conversationId,
-              readByUserId,
-              timestamp: new Date().toISOString()
-            });
-          }
-        });
-      });
-
-      /*************
-       * 
-       * Handle typing indicators // TODO : logic e jhamela ase .. 
-       * 
-       * ************* */
-      socket.on('typing', (data: TypingData, callback) => {
-        try {
-          if (!data.conversationId || !Array.isArray(data.users)) {
-            return callback?.({ success: false, message: 'Invalid typing data' });
-          }
-
-          const userName = userProfile?.name || user.name;
-          const message = data.status ? `${userName} is typing...` : '';
-
-          // Emit to other users in the conversation
-          data.users.forEach((chatUser: any) => {
-            if (chatUser._id !== userId) {
-              io.to(chatUser._id).emit(`typing::${data.conversationId}`, {
-                status: data.status,
-                writeId: userId,
-                message,
-                timestamp: new Date().toISOString()
-              });
-            }
-          });
-
-          callback?.({
-            success: true,
-            writeId: userId,
-            message,
-            status: data.status
-          });
-
-        } catch (error) {
-          console.error('Error handling typing indicator:', error);
-          callback?.({ success: false, message: 'Failed to update typing status' });
-        }
-      });
+      
 
       
       /*************
@@ -748,7 +646,7 @@ const socketForChat_With_Kafka = (io: Server) => {
   const getOnlineUsers = () => Array.from(onlineUsers);
   const isUserOnline = (userId: string) =>
   {
-    console.log("onlineUsers: ", onlineUsers);
+    console.log("onlineUsers: 😄😄😄😄😄😄😄😄😄😄😄😄😄😄😄", onlineUsers);
     // let res = onlineUsers.has(new ObjectId(userId));
     const isOnline = Array.from(onlineUsers).some(id => id.toString() === userId);
     console.log(`User ${userId} online 🟢 status: ${isOnline}`);
@@ -765,4 +663,4 @@ const socketForChat_With_Kafka = (io: Server) => {
   };
 };
 
-export const socketHelperForKafka = { socketForChat_With_Kafka };
+export const socketHelper = { socketForChat_V2_Claude };

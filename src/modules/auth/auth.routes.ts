@@ -27,15 +27,14 @@ router.post(
   AuthController.register,
 );
 
-// TODO  : Login er shomoy  FCM token store korte hobe .. 
-//[🚧][🧑‍💻✅][🧪] // 🆗 
+
 router.post(
   '/login',
   validateRequest(AuthValidation.loginValidationSchema),
   AuthController.login,
 );
 
-//[🚧][🧑‍💻✅][🧪] // 🆗 
+
 router.post(
   '/forgot-password',
   validateRequest(AuthValidation.forgotPasswordValidationSchema),
@@ -44,7 +43,7 @@ router.post(
 
 router.post('/resend-otp', AuthController.resendOtp);
 
-//[🚧][🧑‍💻✅][🧪] // 🆗 
+
 router.post(
   '/reset-password',
   validateRequest(AuthValidation.resetPasswordValidationSchema),
@@ -58,7 +57,7 @@ router.post(
   AuthController.changePassword,
 );
 
-//[🚧][🧑‍💻✅][🧪] // 🆗 
+
 router.post(
   '/verify-email',
   validateRequest(AuthValidation.verifyEmailValidationSchema),

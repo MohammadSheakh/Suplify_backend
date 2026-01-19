@@ -29,12 +29,12 @@ export const createDoctorPlanValidationSchema = z.object({
     .min(2, 'description must be at least 2 characters long'),
       // .max(1000, 'description must be at most 1000 characters long'),
     
-    keyPoints: z.array(
-      z.string()
-      .min(2)
-      .max(200)
-    ).min(1, 'At least one key point is required').
-    max(20, 'A maximum of 20 key points are allowed'),
+    // keyPoints: z.array(
+    //   z.string()
+    //   .min(2)
+    //   .max(200)
+    // ).min(1, 'At least one key point is required').
+    // max(20, 'A maximum of 20 key points are allowed'),
 
     // createdBy will be taken from the auth middleware (logged in user)
  

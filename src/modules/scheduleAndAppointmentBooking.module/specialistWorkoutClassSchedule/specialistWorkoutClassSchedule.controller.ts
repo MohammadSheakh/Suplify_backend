@@ -30,11 +30,30 @@ export class SpecialistWorkoutClassScheduleController extends GenericController<
 
     const data:ISpecialistWorkoutClassSchedule = req.body;
 
-    console.log("data :: ", data);
+    // console.log("data :: ", data);
     
     data.createdBy = (req.user as IUser)?.userId; // speacialist Id
 
     const result = await this.specialistWorkoutClassScheduleService.createV2(data, userTimeZone);
+
+    sendResponse(res, {
+      code: StatusCodes.OK,
+      data: result,
+      message: `${this.modelName} created successfully`,
+      success: true,
+    });
+  });
+
+  create2 = catchAsync(async (req: Request, res: Response) => {
+    const userTimeZone = req.header('X-Time-Zone') || 'Asia/Dhaka'; //TODO: Timezone must from env file
+
+    const data:ISpecialistWorkoutClassSchedule = req.body;
+
+    // console.log("data :: ", data);
+    
+    data.createdBy = (req.user as IUser)?.userId; // speacialist Id
+
+    const result = await this.specialistWorkoutClassScheduleService.createV3(data, userTimeZone);
 
     sendResponse(res, {
       code: StatusCodes.OK,
@@ -55,7 +74,7 @@ export class SpecialistWorkoutClassScheduleController extends GenericController<
 
     const result = await this.specialistWorkoutClassScheduleService.getAllWithAggregation(filters, options, req.user.userId);
 
-    console.log("result :: ", result);
+    // console.log("result :: ", result);
 
     // get specialist information
 
@@ -115,7 +134,11 @@ export class SpecialistWorkoutClassScheduleController extends GenericController<
             select: '-attachments -__v'
         }),
 
-        this.specialistWorkoutClassScheduleService.getAllWithAggregationForSpecialist(filters, options)
+        // 💎✨🔍 -> V2 Found --- 
+        // this.specialistWorkoutClassScheduleService.getAllWithAggregationForSpecialist(filters, options)
+        this.specialistWorkoutClassScheduleService.getAllWithAggregationForSpecialistV2(filters, options)
+
+        
       // this.service.getAllWithPagination(filters, options, populateOptions, select)
     ]);
 

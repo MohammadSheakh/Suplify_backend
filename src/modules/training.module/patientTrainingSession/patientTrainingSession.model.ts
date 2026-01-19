@@ -4,7 +4,6 @@ import { IPatientTrainingSession, IPatientTrainingSessionModel } from './patient
 import paginate from '../../../common/plugins/paginate';
 import { TPatientTrainingSessionStatus } from './patientTrainingSession.constant';
 
-
 const PatientTrainingSessionSchema = new Schema<IPatientTrainingSession>(
   {
      trainingSessionId: {//🔗
@@ -46,15 +45,6 @@ const PatientTrainingSessionSchema = new Schema<IPatientTrainingSession>(
 );
 
 PatientTrainingSessionSchema.plugin(paginate);
-
-PatientTrainingSessionSchema.pre('save', function (next) {
-  // Rename _id to _projectId
-  // this._taskId = this._id;
-  // this._id = undefined;  // Remove the default _id field
-  //this.renewalFee = this.initialFee
-
-  next();
-});
 
 // Use transform to rename _id to _projectId
 PatientTrainingSessionSchema.set('toJSON', {

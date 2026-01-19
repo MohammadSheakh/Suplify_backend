@@ -1,7 +1,7 @@
 //@ts-ignore
 import { Model, Types } from 'mongoose';
 import { PaginateOptions, PaginateResult } from '../../../types/paginate';
-import { TMeetingLink, TSession, TSpecialistWorkoutClassSchedule } from './specialistWorkoutClassSchedule.constant';
+import { TMeetingLink, TSession, TSpecialistWorkoutClassSchedule, TSpecialistWorkoutClassScheduleType } from './specialistWorkoutClassSchedule.constant';
 
 export interface ISpecialistWorkoutClassSchedule {
   // _taskId: undefined | Types.ObjectId;
@@ -9,7 +9,20 @@ export interface ISpecialistWorkoutClassSchedule {
   
   createdBy: Types.ObjectId; // Reference to a specialist (User)
   scheduleName: string;
+  //🆕
+  scheduleType: TSpecialistWorkoutClassScheduleType;
+
+  // ONE_TIME
   scheduleDate: Date;
+
+  // 🆕 REPEAT
+  repeatRule : {
+    weekDays : [string],
+    startDate : Date,
+    durationWeeks : number,   // most important  // based on this .. we need to calculate the end date .. 
+    endDate : Date
+  };
+
   startTime: Date;
   endTime: Date;
   description: string;

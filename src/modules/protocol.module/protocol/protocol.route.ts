@@ -44,8 +44,6 @@ router.route('/paginate').get(
   controller.getAllWithPagination
 );
 
-
-
 router.route('/:id').get(
   // auth('common'),
   controller.getById

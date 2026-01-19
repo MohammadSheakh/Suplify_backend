@@ -5,14 +5,11 @@ import paginate from '../../../common/plugins/paginate';
 
 const SatisfactionAndFeedbackSchema = new Schema<ISatisfactionAndFeedback>(
   {
-
     successTrackerId: {
       type: Schema.Types.ObjectId,
       ref: 'SuccessTracker',
       required: true
     },
-
-
     areYouHappyWithCurrentProgress: {
       type: Boolean,
       required: [true, 'areYouHappyWithCurrentProgress is required'],
@@ -45,15 +42,6 @@ const SatisfactionAndFeedbackSchema = new Schema<ISatisfactionAndFeedback>(
 );
 
 SatisfactionAndFeedbackSchema.plugin(paginate);
-
-SatisfactionAndFeedbackSchema.pre('save', function (next) {
-  // Rename _id to _projectId
-  // this._taskId = this._id;
-  // this._id = undefined;  // Remove the default _id field
-  //this.renewalFee = this.initialFee
-
-  next();
-});
 
 // Use transform to rename _id to _projectId
 SatisfactionAndFeedbackSchema.set('toJSON', {

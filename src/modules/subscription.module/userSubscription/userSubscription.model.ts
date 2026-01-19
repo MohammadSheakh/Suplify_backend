@@ -131,7 +131,8 @@ const userSubscriptionSchema = new Schema<IUserSubscription>(
 userSubscriptionSchema.plugin(paginate);
 
 // auto calculate the renewal date if its not provided ...
-userSubscriptionSchema.pre('save', function (next) {
+// TODO : MUST ::: need to check this code is working or not .. 
+userSubscriptionSchema.pre('save', async function() {
   // Rename _id to _projectId
   //this._taskId = this._id;
   //this._id = undefined;  // Remove the default _id field
@@ -154,8 +155,6 @@ userSubscriptionSchema.pre('save', function (next) {
   if (this.renewalDate < new Date()) {
     this.status = UserSubscriptionStatusType.expired;
   }
-
-  next();
 });
 
 // Use transform to rename _id to _projectId

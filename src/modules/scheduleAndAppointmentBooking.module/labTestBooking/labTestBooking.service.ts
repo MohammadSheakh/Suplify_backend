@@ -111,6 +111,7 @@ export class LabTestBookingService extends GenericService<
                     state: data.state,
                     zipCode: data.zipCode,
                     country: data.country,
+                    isResultUploaded : false, // 🆕
                     
                     paymentTransactionId : null,
                     paymentStatus : PaymentStatus.unpaid,
@@ -130,9 +131,9 @@ export class LabTestBookingService extends GenericService<
                     null , // receiverId // as reciever is admin .. so null
                     TRole.admin, // receiverRole
                     TNotificationType.labTestBooking, // type
-                    /**********
-                     * In UI there is no details page for booked lab test
-                     * **** */
+                    /*──────────────────────────────────
+                    |   In UI there is no details page for booked lab test
+                    └────────────────────────────────────*/
                     'labTestId', // linkFor
                     bookedLabTest?._id // linkId
                     // TTransactionFor.TrainingProgramPurchase, // referenceFor
@@ -218,6 +219,8 @@ export class LabTestBookingService extends GenericService<
             state: data.state,
             zipCode: data.zipCode,
             country: data.country,
+            
+            isResultUploaded : false, // 🆕
             
             paymentTransactionId : null,
             paymentStatus : PaymentStatus.unpaid,

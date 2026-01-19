@@ -25,9 +25,7 @@ export class BankInfoService extends GenericService<
     if (!bankInfo) {
       //---- lets create
       bank = await BankInfo.create(data);
-
-      console.log('if block :: ',bank )
-    
+      
     }else{
       //----- lets update
       bankInfo.bankAccountHolderName = data.bankAccountHolderName;
@@ -41,7 +39,7 @@ export class BankInfoService extends GenericService<
       bank = await BankInfo.findByIdAndUpdate(bankInfo._id,
          bankInfo
          ,{ new: true });
-      console.log('else block :: ',bank )
+      
 
     }
 

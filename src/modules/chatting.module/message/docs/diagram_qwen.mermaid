@@ -1,0 +1,9 @@
+sequenceDiagram
+    Client->>Server: send-new-message
+    Server->>DB: Save message
+    Server->>Kafka: Publish message.sent event
+    Server-->>Client: ACK (fast!)
+    Kafka->>NotificationService: Consume event
+    NotificationService->>SocketService: Emit to online users
+    NotificationService->>DB: Update unread counts
+    NotificationService->>PushService: Queue push (if offline)

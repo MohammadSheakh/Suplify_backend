@@ -4,6 +4,7 @@ import { PaginateOptions, PaginateResult } from '../../../types/paginate';
 import { TLabTestBookingStatus } from './labTestBooking.constant';
 import { PaymentMethod } from '../../order.module/order/order.constant';
 import { TPaymentStatus } from '../specialistPatientScheduleBooking/specialistPatientScheduleBooking.constant';
+import { IAttachment } from '../../attachments/attachment.interface';
 
 export interface ILabTestBooking {
   // _taskId: undefined | Types.ObjectId;
@@ -27,6 +28,10 @@ export interface ILabTestBooking {
   paymentTransactionId: Types.ObjectId | null;
   paymentMethod: PaymentMethod;
   paymentStatus : TPaymentStatus.failed | TPaymentStatus.unpaid | TPaymentStatus.paid | TPaymentStatus.refunded;
+
+  uploadedResults : IAttachment[]; //🆕
+  isResultUploaded : boolean; //🆕
+
 
   isDeleted? : boolean;  
   createdAt?: Date;

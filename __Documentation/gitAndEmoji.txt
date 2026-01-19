@@ -1,4 +1,5 @@
 //📈⚙️ OPTIMIZATION: ->  optimization related // PERF:
+// ☑️🟣 Issue Fixed
 // ⚠️ NEED_OPTIMIZATION
 // ⚠️ DEPRECATED: 
 // 🟢    ->  new section
@@ -32,6 +33,7 @@
 // 🚩             -> rework here 
 // 🐛🩹          -> bug fix
 // 🐛             -> bug
+//🏃‍➡️ -> MOVE_TO_SERVICE
 
 /** ----------------------------------------------
  * @role 

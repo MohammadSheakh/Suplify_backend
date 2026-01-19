@@ -97,6 +97,23 @@ const LabTestBookingSchema = new Schema<ILabTestBooking>(
       // Initially This should be unpaid .. In webhook we update this as paid .. 
       //---------------------------------
     },
+
+    // 🆕
+    // multiple lab result can be uploaded by doctor
+    uploadedResults: [//🔗🖼️
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'Attachment',
+        required: [false, 'attachments is not required'],
+      }
+    ],
+
+    // 🆕
+    isResultUploaded : {
+      type: Boolean,
+      required: [false, 'isDeleted is not required'],
+      default: false,
+    },
     
     isDeleted: {
       type: Boolean,
@@ -108,15 +125,6 @@ const LabTestBookingSchema = new Schema<ILabTestBooking>(
 );
 
 LabTestBookingSchema.plugin(paginate);
-
-LabTestBookingSchema.pre('save', function (next) {
-  // Rename _id to _projectId
-  // this._taskId = this._id;
-  // this._id = undefined;  // Remove the default _id field
-  //this.renewalFee = this.initialFee
-
-  next();
-});
 
 // Use transform to rename _id to _projectId
 LabTestBookingSchema.set('toJSON', {

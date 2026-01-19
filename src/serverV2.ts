@@ -13,14 +13,14 @@ import cluster from 'cluster';
 import { createAdapter } from '@socket.io/redis-adapter';
 //@ts-ignore
 import http from "http";
-import { startNotificationWorker, startScheduleWorker } from './helpers/bullmq/bullmq'; // ⬅️ ADD THIS
+import { startNotificationWorker, startNotifyParticipantsWorker, startScheduleWorker, startUpdateConversationsLastMessageWorker } from './helpers/bullmq/bullmq'; // ⬅️ ADD THIS
 import connectToDb from './config/mongoDbConfig';
 import { initializeRedis, redisClient, redisPubClient, redisSubClient } from './helpers/redis/redis';
-import { socketHelperForKafka } from './helpers/socket/socketForChatV1WithKafka';
+import { socketHelperForKafka } from './helpers/socket/deprecated/socketForChatV1WithKafka';
 import { socketService } from './helpers/socket/socketForChatV3';
 
 // in production, use all cores, but in development, limit to 2-4 cores
-const numCPUs = config.environment === 'production' ? os.cpus().length : Math.max(0, Math.min(1, os.cpus().length));
+const numCPUs = config.environment === 'production' ? os.cpus().length : Math.max(0, Math.min(2, os.cpus().length));
 
 //uncaught exception
 process.on('uncaughtException', error => {
@@ -121,6 +121,8 @@ async function main() {
     // 🔥 Start BullMQ Worker (listens for schedule jobs)
     startScheduleWorker(); 
     startNotificationWorker();
+    startUpdateConversationsLastMessageWorker();
+    startNotifyParticipantsWorker() // while a person message in a conversation
 
   } catch (error) {
     errorLogger.error(colors.red('🤢 Issue from server.ts => ', error)); // 

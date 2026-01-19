@@ -23,8 +23,8 @@ export interface ISubscriptionPlan {
   initialDuration :  TInitialDuration.month ;
   renewalFrequncy : TRenewalFrequency.monthly ;
   amount : string //number;
-  // renewalFee : 0;
-  currency : TCurrency.usd; //  | TCurrency.EUR
+  
+  currency : TCurrency.usd;
   features: String[];
   
   fullAccessToInteractiveChat : Boolean;
@@ -32,9 +32,6 @@ export interface ISubscriptionPlan {
   
   stripe_product_id : String;
   stripe_price_id : String;
-
-  // freeTrialDuration : Number;
-  // freeTrialEnabled : Boolean;
 
   isActive : Boolean;
   isDeleted : Boolean;
@@ -45,15 +42,12 @@ export interface ISubscriptionPlan {
 export type TSubscriptionPlan = {
   _id?: Types.ObjectId; // undefined |  Types.ObjectId |
   subscriptionName : string;
-  subscriptionType: TSubscription.premium;  //   | TSubscription.standard | TSubscription.vip
+  subscriptionType: TSubscription.premium;  // ISSUE
   initialDuration :  TInitialDuration.month  ;
   renewalFrequncy :  TRenewalFrequency.monthly ;
   amount : 0;
-  // renewalFee : 0;
-  currency : TCurrency.usd; //  | TCurrency.EUR
+  currency : TCurrency.usd;
   features: String[];
-  // freeTrialDuration : Number;
-  // freeTrialEnabled : Boolean;
 
   stripe_product_id : String;
   stripe_price_id : String;

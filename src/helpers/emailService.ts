@@ -86,6 +86,31 @@ const sendEmailToTheDoctorThatAdminApprovedHim = async (to: string) => {
   await sendEmail({ to, subject, html });
 };
 
+const sendEmailToTheDoctorThatAdminRejectHim = async (to: string, emailBody: string) => {
+
+  const subject = 'You Got Rejection From Suplify Admin';
+  // https://newsheakh6731.sobhoy.com/
+  // http://34.203.0.252:6731/uploads/logoForEmail/suplify_logo2.png
+  
+  const html = `
+    <div style="width: 45% ; margin: 0 auto ;font-family: Arial, sans-serif; padding: 20px; color: #333; border: 1px solid #ccc; border-radius: 20px;">
+      <div style="text-align: center; margin-bottom: 20px;">
+        <img src="https://newsheakh6731.sobhoy.com/uploads/logoForEmail/suplify_logo2.png" alt="Logo" style="width: 200px; margin-bottom: 20px;" />
+        <h1 style="color: #1B9AAA;">Admin Rejected Your Request</h1>
+        <p style="font-size: 16px;">${emailBody}</p>
+      </div>
+      
+    </div>
+  `;
+
+  // <div style="text-align: center;">
+  //       <h2 style="background-color: #f4f4f4; padding: 10px 20px; display: inline-block; border-radius: 5px; color: #1B9AAA; font-size: 35px;">${otp}</h2>
+  //     </div>
+  //     <p style="font-size: 14px; text-align: center; margin-top: 20px;">This code is valid for 10 minutes. If you did not request this, please ignore this email.</p>
+
+  await sendEmail({ to, subject, html });
+};
+
 const sendResetPasswordEmail = async (to: string, otp: string) => {
   const subject = 'Reset Your Password';
   const html = `
@@ -191,4 +216,5 @@ export {
   sendSupportMessageEmail,
   sendWelcomeEmail,
   sendEmailToTheDoctorThatAdminApprovedHim,
+  sendEmailToTheDoctorThatAdminRejectHim,
 };

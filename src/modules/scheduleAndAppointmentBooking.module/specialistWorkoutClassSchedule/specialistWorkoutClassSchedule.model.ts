@@ -2,7 +2,7 @@
 import { model, Schema } from 'mongoose';
 import { ISpecialistWorkoutClassSchedule, ISpecialistWorkoutClassScheduleModel } from './specialistWorkoutClassSchedule.interface';
 import paginate from '../../../common/plugins/paginate';
-import { TMeetingLink, TSession, TSpecialistWorkoutClassSchedule } from './specialistWorkoutClassSchedule.constant';
+import { TMeetingLink, TSession, TSpecialistWorkoutClassSchedule, TSpecialistWorkoutClassScheduleType, TSpecialistWorkoutClassType } from './specialistWorkoutClassSchedule.constant';
 
 const SpecialistWorkoutClassScheduleSchema = new Schema<ISpecialistWorkoutClassSchedule>(
   {
@@ -14,10 +14,47 @@ const SpecialistWorkoutClassScheduleSchema = new Schema<ISpecialistWorkoutClassS
       type: String,
       required: [true, 'scheduleName is required'],
     },
+
+    //🆕
+    scheduleType: {
+      type: String,
+      enum: [
+        TSpecialistWorkoutClassScheduleType.oneTime,
+        TSpecialistWorkoutClassScheduleType.repeat
+      ],
+      default: TSpecialistWorkoutClassScheduleType.oneTime,
+      required: [true, `scheduleType is required .. it can be  ${Object.values(TSpecialistWorkoutClassScheduleType).join(
+        ', '
+      )}`],
+    },
+
+    // ONE_TIME
     scheduleDate: {
       type: Date,
       required: [true, 'scheduleDate is required'],
     },
+
+    // 🆕 REPEAT
+    repeatRule: {
+      weekDays: {
+        type: [String], // ['MONDAY']
+      },
+      startDate: {
+        type: Date,
+        required: false,
+      },
+      durationWeeks: {
+        type: Number,
+        required: false,
+        min: 1,
+        max: 52, // safety guard
+      },
+      endDate: {
+        type: Date, // auto-calculated (4 weeks later)
+        required: false,
+      },
+    },
+
     startTime: {
       type: Date,
       required: [true, 'startTime is required . type is Date'],
@@ -30,6 +67,8 @@ const SpecialistWorkoutClassScheduleSchema = new Schema<ISpecialistWorkoutClassS
       type: String,
       required: [true, 'description is required'],
     },
+
+    // 🆕
     status: {
       type: String,
       enum: [
@@ -43,6 +82,24 @@ const SpecialistWorkoutClassScheduleSchema = new Schema<ISpecialistWorkoutClassS
         ', '
       )}`],
     },
+
+    hotspotId: { //🔗 ref to a suplify hotspot  // 🆕
+      type: Schema.Types.ObjectId,
+      ref: 'SuplifyHotspot',
+    },
+
+    classType: {
+      type: String,
+      enum: [
+        TSpecialistWorkoutClassType.online,
+        TSpecialistWorkoutClassType.inPerson
+      ],
+      default: TSpecialistWorkoutClassType.online,
+      required: [true, `classType is required .. it can be  ${Object.values(TSpecialistWorkoutClassType).join(
+        ', '
+      )}`],
+    },
+
     price : {
       type: Number,
       required: [true, 'price is required'],
@@ -54,7 +111,7 @@ const SpecialistWorkoutClassScheduleSchema = new Schema<ISpecialistWorkoutClassS
         TMeetingLink.googleMeet,
         TMeetingLink.others
       ],
-      required: [true, `status is required .. it can be  ${Object.values(TMeetingLink).join(
+      required: [false, `status is not required .. it can be  ${Object.values(TMeetingLink).join(
         ', '
       )}`],
     },
@@ -70,7 +127,7 @@ const SpecialistWorkoutClassScheduleSchema = new Schema<ISpecialistWorkoutClassS
     },
     meetingLink:{
       type : String,
-      required: [true, 'meetingLink is required'],
+      required: [false, 'meetingLink is not required'],
     },
     isDeleted: {
       type: Boolean,
@@ -82,15 +139,6 @@ const SpecialistWorkoutClassScheduleSchema = new Schema<ISpecialistWorkoutClassS
 );
 
 SpecialistWorkoutClassScheduleSchema.plugin(paginate);
-
-SpecialistWorkoutClassScheduleSchema.pre('save', function (next) {
-  // Rename _id to _projectId
-  // this._taskId = this._id;
-  // this._id = undefined;  // Remove the default _id field
-  //this.renewalFee = this.initialFee
-
-  next();
-});
 
 // Use transform to rename _id to _projectId
 SpecialistWorkoutClassScheduleSchema.set('toJSON', {

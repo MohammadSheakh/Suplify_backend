@@ -1,3 +1,4 @@
+//@ts-ignore
 import { model, Schema } from 'mongoose';
 import { ITrainingProgram, ITrainingProgramModel } from './trainingProgram.interface';
 import paginate from '../../../common/plugins/paginate';
@@ -61,15 +62,6 @@ const TrainingProgramSchema = new Schema<ITrainingProgram>(
 );
 
 TrainingProgramSchema.plugin(paginate);
-
-TrainingProgramSchema.pre('save', function (next) {
-  // Rename _id to _projectId
-  // this._taskId = this._id;
-  // this._id = undefined;  // Remove the default _id field
-  //this.renewalFee = this.initialFee
-
-  next();
-});
 
 // Use transform to rename _id to _projectId
 TrainingProgramSchema.set('toJSON', {

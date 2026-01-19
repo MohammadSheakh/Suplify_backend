@@ -1,8 +1,8 @@
 import { Server as SocketIOServer, Socket } from 'socket.io';
 import { createAdapter } from '@socket.io/redis-adapter';
 import { Server } from 'http';
-import { RedisStateManager } from '../redis/redisStateManagerForSocket';
-import { logger } from '../../shared/logger';
+import { RedisStateManager } from '../../redis/deprecated/redisStateManagerForSocket';
+import { logger } from '../../../shared/logger';
 //@ts-ignore
 import colors from 'colors';
 
@@ -287,12 +287,12 @@ class SocketService {
 
   // Helper methods (same as before)
   private async getUserDetailsFromToken(token: string) {
-    const getUserDetailsFromToken = (await import('../getUesrDetailsFromToken')).default;
+    const getUserDetailsFromToken = (await import('../../getUesrDetailsFromToken')).default;
     return await getUserDetailsFromToken(token);
   }
 
   private async getUserProfile(userId: string) {
-    const User = (await import('../../modules/user/user.model'))//.default;
+    const User = (await import('../../../modules/user/user.model'))//.default;
     return await User.findById(userId, 'id name profileImage');
   }
 

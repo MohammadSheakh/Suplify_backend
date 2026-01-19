@@ -50,6 +50,12 @@ const userProfileSchema = new Schema<IUserProfile>({
     address: {
         type: String,
         required: [false, 'Address is not required'],
+    },
+
+    // 🆕 for external calendly or optimantra link
+    externalLink:{
+        type: String,
+        required: [false, 'externalLink is not required'],
     }
 });
 

@@ -1,5 +1,8 @@
+//@ts-ignore
 import {CompressionTypes, Kafka, logLevel, Producer} from 'kafkajs'
+//@ts-ignore
 import fs from 'fs';
+//@ts-ignore
 import path from 'path';
 import { Message } from '../../modules/chatting.module/message/message.model';
 import { Conversation } from '../../modules/chatting.module/conversation/conversation.model';
@@ -155,14 +158,4 @@ async function produceMessage(key:string , message: string){
 
 ********* */
 
-
-// export default kafka
 export { kafka }
-
-/***************
-
- to install kafka in ubuntu .. 
-
-
-
- * ************** */

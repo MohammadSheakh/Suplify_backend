@@ -8,16 +8,32 @@ const SuggestionBySpecialistSchema = new Schema<ISuggestionBySpecialist>(
   {
     keyPoint:{
       type: String,
-      required: [true, 'keyPoint is required']
+      required: [false, 'keyPoint is required']
     },
     solutionName: {
       type: String,
-      required : [true, 'solutionName is required']
+      required : [false, 'solutionName is required']
     },
     suggestFromStore: {
       type: String,
-      required: [true, 'suggestFromStore is required'],
+      required: [false, 'suggestFromStore is required'],
     },
+
+    // 🆕
+    link: {
+      type: String,
+      required: [false, 'link is not required'],
+    },
+
+    // 🆕 //--------- sorry we can not add this attachments here .. 
+    attachments: [  //🔗
+      {
+          type: Schema.Types.ObjectId,
+          ref: 'Attachment',
+          required: [false, 'attachments is not required'],
+      }
+    ],
+
     createdBy: { //🔗 Specialist Id 
       type: Schema.Types.ObjectId,
       ref: 'User',
@@ -33,15 +49,6 @@ const SuggestionBySpecialistSchema = new Schema<ISuggestionBySpecialist>(
 );
 
 SuggestionBySpecialistSchema.plugin(paginate);
-
-SuggestionBySpecialistSchema.pre('save', function (next) {
-  // Rename _id to _projectId
-  // this._taskId = this._id;
-  // this._id = undefined;  // Remove the default _id field
-  //this.renewalFee = this.initialFee
-
-  next();
-});
 
 // Use transform to rename _id to _projectId
 SuggestionBySpecialistSchema.set('toJSON', {
