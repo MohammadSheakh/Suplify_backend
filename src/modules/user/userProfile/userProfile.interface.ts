@@ -1,7 +1,7 @@
+//@ts-ignore
 import { Model, Types } from 'mongoose';
 import { PaginateOptions, PaginateResult } from '../../../types/paginate';
 import { TApprovalStatus } from './userProfile.constant';
-
 
 export interface IUserProfile {
   // _taskId: undefined | Types.ObjectId;
@@ -17,6 +17,8 @@ export interface IUserProfile {
   userId: Types.ObjectId; // for back reference ..
   description: string;
   address: string;
+
+  externalLink : string; // 🆕
 
   isDeleted? : boolean;  
   createdAt?: Date;

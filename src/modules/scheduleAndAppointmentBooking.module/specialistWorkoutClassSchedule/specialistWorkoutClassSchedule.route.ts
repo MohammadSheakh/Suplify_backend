@@ -111,13 +111,13 @@ router.route('/v2').post(
   controller.create2
 );
 
-router.route('/delete/:id').delete(
-  //auth('common'),
+router.route('/:id/permenent').delete(
+  auth(TRole.specialist),
   controller.deleteById
-); // FIXME : change to admin
-
-router.route('/softDelete/:id').put(
-  //auth('common'),
+);
+``
+router.route('/:id').delete(
+  auth(TRole.specialist),
   controller.softDeleteById
 );
 

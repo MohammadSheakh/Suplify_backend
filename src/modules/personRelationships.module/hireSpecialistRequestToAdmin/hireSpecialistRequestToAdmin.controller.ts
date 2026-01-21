@@ -38,7 +38,7 @@ export class HireSpecialistRequestToAdminController extends GenericController<
     }).lean();
 
     if(existing) {
-      sendResponse(res, {
+      return sendResponse(res, {
         code: StatusCodes.OK,
         data: existing,
         message: `You already request for this specialist.`,

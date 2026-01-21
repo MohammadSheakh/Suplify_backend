@@ -20,7 +20,7 @@ export class SpecialistWorkoutClassScheduleService extends GenericService<
   }
 
   async createV2(data:ISpecialistWorkoutClassSchedule, userTimeZone: string) : Promise<ISpecialistWorkoutClassSchedule> {
-    /********
+    /******** 💎✨🔍 -> V3 Found
      * 📝
      * Here first we have to check 
      * scheduleDate , startTime , endTime
@@ -97,7 +97,7 @@ export class SpecialistWorkoutClassScheduleService extends GenericService<
   
   }
 
- /*-─────────────────────────────────
+    /*-─────────────────────────────────
     |  Client want to create workout class oneTime and repeat mode like google calender.. 
     |  if "repeat" selected .. then client needs to provide
     |  weekDays [ "saturday" ], startDate, endDate 

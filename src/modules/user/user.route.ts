@@ -72,7 +72,7 @@ router.route('/profile/for-admin').get(
 //---------------------------------
 router.route('/change-approval-status').put(
   auth(TRole.admin),
-  validateRequest(validation.changeApprovalStatusValidationSchema),
+  // validateRequest(validation.changeApprovalStatusValidationSchema), // TODO : need to add this
   controller.changeApprovalStatusByUserId
 )
 
@@ -91,7 +91,7 @@ router.route('/profile/:id').get(
   getLoggedInUserIdAndSetInParams('id'),
   setQueryOptions({
     populate: [
-      { path: 'profileId', select: 'approvalStatus howManyPrograms protocolNames userId description address', /* populate: { path : ""} */ },
+      { path: 'profileId', select: 'approvalStatus howManyPrograms protocolNames userId description address externalLink', /* populate: { path : ""} */ },
     ],
     select: 'name profileId email profileImage subscriptionType status role' //-createdAt
   }),
