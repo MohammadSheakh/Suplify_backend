@@ -45,10 +45,8 @@ export class TrainingProgramController extends GenericController<
         .select('profileImage name profileId')
         .populate({
             path: 'profileId', 
-            select: 'description protocolNames howManyPrograms'
+            select: 'description protocolNames howManyPrograms externalLink'
         });
-
-    
 
     sendResponse(res, {
       code: StatusCodes.OK,
