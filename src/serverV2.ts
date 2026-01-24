@@ -20,7 +20,7 @@ import { socketHelperForKafka } from './helpers/socket/deprecated/socketForChatV
 import { socketService } from './helpers/socket/socketForChatV3';
 
 // in production, use all cores, but in development, limit to 2-4 cores
-const numCPUs = config.environment === 'production' ? os.cpus().length : Math.max(0, Math.min(2, os.cpus().length));
+const numCPUs = config.environment === 'production' ? os.cpus().length : Math.max(0, Math.min(1, os.cpus().length));
 
 //uncaught exception
 process.on('uncaughtException', error => {

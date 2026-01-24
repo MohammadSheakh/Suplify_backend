@@ -119,6 +119,7 @@ export class SocketService {
       this.io = new SocketIOServer(server, {
         cors: {
           origin: '*',
+          credentials: true, // 👈 critical!
         },
       });
 
@@ -318,7 +319,7 @@ export class SocketService {
 
       const conversationId = conversationData.conversationId;
       
-      console.log(`User ${userProfile.name} joining chat ${conversationData.conversationId}`);
+      console.log(`User ${userProfile.name} joining 🤝🤝 chat ${conversationData.conversationId}`);
 
       // Join socket.io room
       socket.join(conversationId);
@@ -363,6 +364,9 @@ export class SocketService {
       }
 
       const conversationId = conversationData.conversationId;
+
+      console.log(`User ${userProfile.name} leaving 🫸🫸  chat ${conversationData.conversationId}`);
+
       
       // Leave socket.io room
       socket.leave(conversationId);

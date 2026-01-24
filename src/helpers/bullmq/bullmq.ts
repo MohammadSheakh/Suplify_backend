@@ -501,9 +501,40 @@ export const startNotifyParticipantsWorker = () => {
                 updatedAt: new Date(),
               }],
             });
-          }
-          // If offline → skip (or add push notification later)
+          }else{
+            // If offline → skip (or add push notification later)
+            // Update unread count
+            const updatedParticipant = await ConversationParticipents.findOneAndUpdate(
+              { 
+                userId: new mongoose.Types.ObjectId(participantId),
+                conversationId: new mongoose.Types.ObjectId(conversationId)
+              },
+              {
+                $set: { isThisConversationUnseen: 1 },
+                // $inc: { unreadCount: 1 }  // ⭕ this is risky ..
+                /**
+                 * ❌ Why this is dangerous -
+                 *  see details chatting.module -> unread-count-issue.md
+                 * You are mutating unread count blindly, without knowing whether the message was already read or processed.
+                 **/ 
+              },
+              { new: true }
+            );
 
+            // Calculate total unseen conversations
+            const [result] = await ConversationParticipents.aggregate([
+              { $match: { userId: new mongoose.Types.ObjectId(participantId) } },
+              { $group: { _id: null, totalUnseen: { $sum: "$isThisConversationUnseen" } } }
+            ]);
+
+            const unreadConversationCount = result?.totalUnseen || 0;
+
+            // Emit both events
+            await socketService.emitToUser(participantId, `unseen-count::${participantId}`, {
+              unreadConversationCount
+            });
+          }
+          
         } catch (err) {
           errorLogger.error(`Failed to notify participant ${participantId}:`, err);
           // Don't throw → continue with others
