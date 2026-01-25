@@ -377,7 +377,7 @@ export const startUpdateConversationsLastMessageWorker = () => {
       job: IScheduleJobForUpdateConversationsLastMessage
       // job : Job<INotification, any, NotificationJobName>
     ) => {
-      console.log("job.data testing startUpdateConversationsLastMessageWorker::", job.data)
+      // console.log("job.data testing startUpdateConversationsLastMessageWorker::", job.data)
       const { id, name, data } = job;
       logger.info(`Processing notification job ${id} ⚡ ${name}`, data);
 
