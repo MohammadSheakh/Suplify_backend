@@ -444,7 +444,7 @@ export const startNotifyParticipantsWorker = () => {
 
       // Process each participant
       for (const participantId of participantIds) {
-        if (participantId === senderId) continue; // skip sender
+        // if (participantId === senderId) continue; // skip sender // 🆕 as per nirob vai .. 
 
         try {
           const isOnline = await socketService.isUserOnline(participantId);
@@ -462,6 +462,18 @@ export const startNotifyParticipantsWorker = () => {
               }],
             });
           } else if (isOnline && !isInRoom) {
+
+            await socketService.emitToUser(participantId, `conversation-list-updated::${participantId}`, {
+              userId: senderProfile,
+              conversations: [{
+                _conversationId: conversationId,
+                lastMessage: messageText,
+                updatedAt: new Date(),
+              }],
+            });
+
+            if (participantId === senderId) continue;  // 🆕🆕🆕
+
             // Update unread count
             const updatedParticipant = await ConversationParticipents.findOneAndUpdate(
               { 
@@ -493,16 +505,12 @@ export const startNotifyParticipantsWorker = () => {
               unreadConversationCount
             });
 
-            await socketService.emitToUser(participantId, `conversation-list-updated::${participantId}`, {
-              userId: senderProfile,
-              conversations: [{
-                _conversationId: conversationId,
-                lastMessage: messageText,
-                updatedAt: new Date(),
-              }],
-            });
+            
           }else{
             // If offline → skip (or add push notification later)
+
+            if (participantId === senderId) continue;  // 🆕🆕🆕
+
             // Update unread count
             const updatedParticipant = await ConversationParticipents.findOneAndUpdate(
               { 
