@@ -106,6 +106,9 @@ async function main() {
       redisPubClient
     );
 
+    // ✅ START CLEANUP JOB HERE
+    socketService.startCleanupJob();
+
 
 
     // 🔥 CRITICAL: Use Redis adapter for cross-worker communication //we move this to socketService.initialize

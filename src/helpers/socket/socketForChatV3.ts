@@ -469,6 +469,27 @@ export class SocketService {
       );
     });
 
+
+    socket.on("isOnline", async (u: {userId: string}, callback: SocketAck) => {
+      
+      console.log("u -> ", u)
+
+      const result =  await socketService.isUserOnline(u.userId);
+      
+      console.log("result :: ", result);
+
+      callback?.({
+          success: true,
+          message: "fetched successfully",
+          messageDetails: { 
+            isOnline : result, 
+            userId : u.userId,
+          },
+        });
+
+
+    });
+
     //---------------------------------
     //   Handle new messages  🟢working perfectly
     //---------------------------------
@@ -776,7 +797,7 @@ export class SocketService {
     }
   }
 
-  private startCleanupJob() {
+  public startCleanupJob() {
     // Clean up stale connections every 5 minutes
     setInterval(async () => {
       try {
