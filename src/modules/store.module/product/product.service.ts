@@ -132,7 +132,7 @@ export class ProductService extends GenericService<
   // ( Landing Page ) |  get-product-details-with-related-products  //[][🧑‍💻][🧪] //🚧✅ 🆗
   //---------------------------------
   async getProductDetailsWithRelatedProducts(productId: string) {
-    console.log("🟢", productId);
+    // console.log("🟢", productId);
     const result = await this.model.findById(productId);
 
     const relatedProducts = await this.model.find({ category: result.category,

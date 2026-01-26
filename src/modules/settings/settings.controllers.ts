@@ -53,7 +53,7 @@ const createOrUpdateSettings = catchAsync(async (req, res, next) => {
   }
 
   
-  console.log("🧪attachments[0]🧪", attachments[0]);
+  // console.log("🧪attachments[0]🧪", attachments[0]);
   
   const result = await settingsService.createOrUpdateSettings(
     req.query.type,

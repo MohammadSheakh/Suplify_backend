@@ -67,6 +67,7 @@ router.route('/:id').get(
 router.route('/:id').put(
   auth(TRole.specialist),
   //  ...imageUploadPipelineForUpdateWorkoutClass, // no image upload needed for workout class
+  /*--------------------------
   patchWithDefaults( //🥇
       'SpecialistWorkoutClassSchedule', 
       optionValidationChecking([ // pass array of fields that we want to update if provide in request body
@@ -81,12 +82,11 @@ router.route('/:id').put(
         'price'
       ])
     ),
+
+  ---------------------------*/
   // validateRequest(validation.updateTrainingProgramValidationSchema), // TODO : MUST validation add korte hobe
   controller.updateById
 );
-
-
-
 
 
 //[🚧][🧑‍💻✅][🧪] // 🆗
@@ -105,13 +105,19 @@ router.route('/').post(
   controller.create
 );
 
-router.route('/delete/:id').delete(
-  //auth('common'),
-  controller.deleteById
-); // FIXME : change to admin
+router.route('/v2').post(
+  auth(TRole.specialist),
+  validateRequest(validation.createWorkoutClassSessionValidationSchema),
+  controller.create2
+);
 
-router.route('/softDelete/:id').put(
-  //auth('common'),
+router.route('/:id/permenent').delete(
+  auth(TRole.specialist),
+  controller.deleteById
+);
+
+router.route('/:id').delete(
+  auth(TRole.specialist),
   controller.softDeleteById
 );
 

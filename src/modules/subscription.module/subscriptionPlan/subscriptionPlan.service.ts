@@ -70,7 +70,7 @@ export class SubscriptionPlanService extends GenericService<typeof SubscriptionP
             );
         }
 
-        console.log('Subscription Plan Found: ', subscriptionPlan);
+        // console.log('Subscription Plan Found: ', subscriptionPlan);
 
         const user:TUser | null = await User.findById(userId);
         if (!user) {

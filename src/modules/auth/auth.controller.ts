@@ -68,7 +68,7 @@ const register = catchAsync(async (req :Request, res:Response) => {
       data: result,
       success: true,
     });
-  } 
+  }
 
   return sendResponse(res, {
     code: StatusCodes.CREATED,
@@ -76,8 +76,6 @@ const register = catchAsync(async (req :Request, res:Response) => {
     data: result,
     success: true,
   });
-
-  
 });
 
 const login = catchAsync(async (req :Request, res:Response) => {

@@ -89,7 +89,7 @@ eventEmitterForSendingEmailBasedOnSuccessTracker.
         }
 
         const result:EmailResponse = JSON.parse(content) as EmailResponse;
-        console.log("🟢🟢 result " , result)
+        
 
         await sendEmail({ 
           to: 'mohammad.sheakh01@gmail.com', // user.email // TODO : MUST use here user.email

@@ -12,6 +12,7 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 import { TRole } from '../../../middlewares/roles';
 import { getLoggedInUserAndSetReferenceToUser } from '../../../middlewares/getLoggedInUserAndSetReferenceToUser';
+import { imageUploadPipelineForUpdateDoctorPlan } from './doctorPlan.middleware';
 const router = express.Router();
 
 export const optionValidationChecking = <T extends keyof IDoctorPlan | 'sortBy' | 'page' | 'limit' | 'populate'>(
@@ -54,7 +55,7 @@ router.route('/:id').get(
   controller.getById
 );
 
-//---------------------------------
+//--------------------------------- 💎✨🔍 -> V2 Found
 // Doctor | Update Own plan .. params :: doctorPlanId
 //---------------------------------
 router.route('/update/:id').put(
@@ -63,18 +64,39 @@ router.route('/update/:id').put(
   controller.updateById
 );
 
+router.route('/v2/:id').put(
+  auth(TRole.doctor),
+  ...imageUploadPipelineForUpdateDoctorPlan,
+  // validateRequest(validation.updateDoctorPlanValidationSchema),
+  controller.updateWithImageById
+);
+
 //[🚧][🧑‍💻✅][🧪] // 🆗
 router.route('/').get(
   auth('commonAdmin'),
   controller.getAll
 );
-//---------------------------------
+//--------------------------------- 💎✨🔍 -> V2 Found
 // Doctor | Create Own plan .. so that later he can assign these plans to any patient
 //---------------------------------
 router.route('/').post(
   auth(TRole.doctor),
   validateRequest(validation.createDoctorPlanValidationSchema),
   controller.create
+);
+
+//--------------------------------- 
+// Doctor | Create Own plan .. so that later he can assign these plans to any patient
+//---------------------------------
+router.route('/v2').post(
+  auth(TRole.doctor),
+  [
+    upload.fields([
+      { name: 'attachments', maxCount: 15 }, // Allow up to 5 cover photos
+    ]),
+  ],
+  validateRequest(validation.createDoctorPlanValidationSchema),
+  controller.createV2
 );
 
 /*******
@@ -100,8 +122,6 @@ router.route('/softDelete/:id').put(
   controller.softDeleteById
 );
 
-////////////
 //[🚧][🧑‍💻✅][🧪] // 🆗
-
 
 export const DoctorPlanRoute = router;

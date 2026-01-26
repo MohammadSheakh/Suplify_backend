@@ -45,10 +45,8 @@ export class TrainingProgramController extends GenericController<
         .select('profileImage name profileId')
         .populate({
             path: 'profileId', 
-            select: 'description protocolNames howManyPrograms'
+            select: 'description protocolNames howManyPrograms externalLink'
         });
-
-    
 
     sendResponse(res, {
       code: StatusCodes.OK,
@@ -122,14 +120,6 @@ export class TrainingProgramController extends GenericController<
         path: 'trailerContents attachments',
         select: '-__v -updatedAt -createdAt' 
       },
-      // 'personId'
-      // {
-      //   path: '', 
-      //   select: '',
-      //   populate: {
-      //     path: '',
-      //   }
-      // }
     ];
 
     const select = '-isDeleted -createdAt -updatedAt -__v'; 
@@ -167,18 +157,14 @@ export class TrainingProgramController extends GenericController<
    
     // for update cases .. if image uploaded then we use that uploaded image url otherwise we use previous one
     if(req.uploadedFiles?.attachments.length > 0){
-      console.log('req.uploadedFiles?.attachments.length > 0 .. replace prev image with the new one');
       req.body.attachments = req.uploadedFiles?.attachments;
     }else{
-      console.log('req.uploadedFiles?.attachments.length == 0 .. keep prev image');
       req.body.attachments = obj.attachments;
     }
 
     // ✅ Use preprocessed uploaded file URLs //🥇🔁 this task we do in middleware level for create API not for update API
     // req.body.attachments = req.uploadedFiles?.attachments || [];
     // req.body.trailerContents = req.uploadedFiles?.trailerContents || [];
-
-
 
     const updatedObject = await this.service.updateById(id, req.body);
     if (!updatedObject) {

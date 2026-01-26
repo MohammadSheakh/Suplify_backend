@@ -20,22 +20,30 @@ import { Conversation } from '../../modules/chatting.module/conversation/convers
 import { ConversationParticipents } from '../../modules/chatting.module/conversationParticipents/conversationParticipents.model';
 import { Message } from '../../modules/chatting.module/message/message.model';
 import { config } from '../../config';
+import { IConversationParticipents } from '../../modules/chatting.module/conversationParticipents/conversationParticipents.interface';
+import { IConversation } from '../../modules/chatting.module/conversation/conversation.interface';
+//@ts-ignore
+import mongoose from 'mongoose';
+
+const messageService = new MessagerService(); // we call this in 'send-new-message' event
 
 export type IUserProfile = Pick<IUser, '_id' | 'name' | 'profileImage' | 'role' | 'subscriptionType' | 'fcmToken'>;
 
-interface MessageData {
+export interface MessageData {
   conversationId: string;
   senderId: string;
   text: string;
   // Add other message properties as needed
 }
 
-async function getConversationById(conversationId: string) {
+export type SocketAck = (response: any) => void;
+
+export async function getConversationById(conversationId: string) {
   try {
-    const conversationData = await Conversation.findById(conversationId)//.populate('users').exec();  // FIXME: user populate korar bishoy ta 
+    const conversationData:IConversation = await Conversation.findById(conversationId)//.populate('users').exec();  // FIXME: user populate korar bishoy ta 
     // FIXME : check korte hobe  
     
-    const conversationParticipants = await ConversationParticipents.find({
+    const conversationParticipants:IConversationParticipents[] = await ConversationParticipents.find({
       conversationId: conversationId
     });
 
@@ -53,7 +61,7 @@ async function getConversationById(conversationId: string) {
 }
 
 // 🔎🔎🔎 Helper function to emit errors
-function emitError(socket: any, message: string, disconnect: boolean = false) {
+export function emitError(socket: any, message: string, disconnect: boolean = false) {
   socket.emit('io-error', {
     success: false,
     message,
@@ -109,16 +117,10 @@ export class SocketService {
 
       // Create Socket.IO server
       this.io = new SocketIOServer(server, {
-        // pingTimeout: 60000,
-        // pingInterval: 25000,
-        // upgradeTimeout: 30000,
-        // maxHttpBufferSize: 1e6,
         cors: {
           origin: '*',
-          // methods: ['GET', 'POST']
+          credentials: true, // 👈 critical!
         },
-        // allowEIO3: true, // Support older clients
-        // transports: ['polling', 'websocket']
       });
 
       server.listen(socketPort, config.backend.ip as string, () => {
@@ -183,9 +185,6 @@ export class SocketService {
 
         const user = await this.getUserDetailsFromToken(token);
 
-        // console.log("user", user)
-        // 🔥 CRITICAL: Convert ObjectId to string
-
         if (!user) {
           return next(new Error('Invalid authentication token'));
         }
@@ -208,9 +207,6 @@ export class SocketService {
   private setupEventHandlers() {
     if (!this.io) return;
 
-    //---------------------------------
-    // 🟢🟢 
-    //---------------------------------
     this.io.on('connection', async (socket: Socket) => {
       const user = socket.data.user; // 🟡 issue  MUST BE RESOLVED
 
@@ -292,10 +288,6 @@ export class SocketService {
       logger.error(`🔴 Socket.IO server error in worker ${process.pid}:`, error);
     });
 
-    // Handle adapter errors ❌ REMOVE THIS — IT'S INVALID
-    // this.io.adapter.on('error', (error) => {
-    //   logger.error(`🔴 Redis adapter error in worker ${process.pid}:`, error);
-    // });
   }
 
   // 🔗➡️ setupEventHandlers
@@ -327,7 +319,7 @@ export class SocketService {
 
       const conversationId = conversationData.conversationId;
       
-      console.log(`User ${userProfile.name} joining chat ${conversationData.conversationId}`);
+      console.log(`User ${userProfile.name} joining 🤝🤝 chat ${conversationData.conversationId}`);
 
       // Join socket.io room
       socket.join(conversationId);
@@ -347,6 +339,19 @@ export class SocketService {
         conversationId,
         isOnline: true
       });
+
+      // 🎯🆕 NEED TO USE KAFKA
+      await ConversationParticipents.updateOne(
+        {
+          conversationId,
+          userId
+        },
+        {
+          // unreadCount: 0, // ❌ useless .. we dont rely on this value 
+          isThisConversationUnseen : 0,
+          lastMessageReadAt: new Date(),// we will calculate unseen message count based on this 
+        }
+      );
     });
 
     //---------------------------------
@@ -359,6 +364,9 @@ export class SocketService {
       }
 
       const conversationId = conversationData.conversationId;
+
+      console.log(`User ${userProfile.name} leaving 🫸🫸  chat ${conversationData.conversationId}`);
+
       
       // Leave socket.io room
       socket.leave(conversationId);
@@ -373,6 +381,19 @@ export class SocketService {
         message: `${userProfile?.name} left the conversation`
       });
 
+      // 🎯🆕 NEED TO USE KAFKA
+      await ConversationParticipents.updateOne(
+        {
+          conversationId,
+          userId
+        },
+        {
+          // unreadCount: 0, // ❌ useless .. we dont rely on this value 
+          isThisConversationUnseen : 0,
+          lastMessageReadAt: new Date(),// we will calculate unseen message count based on this 
+        }
+      );
+
       callback?.({ success: true, message: 'Left conversation successfully' });
     });
 
@@ -382,7 +403,12 @@ export class SocketService {
     //---------------------------------
     socket.on('get-all-conversations-with-pagination', async( conversationData: {page: number, limit: number, search?: string}, callback) =>{
       try{
-        const conversations = await new ConversationParticipentsService().getAllConversationByUserIdWithPagination(userId, conversationData);
+
+        //const conversations = await new ConversationParticipentsService().getAllConversationByUserIdWithPagination(userId, conversationData);
+        
+        //🆕 now we return conversation list with unseen message counts 
+        const conversations = await new ConversationParticipentsService().getAllConversationByUserIdWithPaginationV2(userId, conversationData);
+        
         callback?.({ success: true, data: conversations});
       } catch (error) {
         console.error('Error fetching conversations:', error);
@@ -417,7 +443,7 @@ export class SocketService {
           populateOptions, 
           '' // select
         );
-        console.log("messages: 🟢🟢 ", messages);
+        // console.log("messages: 🟢🟢 ", messages);
         callback?.({ success: true, data: messages});
       } catch (error) {
         console.error('Error fetching conversations:', error);
@@ -425,11 +451,88 @@ export class SocketService {
       }
     })
 
+
+    //--------- We dont need to emit this .. 
+    //--------- as when join a conversation .. we do the same thing.. 
+    socket.on("conversation:read", async ({ conversationId }) => {
+      
+      //TODO :  need to use kafka
+      await ConversationParticipents.updateOne(
+        {
+          conversationId,
+          userId
+        },
+        {
+          unreadCount: 0,
+          isThisConversationUnseen : 0
+        }
+      );
+    });
+
+
+    socket.on("isOnline", async (u: {userId: string}, callback: SocketAck) => {
+      
+      console.log("u -> ", u)
+
+      const result =  await socketService.isUserOnline(u.userId);
+      
+      console.log("result :: ", result);
+
+      callback?.({
+          success: true,
+          message: "fetched successfully",
+          messageDetails: { 
+            isOnline : result, 
+            userId : u.userId,
+          },
+        });
+
+
+    });
+
     //---------------------------------
     //   Handle new messages  🟢working perfectly
     //---------------------------------
 
-    socket.on('send-new-message', async (messageData: MessageData, callback) => {
+    socket.on('send-new-message', async (messageData: MessageData, callback: SocketAck) => {
+
+      // console.log("requested user Id 🟡🟡",  userId)
+      try {
+        // console.log('New message received:', messageData);
+
+        //⭐🎯🛠️ call service ....
+
+        const newMessage = await messageService.sendMessageV2(socket, this.redisStateManager, messageData, callback);
+
+        // const newMessage = await messageService.sendMessage(socket, this.redisStateManager, messageData, callback);
+
+        // console.log("newMessage =>>> ", newMessage);
+
+        // Emit to sender's personal room 
+        callback?.({
+          success: true,
+          message: "Message sent successfully",
+          messageDetails: { 
+            messageId : newMessage._id,
+            conversationId: messageData.conversationId,
+            senderId: userId,
+            text: messageData.text,
+            timestamp: newMessage.createdAt || new Date(),
+            name: userProfile?.name,
+            image: userProfile?.profileImage || null
+
+          },
+        });
+
+      } catch (error) {
+        console.error('Error sending message:', error);
+        const errorMessage = 'Failed to send message';
+        callback?.({ success: false, message: errorMessage });
+        emitError(socket, errorMessage);
+      }
+    });
+
+    socket.on('send-new-message-v0', async (messageData: MessageData, callback) => {
 
       console.log("requested user Id 🟡🟡",  userId)
       try {
@@ -444,24 +547,19 @@ export class SocketService {
         // Get chat details
         const {conversationData, conversationParticipants} = await getConversationById(messageData.conversationId);
         
-        // console.log('Conversation data:', conversationData);
-        // console.log('Conversation participants:', conversationParticipants);
-
         //---------------------------------
         // here we will check if the sender is a participant in the conversation or not
         // if not then we will send an error message
         //---------------------------------
         let isExist = false;
-        conversationParticipants.forEach((participant: any) => {
-          const participantId = participant.userId?.toString();
+        conversationParticipants.forEach((participant: IConversationParticipents) => {
+          const participantId:string = participant.userId?.toString();
           
           if (participantId == userId.toString()) {
               isExist = true;
               return;
           }
         });
-
-        console.log("isExist: 🟡", isExist);
 
       if(!isExist){
           emitError(socket, `You are not a participant in this conversation`);
@@ -481,14 +579,13 @@ export class SocketService {
         const updatedConversation = await Conversation.findByIdAndUpdate(messageData.conversationId, {
           lastMessageId: newMessage._id,
           lastMessage: messageData.text,
-        }); // .populate('lastMessage').exec()
+        });
 
         // Prepare message data for emission
         const messageToEmit = {
           ...messageData,
           _id: newMessage._id,
-          //senderId: userId, // senderId should be the userId
-          senderId: {  /// populated as per nirob vais request
+          senderId: {  // populated as per nirob vais request
             name: userProfile?.name,
             profileImage: userProfile?.profileImage,
             _userId: userId,
@@ -507,12 +604,10 @@ export class SocketService {
         
         // socket.emit(eventName, messageToEmit);
 
-        //************************************************* */
-
         // 🟢 NEW: Notify all conversation participants about conversation list update
       
         // Notify each participant (except the sender if excludeUserId is provided)
-        conversationParticipants.forEach(async(participant: any) => {
+        conversationParticipants.forEach(async(participant: IConversationParticipents) => {
           const participantId = participant.userId?.toString();
           
           console.log(`1️⃣ .forEach Participant ID: ${participantId}, User ID: ${userId}`);
@@ -522,85 +617,125 @@ export class SocketService {
           // Check if participant is online
           //if (Array.from(onlineUsers).some(id => id.toString() === participantId)) {
 
-          if(isOnline){
-         
-            /*-----------------------------------------
-            await socketService.emitToUser(
-              participantId,
-              `conversation-list-updated::${participantId}`,
-              {
-                creatorId : updatedConversation?.creatorId,
-                type: updatedConversation?.type,
-                lastMessage: {
-                  _id: newMessage._id,
-                  text: messageData.text,
-                  senderId: userId,
-                  conversationId: messageData.conversationId,
-                },
-                isDeleted: false,
-                createdAt: "2025-07-19T12:06:00.287Z",
-                _conversationId: updatedConversation?._id,
-              }
-          );
-
-          -----------------------------------------*/
-
-          if(participantId !== userId.toString()){  // 🧪🧪🧪🧪🧪🧪🧪
-            // which means userId is receiverId
-
-            const userPro = await this.getUserProfile(userId) as IUserProfile;
-
-            await socketService.emitToUser(
-                participantId,
-                `conversation-list-updated::${participantId}`,
-                {
-                  userId: {
-                    "_userId": userId,
-                    "name": userPro.name,
-                    "profileImage": userPro.profileImage,
-                    "role": userPro.role,
-                  },
-                  conversations:[
-                    {
-                      _conversationId: updatedConversation?._id,
-                      lastMessage : messageData.text,
-                      updatedAt : newMessage.createdAt
-                    },
-                  ],
-                }
-            );
-          }
-
-            /*********
-
-            // Emit to participant's personal room  .to(participantId)
-            io.emit(`conversation-list-updated::${participantId}`, {
-              creatorId : updatedConversation?.creatorId,
-              type: updatedConversation?.type,
-              siteId: updatedConversation?.siteId,
-              canConversate: updatedConversation?.canConversate,
-              lastMessage: {
-                _id: newMessage._id,
-                text: messageData.text,
-                senderId: userId,
-                conversationId: messageData.conversationId,
-              },
-              isDeleted: false,
-              createdAt: "2025-07-19T12:06:00.287Z",
-              _conversationId: updatedConversation?._id,
-            });
-
-            ********** */
+          const isInConversationRoom = await this.redisStateManager.isUserInRoom(participantId.toString(), messageData.conversationId.toString())
+          
+          
+          /*──────────────────────────────────
+          |  DECISION TREE FOR NOTIFICATIONS 
+          └────────────────────────────────────*/
+          
+          if (isInConversationRoom) {
+            console.log(`${participantId} 🟢isInConversationRoom.. `)
             
-          }else{
+
+            if(participantId !== userId.toString()){  // 🧪🧪🧪🧪🧪🧪🧪
+              // which means userId is receiverId
+
+              const userPro = await this.getUserProfile(userId) as IUserProfile;
+
+              await socketService.emitToUser(
+                  participantId,
+                  `conversation-list-updated::${participantId}`,
+                  {
+                    userId: {
+                      "_userId": userId,
+                      "name": userPro.name,
+                      "profileImage": userPro.profileImage,
+                      "role": userPro.role,
+                    },
+                    conversations:[
+                      {
+                        _conversationId: updatedConversation?._id,
+                        lastMessage : messageData.text,
+                        updatedAt : newMessage.createdAt
+                      },
+                    ],
+                  }
+              );
+            }
+
+            
+            
+          } else if (isOnline && !isInConversationRoom) {
+            
+            if(participantId !== userId.toString()){ 
+              // which means userId is receiverId
+
+              //🛠️🎯⭐⚒️  update unreadCount for participants
+              const updatedConversationParticipant:IConversationParticipents = await ConversationParticipents.findByIdAndUpdate(
+                participant._id,
+                {
+                  $set: {
+                    isThisConversationUnseen: 1 // 1 means unseen .. 0 means seen
+                  },
+                  $inc: {
+                    unreadCount: 1 // increases unreadCount by 1
+                  }
+                },
+                {
+                  new : true
+                }
+              )
+
+              // calculate total unseenConversationCount for every participant .. and send them via socket 
+              const allConversation = await ConversationParticipents.aggregate([
+                {
+                  $match: {
+                    userId: new mongoose.Types.ObjectId(participantId) // ensure proper ObjectId if 'id' is string
+                  }
+                },
+                {
+                  $group: {
+                    _id: null,
+                    totalUnseen: { $sum: "$isThisConversationUnseen" }
+                  }
+                }
+              ]);
+
+              const unreadConversationCount = allConversation.length > 0 ? allConversation[0].totalUnseen : 1;
+
+
+              await socketService.emitToUser(
+                  participantId,
+                  `unseen-count::${participantId}`,
+                  {
+                    unreadConversationCount: unreadConversationCount
+                  }
+              );
+
+              const userPro = await this.getUserProfile(userId) as IUserProfile;
+
+              await socketService.emitToUser(
+                  participantId,
+                  `conversation-list-updated::${participantId}`,
+                  {
+                    userId: {
+                      "_userId": userId,
+                      "name": userPro.name,
+                      "profileImage": userPro.profileImage,
+                      "role": userPro.role,
+                    },
+                    conversations:[
+                      {
+                        _conversationId: updatedConversation?._id,
+                        lastMessage : messageData.text,
+                        updatedAt : newMessage.createdAt
+                      },
+                    ],
+                  }
+              );
+
+            }
+
+          } else{
+            console.log(`${participantId}offline ⭕`)
             // TODO : MUST Push notification
-            // .... TODO: push notification .. 
-          }
+            // .... THIS PROJECT IS NOT AN APP .. so we dont need push notification here
+          } 
+
         });
 
-        //************************************************* */
-
-        /// / Emit to sender's personal room 
+        // Emit to sender's personal room 
         callback?.({
           success: true,
           message: "Message sent successfully",
@@ -626,7 +761,6 @@ export class SocketService {
     
 
     // Add other event handlers here (send-new-message, get-all-conversations, etc.)
-    // ... (your existing event handlers remain the same)
   }
 
   // 🔗➡️ setupEventHandlers
@@ -663,7 +797,7 @@ export class SocketService {
     }
   }
 
-  private startCleanupJob() {
+  public startCleanupJob() {
     // Clean up stale connections every 5 minutes
     setInterval(async () => {
       try {
@@ -674,9 +808,9 @@ export class SocketService {
     }, 5 * 60 * 1000);
   }
 
-  // =============================================
-  // Public API Methods
-  // =============================================
+  /*──────────────────────────────────
+  |   Public API Methods
+  └────────────────────────────────────*/
   
   /*******
    * 🟢🟢 
@@ -740,6 +874,10 @@ export class SocketService {
 
   public async isUserOnline(userId: string): Promise<boolean> {
     return await this.redisStateManager.isUserOnline(userId);
+  }
+
+  public async isUserInRoom(participantId : string, conversationId: string){
+    return await this.redisStateManager.isUserInRoom(participantId, conversationId);
   }
 
   public async getUserConnectionInfo(userId: string) {

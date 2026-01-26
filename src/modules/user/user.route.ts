@@ -48,7 +48,7 @@ router.route('/paginate').get(
   controller.getAllWithPaginationV2
 );
 
-//---------------------------------
+//--------------------------------- 🆕 new requirement is .. we send unread message count with this also
 // Specialist | Get Profile Information as logged in user 
 //---------------------------------
 router.route('/profile').get(
@@ -72,7 +72,7 @@ router.route('/profile/for-admin').get(
 //---------------------------------
 router.route('/change-approval-status').put(
   auth(TRole.admin),
-  validateRequest(validation.changeApprovalStatusValidationSchema),
+  // validateRequest(validation.changeApprovalStatusValidationSchema), // TODO : need to add this
   controller.changeApprovalStatusByUserId
 )
 
@@ -91,7 +91,7 @@ router.route('/profile/:id').get(
   getLoggedInUserIdAndSetInParams('id'),
   setQueryOptions({
     populate: [
-      { path: 'profileId', select: 'approvalStatus howManyPrograms protocolNames userId description address', /* populate: { path : ""} */ },
+      { path: 'profileId', select: 'approvalStatus howManyPrograms protocolNames userId description address externalLink', /* populate: { path : ""} */ },
     ],
     select: 'name profileId email profileImage subscriptionType status role' //-createdAt
   }),
@@ -124,9 +124,6 @@ router.route('/softDelete/:id').put(
   //auth('common'),
   controller.softDeleteById
 );
-
-////////////
-//[🚧][🧑‍💻✅][🧪] // 🆗
 
 
 export const UserRoutes = router;

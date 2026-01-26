@@ -250,12 +250,9 @@ const createUser = async (userData: TUser, userProfileId:string) => {
     });
 
     
-
-    /********
-     * 
-     * Lets send notification to admin that new doctor or specialist registered
-     * 
-     * ***** */
+    /*──────────────────────────────────
+    |   Lets send notification to admin that new doctor or specialist registered
+    └────────────────────────────────────*/
     await enqueueWebNotification(
       `A ${userData.role} registered successfully . verify document to activate account`,
       null, // senderId
@@ -278,9 +275,11 @@ const createUser = async (userData: TUser, userProfileId:string) => {
   // if patient .. then we need to assign a specialist to him automatically 
   ////////////////////////////////////////
 
+  /*------------------------- Client dont want this in version two
   eventEmitterForAssignSpecialistAutomatically.emit('eventEmitterForAssignSpecialistAutomatically', { 
     userId : user._id
   });
+  --------------------------*/
 
   // , { otp }
   // Run token and OTP creation in parallel

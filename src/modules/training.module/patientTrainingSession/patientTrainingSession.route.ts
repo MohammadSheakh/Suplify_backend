@@ -34,15 +34,6 @@ const controller = new PatientTrainingSessionController();
 router.route('/paginate').get(
   //auth('common'),
   validateFiltersForQuery(optionValidationChecking(['_id', 'trainingSessionId', ...paginationOptions])),
-  // setQueryOptions({
-  //   populate: [{
-  //     path: 'trainingSessionId', // coverPhotos attachments
-  //     select: 'trainingSessionId',
-  //     populate: { path: 'trainingSessionId', select: 'coverPhotos attachments' }
-  //   }],
-  //   select: `${defaultExcludes}`
-  //   // // ${defaultExcludes}
-  // }),
   controller.getAllWithPaginationV2
 );
 
@@ -65,11 +56,6 @@ router.route('/').get(
 
 //[🚧][🧑‍💻✅][🧪] // 🆗
 router.route('/create').post(
-  // [
-  //   upload.fields([
-  //     { name: 'attachments', maxCount: 15 }, // Allow up to 5 cover photos
-  //   ]),
-  // ],
   auth('common'),
   validateRequest(validation.createHelpMessageValidationSchema),
   controller.create
@@ -84,9 +70,5 @@ router.route('/softDelete/:id').put(
   //auth('common'),
   controller.softDeleteById
 );
-
-////////////
-//[🚧][🧑‍💻✅][🧪] // 🆗
-
 
 export const PatientTrainingSessionRoute = router;

@@ -145,8 +145,6 @@ export class UserSubscriptionService extends GenericService<typeof UserSubscript
             isActive: true
         });
 
-        // console.log("⚡ standardPlan :: ", standardPlan);
-
         if(!standardPlan){
             throw new ApiError(
                 StatusCodes.NOT_FOUND,
@@ -238,8 +236,6 @@ export async function getOrCreateStripeCustomer (user: TUser): Promise<any> {
 
     if (!user.stripe_customer_id) {
 
-        console.log(" 1 ")
-
             // 🔹 No customer ID saved — create a new one
             const _stripeCustomer = await stripe.customers.create({
                 name: user?.name,
@@ -259,8 +255,6 @@ export async function getOrCreateStripeCustomer (user: TUser): Promise<any> {
                 // 🔹 Check if existing Stripe customer still exists
                 const retriveUser = await stripe.customers.retrieve(user.stripe_customer_id);
 
-                console.log("retriveUser ::", retriveUser)
-
                 if (retriveUser.deleted) {
                     // Customer deleted or invalid → recreate and update DB
                     const _stripeCustomer = await stripe.customers.create({
@@ -278,7 +272,6 @@ export async function getOrCreateStripeCustomer (user: TUser): Promise<any> {
                 }
             } catch (err) {
 
-                console.log(" 3 ")
                 if (err.raw && err.raw.code === "resource_missing") {
                     // console.warn("⚠️ Stripe customer not found, recreating...");
 

@@ -11,6 +11,8 @@ import { TRole } from '../../../middlewares/roles';
 import multer from "multer";
 import { getLoggedInUserAndSetReferenceToUser } from '../../../middlewares/getLoggedInUserAndSetReferenceToUser';
 import { setRequestFiltersV2 } from '../../../middlewares/setRequstFilterAndValue';
+import { imageUploadPipelineForUpdatePlanByDoctor } from './planByDoctor.middleware';
+import { setQueryOptions } from '../../../middlewares/setQueryOptions';
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
@@ -41,6 +43,12 @@ router.route('/paginate').get(
   setRequestFiltersV2({
     isDeleted: false,
   }),
+  setQueryOptions({
+      populate: [
+        { path: 'attachments', select: 'attachment', /* populate: { path : ""} */ },
+      ],
+      select: '-isDeleted -updatedAt -__v'
+    }),
   controller.getAllWithPaginationV2
 );
 
@@ -56,7 +64,7 @@ router.route('/paginate/for-specialist').get(
   controller.getAllWithPaginationForSpecialist
 );
 
-/*******
+/*******   💎✨🔍 -> V2 Found
  * 
  * Patient |  protocol 
  *  |-> Get All plan For a protocol and planType for a patient 
@@ -67,6 +75,19 @@ router.route('/paginate/for-patient').get(
   validateFiltersForQuery(optionValidationChecking(['_id', 'planType', 'protocolId', ...paginationOptions])),
   getLoggedInUserAndSetReferenceToUser('patientId'),
   controller.getAllWithPaginationForPatient
+);
+
+/*******  v2 just populated attachments
+ * 
+ * Patient |  protocol 
+ *  |-> Get All plan For a protocol and planType for a patient 
+ * 
+ * ****** */
+router.route('/paginate/for-patient/v2').get(
+  auth(TRole.patient),
+  validateFiltersForQuery(optionValidationChecking(['_id', 'planType', 'protocolId', ...paginationOptions])),
+  getLoggedInUserAndSetReferenceToUser('patientId'),
+  controller.getAllWithPaginationForPatientV2
 );
 
 
@@ -126,7 +147,7 @@ router.route('/:id').get(
   controller.getById
 );
 
-//--------------------------------- 
+//--------------------------------- 💎✨🔍 -> V2 Found
 // Doctor | Update plan for patient
 //---------------------------------
 router.route('/:id').put(
@@ -135,19 +156,41 @@ router.route('/:id').put(
   controller.updateById
 );
 
+//--------------------------------- V2
+// Doctor | Update plan for patient
+//---------------------------------
+router.route('/v2/:id').put(
+  auth(TRole.doctor),
+  ...imageUploadPipelineForUpdatePlanByDoctor,
+  // validateRequest(validation.createHelpMessageValidationSchema), // TODO :  MUST add validation
+  controller.updateWithImageById
+);
+
 //[🚧][🧑‍💻✅][🧪] //🆗
 router.route('/').get(
   auth('commonAdmin'),
   controller.getAll
 );
 
-//--------------------------------- 
+//--------------------------------- 💎✨🔍 -> V2 Found
 // Doctor | Create plan for patient
 //---------------------------------
 router.route('/').post(
   auth(TRole.doctor),
   // validateRequest(validation.createHelpMessageValidationSchema), // TODO: validation add korte hobe 
   controller.create
+);
+
+
+router.route('/v2').post(
+  auth(TRole.doctor),
+  [
+    upload.fields([
+      { name: 'attachments', maxCount: 15 }, // Allow up to 5 cover photos
+    ]),
+  ],
+  // validateRequest(validation.createHelpMessageValidationSchema), // TODO: validation add korte hobe 
+  controller.createV2
 );
 
 router.route('/delete/:id').delete(

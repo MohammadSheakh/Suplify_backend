@@ -222,20 +222,6 @@ userSchema.statics.isMatchPassword = async function (
   return await bcryptjs.compare(password, hashPassword);
 };
 
-// FIX : ts issue 
-// Middleware to hash password before saving
-userSchema.pre('save', async function (next) {
-
-  // if (this.isModified('password')) {
-  //   this.password = await bcryptjs.hash(
-  //     this.password,
-  //     Number(config.bcrypt.saltRounds),
-  //   );
-  // }
-  next();
-});
-
-
 // Use transform to rename _id to _projectId
 userSchema.set('toJSON', {
   transform: function (doc, ret, options) {

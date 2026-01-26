@@ -5,14 +5,11 @@ import paginate from '../../../common/plugins/paginate';
 
 const HealthAndPerformanceSchema = new Schema<IHealthAndPerformance>(
   {
-    
     successTrackerId: {
       type: Schema.Types.ObjectId,
       ref: 'SuccessTracker',
       required: true
     },
-
-
     currentWeight : {
       type: Number,
       required: [true, 'currentWeight is required'],
@@ -53,15 +50,6 @@ const HealthAndPerformanceSchema = new Schema<IHealthAndPerformance>(
 );
 
 HealthAndPerformanceSchema.plugin(paginate);
-
-HealthAndPerformanceSchema.pre('save', function (next) {
-  // Rename _id to _projectId
-  // this._taskId = this._id;
-  // this._id = undefined;  // Remove the default _id field
-  //this.renewalFee = this.initialFee
-
-  next();
-});
 
 // Use transform to rename _id to _projectId
 HealthAndPerformanceSchema.set('toJSON', {

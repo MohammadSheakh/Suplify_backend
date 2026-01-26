@@ -23,8 +23,6 @@ export interface IUser extends Document {
   // TSubscription.standard |
   // TSubscription.standardPlus | TSubscription.vise 
   hasUsedFreeTrial: boolean;
-  // freeTrialStartDate: Date;
-  // freeTrialEndDate: Date;
   profileImage?: TProfileImage;
   fcmToken : string;
   stripe_customer_id: string;
@@ -66,8 +64,6 @@ export type TUser = {
   // TSubscription.standard |
   // TSubscription.standardPlus | TSubscription.vise 
   hasUsedFreeTrial: boolean;
-  // freeTrialStartDate: Date;
-  // freeTrialEndDate: Date;
   profileImage?: TProfileImage;
   fcmToken : string;
   stripe_customer_id: string;

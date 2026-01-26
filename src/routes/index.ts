@@ -39,6 +39,8 @@ import { WithdrawalRequstRoute } from '../modules/wallet.module/withdrawalRequst
 import { LabTestBookingRoute } from '../modules/scheduleAndAppointmentBooking.module/labTestBooking/labTestBooking.route';
 import { PatientTrainingSessionRoute } from '../modules/training.module/patientTrainingSession/patientTrainingSession.route';
 import { SpecialistSuggestionForAPlanRoute } from '../modules/protocol.module/specialistSuggestionForAPlan/specialistSuggestionForAPlan.route';
+import { SuplifyHotspotRoute } from '../modules/suplifyHotspot/suplifyHotspot.route';
+import { HireSpecialistRequestToAdminRoute } from '../modules/personRelationships.module/hireSpecialistRequestToAdmin/hireSpecialistRequestToAdmin.route';
 
 // import { ChatRoutes } from '../modules/chat/chat.routes';
 // import { MessageRoutes } from '../modules/message/message.routes';
@@ -190,6 +192,13 @@ const apiRoutes = [
     path: '/specialist-patients',
     route: specialistPatientRoute,
   },
+
+  //---------------------------------------- Hire Specialist 🆕
+  { // 🟢
+    path: '/hire-specialist',
+    route: HireSpecialistRequestToAdminRoute,
+  },
+
   //---------------------------------------- Workout Class
   { // 🟢
     path: '/workout-schedules',
@@ -240,7 +249,14 @@ const apiRoutes = [
   { // 🟢
     path: '/bank-info',
     route: BankInfoRoute,
-  }
+  },
+
+  //---------------------------------------- Suplify Hotspot 🆕
+  { // 🟢
+    path: '/hotspot',
+    route: SuplifyHotspotRoute,
+  },
+
   
 ];
 

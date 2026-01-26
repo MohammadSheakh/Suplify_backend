@@ -9,6 +9,7 @@ export interface ISuggestionBySpecialist {
   keyPoint : String;
   solutionName : String;
   suggestFromStore : String;
+  link : String;
   createdBy : Types.ObjectId;  //🔗 Specialist Id 
 
   isDeleted? : Boolean;  

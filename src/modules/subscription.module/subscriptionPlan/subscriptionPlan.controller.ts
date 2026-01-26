@@ -88,9 +88,7 @@ export class SubscriptionController extends GenericController<
        status: UserSubscriptionStatusType.active 
     });
 
-    console.log("userSub : ", userSub)
-
-
+  
     if (!userSub || !userSub.stripe_subscription_id) {
         throw new ApiError(StatusCodes.NOT_FOUND, 'No active subscription found');
     }
@@ -98,8 +96,6 @@ export class SubscriptionController extends GenericController<
     const canceledSub = await stripe.subscriptions.update(userSub.stripe_subscription_id, {
         cancel_at_period_end: true,
     });
-
-    console.log("canceledSub : ",canceledSub)
 
     if (!canceledSub) {
         throw new ApiError(StatusCodes.NOT_FOUND, 'Failed to cancel subscription');

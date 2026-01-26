@@ -4,12 +4,13 @@ import ApiError from '../../errors/ApiError';
 import { PaginateOptions, PaginateResult } from '../../types/paginate';
 import { IUser, TUser } from './user.interface';
 import { User } from './user.model';
-import { sendAdminOrSuperAdminCreationEmail, sendEmailToTheDoctorThatAdminApprovedHim } from '../../helpers/emailService';
+import { sendAdminOrSuperAdminCreationEmail, sendEmailToTheDoctorThatAdminApprovedHim, sendEmailToTheDoctorThatAdminRejectHim } from '../../helpers/emailService';
 import { GenericService } from '../_generic-module/generic.services';
 import PaginationService from '../../common/service/paginationService';
 import omit from '../../shared/omit';
 import pick from '../../shared/pick';
 import { UserProfile } from './userProfile/userProfile.model';
+import { IUserProfile as IUserProfileModel } from './userProfile/userProfile.interface';
 import { IUserProfile } from '../../helpers/socket/socketForChatV3';
 import { TRole } from '../../middlewares/roles';
 import { TApprovalStatus } from './userProfile/userProfile.constant';
@@ -171,7 +172,7 @@ export class UserService extends GenericService<typeof User, IUser> {
     };
 
     // Use pagination service for aggregation
-     const res =
+    const res =
       await PaginationService.aggregationPaginate(
       User, 
       pipeline,
@@ -184,7 +185,8 @@ export class UserService extends GenericService<typeof User, IUser> {
     }
   }
 
-  async changeApprovalStatusByUserId(userId: string, approvalStatus: string): Promise<any> {
+  // 🆕
+  async changeApprovalStatusByUserId(userId: string, approvalStatus: string, emailBody: string): Promise<any> {
     
     const populateOptions = 
     [
@@ -222,11 +224,21 @@ export class UserService extends GenericService<typeof User, IUser> {
 
     if(approvalStatus ===  TApprovalStatus.approved){
       user.isEmailVerified = true;
-      console.log("sending email Hit ----------------------------------- ");
 
       await sendEmailToTheDoctorThatAdminApprovedHim(user.email);
 
       await user.save();
+    }
+
+    if(approvalStatus ===  TApprovalStatus.rejected){
+    
+      if(!emailBody){
+        throw new ApiError(StatusCodes.BAD_REQUEST, 'Please provide emailBody');
+      }
+
+      await sendEmailToTheDoctorThatAdminRejectHim(user.email, emailBody);
+
+      await User.findByIdAndDelete(userId);
     }
 
     if (!updatedProfile) {
@@ -239,7 +251,6 @@ export class UserService extends GenericService<typeof User, IUser> {
 
   async updateProfileOfSpecialistAndDoctor(userId: string, data: any): Promise<any> {
     
-  
     const dataForProfile= {
       name : data.name,
       description : data.description,
@@ -249,7 +260,7 @@ export class UserService extends GenericService<typeof User, IUser> {
     }
 
     const user:IUser = await User.findById(userId).select("name profileId profileImage");
-    const profile:IUserProfile = await UserProfile.findById(user.profileId);
+    const profile:IUserProfileModel = await UserProfile.findById(user.profileId);
 
     const updatedUser = await User.findByIdAndUpdate(userId, {
       name: data.name ? data.name : user.name,
@@ -269,6 +280,7 @@ export class UserService extends GenericService<typeof User, IUser> {
         address : data.address ? data.address : profile.address,
         protocolNames : data.protocolNames ? data.protocolNames : profile.protocolNames,
         howManyPrograms : data.howManyPrograms ? data.howManyPrograms : profile.howManyPrograms, 
+        externalLink : data.externalLink ? data.externalLink : profile.externalLink,
       }, 
       { new: true }
     );

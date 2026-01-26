@@ -6,7 +6,9 @@ import { User } from "../../user/user.model";
 
 // 7. HANDLE SUBSCRIPTION CANCELLATION WEBHOOK 🟢🟢🟢🟢🟢
 export const handleSubscriptionCancellation = async (subscription) => {
-  console.log("🔥handleSubscriptionCancellation🔥 in webhook 🪝 ------", subscription);
+  // console.log("🔥handleSubscriptionCancellation🔥 in webhook 🪝 ------", subscription);
+
+
   /*-----------------------------------------
   data available in subscription object  .. we remove some data from this response which we think unnecessary 
   {

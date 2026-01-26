@@ -51,7 +51,7 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Subscription) => {
     const validBillingReasons = ['subscription_create', 'subscription_cycle', 'subscription_update'];
     
     if (!validBillingReasons.includes(invoice.billing_reason)) {
-      console.log(`Skipping invoice with billing_reason: ${invoice.billing_reason}`);
+      // console.log(`Skipping invoice with billing_reason: ${invoice.billing_reason}`);
       return;
     }
 
@@ -76,10 +76,10 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Subscription) => {
       expand: ['latest_invoice', 'pending_setup_intent']
     });
 
-    console.log("Subscription :: 🔊🔊🔊🔊🔊🔊🔊", subscription.latest_invoice.period_start)
-    console.log("Subscription :: 🔊🔊🔊🔊🔊🔊🔊", new Date(subscription.latest_invoice.period_start * 1000))
-    console.log("Subscription :: 🔊🔊🔊🔊🔊🔊🔊", subscription.latest_invoice.period_end)
-    console.log("Subscription :: 🔊🔊🔊🔊🔊🔊🔊", new Date(subscription.latest_invoice.period_end * 1000))
+    // console.log("Subscription :: 🔊🔊🔊🔊🔊🔊🔊", subscription.latest_invoice.period_start)
+    // console.log("Subscription :: 🔊🔊🔊🔊🔊🔊🔊", new Date(subscription.latest_invoice.period_start * 1000))
+    // console.log("Subscription :: 🔊🔊🔊🔊🔊🔊🔊", subscription.latest_invoice.period_end)
+    // console.log("Subscription :: 🔊🔊🔊🔊🔊🔊🔊", new Date(subscription.latest_invoice.period_end * 1000))
 
 /*
 
@@ -129,8 +129,8 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Subscription) => {
       }
     }
 
-    console.log("---- invoice.billing_reason handleSuccessfulPayment for  Subscription Related :: ", invoice.billing_reason ) 
-    console.log("---- invoiceInfo from handleSuccessfulPayment for  Subscription Related :: ", invoiceInfo ) 
+    // console.log("---- invoice.billing_reason handleSuccessfulPayment for  Subscription Related :: ", invoice.billing_reason ) 
+    // console.log("---- invoiceInfo from handleSuccessfulPayment for  Subscription Related :: ", invoiceInfo ) 
 
     // Find user by Stripe customer ID
     const user:TUser = await User.findOne({ 
@@ -145,11 +145,12 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Subscription) => {
     // ✅ Use proper Stripe dates instead of manual calculation
     // const dates = calculateSubscriptionDates(subscription, invoice);
    
-    // ============================================
-    // FIRST PAYMENT (subscription_create)
-    // ============================================
+    
+    /*──────────────────────────────────
+    |  FIRST PAYMENT (subscription_create)   
+    └────────────────────────────────────*/
     if(invoice.billing_reason === 'subscription_create'){
-      console.log("⚡ This is first payment after trial or immediate payment without trial 1️⃣", invoice.billing_reason);
+      // console.log("⚡ This is first payment after trial or immediate payment without trial 1️⃣", invoice.billing_reason);
 
       // ⭕ these dates are undifind ⭕ ⭕ ⭕  
       // const { current_period_start, current_period_end } = subscription;
@@ -176,7 +177,7 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Subscription) => {
         //     `Existing payment found for paymentIntent ${invoice.payment_intent} .. which means already processed this event and transaction is already createrd. `
         // );
 
-        console.log(`Payment already processed and and transaction is already createrd for paymentIntent: ${invoice.payment_intent}`);
+        // console.log(`Payment already processed and and transaction is already createrd for paymentIntent: ${invoice.payment_intent}`);
         return;
       }
 
@@ -204,7 +205,7 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Subscription) => {
           null // linkId
       );
       
-      console.log("newPayment created --- handleSuccessfulPayment --- invoice.billing_reason === 'subscription_create' =>> ", newPayment);
+      // console.log("newPayment created --- handleSuccessfulPayment --- invoice.billing_reason === 'subscription_create' =>> ", newPayment);
 
       const newExpirationDate = new Date();
       newExpirationDate.setDate(newExpirationDate.getDate() + 30); // ✅ adds 30 days
@@ -247,13 +248,13 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Subscription) => {
       //     }
       // });
 
-      console.log("Updated userSubs --- handleSuccessfulPayment --- invoice.billing_reason === 'subscription_create' =>> ", userSubs);
+      // console.log("Updated userSubs --- handleSuccessfulPayment --- invoice.billing_reason === 'subscription_create' =>> ", userSubs);
 
-    // ============================================
-    // RECURRING PAYMENT (subscription_cycle)
-    // ============================================
+    /*──────────────────────────────────
+    | RECURRING PAYMENT (subscription_cycle)  
+    └────────────────────────────────────*/
     }else if(invoice.billing_reason === 'subscription_cycle'){
-        console.log("=============== This is recurring subscription payment ================== 🔁2️⃣ ", invoice.billing_reason);
+        // console.log("=============== This is recurring subscription payment ================== 🔁2️⃣ ", invoice.billing_reason);
       /*
         {
           customer: 'cus_SzzhhEPsNynY9B',
@@ -291,7 +292,7 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Subscription) => {
 
       if (existingPayment) 
       {
-        console.log(`Payment already processed and and transaction is already createrd for paymentIntent: ${invoice.payment_intent}`);
+        // console.log(`Payment already processed and and transaction is already createrd for paymentIntent: ${invoice.payment_intent}`);
         return;
       }
 
@@ -310,7 +311,7 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Subscription) => {
         gatewayResponse: invoiceInfo,
       });
 
-      console.log("newPayment ->>", newPayment)
+      // console.log("newPayment ->>", newPayment)
 
       await enqueueWebNotification(
           `Recurring Subscription payment received from ${user._id} ${user.name} and paid ${invoiceInfo.subscription_metadata.amount} ${invoiceInfo.subscription_metadata.currency} successfully.`,
@@ -353,7 +354,7 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Subscription) => {
         }
       });
 
-      console.log("Updated updatedUserSub ->>", updatedUserSub) 
+      // console.log("Updated updatedUserSub ->>", updatedUserSub) 
 
 
       // 2. Mark user as having used free trial (option 2: after first payment)
@@ -364,12 +365,12 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Subscription) => {
           }
       });
 
-    // ============================================
-    // SUBSCRIPTION UPDATE (plan change, proration) | we need to work on this
-    // ============================================  
+    /*──────────────────────────────────
+    | SUBSCRIPTION UPDATE (plan change, proration) | we need to work on this   
+    └────────────────────────────────────*/
     }else if(invoice.billing_reason === 'subscription_update'){
       
-      console.log("⚡ This is subscription update payment (plan change, proration, etc.)");
+      // console.log("⚡ This is subscription update payment (plan change, proration, etc.)");
       // Create payment transaction
       await PaymentTransaction.create({
         userId: metadata.userId,
@@ -396,7 +397,7 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Subscription) => {
     
     
     }else if(invoice.billing_reason === 'trial_end'){
-        console.log("⚠️ This is trial end - usually triggers subscription_create invoice");
+        // console.log("⚠️ This is trial end - usually triggers subscription_create invoice");
 
         await enqueueWebNotification(
           `Trial ended for user ${user._id} ${user.name}.`,
@@ -409,7 +410,7 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Subscription) => {
       );
 
     }else {
-        console.log("⚡ Other billing reason: ", invoice.billing_reason);
+        // console.log("⚡ Other billing reason: ", invoice.billing_reason);
     }
 
     

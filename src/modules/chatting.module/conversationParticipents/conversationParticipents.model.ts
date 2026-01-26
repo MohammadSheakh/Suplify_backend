@@ -35,14 +35,33 @@ const conversationParticipentsSchema = new Schema<IConversationParticipents>(
       required: [true, 'Role is required'],
     },
 
+    //🆕 we need to use this field .. 
     lastMessageReadAt: {
       type: Date,
       required: [false, 'lastMessageReadAt is not required'],
     },
+
+    //🆕 may be we dont need this field right now 
+    lastMessageReadId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Message',
+      required: [false, 'lastMessageReadId is not required'],
+    },
+
+    //🆕 ❌ Unread count becomes stateful and fragile.
+    // we have this only for show value .. 
     unreadCount: {
       type: Number,
       required: [false, 'unreadCount is not required']
     },
+
+    //🆕  --- value could be 0 or 1 .. 0 means ... no unseen message found
+    // ------------------------------- 1 means unseen message found
+    isThisConversationUnseen: {
+      type: Number,
+      required: [false, 'unreadCount is not required']
+    },
+
     isDeleted: {
       type: Boolean,
       required: [false, 'isDeleted is not required'],
@@ -54,13 +73,6 @@ const conversationParticipentsSchema = new Schema<IConversationParticipents>(
 
 conversationParticipentsSchema.plugin(paginate);
 
-conversationParticipentsSchema.pre('save', function(next) {
-  // Rename _id to _projectId
-  // this._taskId = this._id;
-  // this._id = undefined;  // Remove the default _id field
-  //this.renewalFee = this.initialFee
-  next();
-});
 
 // Use transform to rename _id to _projectId
 conversationParticipentsSchema.set('toJSON', {

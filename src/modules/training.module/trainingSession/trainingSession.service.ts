@@ -105,10 +105,6 @@ export class TrainingSessionService extends GenericService<
     options: any = {} // Pagination options
   ) {
     
-    // console.log("trainingProgramId :: ", trainingProgramId);
-    // console.log("patientId :: ", patientId);
-    // console.log("options :: ", options);
-
     // Build the aggregation pipeline
     const pipeline = [
       // Match all training sessions for the given program

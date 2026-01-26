@@ -70,11 +70,6 @@ router.route('/').get(
 
 //[🚧][🧑‍💻✅][🧪] // 🆗
 router.route('/create').post(
-  // [
-  //   upload.fields([
-  //     { name: 'attachments', maxCount: 15 }, // Allow up to 5 cover photos
-  //   ]),
-  // ],
   auth('common'),
   validateRequest(validation.createHelpMessageValidationSchema),
   controller.create

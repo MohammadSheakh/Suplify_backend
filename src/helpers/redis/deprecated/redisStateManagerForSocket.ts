@@ -1,6 +1,6 @@
 import Redis from 'ioredis';
 import colors from 'colors';
-import { logger } from '../../shared/logger';
+import { logger } from '../../../shared/logger';
 
 interface UserConnectionInfo {
   socketId: string;
@@ -24,9 +24,9 @@ export class RedisStateManager {
     this.redis = redisClient;
   }
 
-  // =============================================
-  // Online Users Management
-  // =============================================
+  /*──────────────────────────────────
+  |   Online Users Management
+  └────────────────────────────────────*/
 
   async addOnlineUser(userId: string, socketId: string, workerId: string, userInfo?: any): Promise<void> {
     const pipeline = this.redis.pipeline();

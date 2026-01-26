@@ -12,7 +12,8 @@ const planByDoctorSchema = new Schema<IPlanByDoctor>(
         TPlanByDoctor.lifeStyleChanges,
         TPlanByDoctor.mealPlan,
         TPlanByDoctor.suppliment,
-        TPlanByDoctor.workOut
+        TPlanByDoctor.workOut,
+        TPlanByDoctor.labTest
       ],
       required: [true, `planType is required .. it can be  ${Object.values(TPlanByDoctor).join(
         ', '
@@ -37,16 +38,32 @@ const planByDoctorSchema = new Schema<IPlanByDoctor>(
     
     description: {
       type: String,
-      required: [true, 'description is required'],
+      required: [false, 'description is not required'],
     },
     keyPoints : {
       type: [String],
-      required : [true, 'keyPoints are required']
+      required : [false, 'keyPoints are not required']
     },
     totalKeyPoints : {
       type: Number,
-      required: [true, 'totalKeyPoints is required']
+      required: [false, 'totalKeyPoints is not required']
     },
+
+    // 🆕
+    link: {
+      type: String,
+      required: [false, 'link is not required'],
+    },
+
+    // 🆕
+    attachments: [  //🔗
+      {
+          type: Schema.Types.ObjectId,
+          ref: 'Attachment',
+          required: [false, 'attachments is not required'],
+      }
+    ],
+
     patientId: { //🔗 for which patient
       type: Schema.Types.ObjectId,
       ref: 'User',
@@ -62,15 +79,6 @@ const planByDoctorSchema = new Schema<IPlanByDoctor>(
 );
 
 planByDoctorSchema.plugin(paginate);
-
-planByDoctorSchema.pre('save', function (next) {
-  // Rename _id to _projectId
-  // this._taskId = this._id;
-  // this._id = undefined;  // Remove the default _id field
-  //this.renewalFee = this.initialFee
-
-  next();
-});
 
 // Use transform to rename _id to _projectId
 planByDoctorSchema.set('toJSON', {

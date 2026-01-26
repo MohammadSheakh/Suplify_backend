@@ -21,11 +21,6 @@ const orderSchema = new Schema<IOrder>(
       type : String,
       enum : [
         TOrderRelatedTo.product,
-        // TOrderRelatedTo.labTest,
-        // TOrderRelatedTo.appointment,
-        // TOrderRelatedTo.trainingProgram,
-        // TOrderRelatedTo.workoutClass,
-        // TOrderRelatedTo.subscription,
       ],
       required: [
         true,
@@ -198,15 +193,6 @@ const orderSchema = new Schema<IOrder>(
 );
 
 orderSchema.plugin(paginate);
-
-orderSchema.pre('save', function(next) {
-  // Rename _id to _projectId
-  // this._taskId = this._id;
-  // this._id = undefined;  // Remove the default _id field
-  //this.renewalFee = this.initialFee
-  
-  next();
-});
 
 
 // Use transform to rename _id to _projectId

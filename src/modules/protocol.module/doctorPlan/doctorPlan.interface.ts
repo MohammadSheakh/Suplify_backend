@@ -9,7 +9,7 @@ export interface IDoctorPlan {
   planType: TPlanByDoctor.lifeStyleChanges |
       TPlanByDoctor.mealPlan |
       TPlanByDoctor.suppliment |
-      TPlanByDoctor.workOut;
+      TPlanByDoctor.workOut | TPlanByDoctor.labTest;
 
   createdBy: Types.ObjectId; //🔗 doctor Id  
   title: string;

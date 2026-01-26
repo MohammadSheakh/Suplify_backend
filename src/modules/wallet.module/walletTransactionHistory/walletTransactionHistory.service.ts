@@ -83,7 +83,7 @@ export class WalletTransactionHistoryService extends GenericService<
       status: TWalletTransactionStatus.completed,
     };
 
-    console.log("baseQuery ::", baseQuery)
+    // console.log("baseQuery ::", baseQuery)
 
     const [
       totalEarnings,

@@ -14,7 +14,7 @@ import { handleSubscriptionDates } from './handleSubscriptionDates';
 import { handleTrialWillEnd } from './handleTrialWillEnd';
 
 const webhookHandler = async (req: Request, res: Response): Promise<void> => {
-     console.log('Webhook received');
+     // console.log('Webhook received');
      const sig = req.headers['stripe-signature'];
      const webhookSecret = config.stripe.webhookSecret;
 
@@ -34,7 +34,7 @@ const webhookHandler = async (req: Request, res: Response): Promise<void> => {
           return;
      }
 
-     console.log('event.type', event.type);
+     // console.log('event.type', event.type);
      try {
           switch (event.type) {
                case 'checkout.session.completed': 
@@ -134,7 +134,7 @@ const webhookHandler = async (req: Request, res: Response): Promise<void> => {
                     break;
                default:
                     // console.log(`Unhandled event type: ${event.type}`);
-                    console.log("🪝🪝unhandled🪝🪝", event.type)
+                    // console.log("🪝🪝unhandled🪝🪝", event.type)
                     break;
           }
 

@@ -119,7 +119,11 @@ export class WithdrawalRequstController extends GenericController<
     }) // TODO : MUST : add logic 
 
     // if last Withdrawal request is in week then we can not create withdrawal request
-    /************** TODO : MUST .. uncomment this part
+    /*──────────────────────────────────
+    |  TODO : MUST .. uncomment this part
+    └────────────────────────────────────*/
+
+    
     if (lastWithdrawalRequest && 
       lastWithdrawalRequest.createdAt > new Date(new Date().getTime() - 7 * 24 * 60 * 60 * 1000)
     ) {
@@ -129,11 +133,10 @@ export class WithdrawalRequstController extends GenericController<
         success: false,
       });
     }
-    ************* */
-
-    //------------------------------------
-    // TODO : MUST : Send Notification to Admin that a withdrawal request is created
-    //------------------------------------
+    
+    /*──────────────────────────────────
+    |  TODO : MUST : Send Notification to Admin that a withdrawal request is created 
+    └────────────────────────────────────*/
     
     await enqueueWebNotification(
       `An withdrawal request is created by ${(req.user as IUser).userId} ${(req.user as IUser).userName} for $${data.requestedAmount}`,
@@ -156,9 +159,9 @@ export class WithdrawalRequstController extends GenericController<
     });
   });
 
-  //---------------------------------
-  //  Admin | Upload receipt And Update status 
-  //---------------------------------
+  /*──────────────────────────────────
+  | Admin | Upload receipt And Update status  
+  └────────────────────────────────────*/
   uploadReceiptAndUpdateStatus = catchAsync(async (req: Request, res: Response) => {
     /*******
      * 📝
@@ -186,9 +189,6 @@ export class WithdrawalRequstController extends GenericController<
       });
     }
 
-    // console.log("proofOfPayment 👈", proofOfPayment);
-    // console.log("proofOfPayment 👈 type of :: ", typeof proofOfPayment);
-
     withdrawalRequst.proofOfPayment = proofOfPayment[0];
     withdrawalRequst.status = TWithdrawalRequst.completed;
     withdrawalRequst.processedAt = new Date();
@@ -214,10 +214,7 @@ export class WithdrawalRequstController extends GenericController<
         userId : withdrawalRequst.userId
       });
 
-      console.log("log: wallet.amount => ", typeof wallet.amount,"~~~", wallet.amount);
-      console.log("log: withdrawalRequst.requestedAmount => ", typeof withdrawalRequst.requestedAmount , "~~~", withdrawalRequst.requestedAmount);
-      console.log("log: wallet.amount - withdrawalRequst.requestedAmount  result => ", wallet.amount - withdrawalRequst.requestedAmount);
-
+      
       if(wallet){
 
         balanceBeforeTransaction = wallet.amount;
