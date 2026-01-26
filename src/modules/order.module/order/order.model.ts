@@ -21,11 +21,6 @@ const orderSchema = new Schema<IOrder>(
       type : String,
       enum : [
         TOrderRelatedTo.product,
-        // TOrderRelatedTo.labTest,
-        // TOrderRelatedTo.appointment,
-        // TOrderRelatedTo.trainingProgram,
-        // TOrderRelatedTo.workoutClass,
-        // TOrderRelatedTo.subscription,
       ],
       required: [
         true,
