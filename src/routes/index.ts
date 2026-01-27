@@ -41,6 +41,7 @@ import { PatientTrainingSessionRoute } from '../modules/training.module/patientT
 import { SpecialistSuggestionForAPlanRoute } from '../modules/protocol.module/specialistSuggestionForAPlan/specialistSuggestionForAPlan.route';
 import { SuplifyHotspotRoute } from '../modules/suplifyHotspot/suplifyHotspot.route';
 import { HireSpecialistRequestToAdminRoute } from '../modules/personRelationships.module/hireSpecialistRequestToAdmin/hireSpecialistRequestToAdmin.route';
+import { RequestForViseSubscriptionToAdminRoute } from '../modules/personRelationships.module/requestForViseSubscriptionToAdmin/requestForViseSubscriptionToAdmin.route';
 
 // import { ChatRoutes } from '../modules/chat/chat.routes';
 // import { MessageRoutes } from '../modules/message/message.routes';
@@ -193,6 +194,11 @@ const apiRoutes = [
     route: specialistPatientRoute,
   },
 
+  //---------------------------------------- Request For Vise Subscription 🆕
+  { // 🟢
+    path: '/vise-subscription-request',
+    route: RequestForViseSubscriptionToAdminRoute,
+  },
   //---------------------------------------- Hire Specialist 🆕
   { // 🟢
     path: '/hire-specialist',
