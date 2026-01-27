@@ -5,7 +5,7 @@ import { StatusCodes } from 'http-status-codes';
 import { SpecialistWorkoutClassSchedule } from './specialistWorkoutClassSchedule.model';
 import { ISpecialistWorkoutClassSchedule } from './specialistWorkoutClassSchedule.interface';
 import { GenericService } from '../../_generic-module/generic.services';
-import { toLocalTime, toUTCTime } from '../../../utils/timezone';
+import { buildLocalDateTime, mergeDateAndTime, toLocalTime, toUTCTime } from '../../../utils/timezone';
 import { PaginateOptions } from '../../../types/paginate';
 import PaginationService from '../../../common/service/paginationService';
 import { TPaymentStatus } from '../specialistPatientScheduleBooking/specialistPatientScheduleBooking.constant';
@@ -30,18 +30,18 @@ export class SpecialistWorkoutClassScheduleService extends GenericService<
     if(data.scheduleDate && data.startTime && data.endTime) {
         const scheduleDate = new Date(data.scheduleDate);
         
-        // console.log("data.startTime before ->>>", data.startTime, typeof data.startTime)
-        // console.log("data.scheduleDate before ->>>", data.scheduleDate, typeof data.scheduleDate)
+        console.log("data.startTime before ->>>", data.startTime, typeof data.startTime)
+        console.log("data.scheduleDate before ->>>", data.scheduleDate, typeof data.scheduleDate)
 
         data.startTime = toUTCTime(data.startTime, userTimeZone);
         data.endTime = toUTCTime(data.endTime, userTimeZone);
 
-        // console.log("scheduleDate.getTime() ->>>", scheduleDate.getTime())
+        console.log("scheduleDate.getTime() ->>>", scheduleDate.getTime())
 
         
-        // console.log("data.startTime.getTime() ->>>", data.startTime.getTime())
+        console.log("data.startTime.getTime() ->>>", data.startTime.getTime())
 
-        // console.log("data.endTime.getTime() ->>>", data.endTime.getTime())
+        console.log("data.endTime.getTime() ->>>", data.endTime.getTime())
 
 
         if(isNaN(scheduleDate.getTime()) ) {
@@ -97,7 +97,7 @@ export class SpecialistWorkoutClassScheduleService extends GenericService<
   
   }
 
-    /*-─────────────────────────────────
+    /*-───────────────────────────────── THIS CODE HAS SERIOUS LOGIC ISSUE
     |  Client want to create workout class oneTime and repeat mode like google calender.. 
     |  if "repeat" selected .. then client needs to provide
     |  weekDays [ "saturday" ], startDate, endDate 
@@ -122,6 +122,8 @@ export class SpecialistWorkoutClassScheduleService extends GenericService<
     if (data.startTime >= data.endTime) throw new Error('Start time must be before end time');
 
     if (data.startTime < new Date()) throw new Error('Start time must be in the future');
+
+    //< 
 
     // ----------------------------
     // ONE_TIME
@@ -324,6 +326,49 @@ export class SpecialistWorkoutClassScheduleService extends GenericService<
         }
     },
 
+    ////////////////////////////////// 🆕 block start
+
+    // Lookup hotspot details
+    {
+        $lookup: {
+            from: 'suplifyhotspots',
+            localField: 'hotspotId',
+            foreignField: '_id',
+            as: 'hotspot',
+        },
+    },
+
+    // Convert hotspot array → object //🆕
+    {
+        $unwind: {
+            path: '$hotspot',
+            preserveNullAndEmptyArrays: true, // important
+        },
+    },
+    //🆕
+    {
+        $lookup: {
+            from: 'attachments',
+            localField: 'hotspot.attachments',
+            foreignField: '_id',
+            as: 'hotspotAttachments',
+        },
+    },
+    // Convert hotspotAttachments array → object //🆕
+    {
+        $unwind: {
+            path: '$hotspotAttachments',
+            preserveNullAndEmptyArrays: true, // important
+        },
+    },
+    { //🆕
+        $addFields: {
+            'hotspot.attachments': '$hotspotAttachments',
+        },
+    },
+
+    /////////////////////////////////// 🆕 block end 
+
     // 4. Project final shape with conditional fields
     {
         $project: {
@@ -339,6 +384,25 @@ export class SpecialistWorkoutClassScheduleService extends GenericService<
             createdBy: 1,
             createdAt: 1,
             updatedAt: 1,
+            //---------------
+            scheduleType: 1, // 🆕
+            hotspotId : 1, // 🆕
+            classType : 1, // 🆕
+            repeatRule : 1, // 🆕
+
+            // 🆕 Hotspot details
+            hotspot: {
+                _id: '$hotspot._id',
+                name: '$hotspot.name',
+                address: '$hotspot.address',
+
+                // 🖼️ attachments populated
+                attachments: {
+                    _id: '$hotspot.attachments._id',
+                    attachment: '$hotspot.attachments.attachment',
+                    attachmentType : '$hotspot.attachments.attachmentType',
+                },
+            },
             
             // Conditional fields - only show if patient has valid booking
             typeOfLink: {
@@ -628,7 +692,10 @@ export class SpecialistWorkoutClassScheduleService extends GenericService<
             _id: 1,
             scheduleName: 1,
             scheduleDate: 1,
-        //   startTime: 1,
+
+        startTime: 1,
+
+
         endTime: 1,
         description: 1,
         status: 1,

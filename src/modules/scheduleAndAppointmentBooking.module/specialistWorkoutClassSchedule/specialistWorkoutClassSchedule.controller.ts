@@ -55,6 +55,9 @@ export class SpecialistWorkoutClassScheduleController extends GenericController<
 
     const result = await this.specialistWorkoutClassScheduleService.createV3(data, userTimeZone);
 
+    //const result = await this.specialistWorkoutClassScheduleService.createV4(data, userTimeZone);
+
+    
     sendResponse(res, {
       code: StatusCodes.OK,
       data: result,
