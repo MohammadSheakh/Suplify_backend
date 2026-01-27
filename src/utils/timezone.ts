@@ -13,6 +13,30 @@ export const toUTCTime = (dateString: Date | string, zone: string = 'Asia/Dhaka'
     .toJSDate();
 };
 
+export const toUTCTimeV2 = (dateString: Date | string, zone: string = 'Asia/Dhaka'): Date => {
+  // If it's already a Date object, convert to ISO string first
+  const isoString = dateString instanceof Date ? dateString.toISOString() : dateString;
+  
+  return DateTime.fromISO(isoString, { zone })
+    .toUTC()
+    .toJSDate();
+};
+
+// Helper function to combine date and time
+export const combineDateAndTime = (date: Date, timeString: string, userTimeZone: string): Date => {
+    // timeString format: "14:30:00" (24-hour format)
+    const [hours, minutes, seconds = '0'] = timeString.split(':');
+    
+    // Create a new date object with the date from 'date' and time from 'timeString'
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const day = date.getDate();
+    
+    const combined = new Date(year, month, day, parseInt(hours, 10), parseInt(minutes, 10), parseInt(seconds, 10), 0);
+    
+    return combined;
+}
+
 export const mergeDateAndTime = (date: Date, time: Date) => {
     const merged = new Date(date);
     merged.setHours(

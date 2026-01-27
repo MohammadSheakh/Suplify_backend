@@ -5,7 +5,7 @@ import { StatusCodes } from 'http-status-codes';
 import { SpecialistWorkoutClassSchedule } from './specialistWorkoutClassSchedule.model';
 import { ISpecialistWorkoutClassSchedule } from './specialistWorkoutClassSchedule.interface';
 import { GenericService } from '../../_generic-module/generic.services';
-import { buildLocalDateTime, mergeDateAndTime, toLocalTime, toUTCTime } from '../../../utils/timezone';
+import { buildLocalDateTime, combineDateAndTime, mergeDateAndTime, toLocalTime, toUTCTime, toUTCTimeV2 } from '../../../utils/timezone';
 import { PaginateOptions } from '../../../types/paginate';
 import PaginationService from '../../../common/service/paginationService';
 import { TPaymentStatus } from '../specialistPatientScheduleBooking/specialistPatientScheduleBooking.constant';
@@ -228,6 +228,129 @@ export class SpecialistWorkoutClassScheduleService extends GenericService<
 
     throw new Error('Invalid scheduleType');  
   }
+
+  async createV4(data: ISpecialistWorkoutClassSchedule, userTimeZone: string): Promise<ISpecialistWorkoutClassSchedule> {
+    
+    // ----------------------------
+    // Common validation
+    // ----------------------------
+    if (!data.startTime || !data.endTime) {
+        throw new Error('startTime and endTime are required');
+    }
+
+    // ----------------------------
+    // ONE_TIME
+    // ----------------------------
+    if (data.scheduleType === TSpecialistWorkoutClassScheduleType.oneTime) {
+        
+        if (!data.scheduleDate) throw new Error('scheduleDate is required');
+
+        const scheduleDate = new Date(data.scheduleDate);
+        if (isNaN(scheduleDate.getTime())) throw new Error('Invalid scheduleDate');
+
+        // Combine scheduleDate with time strings to create full datetime
+        const startDateTime = combineDateAndTime(scheduleDate, data.startTime as string, userTimeZone);
+        const endDateTime = combineDateAndTime(scheduleDate, data.endTime as string, userTimeZone);
+
+        // Convert to UTC
+        // data.startTime = toUTCTime(startDateTime, userTimeZone);
+        // data.endTime = toUTCTime(endDateTime, userTimeZone);
+
+        data.startTime = toUTCTimeV2(startDateTime, userTimeZone);
+        data.endTime = toUTCTimeV2(endDateTime, userTimeZone);
+
+        if (isNaN(data.startTime.getTime())) throw new Error('Invalid startTime');
+        if (isNaN(data.endTime.getTime())) throw new Error('Invalid endTime');
+        if (data.startTime >= data.endTime) throw new Error('Start time must be before end time');
+        if (data.startTime < new Date()) throw new Error('Start time must be in the future');
+
+        // Store scheduleDate as date-only (no time component)
+        data.scheduleDate = new Date(scheduleDate.toISOString().split('T')[0] + 'T00:00:00.000Z');
+
+        // Overlap check
+        const overlapping = await SpecialistWorkoutClassSchedule.findOne({
+            createdBy: data.createdBy,
+            scheduleType: TSpecialistWorkoutClassScheduleType.oneTime,
+            scheduleDate: data.scheduleDate,
+            startTime: { $lt: data.endTime },
+            endTime: { $gt: data.startTime },
+        });
+
+        if (overlapping) throw new Error('Overlapping schedule exists');
+
+        const doc = await this.model.create(data);
+
+        return {
+            ...doc.toObject(),
+            startTime: toLocalTime(doc.startTime, userTimeZone),
+            endTime: toLocalTime(doc.endTime, userTimeZone),
+        };
+    }
+
+    // ----------------------------
+    // REPEAT
+    // ----------------------------
+    if (data.scheduleType === TSpecialistWorkoutClassScheduleType.repeat) {
+        
+        const rule = data.repeatRule;
+
+        if (!rule?.weekDays?.length || !rule?.startDate || !rule?.durationWeeks) {
+            throw new Error('Invalid repeatRule');
+        }
+
+        const startDate = new Date(rule.startDate);
+        if (isNaN(startDate.getTime())) throw new Error('Invalid repeat startDate');
+
+        // Combine startDate with time strings to create full datetime
+        const startDateTime = combineDateAndTime(startDate, data.startTime as string, userTimeZone);
+        const endDateTime = combineDateAndTime(startDate, data.endTime as string, userTimeZone);
+
+        // Convert to UTC
+        // data.startTime = toUTCTime(startDateTime, userTimeZone);
+        // data.endTime = toUTCTime(endDateTime, userTimeZone);
+
+        data.startTime = toUTCTimeV2(startDateTime, userTimeZone);
+        data.endTime = toUTCTimeV2(endDateTime, userTimeZone);
+
+        if (isNaN(data.startTime.getTime())) throw new Error('Invalid startTime');
+        if (isNaN(data.endTime.getTime())) throw new Error('Invalid endTime');
+        if (data.startTime >= data.endTime) throw new Error('Start time must be before end time');
+
+        // Calculate endDate
+        const endDate = new Date(startDate);
+        endDate.setDate(endDate.getDate() + rule.durationWeeks * 7);
+
+        data.repeatRule.startDate = startDate;
+        data.repeatRule.endDate = endDate;
+
+        // Overlap check
+        const overlapping = await SpecialistWorkoutClassSchedule.findOne({
+            createdBy: data.createdBy,
+            scheduleType: TSpecialistWorkoutClassScheduleType.repeat,
+            status: 'available',
+            'repeatRule.startDate': { $lte: endDate },
+            'repeatRule.endDate': { $gte: startDate },
+            startTime: { $lt: data.endTime },
+            endTime: { $gt: data.startTime },
+            'repeatRule.weekDays': { $in: data.repeatRule.weekDays },
+        });
+
+        if (overlapping) throw new Error('Overlapping recurring schedule exists');
+
+        const doc = await this.model.create(data);
+
+        return {
+            ...doc.toObject(),
+            startTime: toLocalTime(doc.startTime, userTimeZone),
+            endTime: toLocalTime(doc.endTime, userTimeZone),
+        };
+    }
+
+    throw new Error('Invalid scheduleType');  
+}
+
+
+
 
 
   /********

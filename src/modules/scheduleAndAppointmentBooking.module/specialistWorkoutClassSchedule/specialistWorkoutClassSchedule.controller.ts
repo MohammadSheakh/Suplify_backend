@@ -53,11 +53,10 @@ export class SpecialistWorkoutClassScheduleController extends GenericController<
     
     data.createdBy = (req.user as IUser)?.userId; // speacialist Id
 
-    const result = await this.specialistWorkoutClassScheduleService.createV3(data, userTimeZone);
+    // const result = await this.specialistWorkoutClassScheduleService.createV3(data, userTimeZone);
 
-    //const result = await this.specialistWorkoutClassScheduleService.createV4(data, userTimeZone);
+    const result = await this.specialistWorkoutClassScheduleService.createV4(data, userTimeZone);
 
-    
     sendResponse(res, {
       code: StatusCodes.OK,
       data: result,
