@@ -68,7 +68,7 @@ router.route('/update/:id').put(
  * @desc change different status approved-rejected or keep pending state 
  * 
 *----------------------------------------------*/
-router.route('/change-status/:hireSpecialistId').put(
+router.route('/change-status/:viseSubscriptionRequestId').put(
   auth(TRole.admin),
   controller.changeStatus
 )
