@@ -35,7 +35,7 @@ const controller = new RequestForViseSubscriptionToAdminController();
 //
 router.route('/paginate').get(
   // auth(TRole.admin), // TODO : must auth guard add korte hobe 
-  validateFiltersForQuery(optionValidationChecking(['_id', ...paginationOptions])),
+  validateFiltersForQuery(optionValidationChecking(['_id', 'status', ...paginationOptions])),
   setQueryOptions({
     populate: [
       {
@@ -54,7 +54,7 @@ router.route('/:id').get(
   controller.getById
 );
 
-router.route('/update/:id').put(
+router.route('/:id').put(
   //auth('common'),
   // validateRequest(validation.createHelpMessageValidationSchema),
   controller.updateById
@@ -71,6 +71,11 @@ router.route('/update/:id').put(
 router.route('/change-status/:viseSubscriptionRequestId').put(
   auth(TRole.admin),
   controller.changeStatus
+)
+
+router.route('/cancel-vise/:viseSubscriptionRequestId').put(
+  auth(TRole.admin),
+  controller.cancelViseSubscription
 )
 
 //[🚧][🧑‍💻✅][🧪] // 🆗

@@ -3,3 +3,5 @@ export enum THireStatus {
   approved = 'approved',
   rejected = 'rejected',
 }
+
+

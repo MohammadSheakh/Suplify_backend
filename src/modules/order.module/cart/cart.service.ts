@@ -23,7 +23,7 @@ export class CartService extends GenericService<
       userId: userId
     });
 
-    console.log("🟡cart🟡 ", cart);
+    // console.log("🟡cart🟡 ", cart);
 
     if(!cart){
       throw new ApiError(StatusCodes.NOT_FOUND, 'Cart not found');
@@ -47,7 +47,7 @@ export class CartService extends GenericService<
       }
     });
 
-    console.log("cartItems ", cartItems);
+    // console.log("cartItems ", cartItems);
 
     return cartItems;
 

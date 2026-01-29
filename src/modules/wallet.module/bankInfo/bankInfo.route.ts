@@ -62,7 +62,7 @@ router.route('/create-or-update').put(
 
 //[🚧][🧑‍💻✅][🧪] // 🆗
 router.route('/').get(
-  auth('commonAdmin'),
+  auth(TRole.common),
   controller.getAll
 );
 

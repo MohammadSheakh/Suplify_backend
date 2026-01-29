@@ -222,5 +222,89 @@ export class RequestForViseSubscriptionToAdminController extends GenericControll
     });
   });
 
+  cancelViseSubscription = catchAsync(async (req: Request, res: Response) => {
+    // const status = req.body.status;
+
+    const viseSubscriptionRequestId = req.params.viseSubscriptionRequestId
+
+    // first get the original status .. and check object is aviable or not
+    const isObjectExist:IRequestForViseSubscriptionToAdmin = await RequestForViseSubscriptionToAdmin.findById(viseSubscriptionRequestId);
+    
+    if(!isObjectExist){
+      throw new ApiError(StatusCodes.NOT_FOUND, 'RequestForViseSubscriptionToAdmin Object not found');
+    }
+
+    if(isObjectExist.status != THireStatus.approved){
+      return sendResponse(res, {
+        code: StatusCodes.OK,
+        data: null,
+        message: `You can not change this persons status`,
+        success: true,
+      });
+    }
+
+    
+    // first check patients current subscription
+    const isUserFound:IUser = await User.findOne({
+      _id : isObjectExist.patientId,
+    })
+
+    if(!isUserFound){
+      return sendResponse(res, {
+        code: StatusCodes.OK,
+        data: null,
+        message: `User not found !`,
+        success: true,
+      });
+    }
+    // user is found so .. we now check users current subscription
+
+    if(isUserFound.subscriptionType == TSubscription.vise){
+
+
+      // update users subscription
+      const updatedUser:IUser = User.findByIdAndUpdate(
+        isObjectExist.patientId,
+        {
+            subscriptionType : TSubscription.none,
+        },
+        {
+          new : true,
+        }
+      )
+
+      await enqueueWebNotification(
+        `Your subscription is changed back to none by admin`,
+        req.user.userId, // senderId
+        isObjectExist.patientId, // receiverId
+        TRole.patient, // receiverRole
+        TNotificationType.system, // type
+        //---------------------------------
+        // In UI there is no details page for specialist's schedule
+        //---------------------------------
+
+        // '', // linkFor
+        // existingWorkoutClass._id // linkId
+      );
+
+      await RequestForViseSubscriptionToAdmin.findByIdAndDelete(viseSubscriptionRequestId);
+
+      return sendResponse(res, {
+        code: StatusCodes.OK,
+        data: null,
+        message: `This Persons subscription is changed to none`,
+        success: true,
+      });
+    }
+
+    sendResponse(res, {
+        code: StatusCodes.OK,
+        data: null,
+        message: `This Person have no vise subscription`,
+        success: true,
+    });
+
+  })
+
   // add more methods here if needed or override the existing ones 
 }

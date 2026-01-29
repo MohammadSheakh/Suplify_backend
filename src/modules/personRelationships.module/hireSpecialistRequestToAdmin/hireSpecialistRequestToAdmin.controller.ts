@@ -83,6 +83,7 @@ export class HireSpecialistRequestToAdminController extends GenericController<
         isDeleted : false,
       })
 
+    
       if(isActualRelationExist){
         // if relation exist .. 
         //---- send immediate response ..  
@@ -92,49 +93,48 @@ export class HireSpecialistRequestToAdminController extends GenericController<
           message: `Specialist already assigned to this patient`,
           success: true,
         });
+      }else{
+        //create actual relation
+        const createdObject = await SpecialistPatient.create({
+          patientId : isObjectExist.patientId,
+          specialistId : isObjectExist.specialistId,
+          relationCreatedBy: TRelationCreatedBy.admin
+        })
+
+        const updatedObject =  await HireSpecialistRequestToAdmin.findByIdAndUpdate(
+          hireSpecialsitRequestToAdminId,
+          {
+            status : THireStatus.approved,
+          },
+          {
+            new: true,
+          }
+        )
+
+        // TODO 
+        //------- Send notification to patient that .. Admin Approved That Specialist for you
+
+        await enqueueWebNotification(
+            `Hire Specialist request is approved by admin`,
+            req.user.userId, // senderId
+            isObjectExist.patientId, // receiverId
+            TRole.patient, // receiverRole
+            TNotificationType.system, // type
+            //---------------------------------
+            // In UI there is no details page for specialist's schedule
+            //---------------------------------
+
+            // '', // linkFor
+            // existingWorkoutClass._id // linkId
+        );
+
+        sendResponse(res, {
+          code: StatusCodes.OK,
+          data: isActualRelationExist,
+          message: `Status updated.`,
+          success: true,
+        });
       }
-
-      //create actual relation
-      const createdObject = await SpecialistPatient.create({
-        patientId : isObjectExist.patientId,
-        specialistId : isObjectExist.specialistId,
-        relationCreatedBy: TRelationCreatedBy.admin
-      })
-
-      const updatedObject =  await HireSpecialistRequestToAdmin.findByIdAndUpdate(
-        hireSpecialsitRequestToAdminId,
-        {
-          status : THireStatus.approved,
-        },
-        {
-          new: true,
-        }
-      )
-
-      // TODO 
-      //------- Send notification to patient that .. Admin Approved That Specialist for you
-
-      await enqueueWebNotification(
-          `Hire Specialist request is approved by admin`,
-          req.user.userId, // senderId
-          isObjectExist.patientId, // receiverId
-          TRole.patient, // receiverRole
-          TNotificationType.system, // type
-          //---------------------------------
-          // In UI there is no details page for specialist's schedule
-          //---------------------------------
-
-          // '', // linkFor
-          // existingWorkoutClass._id // linkId
-      );
-
-      sendResponse(res, {
-        code: StatusCodes.OK,
-        data: isActualRelationExist,
-        message: `Status updated.`,
-        success: true,
-      });
-
     }else if (status == THireStatus.pending){
       sendResponse(res, {
         code: StatusCodes.OK,
