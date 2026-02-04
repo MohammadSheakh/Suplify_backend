@@ -42,6 +42,10 @@ import { SpecialistSuggestionForAPlanRoute } from '../modules/protocol.module/sp
 import { SuplifyHotspotRoute } from '../modules/suplifyHotspot/suplifyHotspot.route';
 import { HireSpecialistRequestToAdminRoute } from '../modules/personRelationships.module/hireSpecialistRequestToAdmin/hireSpecialistRequestToAdmin.route';
 import { RequestForViseSubscriptionToAdminRoute } from '../modules/personRelationships.module/requestForViseSubscriptionToAdmin/requestForViseSubscriptionToAdmin.route';
+import { QuestionRoute } from '../modules/question.module/question/question.route';
+import { AnswerChoiceRoute } from '../modules/question.module/answerChoice/answerChoice.route';
+import { AssessmentRoute } from '../modules/question.module/assessment/assessment.route';
+import { AssessmentAnswerRoute } from '../modules/question.module/assessmentAnswer/assessmentAnswer.route';
 
 // import { ChatRoutes } from '../modules/chat/chat.routes';
 // import { MessageRoutes } from '../modules/message/message.routes';
@@ -155,7 +159,23 @@ const apiRoutes = [
     path: '/doctor-appointments/bookings',
     route: DoctorPatientScheduleBookingRoute,
   },
+
+  //----------------------------------------  Questions
+  { // 🟢 //-------------- admin create question with answer-choices
+    path: '/questions',
+    route: QuestionRoute,
+  },
+  { // 🟢
+    path: '/answer-choices',
+    route: AnswerChoiceRoute,
+  },
+  { // 🟢 --------------------- if a person submit answer we create a assessment document for him
+    path: '/assessment-answers',
+    route: AssessmentAnswerRoute,
+  },
+
   //---------------------------------------- Doctor Plan (protocol)
+  
   { // 🟢
     path: '/doctor-plans/',
     route: DoctorPlanRoute,

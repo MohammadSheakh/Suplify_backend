@@ -52,7 +52,7 @@ SuggestionBySpecialistSchema.plugin(paginate);
 
 // Use transform to rename _id to _projectId
 SuggestionBySpecialistSchema.set('toJSON', {
-  transform: function (doc, ret, options) {
+  transform: function (doc:any, ret:any, options:any) {
     ret._SuggestionBySpecialistId = ret._id; // Rename _id to _subscriptionId
     delete ret._id; // Remove the original _id field
     return ret;
