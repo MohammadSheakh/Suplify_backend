@@ -66,7 +66,6 @@ export class GenericController<ModelType, InterfaceType> {
     });
   });
 
-  // Get all items  //[🚧][🧑‍💻✅][🧪] // 🆗
   getAll = catchAsync(async (req: Request, res: Response) => {
     const result = await this.service.getAll();
 
@@ -223,7 +222,7 @@ export class GenericController<ModelType, InterfaceType> {
 
   updateWithImageById = catchAsync(async (req: Request, res: Response) => {
 
-    console.log("req.body coming from nerob vai ->>> ", req.body)
+    // console.log("req.body coming from nerob vai ->>> ", req.body)
 
     if (!req.params.id) {
       throw new ApiError(
@@ -242,7 +241,7 @@ export class GenericController<ModelType, InterfaceType> {
       ...req.body
     }
 
-    console.log("existingObjectDTO -> nerob vai ->>>>", existingObjectDTO);
+    // console.log("existingObjectDTO -> nerob vai ->>>>", existingObjectDTO);
 
     const updatedObject = await this.service.updateById(id, /*req.body*/ existingObjectDTO);
     
@@ -256,7 +255,7 @@ export class GenericController<ModelType, InterfaceType> {
     ---------------------*/
 
 
-    console.log("updated object ->>>> ", updatedObject);
+    // console.log("updated object ->>>> ", updatedObject);
 
     if (!updatedObject) {
       throw new ApiError(
