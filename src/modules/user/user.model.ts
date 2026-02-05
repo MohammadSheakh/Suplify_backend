@@ -194,7 +194,15 @@ const userSchema = new Schema<TUser, UserModal>(
       ref: 'Wallet',
       required: false, // patient dont need any wallet .. only doctor and specialist need wallet 
       default: null,
-    }
+    },
+
+    //--------------------------------- 🆕
+    // Patients Form Submit Logic 
+    //---------------------------------
+    isFormSubmitted: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,

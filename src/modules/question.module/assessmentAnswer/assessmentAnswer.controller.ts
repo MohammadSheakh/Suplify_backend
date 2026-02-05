@@ -20,7 +20,7 @@ export class AssessmentAnswerController extends GenericController<
 
   submitAnswers = catchAsync(async (req: Request, res: Response) => {
     const { answers }: ISubmitAnswers = req.body;
-    const userId = req.user._id; // from auth middleware
+    const userId = req.user.userId; // from auth middleware
 
     const result = await this.assessmentAnswerService.submitAnswers(
       // assessmentId, 

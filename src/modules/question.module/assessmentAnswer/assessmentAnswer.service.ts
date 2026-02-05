@@ -7,6 +7,7 @@ import ApiError from '../../../errors/ApiError';
 import { Question } from '../question/question.model';
 //@ts-ignore
 import mongoose from 'mongoose';
+import { User } from '../../user/user.model';
 
 
 export class AssessmentAnswerService extends GenericService<
@@ -26,6 +27,23 @@ export class AssessmentAnswerService extends GenericService<
     session.startTransaction();
 
     try {
+
+      console.log("userId :: ", userId);
+
+      //-- Check form is already submitted or not 
+      const isFormSubmitted = await User.exists(
+        { _id: userId, isFormSubmitted: true },
+        { session }
+      );
+      console.log("isFormSubmitted", isFormSubmitted);
+
+      if(isFormSubmitted){
+        throw new ApiError(
+          StatusCodes.BAD_REQUEST,
+          'Form has already been submitted'
+        );
+      }
+
       /*------------------
       // 1. Verify assessment belongs to user
       const assessment = await AssessmentAnswer.findOne({
@@ -88,21 +106,45 @@ export class AssessmentAnswerService extends GenericService<
         };
       });
 
+      /*--------------------
       // 4. Upsert answers (update if exists, insert if new)
       const bulkOps = validatedAnswers.map(answer => ({
         updateOne: {
           filter: {
             // assessmentId: answer.assessmentId,
             questionId: answer.questionId,
+            userId: userId,
           },
           update: {
             $set: {
               questionId : answer.questionId,
               answerValue: answer.answerValue,
               answerType : answer.answerType,
-
               updatedAt: new Date(),
-              userId : userId,
+              userId : answer.userId,
+            },
+          },
+          upsert: true,
+        },
+      }));
+      ----------------------*/
+
+      const bulkOps = validatedAnswers.map(answer => ({
+        updateOne: {
+          filter: {
+            questionId: answer.questionId,
+            userId: userId,
+          },
+          update: {
+            $set: {
+              answerValue: answer.answerValue,
+              answerType: answer.answerType,
+              updatedAt: new Date(),
+            },
+            $setOnInsert: {
+              questionId: answer.questionId,
+              userId: userId,
+              createdAt: new Date(),
             },
           },
           upsert: true,
@@ -115,6 +157,13 @@ export class AssessmentAnswerService extends GenericService<
       // assessment.isCompleted = true;
       // assessment.completedAt = new Date();
       // await assessment.save({ session });
+
+      //------- Update user's isFormSubmitted to true
+      await User.updateOne(
+        { _id : userId},
+        { $set: { isFormSubmitted : true }},
+        { session }
+      );
 
       await session.commitTransaction();
 
