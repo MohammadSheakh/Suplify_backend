@@ -256,6 +256,18 @@ export class SubscriptionPlanService extends GenericService<typeof SubscriptionP
             },
         });
 
+
+        // update user's subscription to vice subscription
+        await User.findByIdAndUpdate(
+            patientId,
+            {
+                subscriptionType : TSubscription.vise,
+            },
+            {
+                new : true,
+            }
+        )
+
         //  Send Notification to patient that .. admin cancel your current subscription and assign vice subscription to you
         await enqueueWebNotification(
             `Admin cancel your current subscription and assign vice subscription to you.`,

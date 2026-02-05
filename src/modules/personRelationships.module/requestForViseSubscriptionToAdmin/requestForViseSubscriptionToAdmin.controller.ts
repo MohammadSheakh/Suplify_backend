@@ -95,7 +95,7 @@ export class RequestForViseSubscriptionToAdminController extends GenericControll
         // user is found so .. we now check users current subscription
 
         if(isUserFound.subscriptionType == TSubscription.vise){
-          sendResponse(res, {
+          return sendResponse(res, {
             code: StatusCodes.OK,
             data: null,
             message: `This Person already have vise subscription`,
@@ -103,9 +103,9 @@ export class RequestForViseSubscriptionToAdminController extends GenericControll
           });
         }else if (isUserFound.subscriptionType == TSubscription.standard){
           
-          this.subscriptionPlanService.cancelPatientsSubscriptionAndAssignViseSubscription(req.user.userId, isObjectExist.patientId);
+          await this.subscriptionPlanService.cancelPatientsSubscriptionAndAssignViseSubscription(req.user.userId, isObjectExist.patientId);
 
-          sendResponse(res, {
+          return sendResponse(res, {
             code: StatusCodes.OK,
             data: null,
             // message: `He need to cancel his standard subscription first.`,
@@ -114,9 +114,9 @@ export class RequestForViseSubscriptionToAdminController extends GenericControll
           });
         }else if(isUserFound.subscriptionType == TSubscription.standardPlus){
 
-          this.subscriptionPlanService.cancelPatientsSubscriptionAndAssignViseSubscription(req.user.userId, isObjectExist.patientId);
+          await this.subscriptionPlanService.cancelPatientsSubscriptionAndAssignViseSubscription(req.user.userId, isObjectExist.patientId);
 
-          sendResponse(res, {
+          return sendResponse(res, {
             code: StatusCodes.OK,
             data: null,
             // message: `He need to cancel his standardPlus subscription first.`,
@@ -124,7 +124,7 @@ export class RequestForViseSubscriptionToAdminController extends GenericControll
             success: true,
           });
         }else if (isUserFound.subscriptionType == TSubscription.freeTrial){
-          sendResponse(res, {
+          return sendResponse(res, {
             code: StatusCodes.OK,
             data: null,
             message: `He is in free trial now.`,
@@ -133,7 +133,7 @@ export class RequestForViseSubscriptionToAdminController extends GenericControll
         }else if (isUserFound.subscriptionType == TSubscription.none){
 
           // update users subscription
-          const updatedUser:IUser = User.findByIdAndUpdate(
+          const updatedUser:IUser = await User.findByIdAndUpdate(
             isObjectExist.patientId,
             {
                 subscriptionType : TSubscription.vise,
@@ -142,7 +142,6 @@ export class RequestForViseSubscriptionToAdminController extends GenericControll
               new : true,
             }
           )
-
 
           const updatedObject =  await RequestForViseSubscriptionToAdmin.findByIdAndUpdate(
             viseSubscriptionRequestId,
@@ -153,7 +152,6 @@ export class RequestForViseSubscriptionToAdminController extends GenericControll
               new: true,
             }
           )
-          
         }
       }
 
@@ -175,15 +173,15 @@ export class RequestForViseSubscriptionToAdminController extends GenericControll
         // existingWorkoutClass._id // linkId
       );
 
-      sendResponse(res, {
+      return sendResponse(res, {
         code: StatusCodes.OK,
-        data: isActualRelationExist,
+        data: null,
         message: `Status updated.`,
         success: true,
       });
 
     }else if (status == THireStatus.pending){
-      sendResponse(res, {
+      return sendResponse(res, {
         code: StatusCodes.OK,
           data: null,
           message: `Status updated.`,
@@ -216,7 +214,7 @@ export class RequestForViseSubscriptionToAdminController extends GenericControll
           // existingWorkoutClass._id // linkId
       );
 
-      sendResponse(res, {
+      return sendResponse(res, {
         code: StatusCodes.OK,
           data: null,
           message: `Status is updated.`,
