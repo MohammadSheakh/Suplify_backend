@@ -81,14 +81,26 @@ export class SubscriptionController extends GenericController<
   // Cancel subscription 
   //-----------------------------------------
   // POST /api/subscription/cancel
-  cancelSubscription = async (req: Request, res: Response) => {
+  cancelSubscription = catchAsync(async (req: Request, res: Response) => {
     const user = req.user as IUser;
+    
+    const isCancelling = await UserSubscription.exists(
+      { 
+        // _id: userSub._id, 
+        userId: user.userId,
+        status: UserSubscriptionStatusType.cancelling
+      }
+    );
+
+    if (isCancelling) {
+        throw new ApiError(StatusCodes.BAD_REQUEST, 'You already cancel your subscription');
+    }
+
     const userSub:IUserSubscription = await UserSubscription.findOne({
        userId: user.userId,
        status: UserSubscriptionStatusType.active 
     });
 
-  
     if (!userSub || !userSub.stripe_subscription_id) {
         throw new ApiError(StatusCodes.NOT_FOUND, 'No active subscription found');
     }
@@ -103,33 +115,99 @@ export class SubscriptionController extends GenericController<
 
     // it will cancel the subscription at the end of the billing cycle
     await UserSubscription.findByIdAndUpdate(userSub._id, {
-        $set: { 
-          cancelledAtPeriodEnd: true, 
-          status: UserSubscriptionStatusType.cancelling 
-        },
+      $set: { 
+        cancelledAtPeriodEnd: true, 
+        status: UserSubscriptionStatusType.cancelling 
+      },
     });
 
     // TODO : MUST : Send Notification to admin that .. a person cancel subscription
 
     await enqueueWebNotification(
       // TODO : MUST : subscription plan name can not be shown from user.subscriptionPlan field .. we have to fetch current subscription status .. not from JWT token
-        `A User ${user.userId} ${user.subscriptionPlan} Cancel his subscription ${userSub.subscriptionPlanId} at ${new Date()}.`,
-        user.userId, // senderId
-        null, // receiverId
-        TRole.admin, // receiverRole
-        TNotificationType.payment, // type
-        null, // linkFor
-        null // linkId
+      `A User ${user.userId} ${user.subscriptionPlan} Cancel his subscription ${userSub.subscriptionPlanId} at ${new Date()}.`,
+      user.userId, // senderId
+      null, // receiverId
+      TRole.admin, // receiverRole
+      TNotificationType.payment, // type
+      null, // linkFor
+      null // linkId
     );
 
     sendResponse(res, {
-        code: StatusCodes.OK,
-        success: true,
-        message: 'Subscription will cancel at the end of the billing cycle',
-        data: canceledSub,
+      code: StatusCodes.OK,
+      success: true,
+      message: 'Subscription will cancel at the end of the billing cycle',
+      data: canceledSub,
     });
-  };
-  
+  });
+
+
+  /*-───────────────────────────────── ❌
+  | as per clients requirement .. client wants to cancel a persons subscription from the admin end ..
+  | and assign him vise subscription .. 
+
+  | ===== we move these logic to service layer .. and call these logic from >>requestForViseSubscriptionToAdmin.controller<<
+  └──────────────────────────────────*/
+  cancelPatientsSubscriptionAndAssignViceSubscription = catchAsync(async (req : Request, res : Response) => {
+    const {userId} = req.query.personId;
+    
+    const isCancelling = await UserSubscription.exists(
+      { 
+        // _id: userSub._id, 
+        userId: userId,
+        status: UserSubscriptionStatusType.cancelling
+      }
+    );
+
+    // if (isCancelling) {
+    //     throw new ApiError(StatusCodes.BAD_REQUEST, 'You already cancel your subscription');
+    // }
+
+    const userSub:IUserSubscription = await UserSubscription.findOne({
+       userId: userId,
+       status: UserSubscriptionStatusType.active 
+    });
+
+    if (!userSub || !userSub.stripe_subscription_id) {
+        throw new ApiError(StatusCodes.NOT_FOUND, 'No active subscription found');
+    }
+
+    const canceledSub = await stripe.subscriptions.update(userSub.stripe_subscription_id, {
+        cancel_at_period_end: true,
+    });
+
+    if (!canceledSub) {
+        throw new ApiError(StatusCodes.NOT_FOUND, 'Failed to cancel subscription');
+    }
+
+    // it will cancel the subscription at the end of the billing cycle
+    await UserSubscription.findByIdAndUpdate(userSub._id, {
+      $set: { 
+        cancelledAtPeriodEnd: true, 
+        status: UserSubscriptionStatusType.cancelling 
+      },
+    });
+
+    //  Send Notification to patient that .. admin cancel your current subscription and assign vice subscription to you
+    await enqueueWebNotification(
+      `Admin cancel your current subscription ${user.subscriptionPlan} and assign vice subscription to you.`,
+      user.userId, // senderId
+      null, // receiverId
+      TRole.admin, // receiverRole
+      TNotificationType.payment, // type
+      null, // linkFor
+      null // linkId
+    );
+
+    sendResponse(res, {
+      code: StatusCodes.OK,
+      success: true,
+      message: 'Subscription will cancel at the end of the billing cycle And Vice Subscription is successfully assigned.',
+      data: canceledSub,
+    });
+  })
+
   // ⚡⚡ For Fertie Project to suplify project
   /*
    * As Admin can create subscription plan ...

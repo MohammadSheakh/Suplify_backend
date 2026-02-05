@@ -53,7 +53,7 @@ router.route('/').get(
   controller.getAll
 );
 
-/*-─────────────────────────────────
+/*-───────────────────────────────── // 💎✨🔍 -> V2 Found
 | Patient | submit Answer 
 |  @figmaIndex 
 |  @desc 
@@ -63,6 +63,20 @@ router.route('/').post(
   // validateRequest(validation.createHelpMessageValidationSchema),
   controller.submitAnswers // submit answer
 );
+
+/*-─────────────────────────────────
+| Patient | submit Answer and checkout to stripe to purchase subscription
+|  @figmaIndex 
+|  @desc 
+└──────────────────────────────────*/
+router.route('/v2').post(
+  auth(TRole.admin), // TODO : MUST : Change to patient .. 
+  // validateRequest(validation.createHelpMessageValidationSchema),
+  controller.submitAnswersV2 // submit answer
+);
+
+
+
 
 router.route('/delete/:id').delete(
   //auth('common'),

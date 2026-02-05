@@ -20,12 +20,16 @@ import { TNotificationType } from '../../notification/notification.constants';
 import { User } from '../../user/user.model';
 import { IUser } from '../../user/user.interface';
 import { TSubscription } from '../../../enums/subscription';
+import { SubscriptionPlanService } from '../../subscription.module/subscriptionPlan/subscriptionPlan.service';
 
 export class RequestForViseSubscriptionToAdminController extends GenericController<
   typeof RequestForViseSubscriptionToAdmin,
   IRequestForViseSubscriptionToAdmin
 > {
   RequestForViseSubscriptionToAdminService = new RequestForViseSubscriptionToAdminService();
+
+  subscriptionPlanService = new SubscriptionPlanService();
+
 
   constructor() {
     super(new RequestForViseSubscriptionToAdminService(), 'RequestForViseSubscriptionToAdmin');
@@ -98,17 +102,25 @@ export class RequestForViseSubscriptionToAdminController extends GenericControll
             success: true,
           });
         }else if (isUserFound.subscriptionType == TSubscription.standard){
+          
+          this.subscriptionPlanService.cancelPatientsSubscriptionAndAssignViseSubscription(req.user.userId, isObjectExist.patientId);
+
           sendResponse(res, {
             code: StatusCodes.OK,
             data: null,
-            message: `He need to cancel his standard subscription first.`,
+            // message: `He need to cancel his standard subscription first.`,
+            message: `Standard subscription will cancel at the end of the billing cycle And Vice Subscription is successfully assigned.`,
             success: true,
           });
         }else if(isUserFound.subscriptionType == TSubscription.standardPlus){
+
+          this.subscriptionPlanService.cancelPatientsSubscriptionAndAssignViseSubscription(req.user.userId, isObjectExist.patientId);
+
           sendResponse(res, {
             code: StatusCodes.OK,
             data: null,
-            message: `He need to cancel his standardPlus subscription first.`,
+            // message: `He need to cancel his standardPlus subscription first.`,
+            message: `StandardPlus subscription will cancel at the end of the billing cycle And Vice Subscription is successfully assigned.`,
             success: true,
           });
         }else if (isUserFound.subscriptionType == TSubscription.freeTrial){
