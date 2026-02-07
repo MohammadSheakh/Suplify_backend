@@ -8,6 +8,7 @@ import auth from '../../../middlewares/auth';
 
 import multer from "multer";
 import { TRole } from '../../../middlewares/roles';
+import { setQueryOptions } from '../../../middlewares/setQueryOptions';
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
@@ -32,8 +33,14 @@ const controller = new AssessmentAnswerController();
 //
 router.route('/paginate').get(
   //auth('common'),
-  validateFiltersForQuery(optionValidationChecking(['_id', ...paginationOptions])),
-  controller.getAllWithPagination
+  validateFiltersForQuery(optionValidationChecking(['_id', 'userId', ...paginationOptions])),
+  setQueryOptions({
+    populate: [
+      { path: 'questionId', select: 'questionText answerType isRequired', /* populate: { path : ""} */ },
+    ],
+    select: '-isDeleted  -updatedAt -__v' //-createdAt
+  }),
+  controller.getAllWithPaginationV2
 );
 
 router.route('/:id').get(
@@ -70,12 +77,10 @@ router.route('/').post(
 |  @desc 
 └──────────────────────────────────*/
 router.route('/v2').post(
-  auth(TRole.admin), // TODO : MUST : Change to patient .. 
+  auth(TRole.admin, TRole.patient), 
   // validateRequest(validation.createHelpMessageValidationSchema),
   controller.submitAnswersV2 // submit answer
 );
-
-
 
 
 router.route('/delete/:id').delete(

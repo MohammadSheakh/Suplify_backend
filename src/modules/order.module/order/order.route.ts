@@ -11,6 +11,8 @@ import { TRole } from '../../../middlewares/roles';
 import multer from "multer";
 import { setQueryOptions } from '../../../middlewares/setQueryOptions';
 import { getLoggedInUserAndSetReferenceToUser } from '../../../middlewares/getLoggedInUserAndSetReferenceToUser';
+import { setRequestFiltersV2 } from '../../../middlewares/setRequstFilterAndValue';
+import { TPaymentStatus } from '../../payment.module/paymentTransaction/paymentTransaction.constant';
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
@@ -76,6 +78,9 @@ router.route('/paginate/for-user').get(
         ],
         select: '-isDeleted  -updatedAt -__v' //-createdAt
       }),
+    setRequestFiltersV2({
+      status: { $nin: [TPaymentStatus.pending] },
+    }),
   controller.getAllWithPaginationV2//getAllWithPagination 
 );
 

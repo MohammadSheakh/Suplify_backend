@@ -31,7 +31,7 @@ const controller = new QuestionController();
 
 //
 router.route('/paginate').get(
-  //auth('common'),
+  auth(TRole.common),
   validateFiltersForQuery(optionValidationChecking(['_id', ...paginationOptions])),
   controller.getAllWithPagination
 );
@@ -42,7 +42,7 @@ router.route('/paginate').get(
 |  @desc 
 └──────────────────────────────────*/
 router.route('/question-ans').get(
-  auth(TRole.admin), // Adjust guards as needed
+  auth(TRole.common), // Adjust guards as needed
   controller.getQuestionsWithAnswersByPhase
 );
 

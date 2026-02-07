@@ -83,12 +83,14 @@ export class SubscriptionPlanService extends GenericService<typeof SubscriptionP
             );
         }
 
+        /*
         if (user.subscriptionType !== TSubscription.none) {
             throw new ApiError(
                 StatusCodes.BAD_REQUEST,
                 'User is already subscribed to a plan'
             );
         }
+        */
 
         //---------------------------------
         // If stripeCustomerId found .. we dont need to create that .. 

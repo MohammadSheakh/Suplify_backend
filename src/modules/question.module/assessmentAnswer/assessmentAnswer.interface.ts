@@ -9,6 +9,7 @@ export interface IAssessmentAnswer {
   
   
   assessmentId: Types.ObjectId;
+  userId: Types.ObjectId;
   questionId: Types.ObjectId;
   answerValue: any; // MIXED — as per spec (string/number/array/etc. depending on type)
   answerType: TAssessmentAnswer;

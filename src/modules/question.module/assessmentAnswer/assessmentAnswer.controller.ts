@@ -10,6 +10,11 @@ import sendResponse from '../../../shared/sendResponse';
 import ApiError from '../../../errors/ApiError';
 import { SubscriptionPlanService } from '../../subscription.module/subscriptionPlan/subscriptionPlan.service';
 import { IUser } from '../../token/token.interface';
+import { ISubscriptionPlan } from '../../subscription.module/subscriptionPlan/subscriptionPlan.interface';
+import { SubscriptionPlan } from '../../subscription.module/subscriptionPlan/subscriptionPlan.model';
+import { TUser } from '../../user/user.interface';
+import { User } from '../../user/user.model';
+import { TSubscription } from '../../../enums/subscription';
 
 export class AssessmentAnswerController extends GenericController<
   typeof AssessmentAnswer,
@@ -53,6 +58,35 @@ export class AssessmentAnswerController extends GenericController<
       );
     }
 
+    /*----------------------------
+
+  
+    let subscriptionPlan: ISubscriptionPlan | null = await SubscriptionPlan.findById(subscriptionPlanId);
+    if (!subscriptionPlan) {
+        throw new ApiError(
+            StatusCodes.BAD_REQUEST,
+            `Subscription plan not found`
+        );
+    }
+
+    const user:TUser | null = await User.findById(userId);
+    if (!user) {
+        throw new ApiError(
+            StatusCodes.BAD_REQUEST,
+            'User not found'
+        );
+    }
+
+    if (user.subscriptionType !== TSubscription.none) {
+        throw new ApiError(
+            StatusCodes.BAD_REQUEST,
+            'User is already subscribed to a plan'
+        );
+    }
+
+    ----------------------------------*/
+
+    //---------------------
 
     const result = await this.assessmentAnswerService.submitAnswers(
       // assessmentId, 
@@ -61,10 +95,10 @@ export class AssessmentAnswerController extends GenericController<
     );
 
     const checkoutUrl = await new SubscriptionPlanService()
-    .purchaseSubscriptionForSuplify(
-      subscriptionPlanId,
-      (req.user as IUser)//.userId
-    );
+      .purchaseSubscriptionForSuplify(
+        subscriptionPlanId,
+        (req.user as IUser)//.userId
+      );
 
     sendResponse(res, {
       code: StatusCodes.OK,

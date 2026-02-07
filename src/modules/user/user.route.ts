@@ -93,7 +93,7 @@ router.route('/profile/:id').get(
     populate: [
       { path: 'profileId', select: 'approvalStatus howManyPrograms protocolNames userId description address externalLink', /* populate: { path : ""} */ },
     ],
-    select: 'name profileId email profileImage subscriptionType status role' //-createdAt
+    select: 'name profileId email profileImage subscriptionType status role isFormSubmitted' //-createdAt
   }),
   controller.getByIdV2
 );
