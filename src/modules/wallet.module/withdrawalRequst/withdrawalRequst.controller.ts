@@ -105,7 +105,7 @@ export class WithdrawalRequstController extends GenericController<
       bankRoutingNumber : bankInfo.bankRoutingNumber,
       bankAccountHolderName : bankInfo.bankAccountHolderName,
       bankAccountType : bankInfo.bankAccountType,
-      bankBranch : bankInfo.bankBranch,
+      // bankBranch : bankInfo.bankBranch,
       bankName : bankInfo.bankName,
       status : TWithdrawalRequst.requested,
       requestedAt: new Date(),

@@ -31,7 +31,7 @@ export class BankInfoService extends GenericService<
       bankInfo.bankAccountHolderName = data.bankAccountHolderName;
       bankInfo.bankAccountNumber = data.bankAccountNumber;
       bankInfo.bankAccountType = data.bankAccountType;
-      bankInfo.bankBranch = data.bankBranch;
+      // bankInfo.bankBranch = data.bankBranch;
       bankInfo.bankName = data.bankName;
       bankInfo.bankRoutingNumber = data.bankRoutingNumber;
       bankInfo.userId = id;

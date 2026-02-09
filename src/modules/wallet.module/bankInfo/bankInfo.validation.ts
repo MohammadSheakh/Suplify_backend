@@ -32,12 +32,12 @@ export const createOrUpdateBankInfoValidationSchema = z.object({
       invalid_type_error: 'bankAccountType must be either "savings" or "current"',
     }),
 
-    bankBranch: z
-      .string({
-        required_error: 'bankBranch is required',
-        invalid_type_error: 'bankBranch must be a string',
-      })
-      .min(2, { message: 'bankBranch must be at least 2 characters long' }),
+    // bankBranch: z
+    //   .string({
+    //     required_error: 'bankBranch is required',
+    //     invalid_type_error: 'bankBranch must be a string',
+    //   })
+    //   .min(2, { message: 'bankBranch must be at least 2 characters long' }),
 
     bankName: z
       .string({
