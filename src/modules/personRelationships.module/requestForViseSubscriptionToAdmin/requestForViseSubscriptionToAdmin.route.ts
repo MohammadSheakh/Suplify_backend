@@ -91,6 +91,8 @@ router.route('/').get(
  * @figmaIndex 0-0
  * @desc patient request to admin for vise subscription .. admin will approve this 
  * 
+ * I think we dont this this api now .. because .. before requesting .. patient will form fill up the question answers
+ * then he place request for vice subscription
 *----------------------------------------------*/
 router.route('/').post(
   auth(TRole.patient),

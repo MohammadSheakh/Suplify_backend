@@ -96,6 +96,8 @@ export class SubscriptionController extends GenericController<
         throw new ApiError(StatusCodes.BAD_REQUEST, 'You already cancel your subscription');
     }
 
+    // ISSUE : lets say user er duita subscription ek shathe purchase kora ase .. specific konta cancel hobe .. 
+    // sheta bola hoy nai 
     const userSub:IUserSubscription = await UserSubscription.findOne({
        userId: user.userId,
        status: UserSubscriptionStatusType.active 

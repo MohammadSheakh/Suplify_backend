@@ -13,5 +13,10 @@ router
   .route('/')
   .get(auth(TRole.common), NotificationController.getALLNotification);
 
+router.route('/send-test-notif').get(
+  auth(TRole.admin),
+  NotificationController.sendTestNotification
+)
+
 
 export const NotificationRoutes = router;

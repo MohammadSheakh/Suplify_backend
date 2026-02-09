@@ -44,7 +44,6 @@ import { HireSpecialistRequestToAdminRoute } from '../modules/personRelationship
 import { RequestForViseSubscriptionToAdminRoute } from '../modules/personRelationships.module/requestForViseSubscriptionToAdmin/requestForViseSubscriptionToAdmin.route';
 import { QuestionRoute } from '../modules/question.module/question/question.route';
 import { AnswerChoiceRoute } from '../modules/question.module/answerChoice/answerChoice.route';
-import { AssessmentRoute } from '../modules/question.module/assessment/assessment.route';
 import { AssessmentAnswerRoute } from '../modules/question.module/assessmentAnswer/assessmentAnswer.route';
 
 // import { ChatRoutes } from '../modules/chat/chat.routes';

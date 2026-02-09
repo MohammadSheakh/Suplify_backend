@@ -52,11 +52,11 @@ export class RequestForViseSubscriptionToAdminController extends GenericControll
       });
     }
 
-    const hireSpecialistDTO = {
+    const viseSubscirptionRequestDTO = {
       patientId: req.user.userId
     }
 
-    const result = await this.service.create(hireSpecialistDTO);
+    const result = await this.service.create(viseSubscirptionRequestDTO);
 
     sendResponse(res, {
       code: StatusCodes.OK,

@@ -15,12 +15,16 @@ import { SubscriptionPlan } from '../../subscription.module/subscriptionPlan/sub
 import { TUser } from '../../user/user.interface';
 import { User } from '../../user/user.model';
 import { TSubscription } from '../../../enums/subscription';
+import { RequestForViseSubscriptionToAdmin } from '../../personRelationships.module/requestForViseSubscriptionToAdmin/requestForViseSubscriptionToAdmin.model';
+import { RequestForViseSubscriptionToAdminService } from '../../personRelationships.module/requestForViseSubscriptionToAdmin/requestForViseSubscriptionToAdmin.service';
 
 export class AssessmentAnswerController extends GenericController<
   typeof AssessmentAnswer,
   IAssessmentAnswer
 > {
   assessmentAnswerService = new AssessmentAnswerService();
+  requestForViseSubscriptionToAdminService = new RequestForViseSubscriptionToAdminService();
+  
 
   constructor() {
     super(new AssessmentAnswerService(), 'AssessmentAnswer');
@@ -51,12 +55,7 @@ export class AssessmentAnswerController extends GenericController<
 
     const { subscriptionPlanId } = req.query;
     
-    if (!subscriptionPlanId) {
-      throw new ApiError(
-        StatusCodes.BAD_REQUEST,
-        'Subscription Plan ID is required in params' // TODO :  do this validation in middleware
-      );
-    }
+    
 
     /*----------------------------
 
@@ -94,6 +93,44 @@ export class AssessmentAnswerController extends GenericController<
       answers
     );
 
+    // if (!subscriptionPlanId) {
+    //   throw new ApiError(
+    //     StatusCodes.BAD_REQUEST,
+    //     'Subscription Plan ID is required in params' // TODO :  do this validation in middleware
+    //   );
+    // }
+
+    if (subscriptionPlanId == 'vise') {
+      // check if already assigned ..
+
+      const existing = await RequestForViseSubscriptionToAdmin.findOne({
+        patientId: req.user.userId
+      }).lean();
+
+      if(existing) {
+        return sendResponse(res, {
+          code: StatusCodes.OK,
+          data: existing,
+          message: `You already request for vise subscription.`,
+          success: true,
+        });
+      }
+
+      const viseSubscirptionRequestDTO = {
+        patientId: req.user.userId
+      }
+
+      await this.requestForViseSubscriptionToAdminService.create(viseSubscirptionRequestDTO);
+
+      return sendResponse(res, {
+        code: StatusCodes.OK,
+        data: existing,
+        message: `Request for vise subscription successful.`,
+        success: true,
+      });
+    }
+
+  
     const checkoutUrl = await new SubscriptionPlanService()
       .purchaseSubscriptionForSuplify(
         subscriptionPlanId,

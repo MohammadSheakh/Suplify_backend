@@ -103,7 +103,7 @@ export const processUploadedFilesForUpdate = (configs: FileFieldConfig[]) => {
         // req.body[config.name] = uploadedFiles[config.name];
       }
 
-      console.log("uploadedFiles: ", uploadedFiles);
+      // console.log("uploadedFiles: ", uploadedFiles);
 
       req.uploadedFiles = uploadedFiles;
       next();

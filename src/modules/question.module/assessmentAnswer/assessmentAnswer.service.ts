@@ -28,20 +28,19 @@ export class AssessmentAnswerService extends GenericService<
 
     try {
 
-      console.log("userId :: ", userId);
-
       //-- Check form is already submitted or not 
       const isFormSubmitted = await User.exists(
         { _id: userId, isFormSubmitted: true },
         { session }
       );
-      console.log("isFormSubmitted", isFormSubmitted);
 
       if(isFormSubmitted){
-        throw new ApiError(
-          StatusCodes.BAD_REQUEST,
-          'Form has already been submitted'
-        );
+        // throw new ApiError(
+        //   StatusCodes.BAD_REQUEST,
+        //   'Form has already been submitted'
+        // );
+
+        return;
       }
 
       /*------------------
