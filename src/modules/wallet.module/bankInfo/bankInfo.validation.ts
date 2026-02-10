@@ -27,9 +27,9 @@ export const createOrUpdateBankInfoValidationSchema = z.object({
       })
       .min(2, { message: 'bankAccountHolderName must be at least 2 characters long' }),
 
-    bankAccountType: z.enum(['savings', 'current'], {
+    bankAccountType: z.enum(['checking', 'saving'], {
       required_error: 'bankAccountType is required',
-      invalid_type_error: 'bankAccountType must be either "savings" or "current"',
+      invalid_type_error: 'bankAccountType must be either "checking" or "saving"',
     }),
 
     // bankBranch: z
