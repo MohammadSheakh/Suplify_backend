@@ -462,7 +462,11 @@ const resetPassword = async (
   //   user?.isResetPassword ? OtpType.RESET_PASSWORD : OtpType.VERIFY,
   // );
 
-  user.password = newPassword;
+  // user.password = newPassword;
+
+  user.password = await bcryptjs.hash(newPassword, 12);
+
+
   user.isResetPassword = false;
   await user.save();
   const { password, ...userWithoutPassword } = user.toObject();
