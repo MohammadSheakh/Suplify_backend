@@ -454,11 +454,14 @@ const resetPassword = async (
   if (!user) {
     throw new ApiError(StatusCodes.NOT_FOUND, 'User not found');
   }
-  await OtpService.verifyOTP(
-    user.email,
-    otp,
-    user?.isResetPassword ? OtpType.RESET_PASSWORD : OtpType.VERIFY,
-  );
+
+  //------------- As per nirob vai .. nirob vai dont want to send OTP
+  // await OtpService.verifyOTP(
+  //   user.email,
+  //   otp,
+  //   user?.isResetPassword ? OtpType.RESET_PASSWORD : OtpType.VERIFY,
+  // );
+
   user.password = newPassword;
   user.isResetPassword = false;
   await user.save();
