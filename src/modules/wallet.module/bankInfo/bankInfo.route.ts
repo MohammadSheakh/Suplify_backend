@@ -56,7 +56,7 @@ router.route('/:id').get(
  * ********** */
 router.route('/create-or-update').put(
   auth(TRole.specialist, TRole.doctor),
-  validateRequest(validation.createOrUpdateBankInfoValidationSchema),
+  // validateRequest(validation.createOrUpdateBankInfoValidationSchema),
   controller.createOrUpdate
 );
 
