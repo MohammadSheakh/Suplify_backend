@@ -98,7 +98,7 @@ export class HireSpecialistRequestToAdminController extends GenericController<
         const createdObject = await SpecialistPatient.create({
           patientId : isObjectExist.patientId,
           specialistId : isObjectExist.specialistId,
-          relationCreatedBy: TRelationCreatedBy.admin
+          relationCreatedBy: TRelationCreatedBy.system // this should be specialist 
         })
 
         const updatedObject =  await HireSpecialistRequestToAdmin.findByIdAndUpdate(
@@ -115,7 +115,7 @@ export class HireSpecialistRequestToAdminController extends GenericController<
         //------- Send notification to patient that .. Admin Approved That Specialist for you
 
         await enqueueWebNotification(
-            `Hire Specialist request is approved by admin`,
+            `Hire Specialist request is approved.`,
             req.user.userId, // senderId
             isObjectExist.patientId, // receiverId
             TRole.patient, // receiverRole
@@ -156,7 +156,7 @@ export class HireSpecialistRequestToAdminController extends GenericController<
       //------- Send notification to patient that .. Admin Reject That Specialist for you
 
       await enqueueWebNotification(
-          `Hire Specialist request is rejected by admin`,
+          `Hire Specialist request is rejected.`,
           req.user.userId, // senderId
           isObjectExist.patientId, // receiverId
           TRole.patient, // receiverRole

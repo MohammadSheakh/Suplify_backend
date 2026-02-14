@@ -11,6 +11,7 @@ import multer from "multer";
 import { TRole } from '../../../middlewares/roles';
 import { setQueryOptions } from '../../../middlewares/setQueryOptions';
 import { defaultExcludes } from '../../../constants/queryOptions';
+import { getLoggedInUserAndSetReferenceToUser } from '../../../middlewares/getLoggedInUserAndSetReferenceToUser';
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
@@ -32,10 +33,36 @@ const paginationOptions: Array<'sortBy' | 'page' | 'limit' | 'populate'> = [
 // const taskService = new TaskService();
 const controller = new HireSpecialistRequestToAdminController();
 
-//
+/*-─────────────────────────────────  // 💎✨🔍 -> V2 Found
+|  Previous flow was admin can see all hire specialist request and can approve that .. 
+└──────────────────────────────────*/
 router.route('/paginate').get(
   //auth('common'),
   validateFiltersForQuery(optionValidationChecking(['_id', ...paginationOptions])),
+  setQueryOptions({
+    populate: [
+      {
+        path: "specialistId",
+        select: `name email profileImage`
+      },
+      {
+        path: "patientId",
+        select: `name email subscriptionType profileImage`
+      }
+    ],
+    select: `-isDeleted -updatedAt -__v`
+    // // ${defaultExcludes}
+  }),
+  controller.getAllWithPaginationV2
+);
+
+/*-─────────────────────────────────  
+|  Previous flow was admin can see all hire specialist request and can approve that .. 
+└──────────────────────────────────*/
+router.route('/paginate/v2').get(
+  auth(TRole.specialist),
+  validateFiltersForQuery(optionValidationChecking(['_id','specialistId', 'status', ...paginationOptions])),
+  getLoggedInUserAndSetReferenceToUser('specialistId'),
   setQueryOptions({
     populate: [
       {
@@ -73,7 +100,7 @@ router.route('/update/:id').put(
  * 
 *----------------------------------------------*/
 router.route('/change-status/:hireSpecialistId').put(
-  auth(TRole.admin),
+  auth(TRole.admin, TRole.specialist),
   controller.changeStatus
 )
 
