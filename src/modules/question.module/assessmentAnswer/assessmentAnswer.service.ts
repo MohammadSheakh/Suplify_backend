@@ -166,6 +166,8 @@ export class AssessmentAnswerService extends GenericService<
 
       await session.commitTransaction();
 
+      
+
       return {
         // assessmentId,
         answersSubmitted: validatedAnswers.length,

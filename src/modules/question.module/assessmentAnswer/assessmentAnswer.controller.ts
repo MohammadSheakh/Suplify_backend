@@ -17,6 +17,9 @@ import { User } from '../../user/user.model';
 import { TSubscription } from '../../../enums/subscription';
 import { RequestForViseSubscriptionToAdmin } from '../../personRelationships.module/requestForViseSubscriptionToAdmin/requestForViseSubscriptionToAdmin.model';
 import { RequestForViseSubscriptionToAdminService } from '../../personRelationships.module/requestForViseSubscriptionToAdmin/requestForViseSubscriptionToAdmin.service';
+import { enqueueWebNotification } from '../../../services/notification.service';
+import { TNotificationType } from '../../notification/notification.constants';
+import { TRole } from '../../../middlewares/roles';
 
 export class AssessmentAnswerController extends GenericController<
   typeof AssessmentAnswer,
@@ -121,6 +124,17 @@ export class AssessmentAnswerController extends GenericController<
       }
 
       await this.requestForViseSubscriptionToAdminService.create(viseSubscirptionRequestDTO);
+
+      // enqueue notification for admin about this request
+      await enqueueWebNotification(
+          `A new patient is request for vice subscription`,
+          req.user.userId, // senderId
+          null, // receiverId
+          TRole.admin, // receiverRole
+          TNotificationType.system, // type
+          null, // linkFor
+          null // linkId
+      );
 
       return sendResponse(res, {
         code: StatusCodes.OK,
