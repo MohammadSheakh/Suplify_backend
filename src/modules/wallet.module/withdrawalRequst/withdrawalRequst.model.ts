@@ -39,16 +39,16 @@ const WithdrawalRequstSchema = new Schema<IWithdrawalRequst>(
     bankAccountType: {
       type: String,
       enum : [
-        TBankAccount.savings,
-        TBankAccount.current  
+        TBankAccount.checking,
+        TBankAccount.saving  
       ],
       required: [true, 'bankAccountType is required'],
     },
 
-    bankBranch: {
-      type: String,
-      required: [true, 'bankBranch is required'],
-    },
+    // bankBranch: {
+    //   type: String,
+    //   required: [true, 'bankBranch is required'],
+    // },
 
     bankName: {
       type: String,

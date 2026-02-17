@@ -66,7 +66,6 @@ export const handleSubscriptionCancellation = async (subscription) => {
       stripe_subscription_id: null
     });
 
-
     const updatedUsersSubs = await UserSubscription.findOneAndUpdate(
       { 
         _id: subscription.metadata.referenceId,  // this is UserSubscription id from metadata
@@ -80,7 +79,6 @@ export const handleSubscriptionCancellation = async (subscription) => {
       }
     );
 
-  
     /*------------------------------------------------
     await UserSubscription.updateMany(
       { 

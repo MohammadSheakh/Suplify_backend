@@ -5,7 +5,7 @@ import { StatusCodes } from 'http-status-codes';
 import { SpecialistWorkoutClassSchedule } from './specialistWorkoutClassSchedule.model';
 import { ISpecialistWorkoutClassSchedule } from './specialistWorkoutClassSchedule.interface';
 import { GenericService } from '../../_generic-module/generic.services';
-import { toLocalTime, toUTCTime } from '../../../utils/timezone';
+import { buildLocalDateTime, combineDateAndTime, mergeDateAndTime, toLocalTime, toUTCTime, toUTCTimeV2 } from '../../../utils/timezone';
 import { PaginateOptions } from '../../../types/paginate';
 import PaginationService from '../../../common/service/paginationService';
 import { TPaymentStatus } from '../specialistPatientScheduleBooking/specialistPatientScheduleBooking.constant';
@@ -30,18 +30,18 @@ export class SpecialistWorkoutClassScheduleService extends GenericService<
     if(data.scheduleDate && data.startTime && data.endTime) {
         const scheduleDate = new Date(data.scheduleDate);
         
-        // console.log("data.startTime before ->>>", data.startTime, typeof data.startTime)
-        // console.log("data.scheduleDate before ->>>", data.scheduleDate, typeof data.scheduleDate)
+        console.log("data.startTime before ->>>", data.startTime, typeof data.startTime)
+        console.log("data.scheduleDate before ->>>", data.scheduleDate, typeof data.scheduleDate)
 
         data.startTime = toUTCTime(data.startTime, userTimeZone);
         data.endTime = toUTCTime(data.endTime, userTimeZone);
 
-        // console.log("scheduleDate.getTime() ->>>", scheduleDate.getTime())
+        console.log("scheduleDate.getTime() ->>>", scheduleDate.getTime())
 
         
-        // console.log("data.startTime.getTime() ->>>", data.startTime.getTime())
+        console.log("data.startTime.getTime() ->>>", data.startTime.getTime())
 
-        // console.log("data.endTime.getTime() ->>>", data.endTime.getTime())
+        console.log("data.endTime.getTime() ->>>", data.endTime.getTime())
 
 
         if(isNaN(scheduleDate.getTime()) ) {
@@ -97,7 +97,7 @@ export class SpecialistWorkoutClassScheduleService extends GenericService<
   
   }
 
-    /*-─────────────────────────────────
+    /*-───────────────────────────────── THIS CODE HAS SERIOUS LOGIC ISSUE
     |  Client want to create workout class oneTime and repeat mode like google calender.. 
     |  if "repeat" selected .. then client needs to provide
     |  weekDays [ "saturday" ], startDate, endDate 
@@ -122,6 +122,8 @@ export class SpecialistWorkoutClassScheduleService extends GenericService<
     if (data.startTime >= data.endTime) throw new Error('Start time must be before end time');
 
     if (data.startTime < new Date()) throw new Error('Start time must be in the future');
+
+    //< 
 
     // ----------------------------
     // ONE_TIME
@@ -227,6 +229,129 @@ export class SpecialistWorkoutClassScheduleService extends GenericService<
     throw new Error('Invalid scheduleType');  
   }
 
+  async createV4(data: ISpecialistWorkoutClassSchedule, userTimeZone: string): Promise<ISpecialistWorkoutClassSchedule> {
+    
+    // ----------------------------
+    // Common validation
+    // ----------------------------
+    if (!data.startTime || !data.endTime) {
+        throw new Error('startTime and endTime are required');
+    }
+
+    // ----------------------------
+    // ONE_TIME
+    // ----------------------------
+    if (data.scheduleType === TSpecialistWorkoutClassScheduleType.oneTime) {
+        
+        if (!data.scheduleDate) throw new Error('scheduleDate is required');
+
+        const scheduleDate = new Date(data.scheduleDate);
+        if (isNaN(scheduleDate.getTime())) throw new Error('Invalid scheduleDate');
+
+        // Combine scheduleDate with time strings to create full datetime
+        const startDateTime = combineDateAndTime(scheduleDate, data.startTime as string, userTimeZone);
+        const endDateTime = combineDateAndTime(scheduleDate, data.endTime as string, userTimeZone);
+
+        // Convert to UTC
+        // data.startTime = toUTCTime(startDateTime, userTimeZone);
+        // data.endTime = toUTCTime(endDateTime, userTimeZone);
+
+        data.startTime = toUTCTimeV2(startDateTime, userTimeZone);
+        data.endTime = toUTCTimeV2(endDateTime, userTimeZone);
+
+        if (isNaN(data.startTime.getTime())) throw new Error('Invalid startTime');
+        if (isNaN(data.endTime.getTime())) throw new Error('Invalid endTime');
+        if (data.startTime >= data.endTime) throw new Error('Start time must be before end time');
+        if (data.startTime < new Date()) throw new Error('Start time must be in the future');
+
+        // Store scheduleDate as date-only (no time component)
+        data.scheduleDate = new Date(scheduleDate.toISOString().split('T')[0] + 'T00:00:00.000Z');
+
+        // Overlap check
+        const overlapping = await SpecialistWorkoutClassSchedule.findOne({
+            createdBy: data.createdBy,
+            scheduleType: TSpecialistWorkoutClassScheduleType.oneTime,
+            scheduleDate: data.scheduleDate,
+            startTime: { $lt: data.endTime },
+            endTime: { $gt: data.startTime },
+        });
+
+        if (overlapping) throw new Error('Overlapping schedule exists');
+
+        const doc = await this.model.create(data);
+
+        return {
+            ...doc.toObject(),
+            startTime: toLocalTime(doc.startTime, userTimeZone),
+            endTime: toLocalTime(doc.endTime, userTimeZone),
+        };
+    }
+
+    // ----------------------------
+    // REPEAT
+    // ----------------------------
+    if (data.scheduleType === TSpecialistWorkoutClassScheduleType.repeat) {
+        
+        const rule = data.repeatRule;
+
+        if (!rule?.weekDays?.length || !rule?.startDate || !rule?.durationWeeks) {
+            throw new Error('Invalid repeatRule');
+        }
+
+        const startDate = new Date(rule.startDate);
+        if (isNaN(startDate.getTime())) throw new Error('Invalid repeat startDate');
+
+        // Combine startDate with time strings to create full datetime
+        const startDateTime = combineDateAndTime(startDate, data.startTime as string, userTimeZone);
+        const endDateTime = combineDateAndTime(startDate, data.endTime as string, userTimeZone);
+
+        // Convert to UTC
+        // data.startTime = toUTCTime(startDateTime, userTimeZone);
+        // data.endTime = toUTCTime(endDateTime, userTimeZone);
+
+        data.startTime = toUTCTimeV2(startDateTime, userTimeZone);
+        data.endTime = toUTCTimeV2(endDateTime, userTimeZone);
+
+        if (isNaN(data.startTime.getTime())) throw new Error('Invalid startTime');
+        if (isNaN(data.endTime.getTime())) throw new Error('Invalid endTime');
+        if (data.startTime >= data.endTime) throw new Error('Start time must be before end time');
+
+        // Calculate endDate
+        const endDate = new Date(startDate);
+        endDate.setDate(endDate.getDate() + rule.durationWeeks * 7);
+
+        data.repeatRule.startDate = startDate;
+        data.repeatRule.endDate = endDate;
+
+        // Overlap check
+        const overlapping = await SpecialistWorkoutClassSchedule.findOne({
+            createdBy: data.createdBy,
+            scheduleType: TSpecialistWorkoutClassScheduleType.repeat,
+            status: 'available',
+            'repeatRule.startDate': { $lte: endDate },
+            'repeatRule.endDate': { $gte: startDate },
+            startTime: { $lt: data.endTime },
+            endTime: { $gt: data.startTime },
+            'repeatRule.weekDays': { $in: data.repeatRule.weekDays },
+        });
+
+        if (overlapping) throw new Error('Overlapping recurring schedule exists');
+
+        const doc = await this.model.create(data);
+
+        return {
+            ...doc.toObject(),
+            startTime: toLocalTime(doc.startTime, userTimeZone),
+            endTime: toLocalTime(doc.endTime, userTimeZone),
+        };
+    }
+
+    throw new Error('Invalid scheduleType');  
+}
+
+
+
+
 
   /********
    * 
@@ -324,6 +449,49 @@ export class SpecialistWorkoutClassScheduleService extends GenericService<
         }
     },
 
+    ////////////////////////////////// 🆕 block start
+
+    // Lookup hotspot details
+    {
+        $lookup: {
+            from: 'suplifyhotspots',
+            localField: 'hotspotId',
+            foreignField: '_id',
+            as: 'hotspot',
+        },
+    },
+
+    // Convert hotspot array → object //🆕
+    {
+        $unwind: {
+            path: '$hotspot',
+            preserveNullAndEmptyArrays: true, // important
+        },
+    },
+    //🆕
+    {
+        $lookup: {
+            from: 'attachments',
+            localField: 'hotspot.attachments',
+            foreignField: '_id',
+            as: 'hotspotAttachments',
+        },
+    },
+    // Convert hotspotAttachments array → object //🆕
+    {
+        $unwind: {
+            path: '$hotspotAttachments',
+            preserveNullAndEmptyArrays: true, // important
+        },
+    },
+    { //🆕
+        $addFields: {
+            'hotspot.attachments': '$hotspotAttachments',
+        },
+    },
+
+    /////////////////////////////////// 🆕 block end 
+
     // 4. Project final shape with conditional fields
     {
         $project: {
@@ -339,6 +507,25 @@ export class SpecialistWorkoutClassScheduleService extends GenericService<
             createdBy: 1,
             createdAt: 1,
             updatedAt: 1,
+            //---------------
+            scheduleType: 1, // 🆕
+            hotspotId : 1, // 🆕
+            classType : 1, // 🆕
+            repeatRule : 1, // 🆕
+
+            // 🆕 Hotspot details
+            hotspot: {
+                _id: '$hotspot._id',
+                name: '$hotspot.name',
+                address: '$hotspot.address',
+
+                // 🖼️ attachments populated
+                attachments: {
+                    _id: '$hotspot.attachments._id',
+                    attachment: '$hotspot.attachments.attachment',
+                    attachmentType : '$hotspot.attachments.attachmentType',
+                },
+            },
             
             // Conditional fields - only show if patient has valid booking
             typeOfLink: {
@@ -628,7 +815,10 @@ export class SpecialistWorkoutClassScheduleService extends GenericService<
             _id: 1,
             scheduleName: 1,
             scheduleDate: 1,
-        //   startTime: 1,
+
+        startTime: 1,
+
+
         endTime: 1,
         description: 1,
         status: 1,

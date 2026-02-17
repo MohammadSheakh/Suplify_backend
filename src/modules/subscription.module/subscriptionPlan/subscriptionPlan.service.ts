@@ -18,6 +18,9 @@ import { TCurrency } from "../../../enums/payment";
 import { config } from "../../../config";
 import { IUser } from "../../token/token.interface";
 import { TUser } from "../../user/user.interface";
+import { enqueueWebNotification } from "../../../services/notification.service";
+import { TNotificationType } from "../../notification/notification.constants";
+import { TRole } from "../../../middlewares/roles";
 
 export class SubscriptionPlanService extends GenericService<typeof SubscriptionPlan, ISubscriptionPlan>
 {
@@ -80,12 +83,14 @@ export class SubscriptionPlanService extends GenericService<typeof SubscriptionP
             );
         }
 
+        /*
         if (user.subscriptionType !== TSubscription.none) {
             throw new ApiError(
                 StatusCodes.BAD_REQUEST,
                 'User is already subscribed to a plan'
             );
         }
+        */
 
         //---------------------------------
         // If stripeCustomerId found .. we dont need to create that .. 
@@ -211,8 +216,71 @@ export class SubscriptionPlanService extends GenericService<typeof SubscriptionP
         return session.url;
     }
 
-    
+    /*-─────────────────────────────────
+    | as per clients requirement .. client wants to cancel a persons subscription from the admin end ..
+    | and assign him vise subscription .. 
+    └──────────────────────────────────*/
+    cancelPatientsSubscriptionAndAssignViseSubscription = async (adminId: string, patientId : string ) => {
+        
+        const isCancelling = await UserSubscription.exists(
+            { 
+                userId: patientId,
+                status: UserSubscriptionStatusType.cancelling
+            }
+        );
 
+        // if (isCancelling) {
+        //     throw new ApiError(StatusCodes.BAD_REQUEST, 'You already cancel your subscription');
+        // }
+
+        const userSub:IUserSubscription = await UserSubscription.findOne({
+            userId: patientId,
+            status: UserSubscriptionStatusType.active 
+        });
+
+        if (!userSub || !userSub.stripe_subscription_id) {
+            throw new ApiError(StatusCodes.NOT_FOUND, 'No active subscription found');
+        }
+
+        const canceledSub = await stripe.subscriptions.update(userSub.stripe_subscription_id, {
+            cancel_at_period_end: true,
+        });
+
+        if (!canceledSub) {
+            throw new ApiError(StatusCodes.NOT_FOUND, 'Failed to cancel subscription');
+        }
+
+        // it will cancel the subscription at the end of the billing cycle
+        await UserSubscription.findByIdAndUpdate(userSub._id, {
+            $set: { 
+                cancelledAtPeriodEnd: true, 
+                status: UserSubscriptionStatusType.cancelling 
+            },
+        });
+
+
+        // update user's subscription to vice subscription
+        await User.findByIdAndUpdate(
+            patientId,
+            {
+                subscriptionType : TSubscription.vise,
+            },
+            {
+                new : true,
+            }
+        )
+
+        //  Send Notification to patient that .. admin cancel your current subscription and assign vice subscription to you
+        await enqueueWebNotification(
+            `Admin cancel your current subscription and assign vice subscription to you.`,
+            adminId, // senderId
+            patientId, // receiverId
+            TRole.patient, // receiverRole
+            TNotificationType.payment, // type
+            null, // linkFor
+            null // linkId
+        );
+    }
 }
 
 

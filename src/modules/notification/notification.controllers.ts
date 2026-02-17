@@ -4,7 +4,65 @@ import { NotificationService } from './notification.services';
 import catchAsync from '../../shared/catchAsync';
 import pick from '../../shared/pick';
 import sendResponse from '../../shared/sendResponse';
-import { notificationFilters } from './notification.constants';
+import { notificationFilters, TNotificationType } from './notification.constants';
+import { enqueueWebNotification } from '../../services/notification.service';
+import { TRole } from '../../middlewares/roles';
+
+
+const sendTestNotification = catchAsync(async (req, res) => {
+  const { isToAdmin, patientId } = req.query;
+
+  console.log("isToAdmin ... patientId ...", typeof isToAdmin, " --- ", patientId);
+
+  if(isToAdmin === "true"){
+    // send notification to admin
+
+    /*──────────────────────────────────
+    |   send test notification to admin 
+    └────────────────────────────────────*/
+    await enqueueWebNotification(
+      `Test Notification to admin  ${Date.now().toLocaleString()}`,
+      patientId, // senderId
+      null, // receiverId 
+      TRole.admin, // receiverRole
+      TNotificationType.system, // type
+      /**********
+       * In UI there is no details page for specialist's schedule
+       * **** */
+      // '', // linkFor
+      // existingWorkoutClass._id // linkId
+      // TTransactionFor.TrainingProgramPurchase, // referenceFor
+      // purchaseTrainingProgram._id // referenceId
+    );
+
+  }else{
+    /*──────────────────────────────────
+    |   send test notification to patient 
+    └────────────────────────────────────*/
+    await enqueueWebNotification(
+      `Test Notification to patient ${Date.now().toLocaleString()}`,
+      null, // senderId
+      patientId, // receiverId 
+      TRole.patient, // receiverRole
+      TNotificationType.system, // type
+      /**********
+       * In UI there is no details page for specialist's schedule
+       * **** */
+      // '', // linkFor
+      // existingWorkoutClass._id // linkId
+      // TTransactionFor.TrainingProgramPurchase, // referenceFor
+      // purchaseTrainingProgram._id // referenceId
+    );
+  }
+
+  sendResponse(res, {
+    code: StatusCodes.OK,
+    data: null,
+    message: 'Notifications sent successfully',
+    success: true,
+  });
+
+})
 
 const getALLNotification = catchAsync(async (req, res) => {
   const filters = pick(req.query, notificationFilters);
@@ -84,6 +142,7 @@ const clearAllNotification = catchAsync(async (req, res) => {
 });
 
 export const NotificationController = {
+  sendTestNotification,
   getALLNotification,
   getAdminNotifications,
   getSingleNotification,

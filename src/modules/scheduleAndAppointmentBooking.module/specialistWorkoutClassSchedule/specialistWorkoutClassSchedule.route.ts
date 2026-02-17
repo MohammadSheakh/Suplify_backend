@@ -107,7 +107,7 @@ router.route('/').post(
 
 router.route('/v2').post(
   auth(TRole.specialist),
-  validateRequest(validation.createWorkoutClassSessionValidationSchema),
+  // validateRequest(validation.createWorkoutClassSessionValidationSchema),
   controller.create2
 );
 

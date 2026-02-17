@@ -10,11 +10,13 @@ import { Request, Response } from 'express';
 import { IUser } from '../token/token.interface';
 import omit from '../../shared/omit';
 import pick from '../../shared/pick';
-import { UserProfile } from './userProfile/userProfile.model';
-import { ConversationController } from '../chatting.module/conversation/conversation.controller';
 import { ConversationParticipents } from '../chatting.module/conversationParticipents/conversationParticipents.model';
 //@ts-ignore
 import mongoose from 'mongoose';
+import { Notification } from '../notification/notification.model';
+import ApiError from '../../errors/ApiError';
+
+
 const userService = new UserService();
 
 // TODO : IUser should be import from user.interface
@@ -28,7 +30,9 @@ export class UserController extends GenericController<
     super(new UserService(), 'User');
   }
 
-
+  /*-─────────────────────────────────  THiS IS for patient / doctor / specialist
+  |  This return user information with conversation count
+  └──────────────────────────────────*/
   getByIdV2 = catchAsync(async (req: Request, res: Response) => {
     const id = req.params.id;
 
@@ -50,36 +54,113 @@ export class UserController extends GenericController<
     if (!result) {
       throw new ApiError(
         StatusCodes.NOT_FOUND,
-        `Object with ID ${id} not found`
+        `No details found for userId ${id} `
       );
     }
 
-    
-
+  
     const allConversation = await ConversationParticipents.aggregate([
-    {
-      $match: {
-        userId: new mongoose.Types.ObjectId(id) // ensure proper ObjectId if 'id' is string
+      {
+        $match: {
+          userId: new mongoose.Types.ObjectId(id) // ensure proper ObjectId if 'id' is string
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          totalUnseen: { $sum: "$isThisConversationUnseen" }
+        }
       }
-    },
-    {
-      $group: {
-        _id: null,
-        totalUnseen: { $sum: "$isThisConversationUnseen" }
-      }
-    }
-  ]);
+    ]);
 
-  const unreadConversationCount = allConversation.length > 0 ? allConversation[0].totalUnseen : 0;
+    const unreadConversationCount = allConversation.length > 0 ? allConversation[0].totalUnseen : 0;
 
-  console.log("unreadConversationCount :🆕: ", unreadConversationCount )
+    
+    /*-─────────────────────────────────
+    |  Calculate un viewed notification count 
+    └──────────────────────────────────*/
+
+    const hasUnviewedNotification = !!( await Notification.exists({
+      viewStatus : false,
+      receiverId : id,
+      isDeleted: false,
+    }))
+
 
     sendResponse(res, {
       code: StatusCodes.OK,
-    
       data: result,
       data2 : {
-        unreadConversationCount
+        unreadConversationCount,
+        hasUnviewedNotification
+      },
+      message: `${this.modelName} retrieved successfully`,
+    });
+  });
+
+  /*-─────────────────────────────────
+  | This is for admin
+  └──────────────────────────────────*/
+  getByIdV3 = catchAsync(async (req: Request, res: Response) => {
+    const id = req.params.id;
+
+    // ✅ Default values
+    let populateOptions: (string | { path: string; select: string }[]) = [];
+    let select = '-isDeleted -createdAt -updatedAt -__v';
+
+    // ✅ If middleware provided overrides → use them
+    if (req.queryOptions) {
+      if (req.queryOptions.populate) {
+        populateOptions = req.queryOptions.populate;
+      }
+      if (req.queryOptions.select) {
+        select = req.queryOptions.select;
+      }
+    }
+
+    const result = await this.service.getById(id, populateOptions, select);
+    if (!result) {
+      throw new ApiError(
+        StatusCodes.NOT_FOUND,
+        `No details found for userId ${id} `
+      );
+    }
+
+  
+    const allConversation = await ConversationParticipents.aggregate([
+      {
+        $match: {
+          userId: new mongoose.Types.ObjectId(id) // ensure proper ObjectId if 'id' is string
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          totalUnseen: { $sum: "$isThisConversationUnseen" }
+        }
+      }
+    ]);
+
+    const unreadConversationCount = allConversation.length > 0 ? allConversation[0].totalUnseen : 0;
+
+    
+    /*-─────────────────────────────────
+    |  Calculate un viewed notification count 
+    └──────────────────────────────────*/
+
+    const hasUnviewedNotification = !!( await Notification.exists({
+      viewStatus : false,
+      receiverRole : result.role,
+      isDeleted: false,
+    }))
+
+
+    sendResponse(res, {
+      code: StatusCodes.OK,
+      data: result,
+      data2 : {
+        unreadConversationCount,
+        hasUnviewedNotification
       },
       message: `${this.modelName} retrieved successfully`,
     });

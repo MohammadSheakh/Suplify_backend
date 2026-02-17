@@ -11,6 +11,7 @@ import { getLoggedInUserAndSetReferenceToUser } from '../../../middlewares/getLo
 import { setQueryOptions } from '../../../middlewares/setQueryOptions';
 import { defaultExcludes } from '../../../constants/queryOptions';
 import { setRequestFiltersV2 } from '../../../middlewares/setRequstFilterAndValue';
+import { UserSubscriptionStatusType } from './userSubscription.constant';
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
@@ -55,6 +56,9 @@ router.route('/paginate').get(
     ],
     select: `${defaultExcludes}`
     // // ${defaultExcludes}
+  }),
+  setRequestFiltersV2({
+    status: { $nin: [UserSubscriptionStatusType.processing] },
   }),
   controller.getAllWithPaginationV2 
 );

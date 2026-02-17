@@ -82,6 +82,36 @@ router.route('/update/:id').put(
   controller.updateById
 );
 
+/*-─────────────────────────────────
+|  return logged in user's profile information.. As per nirob vai's request 
+|  Get profile information of logged in user
+└──────────────────────────────────*/
+
+router.route('/profile/custom').get(
+  auth(TRole.common), // any logged in user can see any user profile ..
+  getLoggedInUserIdAndSetInParams('id'),
+  setQueryOptions({
+    populate: [
+      { path: 'profileId', select: 'approvalStatus howManyPrograms protocolNames userId description address externalLink', /* populate: { path : ""} */ },
+    ],
+    select: 'name profileId email profileImage subscriptionType status role isFormSubmitted' //-createdAt
+  }),
+  controller.getByIdV2
+);
+
+
+router.route('/profile/custom/admin').get(
+  auth(TRole.common), // any logged in user can see any user profile ..
+  getLoggedInUserIdAndSetInParams('id'),
+  setQueryOptions({
+    populate: [
+      { path: 'profileId', select: 'approvalStatus howManyPrograms protocolNames userId description address externalLink', /* populate: { path : ""} */ },
+    ],
+    select: 'name profileId email profileImage subscriptionType status role isFormSubmitted' //-createdAt
+  }),
+  controller.getByIdV3
+);
+
 //---------------------------------
 // Specialist | Doctor | Patient | Admin Get Profile Information By Id 
 // TODO : make sure logged in user can see any user profile ..
@@ -93,10 +123,12 @@ router.route('/profile/:id').get(
     populate: [
       { path: 'profileId', select: 'approvalStatus howManyPrograms protocolNames userId description address externalLink', /* populate: { path : ""} */ },
     ],
-    select: 'name profileId email profileImage subscriptionType status role' //-createdAt
+    select: 'name profileId email profileImage subscriptionType status role isFormSubmitted' //-createdAt
   }),
   controller.getByIdV2
 );
+
+
 
 //---------------------------------
 // Specialist | Doctor | Patient | Admin Update Profile Information By Id 

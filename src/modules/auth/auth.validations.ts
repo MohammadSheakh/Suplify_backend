@@ -13,8 +13,8 @@ const loginValidationSchema = z.object({
       .string({
         required_error: 'Password is required.',
         invalid_type_error: 'Password must be a string.',
-      })
-      .min(8, 'Password must be at least 8 characters long.'),
+      }),
+      // .min(8, 'Password must be at least 8 characters long.'),
 
     fcmToken: z.string({
       required_error: 'Fcm token is required.',
