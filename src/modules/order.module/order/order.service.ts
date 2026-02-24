@@ -70,7 +70,7 @@ export class OrderService extends GenericService<typeof Order, IOrder>{
 
         const usersSubscriptionToCalculateDiscount = await User.findById(user.userId).select('subscriptionType');
 
-        let discount = 0;
+        let discount = 10;
         if(usersSubscriptionToCalculateDiscount.subscriptionType === TSubscription.standardPlus){
             discount = 15;
         }
