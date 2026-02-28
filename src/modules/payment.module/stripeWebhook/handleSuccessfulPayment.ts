@@ -40,7 +40,7 @@ export interface IMetadataForFreeTrial{
  * 
  * ****** */
 
-export const handleSuccessfulPayment = async (invoice: Stripe.Subscription) => {
+export const handleSuccessfulPayment = async (invoice: Stripe.Invoice) => {
   
   try {
     // if (invoice.billing_reason !== 'subscription_cycle') {
