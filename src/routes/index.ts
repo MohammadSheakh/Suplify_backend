@@ -45,6 +45,7 @@ import { RequestForViseSubscriptionToAdminRoute } from '../modules/personRelatio
 import { QuestionRoute } from '../modules/question.module/question/question.route';
 import { AnswerChoiceRoute } from '../modules/question.module/answerChoice/answerChoice.route';
 import { AssessmentAnswerRoute } from '../modules/question.module/assessmentAnswer/assessmentAnswer.route';
+import { ClientDocumentsRoute } from '../modules/clientDocuments/clientDocuments.route';
 
 // import { ChatRoutes } from '../modules/chat/chat.routes';
 // import { MessageRoutes } from '../modules/message/message.routes';
@@ -66,7 +67,12 @@ const apiRoutes = [
 
   ////////////////////// Created By Mohammad Sheakh
 
-
+  //------------------------------- Conversation
+  
+  {
+    path: '/client-documents',
+    route: ClientDocumentsRoute,
+  },
   //------------------------------- Conversation
   {
     path: '/messages',
