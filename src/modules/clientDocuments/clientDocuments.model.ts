@@ -36,14 +36,7 @@ const ClientDocumentsSchema = new Schema<IClientDocuments>(
 
 ClientDocumentsSchema.plugin(paginate);
 
-ClientDocumentsSchema.pre('save', function (next) {
-  // Rename _id to _projectId
-  // this._taskId = this._id;
-  // this._id = undefined;  // Remove the default _id field
-  //this.renewalFee = this.initialFee
 
-  next();
-});
 
 // Use transform to rename _id to _projectId
 ClientDocumentsSchema.set('toJSON', {

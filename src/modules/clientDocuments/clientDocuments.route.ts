@@ -8,6 +8,8 @@ import auth from '../../middlewares/auth';
 
 import multer from "multer";
 import { TRole } from '../../middlewares/roles';
+import { getLoggedInUserAndSetReferenceToUser } from '../../middlewares/getLoggedInUserAndSetReferenceToUser';
+import { setQueryOptions } from '../../middlewares/setQueryOptions';
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
@@ -35,7 +37,29 @@ const controller = new ClientDocumentsController();
 router.route('/paginate').get(
   auth(TRole.common),
   validateFiltersForQuery(optionValidationChecking(['_id','patientId', ...paginationOptions])),
-  controller.getAllWithPagination
+  setQueryOptions({
+    populate: [
+      { path: 'attachments', select: 'attachment', /* populate: { path : ""} */ },
+    ],
+    select: '-isDeleted  -updatedAt -__v' //-createdAt
+  }),
+  controller.getAllWithPaginationV2
+);
+
+/*-─────────────────────────────────
+|  Patient can view self uploaded documents . 
+└──────────────────────────────────*/
+router.route('/paginate/patient').get(
+  auth(TRole.common),
+  validateFiltersForQuery(optionValidationChecking(['_id','patientId', ...paginationOptions])),
+  getLoggedInUserAndSetReferenceToUser('patientId'),
+  setQueryOptions({
+    populate: [
+      { path: 'attachments', select: 'attachment', /* populate: { path : ""} */ },
+    ],
+    select: '-isDeleted  -updatedAt -__v' //-createdAt
+  }),
+  controller.getAllWithPaginationV2
 );
 
 router.route('/:id').get(
@@ -67,7 +91,7 @@ router.route('/').post(
   ],
   auth(TRole.patient),
   // validateRequest(validation.createHelpMessageValidationSchema),
-  controller.create
+  controller.createWithAttachments
 );
 
 router.route('/delete/:id').delete(
