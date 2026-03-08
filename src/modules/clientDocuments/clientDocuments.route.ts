@@ -94,12 +94,12 @@ router.route('/').post(
   controller.createWithAttachments
 );
 
-router.route('/delete/:id').delete(
+router.route('/:id/permenent').delete(
   //auth('common'),
   controller.deleteById
 ); // FIXME : change to admin
 
-router.route('/softDelete/:id').put(
+router.route('/:id').delete(
   //auth('common'),
   controller.softDeleteById
 );
