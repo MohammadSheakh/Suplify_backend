@@ -107,17 +107,17 @@ router.route('/').post(
 
 router.route('/v2').post(
   auth(TRole.specialist),
-  validateRequest(validation.createWorkoutClassSessionValidationSchema),
+  // validateRequest(validation.createWorkoutClassSessionValidationSchema),
   controller.create2
 );
 
-router.route('/delete/:id').delete(
-  //auth('common'),
+router.route('/:id/permenent').delete(
+  auth(TRole.specialist),
   controller.deleteById
-); // FIXME : change to admin
+);
 
-router.route('/softDelete/:id').put(
-  //auth('common'),
+router.route('/:id').delete(
+  auth(TRole.specialist),
   controller.softDeleteById
 );
 

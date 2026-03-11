@@ -377,7 +377,7 @@ export const startUpdateConversationsLastMessageWorker = () => {
       job: IScheduleJobForUpdateConversationsLastMessage
       // job : Job<INotification, any, NotificationJobName>
     ) => {
-      console.log("job.data testing startUpdateConversationsLastMessageWorker::", job.data)
+      // console.log("job.data testing startUpdateConversationsLastMessageWorker::", job.data)
       const { id, name, data } = job;
       logger.info(`Processing notification job ${id} ⚡ ${name}`, data);
 
@@ -444,7 +444,7 @@ export const startNotifyParticipantsWorker = () => {
 
       // Process each participant
       for (const participantId of participantIds) {
-        if (participantId === senderId) continue; // skip sender
+        // if (participantId === senderId) continue; // skip sender // 🆕 as per nirob vai .. 
 
         try {
           const isOnline = await socketService.isUserOnline(participantId);
@@ -462,6 +462,18 @@ export const startNotifyParticipantsWorker = () => {
               }],
             });
           } else if (isOnline && !isInRoom) {
+
+            await socketService.emitToUser(participantId, `conversation-list-updated::${participantId}`, {
+              userId: senderProfile,
+              conversations: [{
+                _conversationId: conversationId,
+                lastMessage: messageText,
+                updatedAt: new Date(),
+              }],
+            });
+
+            if (participantId === senderId) continue;  // 🆕🆕🆕
+
             // Update unread count
             const updatedParticipant = await ConversationParticipents.findOneAndUpdate(
               { 
@@ -493,17 +505,44 @@ export const startNotifyParticipantsWorker = () => {
               unreadConversationCount
             });
 
-            await socketService.emitToUser(participantId, `conversation-list-updated::${participantId}`, {
-              userId: senderProfile,
-              conversations: [{
-                _conversationId: conversationId,
-                lastMessage: messageText,
-                updatedAt: new Date(),
-              }],
+            
+          }else{
+            // If offline → skip (or add push notification later)
+
+            if (participantId === senderId) continue;  // 🆕🆕🆕
+
+            // Update unread count
+            const updatedParticipant = await ConversationParticipents.findOneAndUpdate(
+              { 
+                userId: new mongoose.Types.ObjectId(participantId),
+                conversationId: new mongoose.Types.ObjectId(conversationId)
+              },
+              {
+                $set: { isThisConversationUnseen: 1 },
+                // $inc: { unreadCount: 1 }  // ⭕ this is risky ..
+                /**
+                 * ❌ Why this is dangerous -
+                 *  see details chatting.module -> unread-count-issue.md
+                 * You are mutating unread count blindly, without knowing whether the message was already read or processed.
+                 **/ 
+              },
+              { new: true }
+            );
+
+            // Calculate total unseen conversations
+            const [result] = await ConversationParticipents.aggregate([
+              { $match: { userId: new mongoose.Types.ObjectId(participantId) } },
+              { $group: { _id: null, totalUnseen: { $sum: "$isThisConversationUnseen" } } }
+            ]);
+
+            const unreadConversationCount = result?.totalUnseen || 0;
+
+            // Emit both events
+            await socketService.emitToUser(participantId, `unseen-count::${participantId}`, {
+              unreadConversationCount
             });
           }
-          // If offline → skip (or add push notification later)
-
+          
         } catch (err) {
           errorLogger.error(`Failed to notify participant ${participantId}:`, err);
           // Don't throw → continue with others

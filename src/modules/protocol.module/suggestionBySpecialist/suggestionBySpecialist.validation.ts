@@ -17,10 +17,7 @@ export const createSuggestionValidationSchema = z.object({
         .string({
           required_error: 'keyPoint is required, keyPoint must be a string.',
           invalid_type_error: 'keyPoint must be a string.',
-        })
-        .min(2, {
-        message: 'keyPoint must be at least 2 characters long.',
-      })
+        }).optional()
       // .max(700, { // TODO : MUST : max is not working .. giving error in frontend 
       //   message: 'keyPoint must be at most 700 characters long.',
       // })
@@ -30,10 +27,7 @@ export const createSuggestionValidationSchema = z.object({
         .string({
           required_error: 'solutionName is required, solutionName must be a string.',
           invalid_type_error: 'solutionName must be a string.',
-        })
-        .min(2, {
-        message: 'solutionName must be at least 2 characters long.',
-      })
+        }).optional()
       // .max(700, {
       //   message: 'solutionName must be at most 700 characters long.',
       // })
@@ -43,10 +37,7 @@ export const createSuggestionValidationSchema = z.object({
         .string({
           required_error: 'suggestFromStore is required, suggestFromStore must be a string.',
           invalid_type_error: 'suggestFromStore must be a string.',
-        })
-        .min(2, {
-        message: 'suggestFromStore must be at least 2 characters long.',
-      })
+        }).optional()
       // .max(700, {
       //   message: 'suggestFromStore must be at most 700 characters long.',
       // })

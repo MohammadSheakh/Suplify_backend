@@ -12,7 +12,7 @@ export interface IBankInfo {
   bankRoutingNumber: string;
   bankAccountHolderName: string;
   bankAccountType: TBankAccount; // 🧩
-  bankBranch: string;
+  // bankBranch: string;
   bankName: string;
   
   isDeleted? : boolean;  

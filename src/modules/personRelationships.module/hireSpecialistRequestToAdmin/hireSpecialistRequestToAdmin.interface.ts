@@ -7,6 +7,7 @@ export interface IHireSpecialistRequestToAdmin {
   _id?: Types.ObjectId; // undefined |  Types.ObjectId |
   patientId: Types.ObjectId;
   specialistId : Types.ObjectId;
+  status : string;
 
   isDeleted? : boolean;  
   createdAt?: Date;

@@ -96,8 +96,8 @@ const sendEmailToTheDoctorThatAdminRejectHim = async (to: string, emailBody: str
     <div style="width: 45% ; margin: 0 auto ;font-family: Arial, sans-serif; padding: 20px; color: #333; border: 1px solid #ccc; border-radius: 20px;">
       <div style="text-align: center; margin-bottom: 20px;">
         <img src="https://newsheakh6731.sobhoy.com/uploads/logoForEmail/suplify_logo2.png" alt="Logo" style="width: 200px; margin-bottom: 20px;" />
-        <h1 style="color: #1B9AAA;">Admin Rejected Your Request</h1>
-        <p style="font-size: 16px;">${emailBody}</p>
+        <h4 style="color: #1B9AAA;">Admin Rejected Your Request</h4>
+        <p style="font-size: 26px;">${emailBody}</p>
       </div>
       
     </div>

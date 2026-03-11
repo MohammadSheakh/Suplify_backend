@@ -14,7 +14,7 @@ export interface IWithdrawalRequst {
   bankRoutingNumber: string;
   bankAccountHolderName: string;
   bankAccountType: TBankAccount; //🧩 
-  bankBranch: string;
+  // bankBranch: string;
   bankName: string;
   requestedAmount: number;
   proofOfPayment? : Types.ObjectId[] | undefined; //🖼️🧩 

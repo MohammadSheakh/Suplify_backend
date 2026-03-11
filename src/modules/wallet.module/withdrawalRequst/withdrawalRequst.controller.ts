@@ -105,18 +105,18 @@ export class WithdrawalRequstController extends GenericController<
       bankRoutingNumber : bankInfo.bankRoutingNumber,
       bankAccountHolderName : bankInfo.bankAccountHolderName,
       bankAccountType : bankInfo.bankAccountType,
-      bankBranch : bankInfo.bankBranch,
+      // bankBranch : bankInfo.bankBranch,
       bankName : bankInfo.bankName,
       status : TWithdrawalRequst.requested,
       requestedAt: new Date(),
       processedAt : null,
     }
 
-    const lastWithdrawalRequest = await WithdrawalRequst.findOne({
-      userId: data.userId
-    }).sort({
-      createdAt: -1
-    }) // TODO : MUST : add logic 
+    // const lastWithdrawalRequest = await WithdrawalRequst.findOne({
+    //   userId: data.userId
+    // }).sort({
+    //   createdAt: -1
+    // }) 
 
     // if last Withdrawal request is in week then we can not create withdrawal request
     /*──────────────────────────────────
@@ -124,16 +124,56 @@ export class WithdrawalRequstController extends GenericController<
     └────────────────────────────────────*/
 
     
-    if (lastWithdrawalRequest && 
-      lastWithdrawalRequest.createdAt > new Date(new Date().getTime() - 7 * 24 * 60 * 60 * 1000)
-    ) {
+    // if (lastWithdrawalRequest && 
+    //   lastWithdrawalRequest.createdAt > new Date(new Date().getTime() - 7 * 24 * 60 * 60 * 1000)
+    // ) {
+    //   return sendResponse(res, {
+    //     code: StatusCodes.BAD_REQUEST,
+    //     message: 'You can not create withdrawal request in a week',
+    //     success: false,
+    //   });
+    // }
+
+
+
+    /*──────────────────────────────────
+    |  NEW REQUIREMENT :: 
+    └────────────────────────────────────*/
+
+
+    // last 7 days date
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+
+    // get total withdrawal amount in last 7 days
+    const weeklyWithdrawals = await WithdrawalRequst.aggregate([
+      {
+        $match: {
+          userId: data.userId,
+          createdAt: { $gte: sevenDaysAgo },
+          status: { $ne: TWithdrawalRequst.failed } // optional but recommended
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: "$requestedAmount" }
+        }
+      }
+    ]);
+
+    const totalLast7Days = weeklyWithdrawals[0]?.total || 0;
+    const WEEKLY_LIMIT = 1000;
+
+    // check limit
+    if (totalLast7Days + data.requestedAmount > WEEKLY_LIMIT) {
       return sendResponse(res, {
         code: StatusCodes.BAD_REQUEST,
-        message: 'You can not create withdrawal request in a week',
+        message: `Weekly withdrawal limit exceeded. You already requested $${totalLast7Days}. Max allowed is $${WEEKLY_LIMIT} per 7 days.`,
         success: false,
       });
     }
-    
+
+
     /*──────────────────────────────────
     |  TODO : MUST : Send Notification to Admin that a withdrawal request is created 
     └────────────────────────────────────*/

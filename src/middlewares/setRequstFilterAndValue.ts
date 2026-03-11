@@ -41,15 +41,7 @@ type FilterObject = Record<string, any>;
 
 export const setRequestFiltersV2 = (filters: FilterObject) => {
   return (req: Request, res: Response, next: NextFunction) => {
-    // if (!req.user) {
-    //   sendResponse(res, {
-    //     code: StatusCodes.UNAUTHORIZED,
-    //     message: 'You are not authorized',
-    //     success: false,
-    //   });
-    //   return;
-    // }
-
+    
     // Merge filters into req.query
     // Only set if not already provided in the request
     Object.keys(filters).forEach(key => {

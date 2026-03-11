@@ -13,6 +13,8 @@ import { imageUploadPipelineForUpdateLabTestBooking } from './labTestBooking.mid
 import { setQueryOptions } from '../../../middlewares/setQueryOptions';
 import { defaultExcludes } from '../../../constants/queryOptions';
 import { getLoggedInUserAndSetReferenceToUser } from '../../../middlewares/getLoggedInUserAndSetReferenceToUser';
+import { setRequestFiltersV2, setRequestFiltersV3 } from '../../../middlewares/setRequstFilterAndValue';
+import { TLabTestBookingStatus } from './labTestBooking.constant';
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
@@ -40,6 +42,10 @@ const controller = new LabTestBookingController();
 router.route('/paginate').get(
   //auth('common'),
   validateFiltersForQuery(optionValidationChecking(['_id', 'status', 'patientId', ...paginationOptions])),
+  
+  setRequestFiltersV2({
+    status: { $nin: [TLabTestBookingStatus.pending] },
+  }),
   setQueryOptions({
     populate: [ 
       { 
@@ -69,6 +75,9 @@ router.route('/paginate').get(
 router.route('/paginate/for-patient').get(
   auth(TRole.patient),
   validateFiltersForQuery(optionValidationChecking(['_id', 'status', 'patientId', ...paginationOptions])),
+  setRequestFiltersV2({
+    status: { $nin: [TLabTestBookingStatus.pending] },
+  }),
   setQueryOptions({
     populate: [ 
       { 

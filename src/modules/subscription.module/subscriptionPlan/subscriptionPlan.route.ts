@@ -107,12 +107,22 @@ router.route('/purchase/:subscriptionPlanId').post(
   controller.purchaseSubscriptionForSuplify
 );
 
-//-----------------------------------------
+//------------------------------// 💎✨🔍 -> V2 Found 
 // Cancel subscription 
-//-----------------------------------------
+//------------------------------
 router.route('/cancel').post(
   auth(TRole.patient),
   controller.cancelSubscription
+);
+
+/*-─────────────────────────────────
+|  as per clients requirement .. client wants to cancel a persons subscription from the admin end ..
+| and assign him vise subscription ..
+| :personId is the userId of that patients ..  
+└──────────────────────────────────*/
+router.route('/cancel-for-patient').post(
+  auth(TRole.admin),
+  controller.cancelPatientsSubscriptionAndAssignViceSubscription
 );
 
 router

@@ -119,6 +119,7 @@ export class SocketService {
       this.io = new SocketIOServer(server, {
         cors: {
           origin: '*',
+          credentials: true, // 👈 critical!
         },
       });
 
@@ -318,7 +319,7 @@ export class SocketService {
 
       const conversationId = conversationData.conversationId;
       
-      console.log(`User ${userProfile.name} joining chat ${conversationData.conversationId}`);
+      console.log(`User ${userProfile.name} joining 🤝🤝 chat ${conversationData.conversationId}`);
 
       // Join socket.io room
       socket.join(conversationId);
@@ -363,6 +364,9 @@ export class SocketService {
       }
 
       const conversationId = conversationData.conversationId;
+
+      console.log(`User ${userProfile.name} leaving 🫸🫸  chat ${conversationData.conversationId}`);
+
       
       // Leave socket.io room
       socket.leave(conversationId);
@@ -463,6 +467,27 @@ export class SocketService {
           isThisConversationUnseen : 0
         }
       );
+    });
+
+
+    socket.on("isOnline", async (u: {userId: string}, callback: SocketAck) => {
+      
+      console.log("u -> ", u)
+
+      const result =  await socketService.isUserOnline(u.userId);
+      
+      // console.log("result :: ", result);
+
+      callback?.({
+          success: true,
+          message: "fetched successfully",
+          messageDetails: { 
+            isOnline : result, 
+            userId : u.userId,
+          },
+        });
+
+
     });
 
     //---------------------------------
@@ -772,7 +797,7 @@ export class SocketService {
     }
   }
 
-  private startCleanupJob() {
+  public startCleanupJob() {
     // Clean up stale connections every 5 minutes
     setInterval(async () => {
       try {

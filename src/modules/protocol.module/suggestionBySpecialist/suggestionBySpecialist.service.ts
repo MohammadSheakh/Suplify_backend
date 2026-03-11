@@ -42,6 +42,7 @@ export class SuggestionBySpecialistService extends GenericService<
      * **** */
 
     const plan :IPlanByDoctor = await PlanByDoctor.findById(planId);
+
     if(!plan) {
       throw new ApiError(StatusCodes.NOT_FOUND, 'Plan not found');
     }

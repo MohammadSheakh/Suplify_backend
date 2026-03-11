@@ -27,14 +27,15 @@ const bankInfoSchema = new Schema<IBankInfo>(
 
     bankAccountType: {
       type: String,
-      enum : [TBankAccount.savings, TBankAccount.current],
+      enum : [TBankAccount.checking, TBankAccount.saving],
       required: [true, 'bankAccountType is required'],
     },
 
-    bankBranch: {
-      type: String,
-      required: [true, 'bankBranch is required'],
-    },
+    // ----- as per clients requirement
+    // bankBranch: {
+    //   type: String,
+    //   required: [true, 'bankBranch is required'],
+    // },
 
     bankName: {
       type: String,

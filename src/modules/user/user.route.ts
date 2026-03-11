@@ -72,7 +72,7 @@ router.route('/profile/for-admin').get(
 //---------------------------------
 router.route('/change-approval-status').put(
   auth(TRole.admin),
-  validateRequest(validation.changeApprovalStatusValidationSchema),
+  // validateRequest(validation.changeApprovalStatusValidationSchema), // TODO : need to add this
   controller.changeApprovalStatusByUserId
 )
 
@@ -80,6 +80,36 @@ router.route('/update/:id').put(
   //auth('common'),
   // validateRequest(validation.createHelpMessageValidationSchema),
   controller.updateById
+);
+
+/*-─────────────────────────────────
+|  return logged in user's profile information.. As per nirob vai's request 
+|  Get profile information of logged in user
+└──────────────────────────────────*/
+
+router.route('/profile/custom').get(
+  auth(TRole.common), // any logged in user can see any user profile ..
+  getLoggedInUserIdAndSetInParams('id'),
+  setQueryOptions({
+    populate: [
+      { path: 'profileId', select: 'approvalStatus howManyPrograms protocolNames userId description address externalLink', /* populate: { path : ""} */ },
+    ],
+    select: 'name profileId email profileImage subscriptionType status role isFormSubmitted' //-createdAt
+  }),
+  controller.getByIdV2
+);
+
+
+router.route('/profile/custom/admin').get(
+  auth(TRole.common), // any logged in user can see any user profile ..
+  getLoggedInUserIdAndSetInParams('id'),
+  setQueryOptions({
+    populate: [
+      { path: 'profileId', select: 'approvalStatus howManyPrograms protocolNames userId description address externalLink', /* populate: { path : ""} */ },
+    ],
+    select: 'name profileId email profileImage subscriptionType status role isFormSubmitted' //-createdAt
+  }),
+  controller.getByIdV3
 );
 
 //---------------------------------
@@ -91,12 +121,14 @@ router.route('/profile/:id').get(
   getLoggedInUserIdAndSetInParams('id'),
   setQueryOptions({
     populate: [
-      { path: 'profileId', select: 'approvalStatus howManyPrograms protocolNames userId description address', /* populate: { path : ""} */ },
+      { path: 'profileId', select: 'approvalStatus howManyPrograms protocolNames userId description address externalLink', /* populate: { path : ""} */ },
     ],
-    select: 'name profileId email profileImage subscriptionType status role' //-createdAt
+    select: 'name profileId email profileImage subscriptionType status role isFormSubmitted' //-createdAt
   }),
   controller.getByIdV2
 );
+
+
 
 //---------------------------------
 // Specialist | Doctor | Patient | Admin Update Profile Information By Id 

@@ -22,6 +22,15 @@ const getALLNotification = async (
   userId: string
 ) => {
   filters.receiverId = userId;
+
+  const query = {
+    receiverId: userId,
+  };
+
+  await Notification.updateMany(
+    { ...query, viewStatus: false },
+    { $set: { viewStatus: true } }
+  );
   
   const result = await Notification.paginate(filters, options);
   return { ...result};
@@ -34,6 +43,17 @@ const getAdminNotifications = async (
   options: PaginateOptions
 ): Promise<PaginateResult<INotification>> => {
   filters.receiverRole = TRole.admin; // Important SQL
+
+
+  const query = {
+    receiverRole: TRole.admin,
+  };
+
+  await Notification.updateMany(
+    { ...query, viewStatus: false },
+    { $set: { viewStatus: true } }
+  );
+
   return Notification.paginate(filters, options);
 };
 

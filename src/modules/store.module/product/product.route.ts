@@ -10,6 +10,8 @@ import multer from "multer";
 import { setRequestFiltersV2 } from '../../../middlewares/setRequstFilterAndValue';
 import { TRole } from '../../../middlewares/roles';
 import { imageUploadPipelineForUpdateTrainingProgram } from '../../training.module/trainingProgram/trainingProgram.middleware';
+import { setQueryOptions } from '../../../middlewares/setQueryOptions';
+import { defaultExcludes } from '../../../constants/queryOptions';
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
@@ -49,9 +51,21 @@ router.route('/category-with-count').get(
   controller.categoryWithCount
 );
 
+/*-─────────────────────────────────
+|  Need to populate images and need to fix populate issue
+└──────────────────────────────────*/
 router.route('/:id').get(
-  // auth('common'),
-  controller.getById
+  auth(TRole.common),
+  setQueryOptions({
+    populate: [ { 
+      path: 'attachments', 
+      select: 'attachment',
+      // populate: { path: 'profileId', select: 'gender location' }
+    }],
+    select: `${defaultExcludes}`
+    // // ${defaultExcludes}
+  }),
+  controller.getByIdV2
 );
 
 //------------------------------------
