@@ -1,6 +1,6 @@
 import express from 'express';
 import * as validation from './product.validation';
-import { ProductController} from './product.controller';
+import { ProductController } from './product.controller';
 import { IProduct } from './product.interface';
 import { validateFiltersForQuery } from '../../../middlewares/queryValidation/paginationQueryValidationMiddleware';
 import validateRequest from '../../../shared/validateRequest';
@@ -12,12 +12,13 @@ import { TRole } from '../../../middlewares/roles';
 import { imageUploadPipelineForUpdateTrainingProgram } from '../../training.module/trainingProgram/trainingProgram.middleware';
 import { setQueryOptions } from '../../../middlewares/setQueryOptions';
 import { defaultExcludes } from '../../../constants/queryOptions';
+import { imageUploadPipelineForUpdateProduct } from './product.middleware';
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
 const router = express.Router();
 
-export const optionValidationChecking = <T extends keyof IProduct  | 'sortBy' | 'page' | 'limit' | 'populate'>(
+export const optionValidationChecking = <T extends keyof IProduct | 'sortBy' | 'page' | 'limit' | 'populate'>(
   filters: T[]
 ) => {
   return filters;
@@ -36,7 +37,7 @@ const paginationOptions: Array<'sortBy' | 'page' | 'limit' | 'populate'> = [
 //
 router.route('/paginate').get(
   auth(TRole.common),
-  validateFiltersForQuery(optionValidationChecking(['_id','category', ...paginationOptions ])),
+  validateFiltersForQuery(optionValidationChecking(['_id', 'category', ...paginationOptions])),
   setRequestFiltersV2({
     isDeleted: false,
   }),
@@ -57,8 +58,8 @@ router.route('/category-with-count').get(
 router.route('/:id').get(
   auth(TRole.common),
   setQueryOptions({
-    populate: [ { 
-      path: 'attachments', 
+    populate: [{
+      path: 'attachments',
       select: 'attachment',
       // populate: { path: 'profileId', select: 'gender location' }
     }],
@@ -73,7 +74,7 @@ router.route('/:id').get(
 //------------------------------------
 router.route('/:id').put(
   auth(TRole.admin),
-  ...imageUploadPipelineForUpdateTrainingProgram,
+  ...imageUploadPipelineForUpdateProduct,
   // validateRequest(validation.createHelpMessageValidationSchema), // TODO : MUST
   controller.updateById
 );
@@ -119,7 +120,7 @@ router.route('/by/category').get(
   //---------------------------------
   //🟢 based on patients subscription status .. we  show labTest
   //---------------------------------
-   
+
   controller.showAllCategoryAndItsLimitedProducts
 )
 

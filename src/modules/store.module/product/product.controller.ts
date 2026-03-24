@@ -12,6 +12,7 @@ import omit from '../../../shared/omit';
 import pick from '../../../shared/pick';
 import { TFolderName } from '../../../enums/folderNames';
 import { getOrSetRedisCache } from '../../../helpers/redis/getOrSetRedisCache';
+import ApiError from '../../../errors/ApiError';
 
 export class ProductController extends GenericController<
   typeof Product,
@@ -23,6 +24,54 @@ export class ProductController extends GenericController<
     super(new ProductService(), 'Product');
   }
 
+  updateById = catchAsync(async (req: Request, res: Response) => {
+    if (!req.params.id) {
+      throw new ApiError(
+        StatusCodes.BAD_REQUEST,
+        `id is required for update ${this.modelName}`
+      );
+    }
+
+    const id = req.params.id;
+
+    const obj: IProduct | null = req.existingDocument || await this.service.getById(id);
+    if (!obj) {
+      throw new ApiError(
+        StatusCodes.NOT_FOUND,
+        `Object with ID ${id} not found`
+      );
+    }
+
+    // for update cases .. if image uploaded then we use that uploaded image url otherwise we use previous one
+    if (req.uploadedFiles?.attachments.length > 0) {
+      req.body.attachments = req.uploadedFiles?.attachments;
+    } else {
+      req.body.attachments = obj.attachments;
+    }
+
+    console.log("Req.body :: ", req.body, id);
+
+    // ✅ Use preprocessed uploaded file URLs //🥇🔁 this task we do in middleware level for create API not for update API
+    // req.body.attachments = req.uploadedFiles?.attachments || [];
+    // req.body.trailerContents = req.uploadedFiles?.trailerContents || [];
+
+    const updatedObject = await this.service.updateById(id, req.body);
+    if (!updatedObject) {
+      throw new ApiError(
+        StatusCodes.NOT_FOUND,
+        `Object with ID ${id} not found`
+      );
+    }
+
+    //   return res.status(StatusCodes.OK).json(updatedObject);
+    sendResponse(res, {
+      code: StatusCodes.OK,
+      data: updatedObject,
+      message: `${this.modelName} updated successfully`,
+    });
+  });
+
+
   //---------------------------------
   // (Admin) : E-Commerce
   //---------------------------------
@@ -30,19 +79,19 @@ export class ProductController extends GenericController<
     const data: IProduct = req.body;
 
     let attachments = [];
-      
+
     if (req.files && req.files.attachments) {
-    attachments.push(
+      attachments.push(
         ...(await Promise.all(
-        req.files.attachments.map(async file => {
+          req.files.attachments.map(async file => {
             const attachmenId = await new AttachmentService().uploadSingleAttachment(
-                file, // file to upload 
-                TFolderName.shop, // folderName
+              file, // file to upload 
+              TFolderName.shop, // folderName
             );
             return attachmenId;
-        })
+          })
         ))
-    );
+      );
     }
 
     data.attachments = attachments;
@@ -61,28 +110,28 @@ export class ProductController extends GenericController<
 
   getAllWithPagination = catchAsync(async (req: Request, res: Response) => {
     //const filters = pick(req.query, ['_id', 'title']); // now this comes from middleware in router
-    const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']); ;
+    const filters = omit(req.query, ['sortBy', 'limit', 'page', 'populate']);;
     const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
 
     filters.isDeleted = false;
 
-    const populateOptions: (string | {path: string, select: string}[]) = [
+    const populateOptions: (string | { path: string, select: string }[]) = [
       {
         path: 'attachments',
-        select: 'attachmentType attachment' 
+        select: 'attachmentType attachment'
       },
     ];
 
-    const select = '-createdAt -updatedAt -__v'; 
+    const select = '-createdAt -updatedAt -__v';
 
     // Only cache page 1 with standard limit
-    const shouldCache = (!options.page || options.page === '1') && 
-                      (!options.limit || parseInt(options.limit) <= 20);
-    
+    const shouldCache = (!options.page || options.page === '1') &&
+      (!options.limit || parseInt(options.limit) <= 20);
+
     if (shouldCache) {
       // Create cache key based on filters and sort
       const cacheKey = `products_page1_${JSON.stringify(filters)}_${options.sortBy || 'default'}`;
-      
+
       const result = await getOrSetRedisCache(
         cacheKey,
         async () => {
@@ -91,7 +140,7 @@ export class ProductController extends GenericController<
         1800, // 30 minutes TTL
         false
       );
-      
+
       return sendResponse(res, {
         code: StatusCodes.OK,
         data: result,
@@ -158,9 +207,9 @@ export class ProductController extends GenericController<
   });
 
 
-//---------------------------------
-// ( Landing Page ) |  get-product-details-with-related-products  //[][🧑‍💻][🧪] //🚧✅ 🆗
-//---------------------------------
+  //---------------------------------
+  // ( Landing Page ) |  get-product-details-with-related-products  //[][🧑‍💻][🧪] //🚧✅ 🆗
+  //---------------------------------
   getProductDetailsWithRelatedProducts = catchAsync(async (req: Request, res: Response) => {
     const { productId } = req.params;
     // const result = await this.productService.getProductDetailsWithRelatedProducts(productId);
