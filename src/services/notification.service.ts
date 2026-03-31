@@ -28,6 +28,8 @@ export async function enqueueWebNotification(
   referenceId?: string
 ) {
 
+  console.log("test 5");
+
   const notifAdded = await notificationQueue.add(
     'send-notification-suplify',
     {

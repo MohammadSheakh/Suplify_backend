@@ -95,6 +95,9 @@ export class LabTestBookingService extends GenericService<
 
                 // Lets check lab test exist or not
                 let isLabTestExist:IProduct = await Product.findById(data.labTestId).session(session);
+
+                console.log("test 1");
+
                 if(!isLabTestExist){
                     throw new ApiError(StatusCodes.NOT_FOUND, "Lab Test not found");
                 }
@@ -119,8 +122,11 @@ export class LabTestBookingService extends GenericService<
                     finalAmount: isLabTestExist.price
                 })
 
+                console.log("test 2");
+
                 bookedLabTest = await bookedLabTest.save({ session });
 
+                console.log("test 3");
             
                 //--------------------------------- 
                 // Lets send notification to admin that patient has booked lab test
@@ -140,6 +146,9 @@ export class LabTestBookingService extends GenericService<
                     // purchaseTrainingProgram._id // referenceId
                 );
 
+                console.log("test 4");
+
+                return bookedLabTest;
 
             });
         } catch (error) {
