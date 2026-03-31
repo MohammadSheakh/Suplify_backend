@@ -87,7 +87,7 @@ const webhookHandler = async (req: Request, res: Response): Promise<void> => {
                          ////////////////////////////////////////
                     `)
                     /******
-                     * 
+                     *   
                      * when a subscription is purchased ..this event will be fired at 1️⃣ first ..
                      * then after payment invoice.payment_succeeded will be fired
                      * 
@@ -100,7 +100,7 @@ const webhookHandler = async (req: Request, res: Response): Promise<void> => {
                     console.log("🪝customer.subscription.trial_will_end")
                     /*****
                      * 🔥🔥 event.type customer.subscription.trial_will_end
-                     * 
+                     *   
                      * This event fires 3 days before the trial ends, giving you time to:
 
                          Notify the user
