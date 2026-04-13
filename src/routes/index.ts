@@ -219,7 +219,7 @@ const apiRoutes = [
     route: specialistPatientRoute,
   },
 
-  //---------------------------------------- Request For Vise Subscription 🆕
+  //---------------------------------------- Request For Vise Subscription 🆕🆕
   { // 🟢
     path: '/vise-subscription-request',
     route: RequestForViseSubscriptionToAdminRoute,
