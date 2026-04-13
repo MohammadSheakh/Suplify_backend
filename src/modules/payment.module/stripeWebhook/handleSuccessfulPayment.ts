@@ -182,11 +182,10 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Invoice) => {
     |  FIRST PAYMENT (subscription_create)
     └────────────────────────────────────*/
     if(invoice.billing_reason === 'subscription_create'){
-      console.log("⚡ Processing first payment (subscription_create)", {
-        userId: metadata.userId,
-        referenceId: metadata.referenceId,
-        subscriptionId
-      });
+      // ⚠️ SKIP: This is now handled in checkout.session.completed (handlePaymentSucceeded)
+      // to avoid duplicate processing since invoice.subscription is not available here
+      console.log("⏭️ Skipping subscription_create - already handled in checkout.session.completed");
+      return;
 
 
       /*********

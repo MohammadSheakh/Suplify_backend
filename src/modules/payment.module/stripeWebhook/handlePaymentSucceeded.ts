@@ -24,6 +24,10 @@ import { User } from "../../user/user.model";
 import { WalletService } from "../../wallet.module/wallet/wallet.service";
 import { TPaymentGateway, TPaymentStatus, TTransactionFor } from "../paymentTransaction/paymentTransaction.constant";
 import { PaymentTransaction } from "../paymentTransaction/paymentTransaction.model";
+// ✅ Added imports for UserSubscription handling
+import { UserSubscription } from "../../subscription.module/userSubscription/userSubscription.model";
+import { UserSubscriptionStatusType } from "../../subscription.module/userSubscription/userSubscription.constant";
+import stripe from "../../../config/stripe.config";
 //@ts-ignore
 import Stripe from "stripe";
 //@ts-ignore
@@ -83,13 +87,108 @@ export const handlePaymentSucceeded = async (session: Stripe.Checkout.Session) =
           }
 
           if(referenceFor === TTransactionFor.UserSubscription){
+               // ✅ FIX: Handle UserSubscription purchase here since checkout.session.completed has session.subscription
+               console.log("🟢 Processing UserSubscription purchase from checkout.session.completed", {
+                  referenceId,
+                  subscriptionId: session.subscription,
+                  userId: _user.userId
+               });
 
-               // which means we dont create paymentTransaction here ..
-               // we want to create  paymentTransaction in handleSuccessfulPayment
+               // Retrieve subscription from Stripe to get metadata and dates
+               const subscriptionId = session.subscription as string;
+               if (!subscriptionId) {
+                  console.error('❌ No subscription ID in checkout session for UserSubscription');
+                  return;
+               }
 
-               // console.log("🟡🟡 which means we dont create paymentTransaction here 🟡🟡 we want to create  paymentTransaction in handleSuccessfulPayment")
-               // lets test ... 
-               return
+               const subscription = await stripe.subscriptions.retrieve(subscriptionId, {
+                  expand: ['latest_invoice']
+               });
+
+               // Get metadata from subscription (set in subscription_data.metadata during checkout)
+               const metadata = subscription.metadata;
+               if (!metadata || !metadata.referenceId) {
+                  console.error('❌ Missing metadata in Stripe subscription');
+                  return;
+               }
+
+               // Calculate dates from Stripe
+               const periodStart = subscription.latest_invoice?.period_start;
+               const periodEnd = subscription.latest_invoice?.period_end;
+               
+               const subscriptionStartDate = periodStart ? new Date(periodStart * 1000) : new Date();
+               const currentPeriodStartDate = periodStart ? new Date(periodStart * 1000) : new Date();
+               const expirationDate = periodEnd ? new Date(periodEnd * 1000) : (() => { const d = new Date(); d.setMonth(d.getMonth() + 1); return d; })();
+
+               // Validate dates
+               if (isNaN(subscriptionStartDate.getTime()) || isNaN(currentPeriodStartDate.getTime()) || isNaN(expirationDate.getTime())) {
+                  console.error('❌ Invalid dates in checkout.session.completed, using fallback');
+                  const now = new Date();
+                  const future30 = new Date();
+                  future30.setMonth(future30.getMonth() + 1);
+                  subscriptionStartDate.setTime(now.getTime());
+                  currentPeriodStartDate.setTime(now.getTime());
+                  expirationDate.setTime(future30.getTime());
+               }
+
+               // Create PaymentTransaction
+               const newPayment = await PaymentTransaction.create({
+                  userId: _user.userId,
+                  referenceFor: metadata.referenceFor,
+                  referenceId: metadata.referenceId,
+                  paymentGateway: TPaymentGateway.stripe,
+                  transactionId: session.id,
+                  paymentIntent: paymentIntent,
+                  amount: metadata.amount,
+                  currency: metadata.currency,
+                  paymentStatus: TPaymentStatus.completed,
+                  gatewayResponse: session,
+               });
+
+               console.log('✅ PaymentTransaction created for UserSubscription:', newPayment._id);
+
+               // Update UserSubscription from processing to active
+               const userSubs = await UserSubscription.findByIdAndUpdate(metadata.referenceId, {
+                  $set: {
+                     stripe_subscription_id: subscriptionId,
+                     stripe_transaction_id: paymentIntent,
+                     subscriptionPlanId: metadata.subscriptionPlanId || null,
+                     status: UserSubscriptionStatusType.active,
+                     subscriptionStartDate,
+                     currentPeriodStartDate,
+                     expirationDate,
+                     renewalDate: expirationDate,
+                     billingCycle: 1,
+                     isAutoRenewed: true,
+                  }
+               });
+
+               // Update user's subscriptionType and mark free trial as used
+               await User.findByIdAndUpdate(metadata.userId, {
+                  $set: {
+                     subscriptionType: metadata.subscriptionType,
+                     hasUsedFreeTrial: true,
+                  }
+               });
+
+               console.log('✅ UserSubscription activated and user updated:', {
+                  userId: metadata.userId,
+                  userSubscriptionId: metadata.referenceId,
+                  subscriptionType: metadata.subscriptionType
+               });
+
+               // Send notification
+               await enqueueWebNotification(
+                  `New Subscription purchased by ${_user.userId} ${_user.userName} and paid ${metadata.amount} ${metadata.currency}`,
+                  _user.userId,
+                  null,
+                  TRole.admin,
+                  TNotificationType.payment,
+                  null,
+                  null
+               );
+
+               return; // Don't create duplicate payment transaction below
           }
           
           const newPayment = await PaymentTransaction.create({
