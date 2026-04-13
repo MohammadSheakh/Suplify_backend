@@ -83,13 +83,16 @@ export const handlePaymentSucceeded = async (session: Stripe.Checkout.Session) =
           const isPaymentExist = await PaymentTransaction.findOne({ paymentIntent });
 
           if (isPaymentExist) {
-               throw new ApiError(StatusCodes.BAD_REQUEST, 'From Webhook handler : Payment Already exist');
+               // ✅ FIX: Don't throw error - just return silently for idempotent webhook processing
+               console.log('⏭️ Payment already processed for paymentIntent:', paymentIntent, '- skipping duplicate');
+               return;
           }
 
           // ✅ DEBUG: Log everything for troubleshooting
           console.log('🔍 handlePaymentSucceeded - referenceFor:', referenceFor, 'referenceId:', referenceId, 'session.subscription:', session.subscription);
           console.log('🔍 session.metadata:', JSON.stringify(session.metadata, null, 2));
 
+          // ✅ Handle UserSubscription purchases FIRST (before payment existence check)
           if(referenceFor === TTransactionFor.UserSubscription){
                console.log("🟢 Processing UserSubscription purchase from checkout.session.completed", {
                   referenceId,
@@ -123,14 +126,13 @@ export const handlePaymentSucceeded = async (session: Stripe.Checkout.Session) =
                // Calculate dates from Stripe
                const periodStart = subscription.latest_invoice?.period_start;
                const periodEnd = subscription.latest_invoice?.period_end;
-               
+
                console.log('📅 Dates from Stripe:', { periodStart, periodEnd, periodStartDate: periodStart ? new Date(periodStart * 1000) : null, periodEndDate: periodEnd ? new Date(periodEnd * 1000) : null });
 
                const subscriptionStartDate = periodStart ? new Date(periodStart * 1000) : new Date();
                const currentPeriodStartDate = periodStart ? new Date(periodStart * 1000) : new Date();
-               
+
                // ✅ FIX: Always add 1 month from periodStart for expiration
-               // periodEnd might be same as periodStart for first billing cycle
                let expirationDate: Date;
                if (periodEnd && periodEnd > periodStart) {
                   expirationDate = new Date(periodEnd * 1000);
@@ -156,23 +158,30 @@ export const handlePaymentSucceeded = async (session: Stripe.Checkout.Session) =
                   expirationDate.setTime(future30.getTime());
                }
 
-               // Create PaymentTransaction
-               const newPayment = await PaymentTransaction.create({
-                  userId: _user.userId,
-                  referenceFor: metadata.referenceFor,
-                  referenceId: metadata.referenceId,
-                  paymentGateway: TPaymentGateway.stripe,
-                  transactionId: session.id,
-                  paymentIntent: paymentIntent,
-                  amount: metadata.amount,
-                  currency: metadata.currency,
-                  paymentStatus: TPaymentStatus.completed,
-                  gatewayResponse: session,
-               });
+               // ✅ Check if payment already exists (idempotent)
+               const isPaymentExist = await PaymentTransaction.findOne({ paymentIntent });
 
-               console.log('✅ PaymentTransaction created for UserSubscription:', newPayment._id);
+               if (!isPaymentExist) {
+                  // Create PaymentTransaction only if it doesn't exist
+                  const newPayment = await PaymentTransaction.create({
+                     userId: _user.userId,
+                     referenceFor: metadata.referenceFor,
+                     referenceId: metadata.referenceId,
+                     paymentGateway: TPaymentGateway.stripe,
+                     transactionId: session.id,
+                     paymentIntent: paymentIntent,
+                     amount: metadata.amount,
+                     currency: metadata.currency,
+                     paymentStatus: TPaymentStatus.completed,
+                     gatewayResponse: session,
+                  });
 
-               // Update UserSubscription from processing to active
+                  console.log('✅ PaymentTransaction created for UserSubscription:', newPayment._id);
+               } else {
+                  console.log('⏭️ PaymentTransaction already exists - skipping creation');
+               }
+
+               // ✅ ALWAYS update UserSubscription (even if payment already exists)
                const userSubs = await UserSubscription.findByIdAndUpdate(metadata.referenceId, {
                   $set: {
                      stripe_subscription_id: subscriptionId,
@@ -185,11 +194,11 @@ export const handlePaymentSucceeded = async (session: Stripe.Checkout.Session) =
                      renewalDate: expirationDate,
                      billingCycle: 1,
                      isAutoRenewed: true,
-                     cancelledAtPeriodEnd: false, // ✅ Ensure cancel flag is false for recurring subscription
+                     cancelledAtPeriodEnd: false,
                   }
                });
 
-               // Update user's subscriptionType and mark free trial as used
+               // ✅ ALWAYS update user's subscriptionType and hasUsedFreeTrial
                await User.findByIdAndUpdate(metadata.userId, {
                   $set: {
                      subscriptionType: metadata.subscriptionType,
@@ -216,7 +225,15 @@ export const handlePaymentSucceeded = async (session: Stripe.Checkout.Session) =
 
                return; // Don't create duplicate payment transaction below
           }
-          
+
+          // For non-UserSubscription transactions, check payment existence here
+          const existingPayment = await PaymentTransaction.findOne({ paymentIntent });
+
+          if (existingPayment) {
+               console.log('⏭️ Payment already processed for paymentIntent:', paymentIntent, '- skipping duplicate');
+               return;
+          }
+
           const newPayment = await PaymentTransaction.create({
                userId: _user.userId,
                referenceFor, // If this is for Order .. we pass "Order" here
