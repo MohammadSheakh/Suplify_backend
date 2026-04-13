@@ -82,15 +82,19 @@ export const handlePaymentSucceeded = async (session: Stripe.Checkout.Session) =
           console.log('🔍 handlePaymentSucceeded - referenceFor:', referenceFor, 'referenceId:', referenceId, 'session.subscription:', session.subscription);
           console.log('🔍 session.metadata:', JSON.stringify(session.metadata, null, 2));
 
-          // ✅ Store subscription ID from checkout session so invoice.payment_succeeded can use it later
+          // ✅ Store subscription ID AND paymentIntent from checkout session so invoice.payment_succeeded can use it later
           if(referenceFor === TTransactionFor.UserSubscription){
                const subscriptionId = session.subscription as string;
+               const paymentIntent = session.payment_intent as string;
                if (subscriptionId) {
-                  // Store subscription ID in UserSubscription for later use by invoice.payment_succeeded
+                  // Store subscription ID and paymentIntent in UserSubscription for later use by invoice.payment_succeeded
                   await UserSubscription.findByIdAndUpdate(referenceId, {
-                     $set: { stripe_subscription_id: subscriptionId }
+                     $set: { 
+                        stripe_subscription_id: subscriptionId,
+                        stripe_transaction_id: paymentIntent // Store paymentIntent for PaymentTransaction creation later
+                     }
                   });
-                  console.log('✅ Stored subscription ID in UserSubscription for later webhook processing:', subscriptionId);
+                  console.log('✅ Stored subscription ID and paymentIntent in UserSubscription:', { subscriptionId, paymentIntent });
                }
                console.log('⏭️ Skipping UserSubscription in checkout - will be activated in invoice.payment_succeeded');
                return;

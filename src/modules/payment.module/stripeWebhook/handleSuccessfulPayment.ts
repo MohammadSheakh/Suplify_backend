@@ -201,30 +201,41 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Invoice) => {
         subscriptionId
       });
 
-      // Check for duplicate payment (idempotent)
-      const existingPayment = await PaymentTransaction.findOne({
-        paymentIntent: invoice.payment_intent
-      });
+      // Get paymentIntent from invoice OR from UserSubscription (stored by checkout.session.completed)
+      let paymentIntent = invoice.payment_intent as string | undefined;
+      
+      if (!paymentIntent) {
+        const userSub = await UserSubscription.findById(metadata.referenceId);
+        if (userSub?.stripe_transaction_id) {
+          paymentIntent = userSub.stripe_transaction_id;
+          console.log('✅ Found paymentIntent from UserSubscription:', paymentIntent);
+        }
+      }
 
-      if (existingPayment) {
-        console.log('⏭️ Payment already processed for paymentIntent:', invoice.payment_intent);
-        // Still update UserSubscription even if payment exists
-      } else {
-        // Create PaymentTransaction
-        const newPayment = await PaymentTransaction.create({
-          userId: user._id,
-          referenceFor: invoiceInfo.subscription_metadata.referenceFor,
-          referenceId: invoiceInfo.subscription_metadata.referenceId,
-          paymentGateway: TPaymentGateway.stripe,
-          transactionId: invoice.charge || invoice.id,
-          paymentIntent: invoiceInfo.payment_intent,
-          amount: invoiceInfo.subscription_metadata.amount,
-          currency: invoiceInfo.subscription_metadata.currency,
-          paymentStatus: TPaymentStatus.completed,
-          gatewayResponse: invoiceInfo,
-        });
+      // Check for duplicate payment (idempotent) - only if paymentIntent exists
+      if (paymentIntent) {
+        const existingPayment = await PaymentTransaction.findOne({ paymentIntent });
 
-        console.log('✅ PaymentTransaction created:', newPayment._id);
+        if (existingPayment) {
+          console.log('⏭️ PaymentTransaction already exists for paymentIntent:', paymentIntent);
+          // Still update UserSubscription even if payment exists
+        } else {
+          // Create PaymentTransaction
+          const newPayment = await PaymentTransaction.create({
+            userId: user._id,
+            referenceFor: invoiceInfo.subscription_metadata.referenceFor,
+            referenceId: invoiceInfo.subscription_metadata.referenceId,
+            paymentGateway: TPaymentGateway.stripe,
+            transactionId: invoice.charge || invoice.id,
+            paymentIntent: paymentIntent,
+            amount: invoiceInfo.subscription_metadata.amount,
+            currency: invoiceInfo.subscription_metadata.currency,
+            paymentStatus: TPaymentStatus.completed,
+            gatewayResponse: invoiceInfo,
+          });
+
+          console.log('✅ PaymentTransaction created:', newPayment._id);
+        }
 
         await enqueueWebNotification(
           `New Subscription purchased by ${user._id} ${user.name} and paid ${invoiceInfo.subscription_metadata.amount} ${invoiceInfo.subscription_metadata.currency}`,
@@ -235,6 +246,8 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Invoice) => {
           null,
           null
         );
+      } else {
+        console.error('❌ paymentIntent is undefined - cannot create PaymentTransaction');
       }
 
       // ✅ FIX: Always add 1 month from periodStart for expiration
