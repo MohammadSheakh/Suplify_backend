@@ -24,6 +24,8 @@ import { User } from "../../user/user.model";
 import { WalletService } from "../../wallet.module/wallet/wallet.service";
 import { TPaymentGateway, TPaymentStatus, TTransactionFor } from "../paymentTransaction/paymentTransaction.constant";
 import { PaymentTransaction } from "../paymentTransaction/paymentTransaction.model";
+// ✅ Import for storing subscription ID from checkout session
+import { UserSubscription } from "../../subscription.module/userSubscription/userSubscription.model";
 //@ts-ignore
 import Stripe from "stripe";
 //@ts-ignore
@@ -88,9 +90,17 @@ export const handlePaymentSucceeded = async (session: Stripe.Checkout.Session) =
           console.log('🔍 handlePaymentSucceeded - referenceFor:', referenceFor, 'referenceId:', referenceId, 'session.subscription:', session.subscription);
           console.log('🔍 session.metadata:', JSON.stringify(session.metadata, null, 2));
 
-          // ✅ Skip UserSubscription - handled in handleSuccessfulPayment (invoice.payment_succeeded)
+          // ✅ Store subscription ID from checkout session so invoice.payment_succeeded can use it later
           if(referenceFor === TTransactionFor.UserSubscription){
-               console.log('⏭️ Skipping UserSubscription - handled in invoice.payment_succeeded webhook');
+               const subscriptionId = session.subscription as string;
+               if (subscriptionId) {
+                  // Store subscription ID in UserSubscription for later use by invoice.payment_succeeded
+                  await UserSubscription.findByIdAndUpdate(referenceId, {
+                     $set: { stripe_subscription_id: subscriptionId }
+                  });
+                  console.log('✅ Stored subscription ID in UserSubscription for later webhook processing:', subscriptionId);
+               }
+               console.log('⏭️ Skipping UserSubscription in checkout - will be activated in invoice.payment_succeeded');
                return;
           }
 

@@ -82,27 +82,18 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Invoice) => {
       subscriptionId = (invoice.lines.data[0] as any).subscription as string | undefined;
     }
     
-    // If still not found, try expanding the invoice
-    if (!subscriptionId) {
-      try {
-        console.log('🔄 Retrieving expanded invoice for subscription ID...');
-        const expandedInvoice = await stripe.invoices.retrieve(invoice.id, {
-          expand: ['lines.data.0.subscription', 'subscription']
-        });
-        subscriptionId = expandedInvoice.subscription as string;
-        if (!subscriptionId && expandedInvoice.lines?.data?.[0]) {
-          subscriptionId = (expandedInvoice.lines.data[0] as any).subscription as string;
-        }
-        console.log('✅ Found subscription ID from expanded invoice:', subscriptionId);
-      } catch (error) {
-        console.error('❌ Failed to retrieve expanded invoice for subscription ID:', invoice.id, error);
-        return;
+    // ✅ If still not found, get from UserSubscription (stored by checkout.session.completed)
+    if (!subscriptionId && metadata.referenceId) {
+      const userSub = await UserSubscription.findById(metadata.referenceId);
+      if (userSub?.stripe_subscription_id) {
+        subscriptionId = userSub.stripe_subscription_id;
+        console.log('✅ Found subscription ID from UserSubscription:', subscriptionId);
       }
     }
 
     // Validate subscription ID before retrieving
     if (!subscriptionId || typeof subscriptionId !== 'string') {
-      console.error('❌ Invalid or missing subscription ID in invoice:', invoice.id, 'subscription:', invoice.subscription, 'lines:', invoice.lines?.data?.[0]);
+      console.error('❌ Invalid or missing subscription ID in invoice:', invoice.id, 'subscription:', invoice.subscription, 'lines:', invoice.lines?.data?.[0]?.subscription);
       return;
     }
 
