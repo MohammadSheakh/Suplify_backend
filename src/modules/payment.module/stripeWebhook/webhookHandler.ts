@@ -130,7 +130,9 @@ const webhookHandler = async (req: Request, res: Response): Promise<void> => {
                          🪝customer.subscription.updated
                          ////////////////////////////////////////
                     `)
-                    await handleSuccessfulPayment(event.data.object as Stripe.Invoice);
+                    // ⚠️ FIX: This event passes a Subscription object, not Invoice
+                    // We should handle this differently or skip it to avoid errors
+                    // console.log("⚠️ customer.subscription.updated - skipping, handled by invoice.payment_succeeded");
                     break;
                default:
                     // console.log(`Unhandled event type: ${event.type}`);

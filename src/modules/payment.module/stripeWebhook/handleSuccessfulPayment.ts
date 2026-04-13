@@ -64,14 +64,21 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Invoice) => {
     */
 
     /******
-     * 
+     *
      * as we set metadata under subscription data ..
      * so first we have to get subscription from invoice.subscription
      * then we can get metadata from subscription object
-     * 
+     *
      * *** */
 
     const subscriptionId = invoice.subscription;
+    
+    // ✅ FIX: Validate subscription ID before retrieving
+    if (!subscriptionId || typeof subscriptionId !== 'string') {
+      console.error('❌ Invalid or missing subscription ID in invoice:', invoice.id, 'subscription:', invoice.subscription);
+      return;
+    }
+
     const subscription = await stripe.subscriptions.retrieve(subscriptionId, {
       expand: ['latest_invoice', 'pending_setup_intent']
     });
@@ -207,34 +214,45 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Invoice) => {
       
       // console.log("newPayment created --- handleSuccessfulPayment --- invoice.billing_reason === 'subscription_create' =>> ", newPayment);
 
-      const newExpirationDate = new Date();
-      newExpirationDate.setDate(newExpirationDate.getDate() + 30); // ✅ adds 30 days
+      // ✅ FIX: Safe date calculation - fallback to current date + 30 days if Stripe dates are missing
+      const periodStart = subscription.latest_invoice?.period_start;
+      const periodEnd = subscription.latest_invoice?.period_end;
+      
+      const subscriptionStartDate = periodStart ? new Date(periodStart * 1000) : new Date();
+      const currentPeriodStartDate = periodStart ? new Date(periodStart * 1000) : new Date();
+      const expirationDate = periodEnd ? new Date(periodEnd * 1000) : (() => { const d = new Date(); d.setDate(d.getDate() + 30); return d; })();
+
+      // Validate dates
+      if (isNaN(subscriptionStartDate.getTime()) || isNaN(currentPeriodStartDate.getTime()) || isNaN(expirationDate.getTime())) {
+        console.error('❌ Invalid date calculation for subscription_create:', {
+          periodStart,
+          periodEnd,
+          subscriptionStartDate,
+          currentPeriodStartDate,
+          expirationDate
+        });
+        // Fallback to safe dates
+        const now = new Date();
+        const future30 = new Date();
+        future30.setDate(future30.getDate() + 30);
+        
+        subscriptionStartDate.setTime(now.getTime());
+        currentPeriodStartDate.setTime(now.getTime());
+        expirationDate.setTime(future30.getTime());
+      }
 
       // 1. Update UserSubscription with Stripe IDs
       const userSubs = await UserSubscription.findByIdAndUpdate(metadata.referenceId, {
         $set: {
           stripe_subscription_id: subscriptionId,
           stripe_transaction_id: invoice.payment_intent,
-          subscriptionPlanId: metadata.subscriptionPlanId, // You'll need to fetch this
+          subscriptionPlanId: metadata.subscriptionPlanId,
           status: UserSubscriptionStatusType.active,
-          // subscriptionStartDate :  new Date(invoice.period_start * 1000),   // may be have issue here ... 
-
-          subscriptionStartDate :  new Date(subscription.latest_invoice.period_start * 1000),
-
-          currentPeriodStartDate : new Date(subscription.latest_invoice.period_start * 1000),  
-          
-          // expirationDate : new Date(subscription.latest_invoice.period_end * 1000),
-          
-          expirationDate : newExpirationDate,
-        
-          //renewalDate : new Date(subscription.latest_invoice.period_end * 1000),
-
-          renewalDate : newExpirationDate,
-
-
-          // currentPeriodStartDate: null, // THIS billing cycle start
-          // expirationDate: null,                 // end of trial or billing cycle
-          billingCycle : 1 , // First billing cycle 
+          subscriptionStartDate,
+          currentPeriodStartDate,
+          expirationDate,
+          renewalDate: expirationDate,
+          billingCycle: 1,
           isAutoRenewed : true,
           // renewalDate:  null, // 
           // Add other fields as needed
@@ -325,9 +343,25 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Invoice) => {
 
       const userSub:IUserSubscription = await UserSubscription.findById(metadata.referenceId);
 
-
-      const newExpirationDate = new Date(userSub.expirationDate);
+      // ✅ FIX: Safe date calculation for recurring payments
+      const periodStart = subscription.latest_invoice?.period_start;
+      const periodEnd = subscription.latest_invoice?.period_end;
+      
+      // Use existing expiration date as base, or fallback to Stripe dates, or current date + 30
+      let baseDate = userSub.expirationDate;
+      if (!baseDate || isNaN(new Date(baseDate).getTime())) {
+        baseDate = periodStart ? new Date(periodStart * 1000) : new Date();
+      }
+      
+      const newExpirationDate = new Date(baseDate);
       newExpirationDate.setDate(newExpirationDate.getDate() + 30); // ✅ adds 30 days
+
+      // Validate the new expiration date
+      if (isNaN(newExpirationDate.getTime())) {
+        console.error('❌ Invalid expiration date calculation for subscription_cycle, using fallback');
+        newExpirationDate.setTime(new Date().getTime());
+        newExpirationDate.setDate(newExpirationDate.getDate() + 30);
+      }
 
       // TODO : referenceFor theke Model ta select korte hobe Best practice
       // 1. Update UserSubscription with Stripe IDs
@@ -335,21 +369,12 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Invoice) => {
         $set: {
           stripe_subscription_id: subscriptionId,
           stripe_transaction_id: invoice.payment_intent,
-          subscriptionPlanId: metadata.subscriptionPlanId, // You'll need to fetch this
+          subscriptionPlanId: metadata.subscriptionPlanId,
           status: UserSubscriptionStatusType.active,
-          // currentPeriodStartDate :  new Date(invoice.period_start * 1000), 
-          // currentPeriodStartDate : new Date(subscription.latest_invoice.period_start * 1000),  
-          
-          currentPeriodStartDate : userSub.expirationDate, 
-          
-          // expirationDate : new Date(invoice.period_end * 1000),
-          // expirationDate : new Date(subscription.latest_invoice.period_end * 1000),
-          // renewalDate : new Date(subscription.latest_invoice.period_end * 1000),
-
-          expirationDate : newExpirationDate, // ✅ updated expiration date
-          renewalDate : newExpirationDate,   // ✅ updated renewal date
-
-          billingCycle : (userSub.billingCycle || 0) + 1, // ✅ INCREMENT
+          currentPeriodStartDate: userSub.expirationDate || new Date(),
+          expirationDate: newExpirationDate,
+          renewalDate: newExpirationDate,
+          billingCycle: (userSub.billingCycle || 0) + 1, // ✅ INCREMENT
           isAutoRenewed : true,
         }
       });
