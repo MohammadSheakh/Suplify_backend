@@ -79,15 +79,18 @@ export const handlePaymentSucceeded = async (session: Stripe.Checkout.Session) =
           const paymentIntent = session.payment_intent as string;
           // console.log('=============================');
           // console.log('paymentIntent : ', paymentIntent);
-          
+
           const isPaymentExist = await PaymentTransaction.findOne({ paymentIntent });
 
           if (isPaymentExist) {
                throw new ApiError(StatusCodes.BAD_REQUEST, 'From Webhook handler : Payment Already exist');
           }
 
+          // ✅ DEBUG: Log everything for troubleshooting
+          console.log('🔍 handlePaymentSucceeded - referenceFor:', referenceFor, 'referenceId:', referenceId, 'session.subscription:', session.subscription);
+          console.log('🔍 session.metadata:', JSON.stringify(session.metadata, null, 2));
+
           if(referenceFor === TTransactionFor.UserSubscription){
-               // ✅ FIX: Handle UserSubscription purchase here since checkout.session.completed has session.subscription
                console.log("🟢 Processing UserSubscription purchase from checkout.session.completed", {
                   referenceId,
                   subscriptionId: session.subscription,
@@ -105,10 +108,15 @@ export const handlePaymentSucceeded = async (session: Stripe.Checkout.Session) =
                   expand: ['latest_invoice']
                });
 
-               // Get metadata from subscription (set in subscription_data.metadata during checkout)
-               const metadata = subscription.metadata;
-               if (!metadata || !metadata.referenceId) {
-                  console.error('❌ Missing metadata in Stripe subscription');
+               console.log('🔍 Stripe subscription.metadata:', JSON.stringify(subscription.metadata, null, 2));
+
+               // ✅ FIX: Try session metadata first, then subscription metadata
+               const metadata = subscription.metadata || session.metadata || {};
+               if (!metadata.referenceId) {
+                  console.error('❌ Missing referenceId in BOTH session and subscription metadata', {
+                     sessionMetadata: session.metadata,
+                     subscriptionMetadata: subscription.metadata
+                  });
                   return;
                }
 
