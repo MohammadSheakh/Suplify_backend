@@ -70,37 +70,39 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Invoice) => {
      * then we can get metadata from subscription object
      *
      * Stripe webhooks don't expand nested objects by default,
-     * so we need to retrieve the invoice with subscription expanded
-     * or get subscription ID from invoice lines
+     * so we need to get subscription ID from invoice lines
      *
      * *** */
 
-    // ✅ FIX: Get subscription ID from multiple sources since it's not expanded by default
+    // ✅ FIX: Get subscription ID from multiple sources
     let subscriptionId = invoice.subscription as string | undefined;
     
-    // If not on invoice, try to get from invoice lines
+    // If not on invoice, try to get from invoice lines (line items have subscription ID)
     if (!subscriptionId && invoice.lines?.data?.[0]) {
       subscriptionId = (invoice.lines.data[0] as any).subscription as string | undefined;
     }
     
-    // If still not found, retrieve the invoice with expansion
+    // If still not found, try expanding the invoice
     if (!subscriptionId) {
       try {
         console.log('🔄 Retrieving expanded invoice for subscription ID...');
         const expandedInvoice = await stripe.invoices.retrieve(invoice.id, {
-          expand: ['subscription']
+          expand: ['lines.data.0.subscription', 'subscription']
         });
         subscriptionId = expandedInvoice.subscription as string;
+        if (!subscriptionId && expandedInvoice.lines?.data?.[0]) {
+          subscriptionId = (expandedInvoice.lines.data[0] as any).subscription as string;
+        }
         console.log('✅ Found subscription ID from expanded invoice:', subscriptionId);
       } catch (error) {
         console.error('❌ Failed to retrieve expanded invoice for subscription ID:', invoice.id, error);
-        return; // Exit early if we can't find subscription
+        return;
       }
     }
 
     // Validate subscription ID before retrieving
     if (!subscriptionId || typeof subscriptionId !== 'string') {
-      console.error('❌ Invalid or missing subscription ID in invoice:', invoice.id, 'subscription:', invoice.subscription);
+      console.error('❌ Invalid or missing subscription ID in invoice:', invoice.id, 'subscription:', invoice.subscription, 'lines:', invoice.lines?.data?.[0]);
       return;
     }
 
@@ -182,90 +184,77 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Invoice) => {
     |  FIRST PAYMENT (subscription_create)
     └────────────────────────────────────*/
     if(invoice.billing_reason === 'subscription_create'){
-      // ⚠️ SKIP: This is now handled in checkout.session.completed (handlePaymentSucceeded)
-      // to avoid duplicate processing since invoice.subscription is not available here
-      console.log("⏭️ Skipping subscription_create - already handled in checkout.session.completed");
-      return;
+      console.log("⚡ Processing first payment (subscription_create)", {
+        userId: metadata.userId,
+        referenceId: metadata.referenceId,
+        subscriptionId
+      });
 
-
-      /*********
-       * 
-       * 5. Missing Idempotency & Duplicate Handling
-        Webhooks can be delivered multiple times. You must:
-
-        Check if you’ve already processed this invoice.payment_succeeded (e.g., by invoice.id)
-        Use database transactions or atomic updates
-        ✅ Add a check:
-       * 
-       * ****** */
+      // Check for duplicate payment (idempotent)
       const existingPayment = await PaymentTransaction.findOne({
         paymentIntent: invoice.payment_intent
       });
-      if (existingPayment)
-      {
-        // throw new ApiError( // keep silent .. that is the best option
-        //     StatusCodes.NOT_FOUND,
-        //     `Existing payment found for paymentIntent ${invoice.payment_intent} .. which means already processed this event and transaction is already createrd. `
-        // );
 
-        // console.log(`Payment already processed and and transaction is already createrd for paymentIntent: ${invoice.payment_intent}`);
-        return;
+      if (existingPayment) {
+        console.log('⏭️ Payment already processed for paymentIntent:', invoice.payment_intent);
+        // Still update UserSubscription even if payment exists
+      } else {
+        // Create PaymentTransaction
+        const newPayment = await PaymentTransaction.create({
+          userId: user._id,
+          referenceFor: invoiceInfo.subscription_metadata.referenceFor,
+          referenceId: invoiceInfo.subscription_metadata.referenceId,
+          paymentGateway: TPaymentGateway.stripe,
+          transactionId: invoice.charge || invoice.id,
+          paymentIntent: invoiceInfo.payment_intent,
+          amount: invoiceInfo.subscription_metadata.amount,
+          currency: invoiceInfo.subscription_metadata.currency,
+          paymentStatus: TPaymentStatus.completed,
+          gatewayResponse: invoiceInfo,
+        });
+
+        console.log('✅ PaymentTransaction created:', newPayment._id);
+
+        await enqueueWebNotification(
+          `New Subscription purchased by ${user._id} ${user.name} and paid ${invoiceInfo.subscription_metadata.amount} ${invoiceInfo.subscription_metadata.currency}`,
+          user._id,
+          null,
+          TRole.admin,
+          TNotificationType.payment,
+          null,
+          null
+        );
       }
 
-      const newPayment = await PaymentTransaction.create({
-        userId: user._id,
-        referenceFor : invoiceInfo.subscription_metadata.referenceFor, // If this is for Order .. we pass "Order" here
-        referenceId :  invoiceInfo.subscription_metadata.referenceId, // If this is for Order .. then we pass OrderId here
-        paymentGateway: TPaymentGateway.stripe,
-        transactionId: invoice.charge || invoice.id, // ✅ Use charge ID // INFO : previously we set this null but it should be invoice.charge
-        paymentIntent: invoiceInfo.payment_intent,
-        amount: invoiceInfo.subscription_metadata.amount,
-        currency : invoiceInfo.subscription_metadata.currency,
-        paymentStatus: TPaymentStatus.completed,
-        gatewayResponse: invoiceInfo,
-      });
-
-
-      await enqueueWebNotification(
-          `New Subscription puchased by ${user._id} ${user.name} and paid ${invoiceInfo.subscription_metadata.amount} ${invoiceInfo.subscription_metadata.currency}`,
-          user._id, // senderId
-          null, // receiverId
-          TRole.admin, // receiverRole
-          TNotificationType.payment, // type
-          null, // linkFor
-          null // linkId
-      );
-      
-      // console.log("newPayment created --- handleSuccessfulPayment --- invoice.billing_reason === 'subscription_create' =>> ", newPayment);
-
-      // ✅ FIX: Safe date calculation - fallback to current date + 30 days if Stripe dates are missing
+      // ✅ FIX: Always add 1 month from periodStart for expiration
       const periodStart = subscription.latest_invoice?.period_start;
       const periodEnd = subscription.latest_invoice?.period_end;
-      
+
       const subscriptionStartDate = periodStart ? new Date(periodStart * 1000) : new Date();
       const currentPeriodStartDate = periodStart ? new Date(periodStart * 1000) : new Date();
-      const expirationDate = periodEnd ? new Date(periodEnd * 1000) : (() => { const d = new Date(); d.setDate(d.getDate() + 30); return d; })();
+      
+      let expirationDate: Date;
+      if (periodEnd && periodEnd > periodStart) {
+        expirationDate = new Date(periodEnd * 1000);
+      } else {
+        expirationDate = new Date(subscriptionStartDate);
+        expirationDate.setMonth(expirationDate.getMonth() + 1);
+      }
 
       // Validate dates
       if (isNaN(subscriptionStartDate.getTime()) || isNaN(currentPeriodStartDate.getTime()) || isNaN(expirationDate.getTime())) {
-        console.error('❌ Invalid date calculation for subscription_create:', {
-          periodStart,
-          periodEnd,
-          subscriptionStartDate,
-          currentPeriodStartDate,
-          expirationDate
-        });
-        // Fallback to safe dates
+        console.error('❌ Invalid date calculation for subscription_create, using fallback');
         const now = new Date();
         const future30 = new Date();
-        future30.setDate(future30.getDate() + 30);
-        
+        future30.setMonth(future30.getMonth() + 1);
         subscriptionStartDate.setTime(now.getTime());
         currentPeriodStartDate.setTime(now.getTime());
         expirationDate.setTime(future30.getTime());
       }
 
-      // 1. Update UserSubscription with Stripe IDs
+      console.log('📅 Calculated dates:', { subscriptionStartDate, currentPeriodStartDate, expirationDate });
+
+      // Update UserSubscription with Stripe IDs and dates
       const userSubs = await UserSubscription.findByIdAndUpdate(metadata.referenceId, {
         $set: {
           stripe_subscription_id: subscriptionId,
@@ -278,10 +267,11 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Invoice) => {
           renewalDate: expirationDate,
           billingCycle: 1,
           isAutoRenewed: true,
+          cancelledAtPeriodEnd: false,
         }
       });
 
-      // 2. Update user's subscriptionType and mark free trial as used
+      // Update user's subscriptionType and mark free trial as used
       await User.findByIdAndUpdate(metadata.userId, {
         $set: {
           subscriptionType: metadata.subscriptionType,
@@ -289,14 +279,14 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Invoice) => {
         }
       });
 
-      console.log("✅ UserSubscription activated and user subscriptionType updated:", {
+      console.log('✅ UserSubscription activated and user updated:', {
         userId: metadata.userId,
         userSubscriptionId: metadata.referenceId,
         subscriptionType: metadata.subscriptionType
       });
 
     /*──────────────────────────────────
-    | RECURRING PAYMENT (subscription_cycle)  
+    | RECURRING PAYMENT (subscription_cycle)
     └────────────────────────────────────*/
     }else if(invoice.billing_reason === 'subscription_cycle'){
       console.log("🔁 Processing recurring payment (subscription_cycle)", {

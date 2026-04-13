@@ -81,13 +81,13 @@ const webhookHandler = async (req: Request, res: Response): Promise<void> => {
                     break;
                // ✅ TRY TO GET ACURATE DATE FROM HERE ..  AFTER PAYMENT FOR SUBSCRIPTION
                case 'customer.subscription.created':
-                    // ⚠️ SKIP: Dates now handled in checkout.session.completed (handlePaymentSucceeded)
-                    // to avoid duplicate processing
                     console.log(`
                          ////////////////////////////////////////
-                         🪝customer.subscription.created (skipped - handled in checkout.session.completed)
+                         🪝customer.subscription.created
                          ////////////////////////////////////////
                     `)
+                    // Get subscription dates from Stripe and update UserSubscription
+                    await handleSubscriptionDates(event.data.object);
                     break;
                case 'customer.subscription.trial_will_end':  
                     console.log("🪝customer.subscription.trial_will_end")
