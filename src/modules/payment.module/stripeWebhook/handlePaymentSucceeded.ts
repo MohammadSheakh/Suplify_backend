@@ -78,14 +78,6 @@ export const handlePaymentSucceeded = async (session: Stripe.Checkout.Session) =
           // console.log('=============================');
           // console.log('paymentIntent : ', paymentIntent);
 
-          const isPaymentExist = await PaymentTransaction.findOne({ paymentIntent });
-
-          if (isPaymentExist) {
-               // ✅ FIX: Don't throw error - just return silently for idempotent webhook processing
-               console.log('⏭️ Payment already processed for paymentIntent:', paymentIntent, '- skipping duplicate');
-               return;
-          }
-
           // ✅ DEBUG: Log everything for troubleshooting
           console.log('🔍 handlePaymentSucceeded - referenceFor:', referenceFor, 'referenceId:', referenceId, 'session.subscription:', session.subscription);
           console.log('🔍 session.metadata:', JSON.stringify(session.metadata, null, 2));
@@ -104,10 +96,10 @@ export const handlePaymentSucceeded = async (session: Stripe.Checkout.Session) =
                return;
           }
 
-          // Check if payment already exists
-          const existingPayment = await PaymentTransaction.findOne({ paymentIntent });
+          // Check if payment already exists (for non-UserSubscription transactions only)
+          const isPaymentExist = await PaymentTransaction.findOne({ paymentIntent });
 
-          if (existingPayment) {
+          if (isPaymentExist) {
                console.log('⏭️ Payment already processed for paymentIntent:', paymentIntent, '- skipping duplicate');
                return;
           }

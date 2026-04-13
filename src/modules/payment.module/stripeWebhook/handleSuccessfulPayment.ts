@@ -81,25 +81,48 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Invoice) => {
     if (!subscriptionId && invoice.lines?.data?.[0]) {
       subscriptionId = (invoice.lines.data[0] as any).subscription as string | undefined;
     }
-    
-    // ✅ If still not found, get from UserSubscription (stored by checkout.session.completed)
-    if (!subscriptionId && metadata.referenceId) {
-      const userSub = await UserSubscription.findById(metadata.referenceId);
-      if (userSub?.stripe_subscription_id) {
-        subscriptionId = userSub.stripe_subscription_id;
-        console.log('✅ Found subscription ID from UserSubscription:', subscriptionId);
+
+    // If still not found, find UserSubscription by Stripe customer ID (stored by checkout.session.completed)
+    if (!subscriptionId) {
+      const user = await User.findOne({ stripe_customer_id: invoice.customer });
+      if (user) {
+        const userSub = await UserSubscription.findOne({ userId: user._id, stripe_subscription_id: { $ne: null } }).sort({ createdAt: -1 });
+        if (userSub?.stripe_subscription_id) {
+          subscriptionId = userSub.stripe_subscription_id;
+          console.log('✅ Found subscription ID from UserSubscription by customer:', subscriptionId);
+        }
       }
     }
 
     // Validate subscription ID before retrieving
     if (!subscriptionId || typeof subscriptionId !== 'string') {
-      console.error('❌ Invalid or missing subscription ID in invoice:', invoice.id, 'subscription:', invoice.subscription, 'lines:', invoice.lines?.data?.[0]?.subscription);
+      console.error('❌ Invalid or missing subscription ID in invoice:', invoice.id, 'customer:', invoice.customer, 'subscription:', invoice.subscription, 'lines:', invoice.lines?.data?.[0]?.subscription);
       return;
     }
 
     const subscription = await stripe.subscriptions.retrieve(subscriptionId, {
       expand: ['latest_invoice', 'pending_setup_intent']
     });
+
+    // ✅ Access metadata from subscription (set in subscription_data.metadata during checkout)
+    const metadata:IMetadataForFreeTrial = subscription.metadata;
+
+    // ✅ If metadata.referenceId is missing, try getting from UserSubscription
+    if (!metadata?.referenceId) {
+      console.log('⚠️ Missing metadata in subscription, trying to find UserSubscription by stripe_subscription_id...');
+      const userSub = await UserSubscription.findOne({ stripe_subscription_id: subscriptionId });
+      if (userSub) {
+        // Populate metadata from UserSubscription
+        (metadata as any).referenceId = userSub._id.toString();
+        (metadata as any).userId = userSub.userId.toString();
+        (metadata as any).referenceFor = TTransactionFor.UserSubscription;
+        (metadata as any).subscriptionType = userSub.status;
+        console.log('✅ Found UserSubscription by stripe_subscription_id:', userSub._id);
+      } else {
+        console.error('❌ No UserSubscription found for subscription ID:', subscriptionId);
+        return;
+      }
+    }
 
     // console.log("Subscription :: 🔊🔊🔊🔊🔊🔊🔊", subscription.latest_invoice.period_start)
     // console.log("Subscription :: 🔊🔊🔊🔊🔊🔊🔊", new Date(subscription.latest_invoice.period_start * 1000))
@@ -131,10 +154,7 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Invoice) => {
   }
 */
 
-    
-    // ✅ Access metadata from subscription, not invoice
-    const metadata:IMetadataForFreeTrial = subscription.metadata;
- 
+    // ✅ Use metadata from subscription (already declared above)
     const invoiceInfo = {
       customer : invoice.customer,
       payment_intent : invoice.payment_intent,
