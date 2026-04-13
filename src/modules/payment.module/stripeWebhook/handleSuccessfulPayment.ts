@@ -69,11 +69,33 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Invoice) => {
      * so first we have to get subscription from invoice.subscription
      * then we can get metadata from subscription object
      *
+     * Stripe webhooks don't expand nested objects by default,
+     * so we need to retrieve the invoice with subscription expanded
+     * or get subscription ID from invoice lines
+     *
      * *** */
 
-    const subscriptionId = invoice.subscription;
+    // ✅ FIX: Get subscription ID from multiple sources since it's not expanded by default
+    let subscriptionId = invoice.subscription as string | undefined;
     
-    // ✅ FIX: Validate subscription ID before retrieving
+    // If not on invoice, try to get from invoice lines
+    if (!subscriptionId && invoice.lines?.data?.[0]) {
+      subscriptionId = invoice.lines.data[0].subscription as string | undefined;
+    }
+    
+    // If still not found, retrieve the invoice with expansion
+    if (!subscriptionId) {
+      try {
+        const expandedInvoice = await stripe.invoices.retrieve(invoice.id, {
+          expand: ['subscription']
+        });
+        subscriptionId = expandedInvoice.subscription as string;
+      } catch (error) {
+        console.error('❌ Failed to retrieve expanded invoice for subscription ID:', invoice.id, error);
+      }
+    }
+
+    // Validate subscription ID before retrieving
     if (!subscriptionId || typeof subscriptionId !== 'string') {
       console.error('❌ Invalid or missing subscription ID in invoice:', invoice.id, 'subscription:', invoice.subscription);
       return;
