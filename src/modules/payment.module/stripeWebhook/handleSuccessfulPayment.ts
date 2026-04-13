@@ -80,18 +80,21 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Invoice) => {
     
     // If not on invoice, try to get from invoice lines
     if (!subscriptionId && invoice.lines?.data?.[0]) {
-      subscriptionId = invoice.lines.data[0].subscription as string | undefined;
+      subscriptionId = (invoice.lines.data[0] as any).subscription as string | undefined;
     }
     
     // If still not found, retrieve the invoice with expansion
     if (!subscriptionId) {
       try {
+        console.log('🔄 Retrieving expanded invoice for subscription ID...');
         const expandedInvoice = await stripe.invoices.retrieve(invoice.id, {
           expand: ['subscription']
         });
         subscriptionId = expandedInvoice.subscription as string;
+        console.log('✅ Found subscription ID from expanded invoice:', subscriptionId);
       } catch (error) {
         console.error('❌ Failed to retrieve expanded invoice for subscription ID:', invoice.id, error);
+        return; // Exit early if we can't find subscription
       }
     }
 
@@ -176,14 +179,14 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Invoice) => {
    
     
     /*──────────────────────────────────
-    |  FIRST PAYMENT (subscription_create)   
+    |  FIRST PAYMENT (subscription_create)
     └────────────────────────────────────*/
     if(invoice.billing_reason === 'subscription_create'){
-      // console.log("⚡ This is first payment after trial or immediate payment without trial 1️⃣", invoice.billing_reason);
-
-      // ⭕ these dates are undifind ⭕ ⭕ ⭕  
-      // const { current_period_start, current_period_end } = subscription;
-      // console.log("⚡⚡ current_period_start :: current_period_end -> ", current_period_start, current_period_end)
+      console.log("⚡ Processing first payment (subscription_create)", {
+        userId: metadata.userId,
+        referenceId: metadata.referenceId,
+        subscriptionId
+      });
 
 
       /*********
@@ -275,26 +278,33 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Invoice) => {
           expirationDate,
           renewalDate: expirationDate,
           billingCycle: 1,
-          isAutoRenewed : true,
-          // renewalDate:  null, // 
-          // Add other fields as needed
+          isAutoRenewed: true,
         }
       });
 
-      // 2. Mark user as having used free trial (option 2: after first payment) // 🚩
-      // const updatedUser = await User.findByIdAndUpdate(metadata.userId, {
-      //   $set: { 
-      //       subscriptionType: metadata.subscriptionType 
-      //     }
-      // });
+      // 2. Update user's subscriptionType and mark free trial as used
+      await User.findByIdAndUpdate(metadata.userId, {
+        $set: {
+          subscriptionType: metadata.subscriptionType,
+          hasUsedFreeTrial: true,
+        }
+      });
 
-      // console.log("Updated userSubs --- handleSuccessfulPayment --- invoice.billing_reason === 'subscription_create' =>> ", userSubs);
+      console.log("✅ UserSubscription activated and user subscriptionType updated:", {
+        userId: metadata.userId,
+        userSubscriptionId: metadata.referenceId,
+        subscriptionType: metadata.subscriptionType
+      });
 
     /*──────────────────────────────────
     | RECURRING PAYMENT (subscription_cycle)  
     └────────────────────────────────────*/
     }else if(invoice.billing_reason === 'subscription_cycle'){
-        // console.log("=============== This is recurring subscription payment ================== 🔁2️⃣ ", invoice.billing_reason);
+      console.log("🔁 Processing recurring payment (subscription_cycle)", {
+        userId: metadata.userId,
+        referenceId: metadata.referenceId,
+        subscriptionId
+      });
       /*
         {
           customer: 'cus_SzzhhEPsNynY9B',
