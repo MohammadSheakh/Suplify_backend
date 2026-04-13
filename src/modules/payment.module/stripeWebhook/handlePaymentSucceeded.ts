@@ -116,9 +116,26 @@ export const handlePaymentSucceeded = async (session: Stripe.Checkout.Session) =
                const periodStart = subscription.latest_invoice?.period_start;
                const periodEnd = subscription.latest_invoice?.period_end;
                
+               console.log('📅 Dates from Stripe:', { periodStart, periodEnd, periodStartDate: periodStart ? new Date(periodStart * 1000) : null, periodEndDate: periodEnd ? new Date(periodEnd * 1000) : null });
+
                const subscriptionStartDate = periodStart ? new Date(periodStart * 1000) : new Date();
                const currentPeriodStartDate = periodStart ? new Date(periodStart * 1000) : new Date();
-               const expirationDate = periodEnd ? new Date(periodEnd * 1000) : (() => { const d = new Date(); d.setMonth(d.getMonth() + 1); return d; })();
+               
+               // ✅ FIX: Always add 1 month from periodStart for expiration
+               // periodEnd might be same as periodStart for first billing cycle
+               let expirationDate: Date;
+               if (periodEnd && periodEnd > periodStart) {
+                  expirationDate = new Date(periodEnd * 1000);
+               } else {
+                  expirationDate = new Date(subscriptionStartDate);
+                  expirationDate.setMonth(expirationDate.getMonth() + 1);
+               }
+
+               console.log('📅 Calculated dates:', {
+                  subscriptionStartDate,
+                  currentPeriodStartDate,
+                  expirationDate
+               });
 
                // Validate dates
                if (isNaN(subscriptionStartDate.getTime()) || isNaN(currentPeriodStartDate.getTime()) || isNaN(expirationDate.getTime())) {
