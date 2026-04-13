@@ -158,7 +158,7 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Invoice) => {
     const invoiceInfo = {
       customer : invoice.customer,
       payment_intent : invoice.payment_intent,
-      price_id : invoice.lines.data[0].price.id,
+      price_id : invoice.lines?.data?.[0]?.price?.id || null,
       period_start : invoice.period_start,
       period_end : invoice.period_end,
       amount_paid : invoice.amount_paid,
