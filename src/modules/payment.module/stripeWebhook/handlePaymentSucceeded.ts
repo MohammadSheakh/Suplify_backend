@@ -160,6 +160,7 @@ export const handlePaymentSucceeded = async (session: Stripe.Checkout.Session) =
                      renewalDate: expirationDate,
                      billingCycle: 1,
                      isAutoRenewed: true,
+                     cancelledAtPeriodEnd: false, // ✅ Ensure cancel flag is false for recurring subscription
                   }
                });
 

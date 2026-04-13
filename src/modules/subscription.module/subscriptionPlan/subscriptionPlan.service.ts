@@ -117,36 +117,38 @@ export class SubscriptionPlanService extends GenericService<typeof SubscriptionP
         ---------------------------------------*/
 
         //---------------------------------
-        // Lets create a userSubscription // TODO : we have to check already have userSubsription or not .. 
+        // Lets create a userSubscription // TODO : we have to check already have userSubsription or not ..
         //---------------------------------
 
         const newUserSubscription : IUserSubscription = await UserSubscription.create({
             userId: user._id, //🔗
-            subscriptionPlanId : null, //🔗this will be assign after free trial end .. if stripe charge 70 dollar .. and in webhook we update this with standard plan 
+            subscriptionPlanId : null, //🔗this will be assign after free trial end .. if stripe charge 70 dollar .. and in webhook we update this with standard plan
             subscriptionStartDate: null, //new Date()
             currentPeriodStartDate: null, // new Date(), // ⚡ we will update this in webhook after successful payment
             expirationDate: null, // new Date(new Date().setDate(new Date().getDate() + 1)), // 1 days free trial
             isFromFreeTrial: false, // this is not from free trial
             cancelledAtPeriodEnd : false,
             status : UserSubscriptionStatusType.processing,
-            // isAutoRenewed : 70 dollar pay houar pore true hobe 
-            // billingCycle :  it should be 1 .. after first 70 dollar payment 
-            // renewalDate : will be updated after 70 dollar for standard plan successful payment in webhook 
-            stripe_subscription_id: null, // because its free trial // after 70 dollar payment we will update this 
-            stripe_transaction_id : null, // because its free trial // after 70 dollar payment we will update this 
-        
-            // ⚡⚡⚡⚡ must null assign korte hobe renewal date e 
+            isAutoRenewed: true, // ✅ FIX: Set to true so cron doesn't cancel it before webhook fires
+            billingCycle: 0,
+            // isAutoRenewed : 70 dollar pay houar pore true hobe
+            // billingCycle :  it should be 1 .. after first 70 dollar payment
+            // renewalDate : will be updated after 70 dollar for standard plan successful payment in webhook
+            stripe_subscription_id: null, // because its free trial // after 70 dollar payment we will update this
+            stripe_transaction_id : null, // because its free trial // after 70 dollar payment we will update this
+
+            // ⚡⚡⚡⚡ must null assign korte hobe renewal date e
 
             /******
-             * 
+             *
              * when a user cancel his subscription
-             * 
+             *
              * we add that date at ** cancelledAt **
-             * 
+             *
              * ** status ** -> cancelled
-             * 
+             *
              * ******* */
-        
+
         });
 
         // Create a new subscription

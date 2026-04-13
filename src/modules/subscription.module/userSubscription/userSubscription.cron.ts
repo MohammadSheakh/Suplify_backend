@@ -40,8 +40,10 @@ export const checkAndExpireUserSubscription = async (): Promise<void> => {
     const currentDate = new Date();
     
     // Find all user subscriptions that are not cancelled at period end and have expired
+    // ✅ FIX: Exclude auto-renewing subscriptions - Stripe handles their renewal automatically
     const expiredSubscriptions = await UserSubscription.find({
       cancelledAtPeriodEnd: false,
+      isAutoRenewed: false, // ✅ Only cancel non-auto-renewing subscriptions
       expirationDate: { $lt: currentDate },
     });
     
@@ -50,19 +52,25 @@ export const checkAndExpireUserSubscription = async (): Promise<void> => {
     // Process each expired subscription
     for (const subscription of expiredSubscriptions) {
       try {
+        // ✅ FIX: Double-check - don't cancel auto-renewing subscriptions
+        if (subscription.isAutoRenewed) {
+          console.log(`⏭️ Skipping auto-renewing subscription: ${subscription._id}`);
+          continue;
+        }
+
         // Update the subscription to set cancelledAt and cancelledAtPeriodEnd
         subscription.cancelledAt = currentDate;
         subscription.cancelledAtPeriodEnd = true;
         subscription.status = UserSubscriptionStatusType.cancelled;
-        
+
         await subscription.save();
-        
+
         // Update the user's subscription type to free
         await User.findByIdAndUpdate(subscription.userId, { subscriptionType: 'free' });
-        
-        console.log(`Updated subscription for user ${subscription.userId}`);
+
+        console.log(`✅ Updated expired subscription for user ${subscription.userId}`);
       } catch (error) {
-        console.error(`Error processing subscription ${subscription._id}:`, error);
+        console.error(`❌ Error processing subscription ${subscription._id}:`, error);
       }
     }
   } catch (error) {
