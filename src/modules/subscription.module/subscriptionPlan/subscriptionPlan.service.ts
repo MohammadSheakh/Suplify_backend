@@ -165,8 +165,8 @@ export class SubscriptionPlanService extends GenericService<typeof SubscriptionP
             mode: 'subscription',
             line_items: [
                 {
-                price: subscriptionPlan.stripe_price_id,
-                quantity: 1,
+                    price: subscriptionPlan.stripe_price_id,
+                    quantity: 1,
                 },
             ],
             // 🎯 Pass metadata to access later in webhooks
