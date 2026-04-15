@@ -203,7 +203,7 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Invoice) => {
 
       // Get paymentIntent from invoice OR from UserSubscription (stored by checkout.session.completed)
       let paymentIntent = invoice.payment_intent as string | undefined;
-      
+
       if (!paymentIntent) {
         const userSub = await UserSubscription.findById(metadata.referenceId);
         if (userSub?.stripe_transaction_id) {
@@ -211,6 +211,10 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Invoice) => {
           console.log('✅ Found paymentIntent from UserSubscription:', paymentIntent);
         }
       }
+
+      // ✅ FIX: Always use the paymentIntent we resolved (from invoice or UserSubscription)
+      // Don't overwrite with potentially undefined invoice.payment_intent
+      const finalPaymentIntent = paymentIntent || invoice.payment_intent;
 
       // Check for duplicate payment (idempotent) - only if paymentIntent exists
       if (paymentIntent) {
@@ -282,7 +286,7 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Invoice) => {
       const userSubs = await UserSubscription.findByIdAndUpdate(metadata.referenceId, {
         $set: {
           stripe_subscription_id: subscriptionId,
-          stripe_transaction_id: invoice.payment_intent,
+          stripe_transaction_id: finalPaymentIntent, // ✅ Use resolved paymentIntent (from checkout or invoice)
           subscriptionPlanId: metadata.subscriptionPlanId,
           status: UserSubscriptionStatusType.active,
           subscriptionStartDate,
