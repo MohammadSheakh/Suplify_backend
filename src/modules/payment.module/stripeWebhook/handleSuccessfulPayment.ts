@@ -82,14 +82,29 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Invoice) => {
       subscriptionId = (invoice.lines.data[0] as any).subscription as string | undefined;
     }
 
-    // If still not found, find UserSubscription by Stripe customer ID (stored by checkout.session.completed)
+    // If still not found, find UserSubscription by Stripe customer ID (via User record)
     if (!subscriptionId) {
       const user = await User.findOne({ stripe_customer_id: invoice.customer });
       if (user) {
-        const userSub = await UserSubscription.findOne({ userId: user._id, stripe_subscription_id: { $ne: null } }).sort({ createdAt: -1 });
+        const userSub = await UserSubscription.findOne({ 
+          userId: user._id, 
+          stripe_subscription_id: { $ne: null } 
+        }).sort({ createdAt: -1 });
+        
         if (userSub?.stripe_subscription_id) {
           subscriptionId = userSub.stripe_subscription_id;
           console.log('✅ Found subscription ID from UserSubscription by customer:', subscriptionId);
+        } else {
+          // Last resort: find any processing subscription for this user
+          const processingSub = await UserSubscription.findOne({ 
+            userId: user._id, 
+            status: UserSubscriptionStatusType.processing 
+          }).sort({ createdAt: -1 });
+          
+          if (processingSub && processingSub.stripe_subscription_id) {
+             subscriptionId = processingSub.stripe_subscription_id;
+             console.log('✅ Found processing subscription ID for customer:', subscriptionId);
+          }
         }
       }
     }
@@ -105,19 +120,29 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Invoice) => {
     });
 
     // ✅ Access metadata from subscription (set in subscription_data.metadata during checkout)
-    const metadata:IMetadataForFreeTrial = subscription.metadata;
+    let metadata:IMetadataForFreeTrial = subscription.metadata as any;
 
-    // ✅ If metadata.referenceId is missing, try getting from UserSubscription
+    // ✅ If metadata.referenceId is missing, try getting from UserSubscription in DB
     if (!metadata?.referenceId) {
-      console.log('⚠️ Missing metadata in subscription, trying to find UserSubscription by stripe_subscription_id...');
-      const userSub = await UserSubscription.findOne({ stripe_subscription_id: subscriptionId });
+      console.log('⚠️ Missing metadata in subscription object, attempting fallback from DB...');
+      const userSub = await UserSubscription.findOne({ 
+        $or: [
+          { stripe_subscription_id: subscriptionId },
+          { userId: user?._id, status: UserSubscriptionStatusType.processing }
+        ]
+      }).sort({ createdAt: -1 });
+
       if (userSub) {
-        // Populate metadata from UserSubscription
-        (metadata as any).referenceId = userSub._id.toString();
-        (metadata as any).userId = userSub.userId.toString();
-        (metadata as any).referenceFor = TTransactionFor.UserSubscription;
-        (metadata as any).subscriptionType = userSub.status;
-        console.log('✅ Found UserSubscription by stripe_subscription_id:', userSub._id);
+        // Populate metadata from UserSubscription record
+        metadata = {
+          referenceId: userSub._id.toString(),
+          userId: userSub.userId.toString(),
+          referenceFor: TTransactionFor.UserSubscription,
+          subscriptionType: (userSub as any).subscriptionType || 'standard', // Fallback to standard
+          currency: (userSub as any).currency || 'usd',
+          amount: (userSub as any).amount || '0'
+        };
+        console.log('✅ Recovered metadata from UserSubscription record:', userSub._id);
       } else {
         console.error('❌ No UserSubscription found for subscription ID:', subscriptionId);
         return;

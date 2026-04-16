@@ -62,6 +62,7 @@ export const handleSubscriptionDates = async (subscription) => {
     // 1. Update UserSubscription
     const updateData = {
       $set: {
+        stripe_subscription_id: subscription.id, // ✅ Store ID immediately so other webhooks can find it
         currentPeriodStartDate: currentPeriodStart,
         expirationDate: currentPeriodEnd, // <-- ✅ This is your key field!
         renewalDate: currentPeriodEnd,    // <-- ✅ Same as expiration for auto-renewal
@@ -71,7 +72,7 @@ export const handleSubscriptionDates = async (subscription) => {
 
     await UserSubscription.findByIdAndUpdate(referenceId, updateData, { new: true });
 
-    console.log(`✅ UserSubscription ${referenceId} updated with renewal date: ${currentPeriodEnd.toISOString()}`);
+    console.log(`✅ UserSubscription ${referenceId} updated with renewal date: ${currentPeriodEnd.toISOString()} and subscriptionId: ${subscription.id}`);
 
     // 2. Mark user as having used free trial (if this is first paid cycle)
     if (billingCycle === 1) {
@@ -82,7 +83,7 @@ export const handleSubscriptionDates = async (subscription) => {
           stripe_customer_id: subscription.customer, // ensure consistency
         }
       });
-      console.log(`✅ User ${userId} marked as having used free trial`);
+      console.log(`✅ User ${userId} marked as having used free trial and linked to customer: ${subscription.customer}`);
     }
 
     return true;
