@@ -186,6 +186,31 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Invoice) => {
       console.error('User not found for customer:', subscription.customer);
       return;
     }
+
+    // ✅ Robust paymentIntent and transactionId resolution
+    let resolvedPaymentIntent = invoice.payment_intent as string | undefined;
+
+    // Try expanded latest_invoice from retrieved subscription
+    if (!resolvedPaymentIntent && subscription.latest_invoice) {
+      const latestInv = subscription.latest_invoice as Stripe.Invoice;
+      if (typeof latestInv.payment_intent === 'string') {
+        resolvedPaymentIntent = latestInv.payment_intent;
+      } else if (latestInv.payment_intent && typeof latestInv.payment_intent === 'object') {
+        resolvedPaymentIntent = (latestInv.payment_intent as any).id;
+      }
+    }
+
+    // Try UserSubscription record if still not found
+    if (!resolvedPaymentIntent) {
+      const userSub = await UserSubscription.findById(metadata.referenceId);
+      if (userSub?.stripe_transaction_id) {
+        resolvedPaymentIntent = userSub.stripe_transaction_id;
+        console.log('✅ Found paymentIntent from UserSubscription:', resolvedPaymentIntent);
+      }
+    }
+
+    const finalTransactionId = (invoice.charge as string) || (invoice.id as string);
+    const finalAmount = Number(invoiceInfo.subscription_metadata.amount) || (invoice.amount_paid / 100);
    
     // ✅ Use proper Stripe dates instead of manual calculation
     // const dates = calculateSubscriptionDates(subscription, invoice);
@@ -198,48 +223,42 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Invoice) => {
       console.log("⚡ Processing first payment (subscription_create)", {
         userId: metadata.userId,
         referenceId: metadata.referenceId,
-        subscriptionId
+        subscriptionId,
+        paymentIntent: resolvedPaymentIntent
       });
 
-      // Get paymentIntent from invoice OR from UserSubscription (stored by checkout.session.completed)
-      let paymentIntent = invoice.payment_intent as string | undefined;
+      // Idempotency check: verify if this payment was already processed
+      const duplicateQuery: any[] = [];
+      if (resolvedPaymentIntent) duplicateQuery.push({ paymentIntent: resolvedPaymentIntent });
+      if (finalTransactionId) duplicateQuery.push({ transactionId: finalTransactionId });
 
-      if (!paymentIntent) {
-        const userSub = await UserSubscription.findById(metadata.referenceId);
-        if (userSub?.stripe_transaction_id) {
-          paymentIntent = userSub.stripe_transaction_id;
-          console.log('✅ Found paymentIntent from UserSubscription:', paymentIntent);
-        }
+      let existingPayment = null;
+      if (duplicateQuery.length > 0) {
+        existingPayment = await PaymentTransaction.findOne({ $or: duplicateQuery });
       }
 
-      // ✅ FIX: Always use the paymentIntent we resolved (from invoice or UserSubscription)
-      // Don't overwrite with potentially undefined invoice.payment_intent
-      const finalPaymentIntent = paymentIntent || invoice.payment_intent;
+      if (existingPayment) {
+        console.log('⏭️ PaymentTransaction already exists for this payment:', { 
+          paymentIntent: resolvedPaymentIntent, 
+          transactionId: finalTransactionId 
+        });
+        // Still proceed to update UserSubscription in case it's not active
+      } else {
+        // Create PaymentTransaction
+        const newPayment = await PaymentTransaction.create({
+          userId: user._id,
+          referenceFor: invoiceInfo.subscription_metadata.referenceFor,
+          referenceId: invoiceInfo.subscription_metadata.referenceId,
+          paymentGateway: TPaymentGateway.stripe,
+          transactionId: finalTransactionId,
+          paymentIntent: resolvedPaymentIntent,
+          amount: finalAmount,
+          currency: invoiceInfo.subscription_metadata.currency,
+          paymentStatus: TPaymentStatus.completed,
+          gatewayResponse: invoiceInfo,
+        });
 
-      // Check for duplicate payment (idempotent) - only if paymentIntent exists
-      if (paymentIntent) {
-        const existingPayment = await PaymentTransaction.findOne({ paymentIntent });
-
-        if (existingPayment) {
-          console.log('⏭️ PaymentTransaction already exists for paymentIntent:', paymentIntent);
-          // Still update UserSubscription even if payment exists
-        } else {
-          // Create PaymentTransaction
-          const newPayment = await PaymentTransaction.create({
-            userId: user._id,
-            referenceFor: invoiceInfo.subscription_metadata.referenceFor,
-            referenceId: invoiceInfo.subscription_metadata.referenceId,
-            paymentGateway: TPaymentGateway.stripe,
-            transactionId: invoice.charge || invoice.id,
-            paymentIntent: paymentIntent,
-            amount: invoiceInfo.subscription_metadata.amount,
-            currency: invoiceInfo.subscription_metadata.currency,
-            paymentStatus: TPaymentStatus.completed,
-            gatewayResponse: invoiceInfo,
-          });
-
-          console.log('✅ PaymentTransaction created:', newPayment._id);
-        }
+        console.log('✅ PaymentTransaction created:', newPayment._id);
 
         await enqueueWebNotification(
           `New Subscription purchased by ${user._id} ${user.name} and paid ${invoiceInfo.subscription_metadata.amount} ${invoiceInfo.subscription_metadata.currency}`,
@@ -250,8 +269,6 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Invoice) => {
           null,
           null
         );
-      } else {
-        console.error('❌ paymentIntent is undefined - cannot create PaymentTransaction');
       }
 
       // ✅ FIX: Always add 1 month from periodStart for expiration
@@ -283,10 +300,10 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Invoice) => {
       console.log('📅 Calculated dates:', { subscriptionStartDate, currentPeriodStartDate, expirationDate });
 
       // Update UserSubscription with Stripe IDs and dates
-      const userSubs = await UserSubscription.findByIdAndUpdate(metadata.referenceId, {
+      await UserSubscription.findByIdAndUpdate(metadata.referenceId, {
         $set: {
           stripe_subscription_id: subscriptionId,
-          stripe_transaction_id: finalPaymentIntent, // ✅ Use resolved paymentIntent (from checkout or invoice)
+          stripe_transaction_id: resolvedPaymentIntent,
           subscriptionPlanId: metadata.subscriptionPlanId,
           status: UserSubscriptionStatusType.active,
           subscriptionStartDate,
@@ -352,14 +369,22 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Invoice) => {
         throw new Error(`UserSubscription not found: ${metadata.referenceId}`);
       }
 
-      // lets check if any transaction found for this payment_intent
-      const existingPayment = await PaymentTransaction.findOne({
-        paymentIntent: invoiceInfo.payment_intent
-      })
+      // lets check if any transaction found for this payment_intent or transactionId
+      const duplicateQuery: any[] = [];
+      if (resolvedPaymentIntent) duplicateQuery.push({ paymentIntent: resolvedPaymentIntent });
+      if (finalTransactionId) duplicateQuery.push({ transactionId: finalTransactionId });
+
+      let existingPayment = null;
+      if (duplicateQuery.length > 0) {
+        existingPayment = await PaymentTransaction.findOne({ $or: duplicateQuery });
+      }
 
       if (existingPayment) 
       {
-        // console.log(`Payment already processed and and transaction is already createrd for paymentIntent: ${invoice.payment_intent}`);
+        console.log('⏭️ Recurring payment already processed:', { 
+          paymentIntent: resolvedPaymentIntent, 
+          transactionId: finalTransactionId 
+        });
         return;
       }
 
@@ -370,9 +395,9 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Invoice) => {
         referenceFor : invoiceInfo.subscription_metadata.referenceFor, // If this is for Order .. we pass "Order" here
         referenceId :  invoiceInfo.subscription_metadata.referenceId, // If this is for Order .. then we pass OrderId here
         paymentGateway: TPaymentGateway.stripe,
-        transactionId:  invoice.charge || invoice.id, // ✅ Use charge ID // INFO : previously we set this null but it should be invoice.charge
-        paymentIntent: invoiceInfo.payment_intent,
-        amount: invoiceInfo.subscription_metadata.amount,
+        transactionId:  finalTransactionId,
+        paymentIntent: resolvedPaymentIntent,
+        amount: finalAmount,
         currency : invoiceInfo.subscription_metadata.currency,
         paymentStatus: TPaymentStatus.completed,
         gatewayResponse: invoiceInfo,
@@ -414,10 +439,10 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Invoice) => {
 
       // TODO : referenceFor theke Model ta select korte hobe Best practice
       // 1. Update UserSubscription with Stripe IDs
-      const updatedUserSub = await UserSubscription.findByIdAndUpdate(metadata.referenceId, {
+      await UserSubscription.findByIdAndUpdate(metadata.referenceId, {
         $set: {
           stripe_subscription_id: subscriptionId,
-          stripe_transaction_id: invoice.payment_intent,
+          stripe_transaction_id: resolvedPaymentIntent,
           subscriptionPlanId: metadata.subscriptionPlanId,
           status: UserSubscriptionStatusType.active,
           currentPeriodStartDate: userSub.expirationDate || new Date(),
@@ -451,9 +476,9 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Invoice) => {
         referenceFor: metadata.referenceFor,
         referenceId: metadata.referenceId,
         paymentGateway: TPaymentGateway.stripe,
-        transactionId: invoice.charge || invoice.id,
-        paymentIntent: invoice.payment_intent,
-        amount: invoice.amount_paid / 100, // Convert cents to dollars
+        transactionId: finalTransactionId,
+        paymentIntent: resolvedPaymentIntent,
+        amount: finalAmount,
         currency: invoice.currency,
         paymentStatus: TPaymentStatus.completed,
         gatewayResponse: invoice,
@@ -465,7 +490,7 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Invoice) => {
           currentPeriodStartDate: new Date(subscription.current_period_start * 1000),
           expirationDate: new Date(subscription.current_period_end * 1000),
           renewalDate: new Date(subscription.current_period_end * 1000),
-          stripe_transaction_id: invoice.payment_intent,
+          stripe_transaction_id: resolvedPaymentIntent,
         }
       });
     
