@@ -119,7 +119,7 @@ export class SocketService {
       this.io = new SocketIOServer(server, {
         cors: {
           // origin: '*',
-          origin: ["https://suplify.life", "http://localhost:3000"],
+          origin: ["https://suplify.life", "https://admin.suplify.life", "http://localhost:3000"],
           credentials: true, // 👈 critical!
         },
       });
