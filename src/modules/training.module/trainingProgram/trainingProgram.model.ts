@@ -13,7 +13,7 @@ const TrainingProgramSchema = new Schema<ITrainingProgram>(
     },
     description: {
       type: String,
-      required: [true, 'description is required'],
+      required: [false, 'description is not required'],
       trim: true
     },
     durationInMonths: {
