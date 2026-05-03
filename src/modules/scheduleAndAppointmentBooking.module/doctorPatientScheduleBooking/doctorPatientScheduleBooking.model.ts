@@ -88,6 +88,14 @@ const DoctorPatientScheduleBookingSchema = new Schema<IDoctorPatientScheduleBook
   { timestamps: true }
 );
 
+//doctorPatientScheduleBooking.service.ts -> getAllUpcomingSchedule()
+DoctorPatientScheduleBookingSchema.index({
+  doctorId: 1,
+  isDeleted: 1,
+  status: 1,
+  startTime: 1
+});
+
 DoctorPatientScheduleBookingSchema.plugin(paginate);
 
 // Use transform to rename _id to _projectId

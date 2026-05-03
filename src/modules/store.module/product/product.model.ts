@@ -60,6 +60,11 @@ const ProductSchema = new Schema<IProduct>(
   { timestamps: true }
 );
 
+ProductSchema.index({
+  category: 1,
+  isDeleted: 1
+});
+
 ProductSchema.plugin(paginate);
 
 // Use transform to rename _id to _projectId

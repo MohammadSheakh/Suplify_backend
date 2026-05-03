@@ -33,6 +33,13 @@ const protocolSchema = new Schema<IProtocol>(
   { timestamps: true }
 );
 
+// protocol.controller -> create()
+protocolSchema.index({
+  createdBy: 1,
+  patientId: 1,
+  isDeleted: 1
+});
+
 protocolSchema.plugin(paginate);
 
 // Use transform to rename _id to _projectId
