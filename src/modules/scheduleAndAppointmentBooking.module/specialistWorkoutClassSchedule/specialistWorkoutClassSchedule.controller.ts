@@ -46,15 +46,9 @@ export class SpecialistWorkoutClassScheduleController extends GenericController<
 
   create2 = catchAsync(async (req: Request, res: Response) => {
     const userTimeZone = req.header('X-Time-Zone') || 'Asia/Dhaka'; //TODO: Timezone must from env file
-
     const data:ISpecialistWorkoutClassSchedule = req.body;
-
-    // console.log("data :: ", data);
-    
     data.createdBy = (req.user as IUser)?.userId; // speacialist Id
-
     // const result = await this.specialistWorkoutClassScheduleService.createV3(data, userTimeZone);
-
     const result = await this.specialistWorkoutClassScheduleService.createV4(data, userTimeZone);
 
     sendResponse(res, {

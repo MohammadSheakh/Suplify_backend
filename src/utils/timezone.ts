@@ -37,6 +37,62 @@ export const combineDateAndTime = (date: Date, timeString: string, userTimeZone:
     return combined;
 }
 
+
+
+
+// ==================== For Workout class creation issue fix
+// 1. Fix combineDateAndTime to return a Luxon DateTime in the correct zone
+export const combineDateAndTimeV2 = (date: Date | string, timeString: string, userTimeZone: string): DateTime => {
+    // Parse the date part into a DateTime object first
+    let dt: DateTime;
+    
+    if (date instanceof Date) {
+        // Convert JS Date to ISO string to be safe, then parse
+        dt = DateTime.fromJSDate(date); 
+    } else {
+        dt = DateTime.fromISO(date);
+    }
+
+    // Ensure we are working in the user's timezone context for the DATE part
+    // This ensures the "day" is interpreted correctly relative to the timezone
+    dt = dt.setZone(userTimeZone);
+
+    const [hours, minutes, seconds = '0'] = timeString.split(':');
+    
+    // Set the time components directly in the specified timezone
+    return dt.set({
+        hour: parseInt(hours, 10),
+        minute: parseInt(minutes, 10),
+        second: parseInt(seconds, 10),
+        millisecond: 0
+    });
+};
+
+export const combineDateAndTimeV3 = (date: Date, timeString: string, userTimeZone: string): Date => {
+    // timeString format: "14:30:00" (24-hour format)
+    const [hours, minutes, seconds = '0'] = timeString.split(':');
+    
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1; // Luxon months are 1-indexed!
+    const day = date.getDate();
+    
+    // Create datetime in the USER's timezone
+    const combined = DateTime.fromObject(
+        {
+            year,
+            month,
+            day,
+            hour: parseInt(hours, 10),
+            minute: parseInt(minutes, 10),
+            second: parseInt(seconds, 10),
+        },
+        { zone: userTimeZone }
+    );
+    
+    return combined.toJSDate();
+};
+
+
 export const mergeDateAndTime = (date: Date, time: Date) => {
     const merged = new Date(date);
     merged.setHours(
