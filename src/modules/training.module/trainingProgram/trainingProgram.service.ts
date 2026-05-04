@@ -75,7 +75,9 @@ export class TrainingProgramService extends GenericService<
                 $and: [
                   { $eq: ['$trainingProgramId', '$$trainingProgramId'] },
                   { $eq: ['$patientId', new mongoose.Types.ObjectId(patientId)] },
-                  { $ne: ['$isDeleted', true] }
+                  { $ne: ['$isDeleted', true] },
+                  // ✅ 🚑️ Hotfix  
+                  { $eq: ['$paymentStatus', 'paid'] }
                 ]
               }
             }
