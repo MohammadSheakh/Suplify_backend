@@ -38,7 +38,7 @@ const controller = new UserSubscriptionController();
 router.route('/paginate').get(
   auth(TRole.common),
   validateFiltersForQuery(optionValidationChecking(['_id', 'userId'])),
-  getLoggedInUserAndSetReferenceToUser('userId'),
+  // getLoggedInUserAndSetReferenceToUser('userId'),
   setRequestFiltersV2({
     sortBy: '-createdAt',
     limit : 6,
