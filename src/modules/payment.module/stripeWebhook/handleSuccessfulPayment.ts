@@ -122,6 +122,17 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Invoice) => {
     // ✅ Access metadata from subscription (set in subscription_data.metadata during checkout)
     let metadata:IMetadataForFreeTrial = subscription.metadata as any;
 
+    // Find user by Stripe customer ID
+    const user:TUser = await User.findOne({ 
+      stripe_customer_id: subscription.customer 
+    });
+
+    if (!user){
+      console.error('User not found for customer:', subscription.customer);
+      return;
+    }
+
+
     // ✅ If metadata.referenceId is missing, try getting from UserSubscription in DB
     if (!metadata?.referenceId) {
       console.log('⚠️ Missing metadata in subscription object, attempting fallback from DB...');
@@ -130,7 +141,7 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Invoice) => {
           { stripe_subscription_id: subscriptionId },
           { userId: user?._id, status: UserSubscriptionStatusType.processing }
         ]
-      }).sort({ createdAt: -1 });
+      }).populate({ path: 'subscriptionPlanId', select: 'subscriptionType'}).sort({ createdAt: -1 });
 
       if (userSub) {
         // Populate metadata from UserSubscription record
@@ -138,7 +149,7 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Invoice) => {
           referenceId: userSub._id.toString(),
           userId: userSub.userId.toString(),
           referenceFor: TTransactionFor.UserSubscription,
-          subscriptionType: (userSub as any).subscriptionType || 'standard', // Fallback to standard
+          subscriptionType: (userSub as any).subscriptionPlanId.subscriptionType || 'standard', // Fallback to standard
           currency: (userSub as any).currency || 'usd',
           amount: (userSub as any).amount || '0'
         };
@@ -202,15 +213,7 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Invoice) => {
     // console.log("---- invoice.billing_reason handleSuccessfulPayment for  Subscription Related :: ", invoice.billing_reason ) 
     // console.log("---- invoiceInfo from handleSuccessfulPayment for  Subscription Related :: ", invoiceInfo ) 
 
-    // Find user by Stripe customer ID
-    const user:TUser = await User.findOne({ 
-      stripe_customer_id: subscription.customer 
-    });
-
-    if (!user){
-      console.error('User not found for customer:', subscription.customer);
-      return;
-    }
+    
 
     // ✅ Robust paymentIntent and transactionId resolution
     let resolvedPaymentIntent = invoice.payment_intent as string | undefined;
