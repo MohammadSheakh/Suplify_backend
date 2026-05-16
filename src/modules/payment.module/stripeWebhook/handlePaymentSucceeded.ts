@@ -24,6 +24,8 @@ import { User } from "../../user/user.model";
 import { WalletService } from "../../wallet.module/wallet/wallet.service";
 import { TPaymentGateway, TPaymentStatus, TTransactionFor } from "../paymentTransaction/paymentTransaction.constant";
 import { PaymentTransaction } from "../paymentTransaction/paymentTransaction.model";
+// ✅ Import for storing subscription ID from checkout session
+import { UserSubscription } from "../../subscription.module/userSubscription/userSubscription.model";
 //@ts-ignore
 import Stripe from "stripe";
 //@ts-ignore
@@ -75,23 +77,37 @@ export const handlePaymentSucceeded = async (session: Stripe.Checkout.Session) =
           const paymentIntent = session.payment_intent as string;
           // console.log('=============================');
           // console.log('paymentIntent : ', paymentIntent);
-          
+
+          // ✅ DEBUG: Log everything for troubleshooting
+          console.log('🔍 handlePaymentSucceeded - referenceFor:', referenceFor, 'referenceId:', referenceId, 'session.subscription:', session.subscription);
+          console.log('🔍 session.metadata:', JSON.stringify(session.metadata, null, 2));
+
+          // ✅ Store subscription ID AND paymentIntent from checkout session so invoice.payment_succeeded can use it later
+          if(referenceFor === TTransactionFor.UserSubscription){
+               const subscriptionId = session.subscription as string;
+               const paymentIntent = session.payment_intent as string;
+               if (subscriptionId) {
+                  // Store subscription ID and paymentIntent in UserSubscription for later use by invoice.payment_succeeded
+                  await UserSubscription.findByIdAndUpdate(referenceId, {
+                     $set: { 
+                        stripe_subscription_id: subscriptionId,
+                        stripe_transaction_id: paymentIntent // Store paymentIntent for PaymentTransaction creation later
+                     }
+                  });
+                  console.log('✅ Stored subscription ID and paymentIntent in UserSubscription:', { subscriptionId, paymentIntent });
+               }
+               console.log('⏭️ Skipping UserSubscription in checkout - will be activated in invoice.payment_succeeded');
+               return;
+          }
+
+          // Check if payment already exists (for non-UserSubscription transactions only)
           const isPaymentExist = await PaymentTransaction.findOne({ paymentIntent });
 
           if (isPaymentExist) {
-               throw new ApiError(StatusCodes.BAD_REQUEST, 'From Webhook handler : Payment Already exist');
+               console.log('⏭️ Payment already processed for paymentIntent:', paymentIntent, '- skipping duplicate');
+               return;
           }
 
-          if(referenceFor === TTransactionFor.UserSubscription){
-
-               // which means we dont create paymentTransaction here ..
-               // we want to create  paymentTransaction in handleSuccessfulPayment
-
-               // console.log("🟡🟡 which means we dont create paymentTransaction here 🟡🟡 we want to create  paymentTransaction in handleSuccessfulPayment")
-               // lets test ... 
-               return
-          }
-          
           const newPayment = await PaymentTransaction.create({
                userId: _user.userId,
                referenceFor, // If this is for Order .. we pass "Order" here

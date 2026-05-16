@@ -5,7 +5,7 @@ import { StatusCodes } from 'http-status-codes';
 import { SpecialistWorkoutClassSchedule } from './specialistWorkoutClassSchedule.model';
 import { ISpecialistWorkoutClassSchedule } from './specialistWorkoutClassSchedule.interface';
 import { GenericService } from '../../_generic-module/generic.services';
-import { buildLocalDateTime, combineDateAndTime, mergeDateAndTime, toLocalTime, toUTCTime, toUTCTimeV2 } from '../../../utils/timezone';
+import { buildLocalDateTime, combineDateAndTime, combineDateAndTimeV2, combineDateAndTimeV3, mergeDateAndTime, toLocalTime, toUTCTime, toUTCTimeV2 } from '../../../utils/timezone';
 import { PaginateOptions } from '../../../types/paginate';
 import PaginationService from '../../../common/service/paginationService';
 import { TPaymentStatus } from '../specialistPatientScheduleBooking/specialistPatientScheduleBooking.constant';
@@ -231,6 +231,8 @@ export class SpecialistWorkoutClassScheduleService extends GenericService<
 
   async createV4(data: ISpecialistWorkoutClassSchedule, userTimeZone: string): Promise<ISpecialistWorkoutClassSchedule> {
     
+    console.log("-- UserTimeZone ::", userTimeZone);
+
     // ----------------------------
     // Common validation
     // ----------------------------
@@ -249,8 +251,9 @@ export class SpecialistWorkoutClassScheduleService extends GenericService<
         if (isNaN(scheduleDate.getTime())) throw new Error('Invalid scheduleDate');
 
         // Combine scheduleDate with time strings to create full datetime
-        const startDateTime = combineDateAndTime(scheduleDate, data.startTime as string, userTimeZone);
-        const endDateTime = combineDateAndTime(scheduleDate, data.endTime as string, userTimeZone);
+        // combineDateAndTime
+        const startDateTime = combineDateAndTimeV3(scheduleDate, data.startTime as string, userTimeZone);
+        const endDateTime = combineDateAndTimeV3(scheduleDate, data.endTime as string, userTimeZone);
 
         // Convert to UTC
         // data.startTime = toUTCTime(startDateTime, userTimeZone);
@@ -302,8 +305,9 @@ export class SpecialistWorkoutClassScheduleService extends GenericService<
         if (isNaN(startDate.getTime())) throw new Error('Invalid repeat startDate');
 
         // Combine startDate with time strings to create full datetime
-        const startDateTime = combineDateAndTime(startDate, data.startTime as string, userTimeZone);
-        const endDateTime = combineDateAndTime(startDate, data.endTime as string, userTimeZone);
+        // combineDateAndTime
+        const startDateTime = combineDateAndTimeV3(startDate, data.startTime as string, userTimeZone);
+        const endDateTime = combineDateAndTimeV3(startDate, data.endTime as string, userTimeZone);
 
         // Convert to UTC
         // data.startTime = toUTCTime(startDateTime, userTimeZone);

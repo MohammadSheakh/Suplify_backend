@@ -91,6 +91,12 @@ const TrainingSessionSchema = new Schema<ITrainingSession>(
   { timestamps: true }
 );
 
+// trainingProgramPurchase.service -> _handlePersonTrainingSessionCreate()
+TrainingSessionSchema.index({
+  trainingProgramId: 1,
+  isDeleted: 1
+});
+
 TrainingSessionSchema.plugin(paginate);
 
 // Use transform to rename _id to _projectId

@@ -71,7 +71,20 @@ const conversationParticipentsSchema = new Schema<IConversationParticipents>(
   { timestamps: true }
 );
 
+
+//-conversationParticipents.controller -> hasConversationWithUser()
+conversationParticipentsSchema.index(
+  { userId: 1, isDeleted: 1, conversationId: 1 }
+);
+
+//-conversationParticipents.controller -> getRelatedUsers()
+conversationParticipentsSchema.index({
+  conversationId: 1,
+  isDeleted: 1,
+});
+
 conversationParticipentsSchema.plugin(paginate);
+
 
 
 // Use transform to rename _id to _projectId

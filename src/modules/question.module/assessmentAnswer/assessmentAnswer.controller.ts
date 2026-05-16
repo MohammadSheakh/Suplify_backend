@@ -131,7 +131,7 @@ export class AssessmentAnswerController extends GenericController<
           req.user.userId, // senderId
           null, // receiverId
           TRole.admin, // receiverRole
-          TNotificationType.system, // type
+          TNotificationType.viseRequest, // type
           null, // linkFor
           null // linkId
       );

@@ -19,7 +19,7 @@ export class MessagerService extends GenericService<typeof Message, IMessage>{ /
     }
 
     /***
-     * ⭕ not needed may be 
+     * ⭕ not needed
      * *** */
     async getAllByConversationId(conversationId: string) {
       const object = await this.model.find({ conversationId});
@@ -39,8 +39,6 @@ export class MessagerService extends GenericService<typeof Message, IMessage>{ /
       // const userProfile : IUserProfile = socket.data.userProfile; //⚠️ not sure .. do we need to pull profileInformation by userId 
       const userProfile : IUserProfile = await this.getUserProfile(userId) as IUserProfile
 
-      console.log("1️⃣")
-
       if (!messageData.conversationId || !messageData.text?.trim()) {
         const error = 'Chat ID and message content are required';
         callback?.({ success: false, message: error });
@@ -50,8 +48,6 @@ export class MessagerService extends GenericService<typeof Message, IMessage>{ /
       // Get chat details  //⚠️ we dont need conversationData here ... need to write another function .. which only return conversationparticipants.. 
       const {conversationData, conversationParticipants} = await getConversationById(messageData.conversationId);
       
-      console.log("1️⃣ 2")
-
       //---------------------------------
       // here we will check if the sender is a participant in the conversation or not
       // if not then we will send an error message
@@ -76,7 +72,6 @@ export class MessagerService extends GenericService<typeof Message, IMessage>{ /
       //   }
       // }
 
-      console.log("1️⃣ 3")
 
       if(!isExist){
         // 🟪☑️🟣
@@ -89,8 +84,6 @@ export class MessagerService extends GenericService<typeof Message, IMessage>{ /
         timestamp: new Date(),
         senderId: userId,
       });
-
-      console.log("1️⃣4")
 
       /*---------------------------- we do the same thing by redis bullmq
       
@@ -107,8 +100,6 @@ export class MessagerService extends GenericService<typeof Message, IMessage>{ /
         messageData.text,
       )
 
-      console.log("1️⃣5")
-
       // Prepare message data for emission
       const messageToEmit = {
         ...messageData,
@@ -124,7 +115,6 @@ export class MessagerService extends GenericService<typeof Message, IMessage>{ /
         createdAt: newMessage.createdAt || new Date()
       };
 
-      console.log("1️⃣6")
 
       // Emit to chat room
       const eventName = `new-message-received::${messageData.conversationId}`; // ${messageData.conversationId}
@@ -132,7 +122,6 @@ export class MessagerService extends GenericService<typeof Message, IMessage>{ /
       // when you send everyone exclude the sender
       socket.to(messageData.conversationId).emit(eventName, messageToEmit);
 
-      console.log("1️⃣7")
       
       // socket.emit(eventName, messageToEmit);
 

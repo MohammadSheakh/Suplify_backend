@@ -37,7 +37,7 @@ const controller = new SpecialistWorkoutClassScheduleController();
 // Specialist | WorkoutClass | Get all Workout Class of a specialist
 // TODO : INCOMPLETE : need to show booking count also 
 //---------------------------------
-//
+
 router.route('/paginate').get(
   auth(TRole.specialist),
   validateFiltersForQuery(optionValidationChecking(['_id', 'createdBy', ...paginationOptions])),
@@ -55,7 +55,6 @@ router.route('/paginate/for-patient').get(
   validateFiltersForQuery(optionValidationChecking(['_id', 'createdBy', ...paginationOptions])),
   controller.getAllWithAggregation
 );
-
 
 router.route('/:id').get(
   // auth('common'),

@@ -25,16 +25,33 @@ export const handleSubscriptionDates = async (subscription) => {
       return false;
     }
 
-    // Convert Stripe timestamps to JS Dates
-    const currentPeriodStart = new Date(subscription.current_period_start * 1000);
-    const currentPeriodEnd = new Date(subscription.current_period_end * 1000); // This is your RENEWAL / EXPIRATION DATE
+    // ✅ FIX: Safe date conversion with validation
+    const currentPeriodStart = subscription.current_period_start 
+      ? new Date(subscription.current_period_start * 1000)
+      : new Date();
+      
+    const currentPeriodEnd = subscription.current_period_end 
+      ? new Date(subscription.current_period_end * 1000)
+      : (() => { const d = new Date(); d.setMonth(d.getMonth() + 1); return d; })();
 
-    // Optional: preserve original subscription start date (first time ever)
-    // You might want to store this only on first subscription creation
-    const subscriptionStartDate = new Date(subscription.start_date * 1000);
+    const subscriptionStartDate = subscription.start_date 
+      ? new Date(subscription.start_date * 1000)
+      : new Date();
+
+    // Validate all dates
+    if (isNaN(currentPeriodStart.getTime()) || isNaN(currentPeriodEnd.getTime()) || isNaN(subscriptionStartDate.getTime())) {
+      console.error('❌ Invalid dates in handleSubscriptionDates:', {
+        current_period_start: subscription.current_period_start,
+        current_period_end: subscription.current_period_end,
+        start_date: subscription.start_date,
+        currentPeriodStart,
+        currentPeriodEnd,
+        subscriptionStartDate
+      });
+      return false;
+    }
 
     // Determine if this is a NEW subscription or a RENEWAL
-    // You can check if UserSubscription already exists with this referenceId
     const existingSubscription = await UserSubscription.findById(referenceId);
 
     let billingCycle = 1;
@@ -45,6 +62,7 @@ export const handleSubscriptionDates = async (subscription) => {
     // 1. Update UserSubscription
     const updateData = {
       $set: {
+        stripe_subscription_id: subscription.id, // ✅ Store ID immediately so other webhooks can find it
         currentPeriodStartDate: currentPeriodStart,
         expirationDate: currentPeriodEnd, // <-- ✅ This is your key field!
         renewalDate: currentPeriodEnd,    // <-- ✅ Same as expiration for auto-renewal
@@ -54,10 +72,9 @@ export const handleSubscriptionDates = async (subscription) => {
 
     await UserSubscription.findByIdAndUpdate(referenceId, updateData, { new: true });
 
-    console.log(`✅ UserSubscription ${referenceId} updated with renewal date: ${currentPeriodEnd.toISOString()}`);
+    console.log(`✅ UserSubscription ${referenceId} updated with renewal date: ${currentPeriodEnd.toISOString()} and subscriptionId: ${subscription.id}`);
 
     // 2. Mark user as having used free trial (if this is first paid cycle)
-    // Only mark if this is the first billing cycle (or if user hasn't been marked yet)
     if (billingCycle === 1) {
       await User.findByIdAndUpdate(userId, {
         $set: {
@@ -66,29 +83,12 @@ export const handleSubscriptionDates = async (subscription) => {
           stripe_customer_id: subscription.customer, // ensure consistency
         }
       });
-      console.log(`✅ User ${userId} marked as having used free trial`);
+      console.log(`✅ User ${userId} marked as having used free trial and linked to customer: ${subscription.customer}`);
     }
 
     return true;
   } catch (error) {
     console.error('⛔ Error handling successful payment:', error);
-
-    // 5. Log for retry
-    // await FailedWebhook.create({
-    //   eventId: invoice.id,
-    //   invoiceId: invoice.id,
-    //   subscriptionId,
-    //   metadata,
-    //   error: error.message,
-    //   stage: 'unknown',
-    //   attemptCount: 1
-    // });
-
-    // 6. Alert (optional)
-    // await sendCriticalAlert(err, invoice, metadata);
-
-    // 7. Re-throw to trigger Stripe retry (optional)
-    // throw err; // only if you want Stripe to retry
   }
 }
 

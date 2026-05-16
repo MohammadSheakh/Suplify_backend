@@ -11,6 +11,7 @@ import multer from "multer";
 import { TRole } from '../../../middlewares/roles';
 import { setQueryOptions } from '../../../middlewares/setQueryOptions';
 import { defaultExcludes } from '../../../constants/queryOptions';
+import { setRequestFiltersV2 } from '../../../middlewares/setRequstFilterAndValue';
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
@@ -45,6 +46,10 @@ router.route('/paginate').get(
     ],
     select: `-isDeleted -updatedAt -__v`
     // // ${defaultExcludes}
+  }),
+  setRequestFiltersV2({
+    sortBy: '-createdAt',
+    // limit : 6,
   }),
   controller.getAllWithPaginationV2
 );

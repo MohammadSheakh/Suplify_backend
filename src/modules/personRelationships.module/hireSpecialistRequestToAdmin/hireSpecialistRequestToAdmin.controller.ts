@@ -17,6 +17,7 @@ import ApiError from '../../../errors/ApiError';
 import { enqueueWebNotification } from '../../../services/notification.service';
 import { TRole } from '../../../middlewares/roles';
 import { TNotificationType } from '../../notification/notification.constants';
+import { User } from '../../user/user.model';
 
 export class HireSpecialistRequestToAdminController extends GenericController<
   typeof HireSpecialistRequestToAdmin,
@@ -30,6 +31,14 @@ export class HireSpecialistRequestToAdminController extends GenericController<
 
   create = catchAsync(async (req: Request, res: Response) => {
     const data :ISpecialistPatient = req.body;
+
+    // check if patient have standard subscription or not .. if not then return error
+
+    const userSubscription = await User.findById(req.user.userId).select('subscriptionType').lean();
+
+    if(userSubscription?.subscriptionType !== 'standardPlus'){
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'You need to have Standard Plus subscription to hire specialist.');
+    }
 
     // check if already assigned
     const existing = await HireSpecialistRequestToAdmin.findOne({

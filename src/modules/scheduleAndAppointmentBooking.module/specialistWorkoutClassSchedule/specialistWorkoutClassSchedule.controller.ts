@@ -14,6 +14,7 @@ import { IUser } from '../../token/token.interface';
 import { TRole } from '../../../middlewares/roles';
 import { toLocalTime } from '../../../utils/timezone';
 import { User } from '../../user/user.model';
+import { logger } from '../../../shared/logger';
 
 export class SpecialistWorkoutClassScheduleController extends GenericController<
   typeof SpecialistWorkoutClassSchedule,
@@ -48,13 +49,8 @@ export class SpecialistWorkoutClassScheduleController extends GenericController<
     const userTimeZone = req.header('X-Time-Zone') || 'Asia/Dhaka'; //TODO: Timezone must from env file
 
     const data:ISpecialistWorkoutClassSchedule = req.body;
-
-    // console.log("data :: ", data);
-    
     data.createdBy = (req.user as IUser)?.userId; // speacialist Id
-
     // const result = await this.specialistWorkoutClassScheduleService.createV3(data, userTimeZone);
-
     const result = await this.specialistWorkoutClassScheduleService.createV4(data, userTimeZone);
 
     sendResponse(res, {

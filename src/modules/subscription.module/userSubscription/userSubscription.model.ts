@@ -131,13 +131,9 @@ const userSubscriptionSchema = new Schema<IUserSubscription>(
 userSubscriptionSchema.plugin(paginate);
 
 // auto calculate the renewal date if its not provided ...
-// TODO : MUST ::: need to check this code is working or not .. 
 userSubscriptionSchema.pre('save', async function() {
-  // Rename _id to _projectId
-  //this._taskId = this._id;
-  //this._id = undefined;  // Remove the default _id field
-
-  if (!this.renewalDate) {
+  // ✅ FIX: Don't calculate renewalDate if subscriptionStartDate is null or renewalDate is explicitly set
+  if (!this.renewalDate && this.subscriptionStartDate) {
     const renewalPeriods = {
       daily: 1,
       weekly: 7,
@@ -145,14 +141,17 @@ userSubscriptionSchema.pre('save', async function() {
       yearly: 365,
     };
 
+    // ✅ FIX: Use 'monthly' as default since renewalFrequncy may not be set
+    const renewalFreq = this.renewalFrequncy || 'monthly';
+    
     this.renewalDate = new Date(this.subscriptionStartDate);
     this.renewalDate.setDate(
-      this.renewalDate.getDate() + renewalPeriods[this.renewalFrequncy]
+      this.renewalDate.getDate() + renewalPeriods[renewalFreq]
     );
   }
 
-  // auto update the status if  renewal date has passed
-  if (this.renewalDate < new Date()) {
+  // ✅ FIX: Don't auto-expire if renewalDate is null or invalid
+  if (this.renewalDate && this.renewalDate < new Date()) {
     this.status = UserSubscriptionStatusType.expired;
   }
 });

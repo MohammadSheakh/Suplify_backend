@@ -86,21 +86,14 @@ const webhookHandler = async (req: Request, res: Response): Promise<void> => {
                          🪝customer.subscription.created
                          ////////////////////////////////////////
                     `)
-                    /******
-                     * 
-                     * when a subscription is purchased ..this event will be fired at 1️⃣ first ..
-                     * then after payment invoice.payment_succeeded will be fired
-                     * 
-                     * we can get subscription dates from here
-                     * 
-                     * ***** */
+                    // Get subscription dates from Stripe and update UserSubscription
                     await handleSubscriptionDates(event.data.object);
                     break;
                case 'customer.subscription.trial_will_end':  
                     console.log("🪝customer.subscription.trial_will_end")
                     /*****
                      * 🔥🔥 event.type customer.subscription.trial_will_end
-                     * 
+                     *   
                      * This event fires 3 days before the trial ends, giving you time to:
 
                          Notify the user
@@ -130,7 +123,9 @@ const webhookHandler = async (req: Request, res: Response): Promise<void> => {
                          🪝customer.subscription.updated
                          ////////////////////////////////////////
                     `)
-                    await handleSuccessfulPayment(event.data.object as Stripe.Invoice);
+                    // ⚠️ FIX: This event passes a Subscription object, not Invoice
+                    // We should handle this differently or skip it to avoid errors
+                    // console.log("⚠️ customer.subscription.updated - skipping, handled by invoice.payment_succeeded");
                     break;
                default:
                     // console.log(`Unhandled event type: ${event.type}`);

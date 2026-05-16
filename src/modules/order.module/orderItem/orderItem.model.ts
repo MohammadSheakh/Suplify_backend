@@ -45,6 +45,11 @@ const orderItemSchema = new Schema<IOrderItem>(
 
 orderItemSchema.plugin(paginate);
 
+// orderItem.controller -> getAll()
+orderItemSchema.index({
+  orderId: 1,
+  isDeleted: 1
+});
 
 // Use transform to rename _id to _projectId
 orderItemSchema.set('toJSON', {

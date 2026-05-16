@@ -14,6 +14,8 @@ export class ProductService extends GenericService<
     super(Product);
   }
 
+  
+
   async categoryWithCount_WithoutCaching () {
     // const fitnessCount = await this.model.countDocuments({ category: TProductCategory.fitness });
     // const labTestCount = await this.model.countDocuments({ category: TProductCategory.labTest });

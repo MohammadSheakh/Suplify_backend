@@ -33,12 +33,16 @@ app.use(Morgan.errorHandler);
 app.use(
   cors({
     origin:
-      "*",
-    // [
-    //   'http://10.10.11.74:3000',
-    //   'https://nimur3000.sobhoy.com',
-    //   'https://nimur5000.sobhoy.com'
-    // ],
+      // "*",
+    [
+      "https://suplify.life",
+      "https://admin.suplify.life",
+      "https://nimur5000.sobhoy.com",
+      "https://nimur8000.sobhoy.com"
+      // 'http://10.10.11.74:3000',
+      // 'https://nimur3000.sobhoy.com',
+      // 'https://nimur5000.sobhoy.com'
+    ],
     credentials: true,
   })
 );

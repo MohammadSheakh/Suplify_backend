@@ -39,6 +39,13 @@ const CartItemSchema = new Schema<ICartItem>(
   { timestamps: true }
 );
 
+// cart.service.ts -> viewCart()
+CartItemSchema.index({
+  cartId: 1,
+  isDeleted: 1,
+  itemId: 1
+});
+
 CartItemSchema.plugin(paginate);
 
 // Use transform to rename _id to _projectId

@@ -12,7 +12,49 @@ dotenv.config();
 const usersData:any = [
   {
     name: 'Admin',
+    email: 'suplifycommunity@gmail.com',
+    password: '$2b$12$cxPF29g99duEaWshhIjW6.TXTEzCccwZaL8jil3gFvhMjogg4HxiW', // Hashed password asdfasdf
+    // profileImage: {
+    // imageUrl: "/uploads/users/user.png",
+    //   _id: {
+    //     $oid: "68982eb2d5f4042c5c0bbb94"
+    //   }
+    // },
+    subscriptionType: TSubscription.vise,
+    fcmToken: null,
+    status: 'active',
+    role: 'admin',
+    isEmailVerified: true,
+    isDeleted: false,
+    isResetPassword:false,
+    failedLoginAttempts : 0,
+    stripe_customer_id : null,
+    stripeConnectedAccount : "",
+  },
+  {
+    name: 'Admin',
     email: 'a@gmail.com',
+    password: '$2b$12$cxPF29g99duEaWshhIjW6.TXTEzCccwZaL8jil3gFvhMjogg4HxiW', // Hashed password asdfasdf
+    // profileImage: {
+    // imageUrl: "/uploads/users/user.png",
+    //   _id: {
+    //     $oid: "68982eb2d5f4042c5c0bbb94"
+    //   }
+    // },
+    subscriptionType: TSubscription.vise,
+    fcmToken: null,
+    status: 'active',
+    role: 'admin',
+    isEmailVerified: true,
+    isDeleted: false,
+    isResetPassword:false,
+    failedLoginAttempts : 0,
+    stripe_customer_id : null,
+    stripeConnectedAccount : "",
+  },
+  {
+    name: 'Admin',
+    email: 'testadmin@gmail.com',
     password: '$2b$12$cxPF29g99duEaWshhIjW6.TXTEzCccwZaL8jil3gFvhMjogg4HxiW', // Hashed password asdfasdf
     // profileImage: {
     // imageUrl: "/uploads/users/user.png",
@@ -63,7 +105,7 @@ const usersData:any = [
   },
   {
     name: 'Patient Three StandardPlus',
-    email: 'p2stanplus@gmail.com',
+    email: 'p3stanplus@gmail.com',
     password: '$2b$12$cxPF29g99duEaWshhIjW6.TXTEzCccwZaL8jil3gFvhMjogg4HxiW', // Hashed password asdfasdf
     subscriptionType: TSubscription.standardPlus,
     fcmToken: null,
@@ -136,7 +178,6 @@ const usersData:any = [
     stripe_customer_id : null,
     stripeConnectedAccount : "",
   },
-  
   {
     name: 'Specialist Two',
     email: 's2@gmail.com',
