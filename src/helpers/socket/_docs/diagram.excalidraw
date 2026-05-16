@@ -817,8 +817,8 @@
     {
       "id": "gfWT_qAAnQyYr-TKTVihu",
       "type": "rectangle",
-      "x": 165.90572320847292,
-      "y": -253.3561641148159,
+      "x": 141.97994195847292,
+      "y": -255.25502504621238,
       "width": 304.39814249674487,
       "height": 80,
       "angle": 0,
@@ -838,8 +838,8 @@
         "type": 3
       },
       "seed": 2047254083,
-      "version": 329,
-      "versionNonce": 592541005,
+      "version": 347,
+      "versionNonce": 950977977,
       "isDeleted": false,
       "boundElements": [
         {
@@ -847,15 +847,15 @@
           "id": "mrdU4WkWqtKbWckSvjTXh"
         }
       ],
-      "updated": 1760699099426,
+      "updated": 1778911286524,
       "link": null,
       "locked": false
     },
     {
       "id": "mrdU4WkWqtKbWckSvjTXh",
       "type": "text",
-      "x": 179.68621535528285,
-      "y": -230.8561641148159,
+      "x": 155.76043410528285,
+      "y": -232.75502504621238,
       "width": 276.837158203125,
       "height": 35,
       "angle": 0,
@@ -873,11 +873,11 @@
       "index": "b192",
       "roundness": null,
       "seed": 192800195,
-      "version": 268,
-      "versionNonce": 1232028589,
+      "version": 286,
+      "versionNonce": 2116003481,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1760699099426,
+      "updated": 1778911286524,
       "link": null,
       "locked": false,
       "text": "SocketForChatV3.ts",

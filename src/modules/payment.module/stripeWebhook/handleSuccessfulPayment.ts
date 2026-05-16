@@ -8,7 +8,7 @@ import { IUserSubscription } from "../../subscription.module/userSubscription/us
 import { UserSubscription } from "../../subscription.module/userSubscription/userSubscription.model";
 import { TUser } from "../../user/user.interface";
 import { User } from "../../user/user.model";
-import { TPaymentGateway, TPaymentStatus } from "../paymentTransaction/paymentTransaction.constant";
+import { TPaymentGateway, TPaymentStatus, TTransactionFor } from "../paymentTransaction/paymentTransaction.constant";
 import { PaymentTransaction } from "../paymentTransaction/paymentTransaction.model";
 import { FailedWebhook } from "./failedWebhook.model";
 //@ts-ignore
@@ -125,7 +125,7 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Invoice) => {
     // ✅ If metadata.referenceId is missing, try getting from UserSubscription in DB
     if (!metadata?.referenceId) {
       console.log('⚠️ Missing metadata in subscription object, attempting fallback from DB...');
-      const userSub = await UserSubscription.findOne({ 
+      const userSub:IUserSubscription = await UserSubscription.findOne({ 
         $or: [
           { stripe_subscription_id: subscriptionId },
           { userId: user?._id, status: UserSubscriptionStatusType.processing }

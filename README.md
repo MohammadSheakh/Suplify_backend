@@ -1,4 +1,5 @@
 ![alt text](flow.png)
+![alt text](socket-redis.png)
 
 # express-typescript-generic-boilerplate
 
