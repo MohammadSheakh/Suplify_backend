@@ -243,17 +243,81 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Invoice) => {
     // ✅ Use proper Stripe dates instead of manual calculation
     // const dates = calculateSubscriptionDates(subscription, invoice);
    
-    
     /*──────────────────────────────────
     |  FIRST PAYMENT (subscription_create)
     └────────────────────────────────────*/
     if(invoice.billing_reason === 'subscription_create'){
+      
+      const isFreeTrialStart = invoice.amount_paid === 0;
+
+      if (isFreeTrialStart) {
+        console.log('🆓 Trial started — $0 invoice, skipping PaymentTransaction');
+        
+        // // ✅ Still update UserSubscription status to trialing
+        // await UserSubscription.findByIdAndUpdate(metadata.referenceId, {
+        //   $set: {
+        //     stripe_subscription_id: subscriptionId,
+        //     status: UserSubscriptionStatusType.trialing,  // ← not active yet
+        //     subscriptionStartDate: new Date(invoice.period_start * 1000),
+        //     currentPeriodStartDate: new Date(invoice.period_start * 1000),
+        //     expirationDate: new Date(invoice.period_end * 1000),
+        //     renewalDate: new Date(invoice.period_end * 1000),
+        //     isAutoRenewed: true,
+        //     cancelledAtPeriodEnd: false,
+        //   }
+        // });
+
+
+        console.log('🆓 Trial started — $0 invoice, skipping PaymentTransaction');
+
+        // ✅ Use subscription trial dates — NOT invoice.period_start/end
+        const trialStart = subscription.trial_start 
+          ? new Date(subscription.trial_start * 1000) 
+          : new Date();
+          
+        const trialEnd = subscription.trial_end 
+          ? new Date(subscription.trial_end * 1000) 
+          : (() => { 
+              const d = new Date(); 
+              d.setDate(d.getDate() + 7); 
+              return d; 
+            })();
+
+        console.log('🆓 Trial dates:', { trialStart, trialEnd });
+
+        await UserSubscription.findByIdAndUpdate(metadata.referenceId, {
+          $set: {
+            stripe_subscription_id: subscriptionId,
+            status: UserSubscriptionStatusType.trialing,
+            subscriptionStartDate: trialStart,
+            currentPeriodStartDate: trialStart,
+            expirationDate: trialEnd,                // ✅ +7 days
+            renewalDate: trialEnd,
+            isAutoRenewed: true,
+            cancelledAtPeriodEnd: false,
+          }
+        });
+
+        // Update user's subscriptionType and mark free trial as used
+        await User.findByIdAndUpdate(metadata.userId, {
+          $set: {
+            subscriptionType: metadata.subscriptionType,
+            hasUsedFreeTrial: true,
+          }
+        });
+
+        // ✅ Do NOT set hasUsedFreeTrial here — set after actual payment
+        return true;
+      }
+
+
       console.log("⚡ Processing first payment (subscription_create)", {
         userId: metadata.userId,
         referenceId: metadata.referenceId,
         subscriptionId,
         paymentIntent: resolvedPaymentIntent
       });
+
 
       // Idempotency check: verify if this payment was already processed
       const duplicateQuery: any[] = [];

@@ -62,6 +62,12 @@ export const handlePaymentSucceeded = async (session: Stripe.Checkout.Session) =
                return
           }
 
+          // ✅ Skip subscription checkouts — handled by invoice.payment_succeeded
+          if (session.mode === 'subscription') {
+               console.log('⏭️ Skipping subscription checkout.session.completed — handled by invoice webhook');
+               return;
+          }
+
           let _user:IUser = JSON.parse(user);
 
           const thisCustomer = await User.findOne({ _id: _user.userId });
