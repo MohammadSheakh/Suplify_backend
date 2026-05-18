@@ -214,7 +214,7 @@ export class UserSubscriptionService extends GenericService<typeof UserSubscript
                  * 
                  * ******* */
                 currency : TCurrency.usd.toString(),
-                amount : '11.99'.toString() // because its free trial and customer just book this
+                amount : standardPlan.amount.toString() // '11.99'.toString() // because its free trial and customer just book this
             }
         },
         success_url: config.stripe.success_url,
