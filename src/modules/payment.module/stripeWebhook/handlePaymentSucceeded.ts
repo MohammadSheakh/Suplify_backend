@@ -130,13 +130,13 @@ export const handlePaymentSucceeded = async (session: Stripe.Checkout.Session) =
           let updatedObjectOfReferenceFor: any;
           if (referenceFor === TTransactionFor.Order) {
                updatedObjectOfReferenceFor = 
-               updateOrderInformation(
-                    _user,
-                    referenceId, // orderId
-                    newPayment._id, 
-                    referenceId2, // cartId
-                    referenceFor2 // Cart
-               );
+                    updateOrderInformation(
+                         _user,
+                         referenceId, // orderId
+                         newPayment._id, 
+                         referenceId2, // cartId
+                         referenceFor2 // Cart
+                    );
           } 
           // else if (referenceFor === TTransactionFor.SubscriptionPlan) {
           //       updatedObjectOfReferenceFor = updateUserSubscription(referenceId, newPayment._id);
@@ -355,14 +355,15 @@ async function updatePurchaseTrainingProgram(
           { new: true }
      );
 
+
      // -------------------------------
-     // add amount to specialist wallet
+     // add 90%  amount to specialist wallet
      // -------------------------------
      await walletService.addAmountToWalletAndCreateTransactionHistory(
           updatedTrainingProgramPurchase.specialistId,
-          updatedTrainingProgramPurchase.price,
+          updatedTrainingProgramPurchase.price * 0.9,
           paymentTransactionId, // for creating wallet transaction history
-          `$${updatedTrainingProgramPurchase.price} added to your wallet. Patient ${user.userName} purchased a training program and Training Program Purchase Id is ${trainingProgramPurchaseId} and txnId is ${paymentTransactionId}`, //description 
+          `$${updatedTrainingProgramPurchase.price * 0.9} added to your wallet. Patient ${user.userName} purchased a training program and Training Program Purchase Id is ${trainingProgramPurchaseId} and txnId is ${paymentTransactionId}`, //description 
           TTransactionFor.TrainingProgramPurchase, // referenceFor
           trainingProgramPurchaseId // referenceId
      );
@@ -433,16 +434,21 @@ async function updateSpecialistPatientScheduleBooking(
      );
 
      // -------------------------------
-     // add amount to specialist wallet
+     // add 90% amount to specialist wallet
      // -------------------------------
      await walletService.addAmountToWalletAndCreateTransactionHistory(
           updatedSpecialsitPatientWorkoutClassBooking.specialistId,
-          updatedSpecialsitPatientWorkoutClassBooking.price,
+          updatedSpecialsitPatientWorkoutClassBooking.price * 0.9,
           paymentTransactionId, // for creating wallet transaction history
-          `$${updatedSpecialsitPatientWorkoutClassBooking.price} added to your wallet. Patient ${user.name} booked a ${specialistWorkoutClassSchedule.sessionType} workout class and Specialist Patient Schedule Booking Id is ${specialistPatientScheduleBookingId} and txnId is ${paymentTransactionId}`, //description 
+          `$${updatedSpecialsitPatientWorkoutClassBooking.price * 0.9} added to your wallet. Patient ${user.name} booked a ${specialistWorkoutClassSchedule.sessionType} workout class and Specialist Patient Schedule Booking Id is ${specialistPatientScheduleBookingId} and txnId is ${paymentTransactionId}`, //description 
           TTransactionFor.SpecialistPatientScheduleBooking, // referenceFor
           specialistPatientScheduleBookingId // referenceId
      );
+
+     // -------------------------------
+     // add 10% amount to admin wallet
+     // -------------------------------
+
 
      //---------------------------------
      // Lets send notification to specialist that patient has booked workout class
