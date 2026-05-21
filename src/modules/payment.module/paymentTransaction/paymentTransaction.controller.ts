@@ -82,10 +82,10 @@ export class PaymentTransactionController extends GenericController<
     const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
 
     const populateOptions: (string | {path: string, select: string}[]) = [
-      // {
-      //   path: 'personId',
-      //   select: 'name ' 
-      // },
+      {
+        path: 'userId',
+        select: 'name ' 
+      },
       // 'personId'
       // {
       //   path: 'conversationId',
