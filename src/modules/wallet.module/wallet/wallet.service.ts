@@ -6,6 +6,8 @@ import { GenericService } from '../../_generic-module/generic.services';
 import { WalletTransactionHistory } from '../walletTransactionHistory/walletTransactionHistory.model';
 import { TWalletTransactionHistory, TWalletTransactionStatus } from '../walletTransactionHistory/walletTransactionHistory.constant';
 import { TCurrency } from '../../../enums/payment';
+import { TWalletStatus } from './wallet.constant';
+import { User } from '../../user/user.model';
 
 
 export class WalletService extends GenericService<
@@ -28,19 +30,36 @@ export class WalletService extends GenericService<
     referenceId : string,
   ) : Promise<void> {
   
-    const wallet : IWallet = await Wallet.findOne({ userId });
+    let wallet : IWallet | null = await Wallet.findOne({ userId });
+    
+    if (!wallet) {
+        //---------------------------------
+        // If wallet doesn't exist, create one
+        //---------------------------------
+        wallet = await Wallet.create({
+            userId,
+            amount: 0,
+            currency: TCurrency.usd,
+            status: TWalletStatus.active
+        });
+        
+        // Also update the User model with this walletId
+        await User.findByIdAndUpdate(userId, { walletId: wallet._id });
+        
+        console.log(`✅ Created new wallet for user ${userId}`);
+    }
+
     const balanceBeforeTransaction = wallet.amount;
     const balanceAfterTransaction = wallet.amount + amount;
 
-    const updatedWallet : IWallet = await Wallet.findOneAndUpdate(
+    console.log("wallet -> ", wallet ," ::", "balanceBeforeTransaction -> ", balanceBeforeTransaction, " :: ", "balanceAfterTransaction -> ", balanceAfterTransaction);
+
+    const updatedWallet : IWallet | null = await Wallet.findOneAndUpdate(
         { userId },
         { $inc: { amount } },
         { new: true }
     );
 
-    //---------------------------------
-    // TODO : MUST .. need to handle this usecase that specialist has no wallet
-    //---------------------------------
     if (!updatedWallet) {
         // Handle missing wallet
         throw new Error(`For Specialist Id ${userId} wallet not found so ${amount} can not be added to wallet.`);
@@ -61,5 +80,7 @@ export class WalletService extends GenericService<
       referenceFor,
       referenceId,
     })
+
+    console.log("walletTransactionHistory : ",walletTransactionHistory)
   }
 }
