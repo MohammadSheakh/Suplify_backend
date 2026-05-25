@@ -12,6 +12,7 @@ import multer from "multer";
 import { setQueryOptions } from '../../../middlewares/setQueryOptions';
 import { defaultExcludes } from '../../../constants/queryOptions';
 import { defaultExcludes } from '../../../constants/queryOptions';
+import { imageUploadPipelineForUpdateTrainingSession } from './trainingSession.middleware';
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
@@ -79,6 +80,13 @@ router.route('/update/:id').put(
   // validateRequest(validation.createHelpMessageValidationSchema),
   controller.updateById
 );
+
+router.route('/:id').put( // update/
+  auth(TRole.specialist),
+  ...imageUploadPipelineForUpdateTrainingSession, //🥇
+  controller.updateById
+);
+
 
 //[🚧][🧑‍💻✅][🧪] // 🆗
 router.route('/').get(
