@@ -24,9 +24,11 @@ export const createTrainingSessionValidationSchema = z.object({
     duration: z.string({
       required_error: 'duration is required.',
       invalid_type_error: 'duration must be a string.',
-    }).refine(value => !isNaN(Number(value)), {
-      message: 'duration must be a valid number.',
-    }),
+    })
+    // .refine(value => !isNaN(Number(value)), {
+    //   message: 'duration must be a valid number.',
+    // })
+    ,
 
     durationUnit: z.enum([
       TDurationUnit.hours,
