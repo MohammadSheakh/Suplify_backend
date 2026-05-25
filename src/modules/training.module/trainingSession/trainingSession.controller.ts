@@ -168,6 +168,9 @@ export class TrainingSessionController extends GenericController<
     
     const id = req.params.id;
 
+    console.log("id : ", id);
+    console.log("req.body : ", req.body);
+
     const obj : ITrainingSession | null = req.existingDocument || await this.service.getById(id);
     if (!obj) {
       throw new ApiError(
@@ -175,6 +178,8 @@ export class TrainingSessionController extends GenericController<
         `Object with ID ${id} not found`
       );
     }
+
+    console.log("existing object : ", obj);
    
     // for update cases .. if image uploaded then we use that uploaded image url otherwise we use previous one
     if(req.uploadedFiles?.attachments.length > 0){
@@ -194,6 +199,8 @@ export class TrainingSessionController extends GenericController<
         `Object with ID ${id} not found`
       );
     }
+
+    console.log("updated object : ", updatedObject);
 
     //   return res.status(StatusCodes.OK).json(updatedObject);
     sendResponse(res, {
