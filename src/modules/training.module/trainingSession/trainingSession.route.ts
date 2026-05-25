@@ -9,6 +9,9 @@ import auth from '../../../middlewares/auth';
 import { TRole } from '../../../middlewares/roles';
 //@ts-ignore
 import multer from "multer";
+import { setQueryOptions } from '../../../middlewares/setQueryOptions';
+import { defaultExcludes } from '../../../constants/queryOptions';
+import { defaultExcludes } from '../../../constants/queryOptions';
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
@@ -55,6 +58,20 @@ router.route('/paginate/for-patient').get(
 router.route('/:id').get(
   // auth('common'),
   controller.getById
+);
+
+router.route('/:id/v2').get(
+  auth(TRole.common),
+  setQueryOptions({
+    populate: [{
+      path: 'coverPhotos attachments trailerContents', 
+      select: 'attachment',
+      // populate: { path: 'profileId', select: 'gender location' }
+    }],
+    select: `${defaultExcludes}`
+    // // ${defaultExcludes}
+  }),
+  controller.getByIdV2
 );
 
 router.route('/update/:id').put(
