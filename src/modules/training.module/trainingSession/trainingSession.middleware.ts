@@ -21,7 +21,7 @@ export const imageUploadPipelineForUpdateTrainingSession = [
       name: 'attachments',
       folder: TFolderName.trainingProgram,
       required: false, // optional
-      allowedMimeTypes: ['image/jpeg', 'image/png', 'application/pdf'], // optional
+      allowedMimeTypes: ['image/jpeg', 'image/png', 'application/pdf', 'video/mp4', 'video/mov'], // optional
     },
     {
       name: 'trailerContents',
