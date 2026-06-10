@@ -18,6 +18,7 @@ import PaginationService from '../../../common/service/paginationService';
 
 //@ts-ignore
 import mongoose from 'mongoose';
+import ApiError from '../../../errors/ApiError';
 
 export class TrainingSessionController extends GenericController<
   typeof TrainingSession,
@@ -157,11 +158,57 @@ export class TrainingSessionController extends GenericController<
   });
 
 
-  
+  updateById = catchAsync(async (req: Request, res: Response) => {
+    if (!req.params.id) {
+      throw new ApiError(
+        StatusCodes.BAD_REQUEST,
+        `id is required for update ${this.modelName}`
+      );
+    }
+    
+    const id = req.params.id;
 
+    console.log("id : ", id);
+    console.log("req.body : ", req.body);
 
-  
+    const obj : ITrainingSession | null = req.existingDocument || await this.service.getById(id);
+    if (!obj) {
+      throw new ApiError(
+        StatusCodes.NOT_FOUND,
+        `Object with ID ${id} not found`
+      );
+    }
 
+    console.log("existing object : ", obj);
+   
+    // for update cases .. if image uploaded then we use that uploaded image url otherwise we use previous one
+    if(req.uploadedFiles?.attachments.length > 0){
+      req.body.attachments = req.uploadedFiles?.attachments;
+    }else{
+      req.body.attachments = obj.attachments;
+    }
+
+    // ✅ Use preprocessed uploaded file URLs //🥇🔁 this task we do in middleware level for create API not for update API
+    // req.body.attachments = req.uploadedFiles?.attachments || [];
+    // req.body.trailerContents = req.uploadedFiles?.trailerContents || [];
+
+    const updatedObject = await this.service.updateById(id, req.body);
+    if (!updatedObject) {
+      throw new ApiError(
+        StatusCodes.NOT_FOUND,
+        `Object with ID ${id} not found`
+      );
+    }
+
+    console.log("updated object : ", updatedObject);
+
+    //   return res.status(StatusCodes.OK).json(updatedObject);
+    sendResponse(res, {
+      code: StatusCodes.OK,
+      data: updatedObject,
+      message: `${this.modelName} updated successfully`,
+    });
+  });
 
   // add more methods here if needed or override the existing ones 
 }

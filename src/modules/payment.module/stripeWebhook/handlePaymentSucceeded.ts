@@ -62,6 +62,12 @@ export const handlePaymentSucceeded = async (session: Stripe.Checkout.Session) =
                return
           }
 
+          // ✅ Skip subscription checkouts — handled by invoice.payment_succeeded
+          if (session.mode === 'subscription') {
+               console.log('⏭️ Skipping subscription checkout.session.completed — handled by invoice webhook');
+               return;
+          }
+
           let _user:IUser = JSON.parse(user);
 
           const thisCustomer = await User.findOne({ _id: _user.userId });
@@ -124,13 +130,13 @@ export const handlePaymentSucceeded = async (session: Stripe.Checkout.Session) =
           let updatedObjectOfReferenceFor: any;
           if (referenceFor === TTransactionFor.Order) {
                updatedObjectOfReferenceFor = 
-               updateOrderInformation(
-                    _user,
-                    referenceId, // orderId
-                    newPayment._id, 
-                    referenceId2, // cartId
-                    referenceFor2 // Cart
-               );
+                    updateOrderInformation(
+                         _user,
+                         referenceId, // orderId
+                         newPayment._id, 
+                         referenceId2, // cartId
+                         referenceFor2 // Cart
+                    );
           } 
           // else if (referenceFor === TTransactionFor.SubscriptionPlan) {
           //       updatedObjectOfReferenceFor = updateUserSubscription(referenceId, newPayment._id);
@@ -185,12 +191,16 @@ async function updateOrderInformation(user: IUser,
 
      // isBookingExists = await Order.findOne({ _id: orderId });
 
-     const updatedOrder:IOrder = await Order.findByIdAndUpdate(orderId, { 
+     const updatedOrder:IOrder | null = await Order.findByIdAndUpdate(orderId, { 
           /* update fields */ 
           paymentTransactionId : paymentTransactionId,
           paymentStatus: PaymentStatus.paid,
           status : OrderStatus.confirmed
      }, { new: true });
+
+     if (!updatedOrder) {
+          throw new Error(`Order not found for id: ${orderId}`);
+     }
 
      //---------------------------------
      // Lets Delete Cart after order creation
@@ -231,12 +241,16 @@ async function updateLabTestBooking(
 
      // isBookingExists = await LabTestBooking.findOne({ _id: labTestId });
 
-     const updatedLabTestBooking:ILabTestBooking = await LabTestBooking.findByIdAndUpdate(labTestId, { 
+     const updatedLabTestBooking:ILabTestBooking | null = await LabTestBooking.findByIdAndUpdate(labTestId, { 
           /* update fields */ 
           paymentTransactionId : paymentTransactionId,
           paymentStatus: PaymentStatus.paid,
           status : TLabTestBookingStatus.confirmed
      }, { new: true });
+
+     if (!updatedLabTestBooking) {
+          throw new Error(`LabTestBooking not found for id: ${labTestId}`);
+     }
 
 
      //---------------------------------
@@ -271,14 +285,18 @@ async function updateDoctorPatientScheduleBooking(
 ){
      // console.log("☑️HIT☑️ handlePaymentSucceed -> updateDoctorPatientScheduleBooking >>> doctorAppointmentScheduleId", doctorAppointmentScheduleId)
 
-     const updatedDoctorPatientScheduleBooking:IDoctorPatientScheduleBooking = await DoctorPatientScheduleBooking.findByIdAndUpdate(doctorPatientScheduleBookingId, { 
+     const updatedDoctorPatientScheduleBooking:IDoctorPatientScheduleBooking | null = await DoctorPatientScheduleBooking.findByIdAndUpdate(doctorPatientScheduleBookingId, { 
           /* update fields */ 
           paymentTransactionId : paymentTransactionId,
           paymentStatus: PaymentStatus.paid,
           status : TAppointmentStatus.scheduled
      }, { new: true });
 
-     const result:IDoctorAppointmentSchedule = await mongoose.model(doctorAppointmentScheduleIdReferenceFor).findByIdAndUpdate(
+     if (!updatedDoctorPatientScheduleBooking) {
+          throw new Error(`DoctorPatientScheduleBooking not found for id: ${doctorPatientScheduleBookingId}`);
+     }
+
+     const result:IDoctorAppointmentSchedule | null = await mongoose.model(doctorAppointmentScheduleIdReferenceFor).findByIdAndUpdate(
           doctorAppointmentScheduleId, 
           {
                /* update fields */
@@ -288,11 +306,15 @@ async function updateDoctorPatientScheduleBooking(
           { new: true }
      );
 
+     if (!result) {
+          throw new Error(`DoctorAppointmentSchedule not found for id: ${doctorAppointmentScheduleId}`);
+     }
+
      // -------------------------------
      // add amount to specialist wallet
      // -------------------------------
      await walletService.addAmountToWalletAndCreateTransactionHistory(
-          updatedDoctorPatientScheduleBooking.doctorId,
+          updatedDoctorPatientScheduleBooking.doctorId.toString(),
           updatedDoctorPatientScheduleBooking.price,
           paymentTransactionId, // for creating wallet transaction history
           `$${updatedDoctorPatientScheduleBooking.price} added to your wallet. Patient ${thisCustomer.name} booked a appointment and Doctor Patient Schedule Booking Id is ${doctorPatientScheduleBookingId} and txnId is ${paymentTransactionId}`, //description 
@@ -322,7 +344,7 @@ async function updateDoctorPatientScheduleBooking(
      //---------------------------------
      await enqueueWebNotification(
           `${result.scheduleName} Appointment Schedule of doctor ${updatedDoctorPatientScheduleBooking.doctorId} purchased by user ${thisCustomer.name}. appointmentBookingId ${updatedDoctorPatientScheduleBooking._id}`,
-          user._id, // senderId
+          thisCustomer._id, // senderId
           null, // receiverId
           TRole.admin, // receiverRole
           TNotificationType.workoutClassPurchase, // type
@@ -339,7 +361,7 @@ async function updatePurchaseTrainingProgram(
      paymentTransactionId: string,
      trainingProgramId: string
 ){
-     const updatedTrainingProgramPurchase: ITrainingProgramPurchase = await mongoose.model(TTransactionFor.TrainingProgramPurchase).findByIdAndUpdate(
+     const updatedTrainingProgramPurchase: ITrainingProgramPurchase | null = await mongoose.model(TTransactionFor.TrainingProgramPurchase).findByIdAndUpdate(
           trainingProgramPurchaseId, 
           {
                paymentTransactionId: paymentTransactionId,
@@ -349,17 +371,23 @@ async function updatePurchaseTrainingProgram(
           { new: true }
      );
 
+     if (!updatedTrainingProgramPurchase) {
+          throw new Error(`TrainingProgramPurchase not found for id: ${trainingProgramPurchaseId}`);
+     }
+
      // -------------------------------
-     // add amount to specialist wallet
+     // add 90%  amount to specialist wallet
      // -------------------------------
-     await walletService.addAmountToWalletAndCreateTransactionHistory(
-          updatedTrainingProgramPurchase.specialistId,
-          updatedTrainingProgramPurchase.price,
+     const res1 = await walletService.addAmountToWalletAndCreateTransactionHistory(
+          updatedTrainingProgramPurchase.specialistId.toString(),
+          updatedTrainingProgramPurchase.price * 0.9,
           paymentTransactionId, // for creating wallet transaction history
-          `$${updatedTrainingProgramPurchase.price} added to your wallet. Patient ${user.userName} purchased a training program and Training Program Purchase Id is ${trainingProgramPurchaseId} and txnId is ${paymentTransactionId}`, //description 
+          `$${updatedTrainingProgramPurchase.price * 0.9} added to your wallet. Patient ${user.userName} purchased a training program and Training Program Purchase Id is ${trainingProgramPurchaseId} and txnId is ${paymentTransactionId}`, //description 
           TTransactionFor.TrainingProgramPurchase, // referenceFor
           trainingProgramPurchaseId // referenceId
      );
+
+     console.log("res1 -> purchaseTP -> ", res1);
 
 
      // console.log("♻️updatedTrainingProgramPurchase from webhook 🪝 🪝  ", updatedTrainingProgramPurchase)
@@ -413,7 +441,7 @@ async function updateSpecialistPatientScheduleBooking(
 ){
      // console.log("☑️HIT☑️ handlePaymentSucceed -> updateSpecialistPatientScheduleBooking >>> specialistPatientScheduleBookingId", specialistPatientScheduleBookingId)
 
-     const updatedSpecialsitPatientWorkoutClassBooking:ISpecialistPatientScheduleBooking = await SpecialistPatientScheduleBooking.findByIdAndUpdate(specialistPatientScheduleBookingId, { 
+     const updatedSpecialsitPatientWorkoutClassBooking:ISpecialistPatientScheduleBooking | null = await SpecialistPatientScheduleBooking.findByIdAndUpdate(specialistPatientScheduleBookingId, { 
           /* update fields */ 
           paymentTransactionId : paymentTransactionId,
           paymentStatus: PaymentStatus.paid,
@@ -421,23 +449,34 @@ async function updateSpecialistPatientScheduleBooking(
           paymentMethod: PaymentMethod.online
      }, { new: true });
 
+     if (!updatedSpecialsitPatientWorkoutClassBooking) {
+          throw new Error(`SpecialistPatientScheduleBooking not found for id: ${specialistPatientScheduleBookingId}`);
+     }
 
-     const specialistWorkoutClassSchedule: ISpecialistWorkoutClassSchedule = await mongoose.model(specialistWorkoutClassScheduleIdReferenceFor).findById(
+
+     const specialistWorkoutClassSchedule: ISpecialistWorkoutClassSchedule | null = await mongoose.model(specialistWorkoutClassScheduleIdReferenceFor).findById(
           specialistWorkoutClassScheduleId
      );
 
+     if (!specialistWorkoutClassSchedule) {
+          throw new Error(`SpecialistWorkoutClassSchedule not found for id: ${specialistWorkoutClassScheduleId}`);
+     }
+
      // -------------------------------
-     // add amount to specialist wallet
+     // add 90% amount to specialist wallet
      // -------------------------------
-     await walletService.addAmountToWalletAndCreateTransactionHistory(
-          updatedSpecialsitPatientWorkoutClassBooking.specialistId,
-          updatedSpecialsitPatientWorkoutClassBooking.price,
+     const res1 = await walletService.addAmountToWalletAndCreateTransactionHistory(
+          updatedSpecialsitPatientWorkoutClassBooking.specialistId.toString(),
+          updatedSpecialsitPatientWorkoutClassBooking.price * 0.9,
           paymentTransactionId, // for creating wallet transaction history
-          `$${updatedSpecialsitPatientWorkoutClassBooking.price} added to your wallet. Patient ${user.name} booked a ${specialistWorkoutClassSchedule.sessionType} workout class and Specialist Patient Schedule Booking Id is ${specialistPatientScheduleBookingId} and txnId is ${paymentTransactionId}`, //description 
+          `$${updatedSpecialsitPatientWorkoutClassBooking.price * 0.9} added to your wallet. Patient ${user.name} booked a ${specialistWorkoutClassSchedule.sessionType} workout class and Specialist Patient Schedule Booking Id is ${specialistPatientScheduleBookingId} and txnId is ${paymentTransactionId}`, //description 
           TTransactionFor.SpecialistPatientScheduleBooking, // referenceFor
           specialistPatientScheduleBookingId // referenceId
      );
 
+     console.log("res1 wcb -> ", res1);
+
+     
      //---------------------------------
      // Lets send notification to specialist that patient has booked workout class
      //---------------------------------

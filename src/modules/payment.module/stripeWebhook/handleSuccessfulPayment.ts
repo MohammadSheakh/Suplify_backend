@@ -122,6 +122,17 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Invoice) => {
     // ✅ Access metadata from subscription (set in subscription_data.metadata during checkout)
     let metadata:IMetadataForFreeTrial = subscription.metadata as any;
 
+    // Find user by Stripe customer ID
+    const user:TUser = await User.findOne({ 
+      stripe_customer_id: subscription.customer 
+    });
+
+    if (!user){
+      console.error('User not found for customer:', subscription.customer);
+      return;
+    }
+
+
     // ✅ If metadata.referenceId is missing, try getting from UserSubscription in DB
     if (!metadata?.referenceId) {
       console.log('⚠️ Missing metadata in subscription object, attempting fallback from DB...');
@@ -130,7 +141,7 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Invoice) => {
           { stripe_subscription_id: subscriptionId },
           { userId: user?._id, status: UserSubscriptionStatusType.processing }
         ]
-      }).sort({ createdAt: -1 });
+      }).populate({ path: 'subscriptionPlanId', select: 'subscriptionType'}).sort({ createdAt: -1 });
 
       if (userSub) {
         // Populate metadata from UserSubscription record
@@ -138,7 +149,7 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Invoice) => {
           referenceId: userSub._id.toString(),
           userId: userSub.userId.toString(),
           referenceFor: TTransactionFor.UserSubscription,
-          subscriptionType: (userSub as any).subscriptionType || 'standard', // Fallback to standard
+          subscriptionType: (userSub as any).subscriptionPlanId.subscriptionType || 'standard', // Fallback to standard
           currency: (userSub as any).currency || 'usd',
           amount: (userSub as any).amount || '0'
         };
@@ -202,15 +213,7 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Invoice) => {
     // console.log("---- invoice.billing_reason handleSuccessfulPayment for  Subscription Related :: ", invoice.billing_reason ) 
     // console.log("---- invoiceInfo from handleSuccessfulPayment for  Subscription Related :: ", invoiceInfo ) 
 
-    // Find user by Stripe customer ID
-    const user:TUser = await User.findOne({ 
-      stripe_customer_id: subscription.customer 
-    });
-
-    if (!user){
-      console.error('User not found for customer:', subscription.customer);
-      return;
-    }
+    
 
     // ✅ Robust paymentIntent and transactionId resolution
     let resolvedPaymentIntent = invoice.payment_intent as string | undefined;
@@ -240,17 +243,81 @@ export const handleSuccessfulPayment = async (invoice: Stripe.Invoice) => {
     // ✅ Use proper Stripe dates instead of manual calculation
     // const dates = calculateSubscriptionDates(subscription, invoice);
    
-    
     /*──────────────────────────────────
     |  FIRST PAYMENT (subscription_create)
     └────────────────────────────────────*/
     if(invoice.billing_reason === 'subscription_create'){
+      
+      const isFreeTrialStart = invoice.amount_paid === 0;
+
+      if (isFreeTrialStart) {
+        console.log('🆓 Trial started — $0 invoice, skipping PaymentTransaction');
+        
+        // // ✅ Still update UserSubscription status to trialing
+        // await UserSubscription.findByIdAndUpdate(metadata.referenceId, {
+        //   $set: {
+        //     stripe_subscription_id: subscriptionId,
+        //     status: UserSubscriptionStatusType.trialing,  // ← not active yet
+        //     subscriptionStartDate: new Date(invoice.period_start * 1000),
+        //     currentPeriodStartDate: new Date(invoice.period_start * 1000),
+        //     expirationDate: new Date(invoice.period_end * 1000),
+        //     renewalDate: new Date(invoice.period_end * 1000),
+        //     isAutoRenewed: true,
+        //     cancelledAtPeriodEnd: false,
+        //   }
+        // });
+
+
+        console.log('🆓 Trial started — $0 invoice, skipping PaymentTransaction');
+
+        // ✅ Use subscription trial dates — NOT invoice.period_start/end
+        const trialStart = subscription.trial_start 
+          ? new Date(subscription.trial_start * 1000) 
+          : new Date();
+          
+        const trialEnd = subscription.trial_end 
+          ? new Date(subscription.trial_end * 1000) 
+          : (() => { 
+              const d = new Date(); 
+              d.setDate(d.getDate() + 7); 
+              return d; 
+            })();
+
+        console.log('🆓 Trial dates:', { trialStart, trialEnd });
+
+        await UserSubscription.findByIdAndUpdate(metadata.referenceId, {
+          $set: {
+            stripe_subscription_id: subscriptionId,
+            status: UserSubscriptionStatusType.trialing,
+            subscriptionStartDate: trialStart,
+            currentPeriodStartDate: trialStart,
+            expirationDate: trialEnd,                // ✅ +7 days
+            renewalDate: trialEnd,
+            isAutoRenewed: true,
+            cancelledAtPeriodEnd: false,
+          }
+        });
+
+        // Update user's subscriptionType and mark free trial as used
+        await User.findByIdAndUpdate(metadata.userId, {
+          $set: {
+            subscriptionType: metadata.subscriptionType,
+            hasUsedFreeTrial: true,
+          }
+        });
+
+        // ✅ Do NOT set hasUsedFreeTrial here — set after actual payment
+        return true;
+      }
+
+
       console.log("⚡ Processing first payment (subscription_create)", {
         userId: metadata.userId,
         referenceId: metadata.referenceId,
         subscriptionId,
         paymentIntent: resolvedPaymentIntent
       });
+
 
       // Idempotency check: verify if this payment was already processed
       const duplicateQuery: any[] = [];
