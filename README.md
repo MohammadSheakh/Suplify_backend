@@ -4,7 +4,8 @@ A robust, scalable, and modular backend system built with **Node.js**, **Express
 
 ![Architecture Flow](flow.png)
 ![Socket Redis Architecture](socket-redis.png)
-
+![High Level Design 01](high-level-des-01.png)
+![High Level Design 02](high-level-des-02.png)
 ---
 
 ## 🚀 Key Features

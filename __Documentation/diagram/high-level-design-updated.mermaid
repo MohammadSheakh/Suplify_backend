@@ -7,7 +7,7 @@ graph LR
 
     %% --- CLIENTS ---
     subgraph Clients ["Client Applications"]
-        APP["Mobile / Web App"]
+        APP["Web App"]
         AD_UI["Admin Dashboard"]
     end
 
@@ -62,12 +62,13 @@ graph LR
     SOCKET <--> CHAT
     
     %% Service to DB
-    AUTH & TRAIN & CLIN & STORE & APPT & WALLET & SUB & DOCS & TRACK & CHAT -->|Read/Write| DB
+    AUTH & TRAIN & CLIN & STORE & APPT & WALLET & SUB & DOCS & TRACK & CHAT -->|"Read/Write"| DB
     
     %% Redis Connections (Cache, Queue, PubSub)
-    CHAT <-->|Socket State/PubSub| REDIS
-    REST -.->|Queue Jobs| REDIS
-    REDIS <-->|Process Jobs| WORKER
+    CHAT <-->|"Socket State/PubSub"| REDIS
+    REST -.->|"Queue Jobs"| REDIS
+    STORE <-->|"Cache Queries (Products)"| REDIS
+    REDIS <-->|"Process Jobs"| WORKER
     
     %% Workers Processing Background Tasks
     WORKER -.->|Push Notifications| FCM
@@ -75,7 +76,7 @@ graph LR
     WORKER -.->|Schedule Updates| DB
 
     %% External Payments
-    WALLET & SUB <-->|Payments, Subscriptions & Payouts| STRIPE
+    WALLET & SUB <-->|"Payments, Subscriptions & Payouts"| STRIPE
 
     %% --- ANNOTATIONS ---
     subgraph Annotations ["Technical Notes & Architecture Logic"]
@@ -83,8 +84,10 @@ graph LR
         N1["<b>Real-time Chat:</b><br/>Socket.IO uses Redis Adapter.<br/>Redis Pub/Sub synchronizes state across multiple workers."]
         N2["<b>Background Jobs (BullMQ):</b><br/>Handles schedules, notifications, and async data updates (e.g., LastMessage)."]
         N3["<b>Payment Processing:</b><br/>Uses Stripe Connected Accounts to automatically split platform fees and credit wallets."]
+        N4["<b>Product Caching (Redis):</b><br/>Frequent e-commerce queries (Categories, Page 1 Products, Product Details) are cached for speed."]
     end
 
     CHAT -.-> N1
     WORKER -.-> N2
     WALLET -.-> N3
+    STORE -.-> N4
