@@ -1,77 +1,90 @@
-graph TB
-       2     %% --- ACTORS & FRONTEND ---
-       3     P((Patient))
-       4     D((Doctor))
-       5     S((Specialist))
-       6     AD((Admin))
-       7
-       8     subgraph Frontend ["Client Apps"]
-       9         PD[Patient App]
-      10         DD[Doctor App]
-      11         SD[Specialist App]
-      12         AD_UI[Admin App]
-      13     end
-      14
-      15     %% --- API LAYER ---
-      16     GW[AWS API Gateway]
-      17
-      18     %% --- CORE SERVICES ---
-      19     AUTH[Auth Service]
-      20     USER[User Service]
-      21     SUB[Subscription Service]
-      22     APPT[Appointment/Booking Service]
-      23     WALLET[Wallet & Payment Service]
-      24     STORE[Store Service]
-      25     CHAT[Chatting Service]
-      26     TRAIN[Training Program Service]
-      27     TRACK[Success Tracker Service]
-      28
-      29     %% --- INFRASTRUCTURE/QUEUES ---
-      30     KAFKA((Kafka Streaming))
-      31     BULLMQ((BullMQ Queue))
-      32     WS[WebSocket Server]
-      33     REDIS[(Redis Cache/State)]
-      34
-      35     %% --- DATA LAYER ---
-      36     DB[(MongoDB Cluster)]
-      37     S3[(S3 Object Storage)]
-      38
-      39     %% --- EXTERNAL ---
-      40     STRIPE[Stripe API]
-      41
-      42     %% --- CONNECTIONS ---
-      43     P --> PD
-      44     D --> DD
-      45     S --> SD
-      46     AD --> AD_UI
-      47
-      48     PD & DD & SD & AD_UI -->|HTTPS| GW
-      49
-      50     GW --> AUTH & USER & SUB & APPT & WALLET & STORE & CHAT & TRAIN &
-         TRACK
-      51
-      52     %% Data Interactions
-      53     AUTH & USER & SUB & APPT & WALLET & STORE & CHAT & TRAIN & TRACK
-         -->|Read/Write| DB
-      54     AUTH & CHAT & WALLET & APPT -->|State/Pub-Sub| REDIS
-      55     CHAT <-->|Real-time Events| KAFKA
-      56     APPT & TRAIN & CHAT -->|Background Jobs| BULLMQ
-      57
-      58     %% External/Misc
-      59     WALLET <-->|Payments| STRIPE
-      60     STORE & CHAT & TRAIN -->|Files| S3
-      61     CHAT <-->|Real-time Messaging| WS
-      62
-      63     %% --- ANNOTATIONS ---
-      64     subgraph Technical_Notes ["Technical Notes"]
-      65         N1["<b>Real-time Chat:</b> Kafka streams messages to consumers for
-         persistence and fan-out."]
-      66         N2["<b>Queuing:</b> BullMQ manages appointment expiry and
-         notification dispatch."]
-      67         N3["<b>Data:</b> MongoDB for primary persistence; Redis for socket
-         state and caching."]
-      68     end
-      69
-      70     KAFKA -.-> N1
-      71     BULLMQ -.-> N2
-      72     REDIS -.-> N3
+graph LR
+    %% --- ACTORS ---
+    P((Patient))
+    D((Doctor))
+    S((Specialist))
+    AD((Admin))
+
+    %% --- CLIENTS ---
+    subgraph Clients ["Client Applications"]
+        APP["Mobile / Web App"]
+        AD_UI["Admin Dashboard"]
+    end
+
+    %% --- API LAYER ---
+    subgraph Gateway ["API Gateway & Transport"]
+        REST["REST API (Express.js)"]
+        SOCKET["Socket.IO Server"]
+    end
+
+    %% --- CORE SERVICES ---
+    subgraph Services ["Core Business Modules"]
+        AUTH["Auth & User Service"]
+        TRAIN["Training & Workout Service"]
+        CLIN["Clinical & Protocol Service"]
+        STORE["Store & Order Service"]
+        APPT["Appointment & Scheduling Service"]
+        WALLET["Wallet & Payment Service"]
+        SUB["Subscription Service"]
+        CHAT["Chatting & Communication Service"]
+        DOCS["Client Documents & Attachments Service"]
+        TRACK["Success Tracker Service"]
+    end
+    
+    %% --- BACKGROUND WORKERS ---
+    subgraph BackgroundJob ["Background Process"]
+        WORKER["BullMQ Workers"]
+    end
+
+    %% --- DATA LAYER ---
+    subgraph DataLayer ["Data & Storage"]
+        DB[(MongoDB)]
+        REDIS[(Redis Cache / PubSub)]
+    end
+
+    %% --- EXTERNAL INTEGRATIONS ---
+    subgraph External ["External Services"]
+        STRIPE["Stripe API"]
+        FCM["Firebase Cloud Messaging"]
+        MAIL["Email Provider"]
+    end
+
+    %% --- CONNECTIONS ---
+    P --> APP
+    D --> APP
+    S --> APP
+    AD --> AD_UI
+
+    APP & AD_UI -->|HTTPS| REST
+    APP <-->|WebSocket| SOCKET
+
+    REST --> AUTH & TRAIN & CLIN & STORE & APPT & WALLET & SUB & DOCS & TRACK
+    SOCKET <--> CHAT
+    
+    %% Service to DB
+    AUTH & TRAIN & CLIN & STORE & APPT & WALLET & SUB & DOCS & TRACK & CHAT -->|Read/Write| DB
+    
+    %% Redis Connections (Cache, Queue, PubSub)
+    CHAT <-->|Socket State/PubSub| REDIS
+    REST -.->|Queue Jobs| REDIS
+    REDIS <-->|Process Jobs| WORKER
+    
+    %% Workers Processing Background Tasks
+    WORKER -.->|Push Notifications| FCM
+    WORKER -.->|Send Emails| MAIL
+    WORKER -.->|Schedule Updates| DB
+
+    %% External Payments
+    WALLET & SUB <-->|Payments, Subscriptions & Payouts| STRIPE
+
+    %% --- ANNOTATIONS ---
+    subgraph Annotations ["Technical Notes & Architecture Logic"]
+        direction TB
+        N1["<b>Real-time Chat:</b><br/>Socket.IO uses Redis Adapter.<br/>Redis Pub/Sub synchronizes state across multiple workers."]
+        N2["<b>Background Jobs (BullMQ):</b><br/>Handles schedules, notifications, and async data updates (e.g., LastMessage)."]
+        N3["<b>Payment Processing:</b><br/>Uses Stripe Connected Accounts to automatically split platform fees and credit wallets."]
+    end
+
+    CHAT -.-> N1
+    WORKER -.-> N2
+    WALLET -.-> N3
