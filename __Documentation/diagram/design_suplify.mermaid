@@ -1,0 +1,69 @@
+graph LR
+    %% --- ACTORS & FRONTEND ---
+    P((Patient))
+    D((Doctor))
+    S((Specialist))
+    AD((Admin))
+
+    LP[Landing Page]
+    PD[Patient Dashboard]
+    DD[Doctor Dashboard]
+    SD[Specialist Dashboard]
+    AD_UI[Admin Dashboard]
+
+    %% --- API LAYER ---
+    GW[AWS API Gateway]
+
+    %% --- CORE SERVICES ---
+    AUTH[Auth & User Service]
+    SUB[Subscription Service]
+    APPT[Appointment Service]
+    CLIN[Clinical Service]
+    WALLET[Wallet & Payment Service]
+    STORE[Store Service]
+    COMM[Communication Service]
+
+    %% --- DATA LAYER ---
+    DB[(Primary Database)]
+    CACHE[(Redis Cache)]
+    S3[(S3 Storage)]
+
+    %% --- EXTERNAL ---
+    STRIPE[Stripe API]
+    WS[WebSocket Server]
+
+    %% --- CONNECTIONS ---
+    P --> LP & PD
+    D --> DD
+    S --> SD
+    AD --> AD_UI
+
+    LP & PD & DD & SD & AD_UI -->|HTTPS| GW
+
+    GW --> AUTH
+    GW --> SUB
+    GW --> APPT
+    GW --> CLIN
+    GW --> WALLET
+    GW --> STORE
+    GW --> COMM
+
+    AUTH & SUB & APPT & CLIN & WALLET & STORE -->|Read/Write| DB
+    AUTH & SUB -->|Session/Cache| CACHE
+    
+    WALLET <-->|Payments/Payouts| STRIPE
+    APPT & CLIN & AUTH -->|Documents/Images| S3
+    COMM <-->|Real-time Chat| WS
+
+    %% --- ANNOTATIONS (Mimicking the green text in your image) ---
+    
+    subgraph Annotations ["Technical Notes & Logic"]
+        direction TB
+        N1["<b>Subscription Middleware:</b><br/>Intercepts /doctors/:id/profile.<br/>If plan='none' -> 403 Forbidden.<br/>If plan='standard' -> Return Data."]
+        N2["<b>Wallet Logic:</b><br/>Stripe Webhook -> Credit Admin.<br/>Calculate Platform Fee.<br/>Credit Remainder to User Wallet."]
+        N3["<b>Document Security:</b><br/>Doctor licenses stored in S3.<br/>Served via Pre-signed URLs<br/>(expire in 15 mins)."]
+    end
+
+    SUB -.-> N1
+    WALLET -.-> N2
+    AUTH -.-> N3
